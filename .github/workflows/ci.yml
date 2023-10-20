@@ -1,4 +1,4 @@
-name: test
+name: ci
 
 on: workflow_dispatch
 
@@ -32,3 +32,17 @@ jobs:
         run: |
           forge test -vvv
         id: test
+
+      - name: Run Forge coverage
+        run: |
+          forge coverage --report summary --report lcov
+
+      - name: Filter coverage files
+        run: |
+          sudo apt update && sudo apt install -y lcov
+          lcov --remove lcov.info 'src/interface/*' 'test/*' 'script/*' --output-file lcov.info --rc lcov_branch_coverage=1
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
