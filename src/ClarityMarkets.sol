@@ -109,8 +109,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
         ///////// Effects
 
         // Generate the optionTokenId
-        uint248 optionHash = uint248(123); // TEMP
-        _optionTokenId = optionHash << 2 ** 8;
+        uint248 optionHash = uint248(
+            uint256(
+                keccak256(
+                    abi.encodePacked(baseAsset, baseAmount, quoteAsset, quoteAmount, exerciseWindows)
+                )
+            )
+        );
+        _optionTokenId = optionHash << 8;
 
         // Mint the longs and shorts
         _mint(msg.sender, _optionTokenId, optionAmount);

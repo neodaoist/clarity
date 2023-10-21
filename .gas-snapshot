@@ -1,1 +1,3 @@
-WriteTest:test_writeCall() (gas: 218499)
+WriteTest:test_writeCall() (gas: 218968)
+WriteTest:test_writeCall_many() (gas: 784429)
+WriteTest:test_writeCall_zero() (gas: 71990)

@@ -90,7 +90,7 @@ abstract contract BaseClarityMarketsTest is Test {
             uint32 earliestExercise = uint32(DAWN + (1 seconds * i));
             uint32 expiry = uint32(DAWN + (7 days * i));
 
-            americanExWeeklies[i - 1] = (earliestExercise << 2 ** 32) + expiry;
+            americanExWeeklies[i - 1] = (earliestExercise << 32) + expiry;
         }
     }
 
