@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "./interface/IOptionMarkets.sol";
-import "./interface/IClarityCallback.sol";
-import "./interface/IERC6909Extended.sol";
+import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
+import {IClarityCallback} from "./interface/IClarityCallback.sol";
+import {IERC6909Extended} from "./interface/IERC6909Extended.sol";
+import {IERC20Minimal} from "./interface/external/IERC20Minimal.sol";
 
 import "./util/LibOptionToken.sol";
 import "./util/LibOptionState.sol";
 import "./util/LibPosition.sol";
 import "solmate/utils/SafeCastLib.sol";
 
+import {ERC20} from "solmate/tokens/ERC20.sol";
 import {ERC6909} from "solmate/tokens/ERC6909.sol";
+import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 /// @title clarity.markets
 ///
@@ -36,7 +39,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     ///////// Private State
 
-    mapping(uint256 => IOptionState.OptionState) private optionStates;
+    mapping(uint256 => OptionState) private optionStates;
 
     mapping(address => uint256) private assetLiabilities;
 
@@ -71,17 +74,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     function openInterest(uint256 _optionTokenId) external view returns (uint80 optionAmount) {}
 
-    function writeableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (uint80 __writeableAmount)
-    {}
+    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 __writeableAmount) {}
 
-    function exercisableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (uint80 assignableAmount)
-    {}
+    function exercisableAmount(uint256 _optionTokenId) external view returns (uint80 assignableAmount) {}
 
     function writerNettableAmount(uint256 _optionTokenId)
         external
@@ -104,7 +99,35 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
         uint56 quoteAmount,
         uint40 exerciseWindows,
         uint80 optionAmount
-    ) external returns (uint256 _optionTokenId) {}
+    ) external returns (uint256 _optionTokenId) {
+        ///////// Function Requirements
+
+        // TODO add ERC20 type cast and remove/combine IERC20Minimal
+        // TODO check that assets are valid ERC20s
+        // TODO check for approvals
+
+        ///////// Effects
+
+        // Generate the optionTokenId
+        uint248 optionHash = uint248(123); // TEMP
+        _optionTokenId = optionHash << 2 ** 8;
+
+        // Mint the longs and shorts
+        _mint(msg.sender, _optionTokenId, optionAmount);
+        _mint(msg.sender, _optionTokenId + 1, optionAmount);
+
+        _incrementAssetLiability(baseAsset, baseAmount * optionAmount);
+
+        ///////// Interactions
+
+        // Transfer in the write asset
+        SafeTransferLib.safeTransferFrom(
+            ERC20(baseAsset), msg.sender, address(this), baseAmount * optionAmount
+        );
+
+        ///////// Protocol Invariant
+        _verifyAfter(baseAsset, quoteAsset);
+    }
 
     function writePut(
         address baseAsset,
@@ -117,9 +140,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     function write(uint256 _optionTokenId, uint80 optionsAmount) external override {}
 
-    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts)
-        external
-    {}
+    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {}
 
     function exercise(uint256 _optionTokenId, uint80 optionsAmount) external override {}
 
@@ -153,23 +174,30 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     function clarityCallback(Callback calldata _callback) external {}
 
+    ///////// FREI-PI
+
+    function _incrementAssetLiability(address asset, uint256 amount) internal {
+        assetLiabilities[asset] += amount;
+    }
+
+    function _decrementAssetLiability(address asset, uint256 amount) internal {
+        assetLiabilities[asset] -= amount;
+    }
+
+    function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
+        assert(IERC20Minimal(writeAsset).balanceOf(address(this)) >= assetLiabilities[writeAsset]);
+        assert(IERC20Minimal(exerciseAsset).balanceOf(address(this)) >= assetLiabilities[exerciseAsset]);
+    }
+
     /////////
 
     function _assignShorts(uint256 _optionTokenId, uint80 amountToAssign) private {}
 
     /////////
 
-    function _writeableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint80 __writeableAmount)
-    {}
+    function _writeableAmount(uint256 _optionTokenId) private view returns (uint80 __writeableAmount) {}
 
-    function _exercisableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint80 assignableAmount)
-    {}
+    function _exercisableAmount(uint256 _optionTokenId) private view returns (uint80 assignableAmount) {}
 
     function _writerNettableAmount(uint256 _optionTokenId)
         private
