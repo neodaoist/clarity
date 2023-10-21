@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
-import {IERC6909Extended} from "./interface/IERC6909Extended.sol";
+import {IERC6909MetadataURI} from "./interface/external/IERC6909MetadataURI.sol";
 import {IERC20Minimal} from "./interface/external/IERC20Minimal.sol";
 
 import "./util/LibOptionToken.sol";
@@ -11,8 +11,8 @@ import "./util/LibOptionState.sol";
 import "./util/LibPosition.sol";
 import "solmate/utils/SafeCastLib.sol";
 
-import {ERC20} from "solmate/tokens/ERC20.sol";
 import {ERC6909} from "solmate/tokens/ERC6909.sol";
+import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 /// @title clarity.markets
@@ -25,7 +25,7 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 /// transfer, and settlement of options and futures on the Ethereum blockchain. The protocol
 /// is open source, open state, and open access. It has zero fees, zero oracles, and zero
 /// governance. It is designed to be secure, composable, immutable, ergonomic, and gas minimal.
-contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, ERC6909 {
+contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
     /////////
 
     using LibOptionToken for Option;
@@ -43,22 +43,86 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     mapping(address => uint256) private assetLiabilities;
 
-    ///////// Private Constant/Immutable State
+    ///////// Private Constant/Immutable
 
     uint8 private constant OPTION_CONTRACT_SCALAR = 6;
 
     ///////// Option Token Views
 
     function optionTokenId(
-        address writeAsset,
-        uint56 writeAmount,
-        bool isCall,
-        address exerciseAsset,
-        uint56 exerciseAmount,
-        uint40 exerciseWindows
-    ) external pure returns (uint256 _optionTokenId) {}
+        address baseAsset,
+        address quoteAsset,
+        uint40 exerciseWindows,
+        uint256 strikePrice,
+        bool isCall
+    ) external view returns (uint256 _optionTokenId) {
+        // Hash the option
+        uint248 optionHash = LibOptionToken.hashOption(
+            baseAsset, quoteAsset, exerciseWindows, strikePrice, isCall ? OptionType.CALL : OptionType.PUT
+        );
 
-    function option(uint256 _optionTokenId) external pure returns (Option memory _option) {}
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        address writeAsset = optionStored.writeAsset;
+
+        // Check that the option has been created
+        if (writeAsset == address(0)) {
+            // TODO revert
+        }
+
+        _optionTokenId = optionHash << 8;
+    }
+
+    // struct OptionStorage {
+    //     address writeAsset;
+    //     uint56 writeAmount;
+    //     bool isCall;
+    //     uint32 assignmentSeed;
+    //     address exerciseAsset;
+    //     uint56 exerciseAmount;
+    //     uint40 exerciseWindows;
+    // }
+
+    // struct Option {
+    //     address baseAsset;
+    //     address quoteAsset;
+    //     ExerciseWindow[] exerciseWindows;
+    //     uint56 strikePrice;
+    //     OptionType optionType;
+    //     ExerciseStyle exerciseStyle;
+    // }
+
+    function option(uint256 _optionTokenId) external view returns (Option memory _option) {
+        // Check that it is a Long, Short, or Assigned Short token
+        // TODO
+
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        address writeAsset = optionStored.writeAsset;
+
+        // Check that the option has been created
+        if (writeAsset == address(0)) {
+            // TODO revert
+        }
+
+        // Build the user-friendly Option struct
+        if (optionStored.isCall) {
+            _option.baseAsset = writeAsset;
+            _option.quoteAsset = optionStored.exerciseAsset;
+            _option.strikePrice = (
+                optionStored.exerciseAmount * (10 ** (optionStored.exerciseDecimals - OPTION_CONTRACT_SCALAR))
+            );
+            _option.optionType = OptionType.CALL;
+        } else {
+            _option.baseAsset = optionStored.exerciseAsset;
+            _option.quoteAsset = writeAsset;
+            _option.strikePrice =
+                (optionStored.writeAmount * (10 ** (optionStored.writeDecimals - OPTION_CONTRACT_SCALAR)));
+            _option.optionType = OptionType.CALL;
+        }
+
+        // TODO add ExerciseWindows and ExerciseStyle
+    }
 
     ///////// Position Views
 
@@ -86,48 +150,73 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     function writerRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 redeemableAmount) {}
 
+    ///////// ERC6909MetadataModified
+
+    /// @notice The name for each id
+    mapping(uint256 id => string name) public names;
+
+    /// @notice The symbol for each id
+    mapping(uint256 id => string symbol) public symbols;
+
+    /// @notice The number of decimals for each id
+    // mapping(uint256 id => uint8 amount) public decimals;
+
+    function decimals(uint256 /*id*/ ) public pure returns (uint8) {
+        return OPTION_CONTRACT_SCALAR;
+    }
+
+    ///////// ERC6909MetadataURI
+
+    /// @dev Thrown when the id does not exist
+    /// @param id The id of the token
+    error InvalidId(uint256 id);
+
+    /// @notice The URI for each id
+    /// @return The URI of the token
+    function tokenURI(uint256) public pure returns (string memory) {
+        return "setec astronomy";
+    }
+
     ///////// Option Actions
 
     function writeCall(
         address baseAsset,
         address quoteAsset,
         uint40 exerciseWindows,
-        uint256 strike,
+        uint256 strikePrice,
         uint80 optionAmount
     ) external returns (uint256 _optionTokenId) {
         ///////// Function Requirements
 
         // TODO add ERC20 type cast and remove/combine IERC20Minimal
         // TODO check that assets are valid ERC20s, including decimals >= 6
-        // TODO check that strike is not too large
+        // TODO check that strikePrice is not too large
         // TODO check for approvals
 
         ///////// Effects
 
-        // Calculate the write and exercise amounts
-        uint56 writeAmount =
-            (10 ** (IERC20Minimal(baseAsset).decimals() - OPTION_CONTRACT_SCALAR)).safeCastTo56();
-        uint56 exerciseAmount =
-            (strike / (10 ** (IERC20Minimal(quoteAsset).decimals() - OPTION_CONTRACT_SCALAR))).safeCastTo56();
+        // Calculate the write and exercise amounts // TODO resolve danger of external calls
+        uint8 writeDecimals = IERC20Minimal(baseAsset).decimals();
+        uint8 exerciseDecimals = IERC20Minimal(quoteAsset).decimals();
+        uint48 writeAmount = (10 ** (writeDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo48();
+        uint48 exerciseAmount =
+            (strikePrice / (10 ** (exerciseDecimals - OPTION_CONTRACT_SCALAR))).safeCastTo48();
 
         // Generate the optionTokenId
-        uint248 optionHash = uint248(
-            uint256(
-                keccak256(
-                    abi.encodePacked(baseAsset, writeAmount, quoteAsset, exerciseAmount, exerciseWindows)
-                )
-            )
-        );
+        uint248 optionHash =
+            LibOptionToken.hashOption(baseAsset, quoteAsset, exerciseWindows, strikePrice, OptionType.CALL);
         _optionTokenId = optionHash << 8;
 
         // Store the option information
         optionStorage[_optionTokenId] = OptionStorage({
             writeAsset: baseAsset,
             writeAmount: writeAmount,
+            writeDecimals: writeDecimals,
             isCall: true,
             assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
             exerciseAsset: quoteAsset,
             exerciseAmount: exerciseAmount,
+            exerciseDecimals: exerciseDecimals,
             exerciseWindows: exerciseWindows
         });
 
@@ -159,7 +248,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
         address baseAsset,
         address quoteAsset,
         uint40 exerciseWindows,
-        uint256 strike,
+        uint256 strikePrice,
         uint80 optionAmount
     ) external returns (uint256 _optionTokenId) {}
 
@@ -184,16 +273,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
     /////////
 
     // TODO add skim() as a Pool action, maybe not an Option action
-
-    /////////
-
-    // TODO add Metadata extension:
-    // name()
-    // symbol()
-    // decimals()
-
-    // TODO add Metadata URI extension:
-    // tokenURI()
 
     /////////
 

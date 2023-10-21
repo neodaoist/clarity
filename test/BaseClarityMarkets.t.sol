@@ -5,7 +5,7 @@ import {Test, console2} from "forge-std/Test.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {MockERC20} from "./util/MockERC20.sol";
 
-import {ClarityMarkets} from "../src/ClarityMarkets.sol";
+import "../src/ClarityMarkets.sol";
 
 abstract contract BaseClarityMarketsTest is Test {
     /////////
@@ -94,14 +94,54 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function scaleAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
-        return amount * 10 ** token.decimals();
-    }
+    ///////// Actor Helpers
 
     function makeAddress(string memory name) internal returns (address) {
         address addr = address(uint160(uint256(keccak256(abi.encodePacked(name)))));
         vm.label(addr, name);
 
         return addr;
+    }
+
+    ///////// Asset Helpers
+
+    function scaleAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
+        return amount * 10 ** token.decimals();
+    }
+
+    ///////// Assertion Helpers
+
+    function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b) internal {
+        if (a != b) {
+            emit log("Error: a == b not satisfied [OptionType]");
+            emit log_named_uint("      Left", uint8(a));
+            emit log_named_uint("     Right", uint8(b));
+            fail();
+        }
+    }
+
+    function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b, string memory err) internal {
+        if (a != b) {
+            emit log_named_string("Error", err);
+            assertEq(a, b);
+        }
+    }
+
+    function assertEq(IOptionToken.ExerciseStyle a, IOptionToken.ExerciseStyle b) internal {
+        if (a != b) {
+            emit log("Error: a == b not satisfied [ExerciseStyle]");
+            emit log_named_uint("      Left", uint8(a));
+            emit log_named_uint("     Right", uint8(b));
+            fail();
+        }
+    }
+
+    function assertEq(IOptionToken.ExerciseStyle a, IOptionToken.ExerciseStyle b, string memory err)
+        internal
+    {
+        if (a != b) {
+            emit log_named_string("Error", err);
+            assertEq(a, b);
+        }
     }
 }

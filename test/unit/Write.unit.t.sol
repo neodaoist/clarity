@@ -16,6 +16,16 @@ contract WriteTest is BaseClarityMarketsTest {
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
         vm.stopPrank();
 
+        // check option exists
+        IOptionToken.Option memory option = clarity.option(optionTokenId);
+        assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
+        assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
+        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
+        assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
+
+        // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1e6, "long balance");
         assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1e6, "short balance");
         assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
@@ -31,7 +41,14 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
 
-        // TODO assert that the Option exists
+        // check option exists
+        IOptionToken.Option memory option = clarity.option(optionTokenId);
+        assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
+        assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
+        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
+        assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
 
         // no change
         assertEq(clarity.balanceOf(writer, optionTokenId), 0, "long balance");
@@ -62,6 +79,16 @@ contract WriteTest is BaseClarityMarketsTest {
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.0275e6);
         vm.stopPrank();
 
+        // check option exists
+        IOptionToken.Option memory option = clarity.option(oti1);
+        assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
+        assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
+        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
+        assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
+
+        // check balances
         assertEq(clarity.balanceOf(writer, oti1), 0.0275e6, "long balance 1");
         assertEq(clarity.balanceOf(writer, oti1 + 1), 0.0275e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti1 + 2), 0, "assigned balance");
@@ -76,6 +103,16 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 oti2 =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6);
 
+        // check option exists
+        option = clarity.option(oti2);
+        assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
+        assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
+        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(option.strikePrice, 1750e18, "option stored strikePrice");
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
+        assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
+
+        // check balances
         assertEq(clarity.balanceOf(writer, oti2), 17e6, "long balance 2");
         assertEq(clarity.balanceOf(writer, oti2 + 1), 17e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti2 + 2), 0, "assigned balance");
@@ -90,6 +127,16 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 oti3 =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[1], 1700e18, 1e6);
 
+        // check option exists
+        option = clarity.option(oti3);
+        assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
+        assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
+        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
+        assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
+
+        // check balances
         assertEq(clarity.balanceOf(writer, oti3), 1e6, "long balance 3");
         assertEq(clarity.balanceOf(writer, oti3 + 1), 1e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti3 + 2), 0, "assigned balance");
@@ -105,6 +152,16 @@ contract WriteTest is BaseClarityMarketsTest {
             clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
         vm.stopPrank();
 
+        // check option exists
+        option = clarity.option(oti4);
+        assertEq(option.baseAsset, address(WBTCLIKE), "option stored baseAsset");
+        assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
+        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(option.strikePrice, 20_000e18, "option stored strikePrice");
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
+        assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
+
+        // check balances
         assertEq(clarity.balanceOf(writer, oti4), 10e6, "long balance 4");
         assertEq(clarity.balanceOf(writer, oti4 + 1), 10e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti4 + 2), 0, "assigned balance");
@@ -116,8 +173,18 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.prank(writer);
         uint256 oti5 =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1800e6, 1e6);
+            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1800e6, 1e6);
 
+        // check option exists
+        option = clarity.option(oti5);
+        assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
+        assertEq(option.quoteAsset, address(USDCLIKE), "option stored quoteAsset");
+        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(option.strikePrice, 1800e6, "option stored strikePrice");
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
+        assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
+
+        // check balances
         assertEq(clarity.balanceOf(writer, oti5), 1e6, "long balance 5");
         assertEq(clarity.balanceOf(writer, oti5 + 1), 1e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti5 + 2), 0, "assigned balance");
