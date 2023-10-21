@@ -10,7 +10,7 @@ import "./util/LibOptionState.sol";
 import "./util/LibPosition.sol";
 import "solmate/utils/SafeCastLib.sol";
 
-import "solmate/tokens/ERC6909.sol";
+import {ERC6909} from "solmate/tokens/ERC6909.sol";
 
 /// @title clarity.markets
 ///
@@ -55,21 +55,45 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     ///////// Position Views
 
-    function position(uint256 _optionTokenId) external view returns (Position memory _position, int160 magnitude) {}
+    function position(uint256 _optionTokenId)
+        external
+        view
+        returns (Position memory _position, int160 magnitude)
+    {}
 
-    function positionTokenType(uint256 tokenId) external view returns (PositionTokenType _positionTokenType) {}
+    function positionTokenType(uint256 tokenId)
+        external
+        view
+        returns (PositionTokenType _positionTokenType)
+    {}
 
     ///////// Option State Views
 
     function openInterest(uint256 _optionTokenId) external view returns (uint80 optionAmount) {}
 
-    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 __writeableAmount) {}
+    function writeableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint80 __writeableAmount)
+    {}
 
-    function exercisableAmount(uint256 _optionTokenId) external view returns (uint80 assignableAmount) {}
+    function exercisableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint80 assignableAmount)
+    {}
 
-    function writerNettableAmount(uint256 _optionTokenId) external view returns (uint80 nettableAmount) {}
+    function writerNettableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint80 nettableAmount)
+    {}
 
-    function writerRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 redeemableAmount) {}
+    function writerRedeemableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint80 redeemableAmount)
+    {}
 
     ///////// Option Actions
 
@@ -93,7 +117,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     function write(uint256 _optionTokenId, uint80 optionsAmount) external override {}
 
-    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {}
+    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts)
+        external
+    {}
 
     function exercise(uint256 _optionTokenId, uint80 optionsAmount) external override {}
 
@@ -133,11 +159,27 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     /////////
 
-    function _writeableAmount(uint256 _optionTokenId) private view returns (uint80 __writeableAmount) {}
+    function _writeableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint80 __writeableAmount)
+    {}
 
-    function _exercisableAmount(uint256 _optionTokenId) private view returns (uint80 assignableAmount) {}
+    function _exercisableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint80 assignableAmount)
+    {}
 
-    function _writerNettableAmount(uint256 _optionTokenId) private view returns (uint80 nettableAmount) {}
+    function _writerNettableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint80 nettableAmount)
+    {}
 
-    function _writerRedeemableAmount(uint256 _optionTokenId) private view returns (uint80 redeemableAmount) {}
+    function _writerRedeemableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint80 redeemableAmount)
+    {}
 }
