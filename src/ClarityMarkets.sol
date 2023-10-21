@@ -39,7 +39,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     ///////// Private State
 
-    mapping(uint256 => OptionState) private optionStates;
+    mapping(uint256 => OptionStorage) private optionStorage;
 
     mapping(address => uint256) private assetLiabilities;
 
@@ -103,7 +103,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
         ///////// Function Requirements
 
         // TODO add ERC20 type cast and remove/combine IERC20Minimal
-        // TODO check that assets are valid ERC20s
+        // TODO check that assets are valid ERC20s, including decimals >= 6
         // TODO check for approvals
 
         ///////// Effects
@@ -118,18 +118,35 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
         );
         _optionTokenId = optionHash << 8;
 
-        // Mint the longs and shorts
-        _mint(msg.sender, _optionTokenId, optionAmount);
-        _mint(msg.sender, _optionTokenId + 1, optionAmount);
+        // Store the option information
+        optionStorage[_optionTokenId] = OptionStorage({
+            writeAsset: baseAsset,
+            writeAmount: baseAmount,
+            isCall: true,
+            assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
+            exerciseAsset: quoteAsset,
+            exerciseAmount: quoteAmount,
+            exerciseWindows: exerciseWindows
+        });
 
-        _incrementAssetLiability(baseAsset, baseAmount * optionAmount);
+        if (optionAmount > 0) {
+            // Mint the longs and shorts
+            _mint(msg.sender, _optionTokenId, optionAmount);
+            _mint(msg.sender, _optionTokenId + 1, optionAmount);
 
-        ///////// Interactions
+            // Track the asset liability
+            _incrementAssetLiability(baseAsset, baseAmount * optionAmount);
 
-        // Transfer in the write asset
-        SafeTransferLib.safeTransferFrom(
-            ERC20(baseAsset), msg.sender, address(this), baseAmount * optionAmount
-        );
+            ///////// Interactions
+
+            // Transfer in the write asset
+            SafeTransferLib.safeTransferFrom(
+                ERC20(baseAsset), msg.sender, address(this), baseAmount * optionAmount
+            );
+        }
+        // Else otherwise just create the option
+
+        // TODO log event
 
         ///////// Protocol Invariant
         _verifyAfter(baseAsset, quoteAsset);
