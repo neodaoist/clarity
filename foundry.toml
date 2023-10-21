@@ -4,4 +4,4 @@ out = "out"
 libs = ["lib"]
 
 [fmt]
-line_length = 105
+line_length = 110

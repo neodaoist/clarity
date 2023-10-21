@@ -12,9 +12,8 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), 1e12, address(LUSDLIKE), 1700e12, americanExWeeklies[0], 1e6
-        );
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
         vm.stopPrank();
 
         assertEq(clarity.balanceOf(writer, optionTokenId), 1e6, "long balance");
@@ -29,9 +28,8 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), 1e12, address(LUSDLIKE), 1700e12, americanExWeeklies[0], 0
-        );
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
 
         // TODO assert that the Option exists
 
@@ -60,9 +58,8 @@ contract WriteTest is BaseClarityMarketsTest {
         // WETH-LUSD 1
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 oti1 = clarity.writeCall(
-            address(WETHLIKE), 1e12, address(LUSDLIKE), 1700e12, americanExWeeklies[0], 0.0275e6
-        );
+        uint256 oti1 =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.0275e6);
         vm.stopPrank();
 
         assertEq(clarity.balanceOf(writer, oti1), 0.0275e6, "long balance 1");
@@ -76,9 +73,8 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti2 = clarity.writeCall(
-            address(WETHLIKE), 1e12, address(LUSDLIKE), 1750e12, americanExWeeklies[0], 17e6
-        );
+        uint256 oti2 =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6);
 
         assertEq(clarity.balanceOf(writer, oti2), 17e6, "long balance 2");
         assertEq(clarity.balanceOf(writer, oti2 + 1), 17e6, "short balance");
@@ -91,14 +87,13 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti3 = clarity.writeCall(
-            address(WETHLIKE), 2, address(LUSDLIKE), 1700e12, americanExWeeklies[1], 1e6
-        );
+        uint256 oti3 =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[1], 1700e18, 1e6);
 
         assertEq(clarity.balanceOf(writer, oti3), 1e6, "long balance 3");
         assertEq(clarity.balanceOf(writer, oti3 + 1), 1e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti3 + 2), 0, "assigned balance");
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance - (2 * 1e6), "WETH balance after write");
+        assertEq(WETHLIKE.balanceOf(writer), wethBalance - (1e18), "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
 
         // WBTC-LUSD
@@ -106,24 +101,22 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.startPrank(writer);
         WBTCLIKE.approve(address(clarity), scaleAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        uint256 oti4 = clarity.writeCall(
-            address(WBTCLIKE), 1e3, address(LUSDLIKE), 20_000e12, americanExWeeklies[0], 10e6
-        );
+        uint256 oti4 =
+            clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
         vm.stopPrank();
 
         assertEq(clarity.balanceOf(writer, oti4), 10e6, "long balance 4");
         assertEq(clarity.balanceOf(writer, oti4 + 1), 10e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti4 + 2), 0, "assigned balance");
-        assertEq(WBTCLIKE.balanceOf(writer), wbtcBalance - (1e3 * 10e6), "WBTC balance after write");
+        assertEq(WBTCLIKE.balanceOf(writer), wbtcBalance - (1e8 * 10), "WBTC balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
 
         // WETH-USDC
         wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti5 = clarity.writeCall(
-            address(WETHLIKE), 1e12, address(LUSDLIKE), 1800e6, americanExWeeklies[0], 1e6
-        );
+        uint256 oti5 =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1800e6, 1e6);
 
         assertEq(clarity.balanceOf(writer, oti5), 1e6, "long balance 5");
         assertEq(clarity.balanceOf(writer, oti5 + 1), 1e6, "short balance");

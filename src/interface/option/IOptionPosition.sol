@@ -27,8 +27,5 @@ interface IOptionPosition {
         view
         returns (Position memory position, int160 magnitude);
 
-    function positionTokenType(uint256 tokenId)
-        external
-        view
-        returns (PositionTokenType positionTokenType);
+    function positionTokenType(uint256 tokenId) external view returns (PositionTokenType positionTokenType);
 }

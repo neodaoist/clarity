@@ -5,8 +5,8 @@ interface IOptionToken {
     /////////
 
     // max option token types                       = 2^248  = 4.5e74 = 2^256 / 2^8
-    // max options                                  = 2^80   = 1.2e24 = ~quadrillion contracts OI, bc option scalar is 9
-    // max W or X asset for an option token type    = 2^56   = 7.2e16 = ~72 million units notional, bc option scalar is 9
+    // max options                                  = 2^80   = 1.2e18 = ~quintillion contracts OI, bc option scalar is 6
+    // max W or X asset for an option token type    = 2^56   = 7.2e9  = ~72 billion units notional, bc option scalar is 6
     // max W or X asset collateral for an option    = 2^136  = 8.7e40 = 2^80 * 2^56
     // max asset pairs, for option token types               = 2.1e96 = 2^160 * 2^160
     // max time pairs, for exercise windows                  = 128    = (2^32 * 2^8) / 2^32 / 2
@@ -23,16 +23,22 @@ interface IOptionToken {
 
     struct Option {
         address baseAsset;
-        uint56 baseAmount;
         address quoteAsset;
-        uint56 quoteAmount;
-        OptionType optionType;
         ExerciseWindow[] exerciseWindows;
+        uint56 strike;
+        OptionType optionType;
+        ExerciseStyle exerciseStyle;
     }
 
     enum OptionType {
         CALL,
         PUT
+    }
+
+    enum ExerciseStyle {
+        AMERICAN,
+        EUROPEAN,
+        BERMUDAN
     }
 
     struct ExerciseWindow {

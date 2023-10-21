@@ -19,8 +19,5 @@ interface IOptionState {
 
     function writerNettableAmount(uint256 optionTokenId) external view returns (uint80 nettableAmount);
 
-    function writerRedeemableAmount(uint256 optionTokenId)
-        external
-        view
-        returns (uint80 redeemableAmount);
+    function writerRedeemableAmount(uint256 optionTokenId) external view returns (uint80 redeemableAmount);
 }

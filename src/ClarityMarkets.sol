@@ -43,6 +43,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     mapping(address => uint256) private assetLiabilities;
 
+    ///////// Private Constant/Immutable State
+
+    uint8 private constant OPTION_CONTRACT_SCALAR = 6;
+
     ///////// Option Token Views
 
     function optionTokenId(
@@ -78,41 +82,39 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     function exercisableAmount(uint256 _optionTokenId) external view returns (uint80 assignableAmount) {}
 
-    function writerNettableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (uint80 nettableAmount)
-    {}
+    function writerNettableAmount(uint256 _optionTokenId) external view returns (uint80 nettableAmount) {}
 
-    function writerRedeemableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (uint80 redeemableAmount)
-    {}
+    function writerRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 redeemableAmount) {}
 
     ///////// Option Actions
 
     function writeCall(
         address baseAsset,
-        uint56 baseAmount,
         address quoteAsset,
-        uint56 quoteAmount,
         uint40 exerciseWindows,
+        uint256 strike,
         uint80 optionAmount
     ) external returns (uint256 _optionTokenId) {
         ///////// Function Requirements
 
         // TODO add ERC20 type cast and remove/combine IERC20Minimal
         // TODO check that assets are valid ERC20s, including decimals >= 6
+        // TODO check that strike is not too large
         // TODO check for approvals
 
         ///////// Effects
+
+        // Calculate the write and exercise amounts
+        uint56 writeAmount =
+            (10 ** (IERC20Minimal(baseAsset).decimals() - OPTION_CONTRACT_SCALAR)).safeCastTo56();
+        uint56 exerciseAmount =
+            (strike / (10 ** (IERC20Minimal(quoteAsset).decimals() - OPTION_CONTRACT_SCALAR))).safeCastTo56();
 
         // Generate the optionTokenId
         uint248 optionHash = uint248(
             uint256(
                 keccak256(
-                    abi.encodePacked(baseAsset, baseAmount, quoteAsset, quoteAmount, exerciseWindows)
+                    abi.encodePacked(baseAsset, writeAmount, quoteAsset, exerciseAmount, exerciseWindows)
                 )
             )
         );
@@ -121,11 +123,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
         // Store the option information
         optionStorage[_optionTokenId] = OptionStorage({
             writeAsset: baseAsset,
-            writeAmount: baseAmount,
+            writeAmount: writeAmount,
             isCall: true,
             assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
             exerciseAsset: quoteAsset,
-            exerciseAmount: quoteAmount,
+            exerciseAmount: exerciseAmount,
             exerciseWindows: exerciseWindows
         });
 
@@ -135,29 +137,29 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
             _mint(msg.sender, _optionTokenId + 1, optionAmount);
 
             // Track the asset liability
-            _incrementAssetLiability(baseAsset, baseAmount * optionAmount);
+            _incrementAssetLiability(baseAsset, writeAmount * optionAmount);
 
             ///////// Interactions
 
             // Transfer in the write asset
             SafeTransferLib.safeTransferFrom(
-                ERC20(baseAsset), msg.sender, address(this), baseAmount * optionAmount
+                ERC20(baseAsset), msg.sender, address(this), writeAmount * optionAmount
             );
         }
-        // Else otherwise just create the option
+        // Else otherwise the option is just created, with none written
 
         // TODO log event
 
         ///////// Protocol Invariant
+
         _verifyAfter(baseAsset, quoteAsset);
     }
 
     function writePut(
         address baseAsset,
-        uint56 baseAmount,
         address quoteAsset,
-        uint56 quoteAmount,
         uint40 exerciseWindows,
+        uint256 strike,
         uint80 optionAmount
     ) external returns (uint256 _optionTokenId) {}
 
@@ -222,15 +224,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909Extended, E
 
     function _exercisableAmount(uint256 _optionTokenId) private view returns (uint80 assignableAmount) {}
 
-    function _writerNettableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint80 nettableAmount)
-    {}
+    function _writerNettableAmount(uint256 _optionTokenId) private view returns (uint80 nettableAmount) {}
 
-    function _writerRedeemableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint80 redeemableAmount)
-    {}
+    function _writerRedeemableAmount(uint256 _optionTokenId) private view returns (uint80 redeemableAmount) {}
 }
