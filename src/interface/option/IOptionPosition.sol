@@ -22,7 +22,10 @@ interface IOptionPosition {
 
     /////////
 
-    function position(uint256 optionTokenId) external view returns (Position memory position, int160 magnitude);
+    function position(uint256 optionTokenId)
+        external
+        view
+        returns (Position memory position, int160 magnitude);
 
     function positionTokenType(uint256 tokenId) external view returns (PositionTokenType positionTokenType);
 }

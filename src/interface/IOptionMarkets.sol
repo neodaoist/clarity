@@ -5,14 +5,6 @@ import "./option/IOptionToken.sol";
 import "./option/IOptionState.sol";
 import "./option/IOptionActions.sol";
 import "./option/IOptionEvents.sol";
-import "./option/IOptionErrors.sol";
 import "./option/IOptionPosition.sol";
 
-interface IOptionMarkets is
-    IOptionToken,
-    IOptionState,
-    IOptionActions,
-    IOptionEvents,
-    IOptionErrors,
-    IOptionPosition
-{}
+interface IOptionMarkets is IOptionToken, IOptionState, IOptionActions, IOptionEvents, IOptionPosition {}
