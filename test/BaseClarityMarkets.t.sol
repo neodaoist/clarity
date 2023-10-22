@@ -6,6 +6,8 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {MockERC20} from "./util/MockERC20.sol";
 
 import "../src/ClarityMarkets.sol";
+import "../src/interface/option/IOptionToken.sol";
+import "../src/interface/option/IOptionEvents.sol";
 
 abstract contract BaseClarityMarketsTest is Test {
     /////////
@@ -58,6 +60,9 @@ abstract contract BaseClarityMarketsTest is Test {
     uint256 internal constant NUM_TEST_EXERCISE_WINDOWS = 4;
 
     function setUp() public {
+        // dawn
+        vm.warp(DAWN);
+
         // deploy DCP
         clarity = new ClarityMarkets();
 
@@ -184,4 +189,18 @@ abstract contract BaseClarityMarketsTest is Test {
             assertEq(a, b);
         }
     }
+
+    // TODO dupe for now, until 0.8.22 resolves this bug
+
+    event CreateOption(
+        uint256 indexed optionTokenId,
+        address indexed baseAsset,
+        address indexed quoteAsset,
+        uint32 exerciseTimestamp,
+        uint32 expiryTimestamp,
+        uint256 strikePrice,
+        IOptionToken.OptionType optionType
+    );
+
+    event WriteOptions(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
 }

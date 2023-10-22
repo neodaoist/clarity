@@ -6,6 +6,15 @@ import "../BaseClarityMarkets.t.sol";
 contract WriteTest is BaseClarityMarketsTest {
     /////////
 
+    /////////
+    // function writeCall(
+    //     address baseAsset,
+    //     address quoteAsset,
+    //     uint32[] calldata exerciseWindows,
+    //     uint256 strikePrice,
+    //     uint80 optionAmount
+    // ) external returns (uint256 optionTokenId);
+
     function test_writeCall() public {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -232,5 +241,152 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(clarity.balanceOf(writer, oti4), 10e6, "long balance");
         assertEq(clarity.balanceOf(writer, oti4 + 1), 10e6, "short balance");
         assertEq(clarity.balanceOf(writer, oti4 + 2), 0, "assigned balance");
+    }
+
+    function test_writeCall_whenLargeButValidStrikePrice() public {
+        // no revert
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], (2 ** 64 - 1) * 1e12 - 1, 1e6
+        );
+        vm.stopPrank();
+    }
+
+    function testEvent_writeCall_CreateOption() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+
+        vm.expectEmit(false, true, true, true); // TODO fix optionTokenId assertion
+        emit CreateOption(
+            123,
+            address(WETHLIKE),
+            address(LUSDLIKE),
+            americanExWeeklies[0][0],
+            americanExWeeklies[0][1],
+            1700e18,
+            IOptionToken.OptionType.CALL
+        );
+
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
+        vm.stopPrank();
+    }
+
+    function testEvent_writeCall_WriteOptions() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+
+        vm.expectEmit(true, false, true, true); // TODO fix optionTokenId assertion
+        emit WriteOptions(writer, 123, 0.005e6);
+
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.005e6);
+        vm.stopPrank();
+    }
+
+    function testRevert_writeCall_whenAssetsIdentical() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                OptionErrors.AssetsIdentical.selector, address(WETHLIKE), address(WETHLIKE)
+            )
+        );
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(WETHLIKE), americanExWeeklies[0], 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenBaseAssetDecimalsTooSmall() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 5)
+        );
+
+        vm.mockCall(address(WETHLIKE), abi.encodeWithSelector(IERC20.decimals.selector), abi.encode(5));
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenQuoteAssetDecimalsTooSmall() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 5)
+        );
+
+        vm.mockCall(address(LUSDLIKE), abi.encodeWithSelector(IERC20.decimals.selector), abi.encode(5));
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenBaseAssetDecimalsTooLarge() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 19)
+        );
+
+        vm.mockCall(address(WETHLIKE), abi.encodeWithSelector(IERC20.decimals.selector), abi.encode(19));
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenQuoteAssetDecimalsTooLarge() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 19)
+        );
+
+        vm.mockCall(address(LUSDLIKE), abi.encodeWithSelector(IERC20.decimals.selector), abi.encode(19));
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenExerciseWindowMispaired() public {
+        vm.expectRevert(OptionErrors.ExerciseWindowMispaired.selector);
+
+        uint32[] memory mispaired = new uint32[](1);
+        mispaired[0] = DAWN;
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), mispaired, 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenExerciseWindowZeroTime() public {
+        vm.expectRevert(abi.encodeWithSelector(OptionErrors.ExerciseWindowZeroTime.selector, DAWN, DAWN));
+
+        uint32[] memory zeroTime = new uint32[](2);
+        zeroTime[0] = DAWN;
+        zeroTime[1] = DAWN;
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), zeroTime, 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenExerciseWindowMisordered() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.ExerciseWindowMisordered.selector, DAWN + 1 seconds, DAWN)
+        );
+
+        uint32[] memory misordered = new uint32[](2);
+        misordered[0] = DAWN + 1 seconds;
+        misordered[1] = DAWN;
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), misordered, 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenExerciseWindowExpiryPast() public {
+        vm.expectRevert(abi.encodeWithSelector(OptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days));
+
+        uint32[] memory zeroTime = new uint32[](2);
+        zeroTime[0] = DAWN - 2 days;
+        zeroTime[1] = DAWN - 1 days;
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), zeroTime, 1700e18, 1e6);
+    }
+
+    function testRevert_writeCall_whenStrikePriceTooLarge() public {
+        vm.expectRevert(abi.encodeWithSelector(OptionErrors.StrikePriceTooLarge.selector, 2 ** 64 * 1e12));
+
+        vm.prank(writer);
+        clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 2 ** 64 * 1e12, 1e6);
     }
 }

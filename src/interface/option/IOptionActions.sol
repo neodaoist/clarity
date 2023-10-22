@@ -5,14 +5,14 @@ interface IOptionActions {
     function writeCall(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindows,
+        uint32[] calldata exerciseWindow,
         uint256 strikePrice,
         uint80 optionAmount
     ) external returns (uint256 optionTokenId);
     function writePut(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindows,
+        uint32[] calldata exerciseWindow,
         uint256 strikePrice,
         uint80 optionAmount
     ) external returns (uint256 optionTokenId);
