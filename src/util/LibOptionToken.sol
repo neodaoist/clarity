@@ -7,6 +7,8 @@ import "../interface/option/IOptionToken.sol";
 library LibOptionToken {
     /////////
 
+    // TODO generally robustify
+
     function hashOption(
         address baseAsset,
         address quoteAsset,
@@ -21,21 +23,37 @@ library LibOptionToken {
         );
     }
 
-    function toExerciseWindows(uint32[] calldata exerciseWindows)
+    // TODO add Bermudan support
+
+    function determineExerciseStyle(uint32[] calldata exerciseWindows)
         external
         pure
-        returns (IOptionToken.ExerciseWindow[] memory timePairs)
+        returns (IOptionToken.ExerciseStyle exerciseStyle)
     {
-        timePairs = new IOptionToken.ExerciseWindow[](exerciseWindows.length / 2);
-
-        for (uint256 i = 0; i < exerciseWindows.length; i += 2) {
-            timePairs[i / 2] = IOptionToken.ExerciseWindow(exerciseWindows[i], exerciseWindows[i + 1]);
+        if (exerciseWindows[1] - exerciseWindows[0] <= 1 days) {
+            exerciseStyle = IOptionToken.ExerciseStyle.EUROPEAN;
+        } else {
+            exerciseStyle = IOptionToken.ExerciseStyle.AMERICAN;
         }
     }
 
-    function fromExerciseWindows(IOptionToken.ExerciseWindow[] calldata timePairs)
+    function toExerciseWindow(uint32[] calldata exerciseWindows)
         external
         pure
-        returns (uint64[] memory exerciseWindows)
+        returns (IOptionToken.ExerciseWindow memory timePair)
+    {
+        // timePairs = new IOptionToken.ExerciseWindow[](exerciseWindows.length / 2);
+
+        // for (uint256 i = 0; i < exerciseWindows.length; i += 2) {
+        //     timePairs[i / 2] = IOptionToken.ExerciseWindow(exerciseWindows[i], exerciseWindows[i + 1]);
+        // }
+
+        timePair = IOptionToken.ExerciseWindow(exerciseWindows[0], exerciseWindows[1]);
+    }
+
+    function fromExerciseWindow(IOptionToken.ExerciseWindow calldata timePair)
+        external
+        pure
+        returns (uint32[] memory exerciseWindows)
     {}
 }

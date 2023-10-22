@@ -21,13 +21,13 @@ interface IOptionToken {
         address exerciseAsset;
         uint64 exerciseAmount;
         uint32 assignmentSeed;
-        ExerciseWindow exerciseWindows; // TODO add Bermudan support
+        ExerciseWindow exerciseWindow; // TODO add Bermudan support
     }
 
     struct Option {
         address baseAsset;
         address quoteAsset;
-        ExerciseWindow[] exerciseWindows;
+        ExerciseWindow exerciseWindow;
         uint256 strikePrice;
         OptionType optionType;
         ExerciseStyle exerciseStyle;
@@ -44,9 +44,12 @@ interface IOptionToken {
         BERMUDAN
     }
 
+    /// @dev Represents a time window in which an option can be exercised
+    /// @param exerciseTimestamp The first timestamp in this window on or after which the option can be exercised
+    /// @param expiryTimestamp The last timestamp in this window before or on which the option can be exercised
     struct ExerciseWindow {
-        uint32 exerciseTimestampIncl; // max Sun Feb 07 2106 06:28:16 GMT+0000
-        uint32 expiryTimestampIncl; // ditto
+        uint32 exerciseTimestamp; // max Sun Feb 07 2106 06:28:16 GMT+0000
+        uint32 expiryTimestamp; // ditto
     }
 
     // TODO double check combinatorics of packing OTTs into uint248

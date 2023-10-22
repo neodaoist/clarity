@@ -49,6 +49,28 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
 
     ///////// Option Token Views
 
+    // struct OptionStorage {
+    //     address writeAsset;
+    //     uint64 writeAmount;
+    //     uint8 writeDecimals;
+    //     uint8 exerciseDecimals;
+    //     OptionType optionType;
+    //     ExerciseStyle exerciseStyle;
+    //     address exerciseAsset;
+    //     uint64 exerciseAmount;
+    //     uint32 assignmentSeed;
+    //     ExerciseWindow exerciseWindow; // TODO add Bermudan support
+    // }
+
+    // struct Option {
+    //     address baseAsset;
+    //     address quoteAsset;
+    //     ExerciseWindow exerciseWindow;
+    //     uint256 strikePrice;
+    //     OptionType optionType;
+    //     ExerciseStyle exerciseStyle;
+    // }
+
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
@@ -99,10 +121,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
             _option.quoteAsset = writeAsset;
             _option.strikePrice =
                 (optionStored.writeAmount * (10 ** (optionStored.writeDecimals - OPTION_CONTRACT_SCALAR)));
-            _option.optionType = OptionType.CALL;
+            _option.optionType = OptionType.PUT;
         }
-
-        // TODO add ExerciseWindows and ExerciseStyle
+        _option.exerciseWindow = optionStored.exerciseWindow;
+        _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
     ///////// Position Views
@@ -182,6 +204,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
         uint48 exerciseAmount =
             (strikePrice / (10 ** (exerciseDecimals - OPTION_CONTRACT_SCALAR))).safeCastTo48();
 
+        // Determine the exercise style
+        ExerciseStyle exerciseStyle = LibOptionToken.determineExerciseStyle(exerciseWindows);
+
         // Generate the optionTokenId
         uint248 optionHash =
             LibOptionToken.hashOption(baseAsset, quoteAsset, exerciseWindows, strikePrice, OptionType.CALL);
@@ -194,11 +219,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
             writeDecimals: writeDecimals,
             exerciseDecimals: exerciseDecimals,
             optionType: OptionType.CALL,
-            exerciseStyle: ExerciseStyle.AMERICAN, // TODO
+            exerciseStyle: exerciseStyle,
             exerciseAsset: quoteAsset,
             exerciseAmount: exerciseAmount,
             assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
-            exerciseWindows: LibOptionToken.toExerciseWindows(exerciseWindows)[0] // TODO
+            exerciseWindow: LibOptionToken.toExerciseWindow(exerciseWindows)
         });
 
         if (optionAmount > 0) {

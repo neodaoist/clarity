@@ -20,7 +20,11 @@ contract WriteTest is BaseClarityMarketsTest {
         IOptionToken.Option memory option = clarity.option(optionTokenId);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
-        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(
+            option.exerciseWindow,
+            IOptionToken.ExerciseWindow({exerciseTimestamp: DAWN + 1 seconds, expiryTimestamp: FRI1}),
+            "option stored exerciseWindows"
+        );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
         assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
@@ -45,7 +49,11 @@ contract WriteTest is BaseClarityMarketsTest {
         IOptionToken.Option memory option = clarity.option(optionTokenId);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
-        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(
+            option.exerciseWindow,
+            IOptionToken.ExerciseWindow({exerciseTimestamp: DAWN + 1 seconds, expiryTimestamp: FRI1}),
+            "option stored exerciseWindows"
+        );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
         assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
@@ -83,7 +91,11 @@ contract WriteTest is BaseClarityMarketsTest {
         IOptionToken.Option memory option = clarity.option(oti1);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
-        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(
+            option.exerciseWindow,
+            IOptionToken.ExerciseWindow({exerciseTimestamp: DAWN + 1 seconds, expiryTimestamp: FRI1}),
+            "option stored exerciseWindows"
+        );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
         assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
@@ -107,7 +119,11 @@ contract WriteTest is BaseClarityMarketsTest {
         option = clarity.option(oti2);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
-        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(
+            option.exerciseWindow,
+            IOptionToken.ExerciseWindow({exerciseTimestamp: DAWN + 1 seconds, expiryTimestamp: FRI1}),
+            "option stored exerciseWindows"
+        );
         assertEq(option.strikePrice, 1750e18, "option stored strikePrice");
         assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
         assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
@@ -131,7 +147,11 @@ contract WriteTest is BaseClarityMarketsTest {
         option = clarity.option(oti3);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
-        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(
+            option.exerciseWindow,
+            IOptionToken.ExerciseWindow({exerciseTimestamp: FRI1 + 1 seconds, expiryTimestamp: FRI2}),
+            "option stored exerciseWindows"
+        );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
         assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
@@ -156,7 +176,11 @@ contract WriteTest is BaseClarityMarketsTest {
         option = clarity.option(oti4);
         assertEq(option.baseAsset, address(WBTCLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
-        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(
+            option.exerciseWindow,
+            IOptionToken.ExerciseWindow({exerciseTimestamp: DAWN + 1 seconds, expiryTimestamp: FRI1}),
+            "option stored exerciseWindows"
+        );
         assertEq(option.strikePrice, 20_000e18, "option stored strikePrice");
         assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
         assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");
@@ -179,7 +203,11 @@ contract WriteTest is BaseClarityMarketsTest {
         option = clarity.option(oti5);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(USDCLIKE), "option stored quoteAsset");
-        // TODO check ExerciseWindow[] exerciseWindows
+        assertEq(
+            option.exerciseWindow,
+            IOptionToken.ExerciseWindow({exerciseTimestamp: DAWN + 1 seconds, expiryTimestamp: FRI1}),
+            "option stored exerciseWindows"
+        );
         assertEq(option.strikePrice, 1800e6, "option stored strikePrice");
         assertEq(option.optionType, IOptionToken.OptionType.CALL, "option stored optionType");
         assertEq(option.exerciseStyle, IOptionToken.ExerciseStyle.AMERICAN, "option stored exerciseStyle");

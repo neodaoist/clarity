@@ -158,4 +158,30 @@ abstract contract BaseClarityMarketsTest is Test {
             assertEq(a, b);
         }
     }
+
+    function assertEq(IOptionToken.ExerciseWindow memory a, IOptionToken.ExerciseWindow memory b) internal {
+        if (a.exerciseTimestamp != b.exerciseTimestamp) {
+            emit log("Error: a == b not satisfied [ExerciseWindow.exerciseTimestamp]");
+            emit log_named_uint("      Left", a.exerciseTimestamp);
+            emit log_named_uint("     Right", b.exerciseTimestamp);
+            fail();
+        }
+        if (a.expiryTimestamp != b.expiryTimestamp) {
+            emit log("Error: a == b not satisfied [ExerciseWindow.expiryTimestamp]");
+            emit log_named_uint("      Left", a.expiryTimestamp);
+            emit log_named_uint("     Right", b.expiryTimestamp);
+            fail();
+        }
+    }
+
+    function assertEq(
+        IOptionToken.ExerciseWindow memory a,
+        IOptionToken.ExerciseWindow memory b,
+        string memory err
+    ) internal {
+        if (a.exerciseTimestamp != b.exerciseTimestamp || a.expiryTimestamp != b.expiryTimestamp) {
+            emit log_named_string("Error", err);
+            assertEq(a, b);
+        }
+    }
 }
