@@ -33,19 +33,27 @@ abstract contract BaseClarityMarketsTest is Test {
 
     // Time
     uint32 internal constant DAWN = 1_697_788_800; // Fri Oct 20 2023 08:00:00 GMT+0000
+    uint32 internal constant FRI1 = DAWN + 7 days;
+    uint32 internal constant FRI2 = DAWN + 14 days;
+    uint32 internal constant FRI3 = DAWN + 21 days;
+    uint32 internal constant FRI4 = DAWN + 28 days;
+    uint32 internal constant THU1 = DAWN + 6 days;
+    uint32 internal constant THU2 = DAWN + 13 days;
+    uint32 internal constant THU3 = DAWN + 20 days;
+    uint32 internal constant THU4 = DAWN + 27 days;
 
-    uint40[] internal americanExDailies;
-    uint40[] internal americanExWeeklies;
-    uint40[] internal americanExMonthlies;
-    uint40[] internal americanExQuarterlies;
-    uint40[] internal europeanExDailies;
-    uint40[] internal europeanExWeeklies;
-    uint40[] internal europeanExMonthlies;
-    uint40[] internal europeanExQuarterlies;
-    uint40[] internal bermudanExEOWs;
-    uint40[] internal bermudanExEOMs;
-    uint40[] internal bermudanExEOQs;
-    uint40[] internal bermudanExEOYs;
+    uint32[][] internal americanExDailies;
+    uint32[][] internal americanExWeeklies;
+    uint32[][] internal americanExMonthlies;
+    uint32[][] internal americanExQuarterlies;
+    uint32[][] internal europeanExDailies;
+    uint32[][] internal europeanExWeeklies;
+    uint32[][] internal europeanExMonthlies;
+    uint32[][] internal europeanExQuarterlies;
+    uint32[] internal bermudanExEOW; // next 4 weeks
+    uint32[] internal bermudanExEOM; // next Oct, Nov, Dec, Jan
+    uint32[] internal bermudanExEOQ; // next Mar, Jun, Sep, Dec
+    uint32[] internal bermudanExEOY; // next 4 years
 
     uint256 internal constant NUM_TEST_EXERCISE_WINDOWS = 4;
 
@@ -85,13 +93,19 @@ abstract contract BaseClarityMarketsTest is Test {
         holder = holders[0];
 
         // make test exercise windows
-        americanExWeeklies = new uint40[](4);
-        for (uint256 i = 1; i <= NUM_TEST_EXERCISE_WINDOWS; i++) {
-            uint32 earliestExercise = uint32(DAWN + (1 seconds * i));
-            uint32 expiry = uint32(DAWN + (7 days * i));
-
-            americanExWeeklies[i - 1] = (earliestExercise << 32) + expiry;
-        }
+        americanExWeeklies = new uint32[][](4);
+        americanExWeeklies[0] = new uint32[](2);
+        americanExWeeklies[1] = new uint32[](2);
+        americanExWeeklies[2] = new uint32[](2);
+        americanExWeeklies[3] = new uint32[](2);
+        americanExWeeklies[0][0] = DAWN + 1 seconds;
+        americanExWeeklies[0][1] = FRI1;
+        americanExWeeklies[1][0] = FRI1 + 1 seconds;
+        americanExWeeklies[1][1] = FRI2;
+        americanExWeeklies[2][0] = FRI2 + 1 seconds;
+        americanExWeeklies[2][1] = FRI3;
+        americanExWeeklies[3][0] = FRI3 + 1 seconds;
+        americanExWeeklies[3][1] = FRI4;
     }
 
     ///////// Actor Helpers

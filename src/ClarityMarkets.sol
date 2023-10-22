@@ -52,7 +52,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
-        uint40 exerciseWindows,
+        uint32[] calldata exerciseWindows,
         uint256 strikePrice,
         bool isCall
     ) external view returns (uint256 _optionTokenId) {
@@ -73,25 +73,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
         _optionTokenId = optionHash << 8;
     }
 
-    // struct OptionStorage {
-    //     address writeAsset;
-    //     uint56 writeAmount;
-    //     bool isCall;
-    //     uint32 assignmentSeed;
-    //     address exerciseAsset;
-    //     uint56 exerciseAmount;
-    //     uint40 exerciseWindows;
-    // }
-
-    // struct Option {
-    //     address baseAsset;
-    //     address quoteAsset;
-    //     ExerciseWindow[] exerciseWindows;
-    //     uint56 strikePrice;
-    //     OptionType optionType;
-    //     ExerciseStyle exerciseStyle;
-    // }
-
     function option(uint256 _optionTokenId) external view returns (Option memory _option) {
         // Check that it is a Long, Short, or Assigned Short token
         // TODO
@@ -106,7 +87,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
         }
 
         // Build the user-friendly Option struct
-        if (optionStored.isCall) {
+        if (optionStored.optionType == OptionType.CALL) {
             _option.baseAsset = writeAsset;
             _option.quoteAsset = optionStored.exerciseAsset;
             _option.strikePrice = (
@@ -158,9 +139,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
     /// @notice The symbol for each id
     mapping(uint256 id => string symbol) public symbols;
 
-    /// @notice The number of decimals for each id
-    // mapping(uint256 id => uint8 amount) public decimals;
-
+    /// @notice The number of decimals for each id (always OPTION_CONTRACT_SCALAR)
     function decimals(uint256 /*id*/ ) public pure returns (uint8) {
         return OPTION_CONTRACT_SCALAR;
     }
@@ -182,7 +161,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
     function writeCall(
         address baseAsset,
         address quoteAsset,
-        uint40 exerciseWindows,
+        uint32[] calldata exerciseWindows,
         uint256 strikePrice,
         uint80 optionAmount
     ) external returns (uint256 _optionTokenId) {
@@ -190,6 +169,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
 
         // TODO add ERC20 type cast and remove/combine IERC20Minimal
         // TODO check that assets are valid ERC20s, including decimals >= 6
+        // TODO check that exerciseWindows are ascending and non-overlapping
         // TODO check that strikePrice is not too large
         // TODO check for approvals
 
@@ -212,12 +192,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
             writeAsset: baseAsset,
             writeAmount: writeAmount,
             writeDecimals: writeDecimals,
-            isCall: true,
-            assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
+            exerciseDecimals: exerciseDecimals,
+            optionType: OptionType.CALL,
+            exerciseStyle: ExerciseStyle.AMERICAN, // TODO
             exerciseAsset: quoteAsset,
             exerciseAmount: exerciseAmount,
-            exerciseDecimals: exerciseDecimals,
-            exerciseWindows: exerciseWindows
+            assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
+            exerciseWindows: LibOptionToken.toExerciseWindows(exerciseWindows)[0] // TODO
         });
 
         if (optionAmount > 0) {
@@ -235,7 +216,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
                 ERC20(baseAsset), msg.sender, address(this), writeAmount * optionAmount
             );
         }
-        // Else otherwise the option is just created, with none written
+        // Else the option is just created, with none actually written
 
         // TODO log event
 
@@ -247,7 +228,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
     function writePut(
         address baseAsset,
         address quoteAsset,
-        uint40 exerciseWindows,
+        uint32[] calldata exerciseWindows,
         uint256 strikePrice,
         uint80 optionAmount
     ) external returns (uint256 _optionTokenId) {}

@@ -13,14 +13,15 @@ interface IOptionToken {
 
     struct OptionStorage {
         address writeAsset;
-        uint48 writeAmount;
+        uint64 writeAmount;
         uint8 writeDecimals;
-        bool isCall;
-        uint32 assignmentSeed;
-        address exerciseAsset;
-        uint48 exerciseAmount;
         uint8 exerciseDecimals;
-        uint40 exerciseWindows;
+        OptionType optionType;
+        ExerciseStyle exerciseStyle;
+        address exerciseAsset;
+        uint64 exerciseAmount;
+        uint32 assignmentSeed;
+        ExerciseWindow exerciseWindows; // TODO add Bermudan support
     }
 
     struct Option {
@@ -45,7 +46,7 @@ interface IOptionToken {
 
     struct ExerciseWindow {
         uint32 exerciseTimestampIncl; // max Sun Feb 07 2106 06:28:16 GMT+0000
-        uint32 expiryTimestampExcl; // ditto
+        uint32 expiryTimestampIncl; // ditto
     }
 
     // TODO double check combinatorics of packing OTTs into uint248
@@ -56,7 +57,7 @@ interface IOptionToken {
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
-        uint40 exerciseWindows,
+        uint32[] calldata exerciseWindows,
         uint256 strikePrice,
         bool isCall
     ) external view returns (uint256 optionTokenId);
