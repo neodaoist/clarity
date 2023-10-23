@@ -193,7 +193,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             _write(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionAmount, OptionType.PUT);
     }
 
-    function write(uint256 _optionTokenId, uint80 optionAmount) external override {
+    function write(uint256 _optionTokenId, uint80 optionAmount) public override {
         ///////// Function Requirements
         OptionStorage storage optionStored = optionStorage[_optionTokenId];
         if (optionStored.writeAsset == address(0)) {
@@ -227,10 +227,32 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
         ///////// Protocol Invariant
         // Check that the asset liabilities can be met
-        _verifyAfter(optionStored.writeAsset, optionStored.exerciseAsset);
+        _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
-    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {}
+    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {
+        ///////// Function Requirements
+        uint256 idsLength = optionTokenIds.length;
+        // Check that the arrays are not empty
+        if (idsLength == 0) {
+            revert OptionErrors.BatchWriteArrayLengthZero();
+        }
+        // Check that the arrays are the same length
+        if (idsLength != optionAmounts.length) {
+            revert OptionErrors.BatchWriteArrayLengthMismatch();
+        }
+
+        ///////// Effects, Interactions, Protocol Invariant
+        // Iterate through the arrays, writing on each option
+        for (uint256 i = 0; i < idsLength;) {
+            write(optionTokenIds[i], optionAmounts[i]);
+
+            // An array can't have a total length larger than the max uint256 value
+            unchecked {
+                ++i;
+            }
+        }
+    }
 
     function _write(
         address baseAsset,

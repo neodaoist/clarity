@@ -25,4 +25,8 @@ library OptionErrors {
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
 
     error WriteAmountZero();
+
+    error BatchWriteArrayLengthZero();
+
+    error BatchWriteArrayLengthMismatch();
 }

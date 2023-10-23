@@ -20,7 +20,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
         vm.stopPrank();
@@ -91,7 +91,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // WETH-LUSD 1
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 oti1 =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.0275e6);
         vm.stopPrank();
@@ -176,7 +176,7 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WBTCLIKE.approve(address(clarity), scaleAssetAmount(WBTCLIKE, STARTING_BALANCE));
+        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
         uint256 oti4 =
             clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
         vm.stopPrank();
@@ -246,7 +246,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function test_writeCall_whenLargeButValidStrikePrice() public {
         // no revert
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         clarity.writeCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], (2 ** 64 - 1) * 1e6, 1e6
         );
@@ -254,10 +254,11 @@ contract WriteTest is BaseClarityMarketsTest {
     }
 
     // TODO valid but almost expired
+    // TODO add totalSupply() checks
 
     function testEvent_writeCall_CreateOption() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
         uint256 expectedOptionTokenId = LibOptionToken.hashOption(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
@@ -280,7 +281,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
     function testEvent_writeCall_WriteOptions() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
         uint256 expectedOptionTokenId = LibOptionToken.hashOption(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
@@ -423,7 +424,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
         vm.stopPrank();
@@ -494,7 +495,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // WETH-LUSD 1
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
         uint256 oti1 =
             clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.0275e6);
         vm.stopPrank();
@@ -579,7 +580,7 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WBTCLIKE.approve(address(clarity), scaleAssetAmount(WBTCLIKE, STARTING_BALANCE));
+        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
         uint256 oti4 =
             clarity.writePut(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
         vm.stopPrank();
@@ -608,7 +609,7 @@ contract WriteTest is BaseClarityMarketsTest {
         wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
         uint256 oti5 =
             clarity.writePut(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1800e6, 1e6);
         vm.stopPrank();
@@ -650,9 +651,9 @@ contract WriteTest is BaseClarityMarketsTest {
 
     function test_writePut_whenLargeButValidStrikePrice() public {
         // no revert
-        deal(address(LUSDLIKE), writer, scaleAssetAmount(LUSDLIKE, 1_000_000_000)); // need moar LUSD to write put with massive strike
+        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000)); // need moar LUSD to write put with massive strike
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleAssetAmount(LUSDLIKE, 1_000_000_000));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000));
         clarity.writePut(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], (2 ** 64 - 1) * 1e6, 1e6
         );
@@ -661,7 +662,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
     function testEvent_writePut_CreateOption() public {
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
         uint256 expectedOptionTokenId = LibOptionToken.hashOption(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
@@ -684,7 +685,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
     function testEvent_writePut_WriteOptions() public {
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
         uint256 expectedOptionTokenId = LibOptionToken.hashOption(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
@@ -819,7 +820,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
-        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         clarity.write(optionTokenId, 1.25e6);
         vm.stopPrank();
 
@@ -839,7 +840,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
-        LUSDLIKE.approve(address(clarity), scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
         clarity.write(optionTokenId, 1.35e6);
         vm.stopPrank();
 
@@ -856,7 +857,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
 
-        WETHLIKE.approve(address(clarity), scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
         uint256 expectedOptionTokenId = LibOptionToken.hashOption(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
@@ -874,7 +875,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 optionTokenId =
             clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
 
-        LUSDLIKE.approve(address(clarity), scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
         uint256 expectedOptionTokenId = LibOptionToken.hashOption(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
@@ -928,4 +929,152 @@ contract WriteTest is BaseClarityMarketsTest {
 
     /////////
     // function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external
+
+    function test_batchWrite() public {
+        uint256 wethBalance = WETHLIKE.balanceOf(writer);
+        uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
+
+        vm.startPrank(writer);
+        uint256[] memory optionTokenIds = new uint256[](1);
+        optionTokenIds[0] =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+        uint80[] memory optionAmounts = new uint80[](1);
+        optionAmounts[0] = 1.25e6;
+
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+
+        clarity.batchWrite(optionTokenIds, optionAmounts);
+        vm.stopPrank();
+
+        // check balances
+        assertEq(clarity.balanceOf(writer, optionTokenIds[0]), 1.25e6, "long balance");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[0] + 1), 1.25e6, "short balance");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[0] + 2), 0, "assigned balance");
+        assertEq(WETHLIKE.balanceOf(writer), wethBalance - (1e18 * 1.25), "WETH balance after write");
+        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
+    }
+
+    function test_batchWrite_many() public {
+        uint256 wethBalance = WETHLIKE.balanceOf(writer);
+        uint256 wbtcBalance = WBTCLIKE.balanceOf(writer);
+        uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
+        uint256 usdcBalance = USDCLIKE.balanceOf(writer);
+
+        vm.startPrank(writer);
+        uint256[] memory optionTokenIds = new uint256[](8);
+        optionTokenIds[0] =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+        optionTokenIds[1] =
+            clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+        optionTokenIds[2] =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1725e18, 0);
+        optionTokenIds[3] =
+            clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1725e18, 0);
+        optionTokenIds[4] =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[3], 1700e18, 0);
+        optionTokenIds[5] =
+            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1675e6, 0);
+        optionTokenIds[6] =
+            clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[1], 21_001e18, 0);
+        optionTokenIds[7] =
+            clarity.writePut(address(WBTCLIKE), address(USDCLIKE), americanExWeeklies[1], 21_001e6, 0);
+        uint80[] memory optionAmounts = new uint80[](8);
+        optionAmounts[0] = 1.25e6;
+        optionAmounts[1] = 0.000001e6;
+        optionAmounts[2] = 1.35e6;
+        optionAmounts[3] = 0.5e6;
+        optionAmounts[4] = 1e6;
+        optionAmounts[5] = 1_000e6;
+        optionAmounts[6] = 1.222222e6;
+        optionAmounts[7] = 0.999999e6;
+
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+
+        clarity.batchWrite(optionTokenIds, optionAmounts);
+        vm.stopPrank();
+
+        // check Clarity balances
+        assertEq(clarity.balanceOf(writer, optionTokenIds[0]), optionAmounts[0], "long balance 1");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[0] + 1), optionAmounts[0], "short balance 1");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[0] + 2), 0, "assigned balance 1");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[1]), optionAmounts[1], "long balance 2");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[1] + 1), optionAmounts[1], "short balance 2");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[1] + 2), 0, "assigned balance 2");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[2]), optionAmounts[2], "long balance 3");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[2] + 1), optionAmounts[2], "short balance 3");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[2] + 2), 0, "assigned balance 3");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[3]), optionAmounts[3], "long balance 4");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[3] + 1), optionAmounts[3], "short balance 4");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[3] + 2), 0, "assigned balance 4");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[4]), optionAmounts[4], "long balance 5");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[4] + 1), optionAmounts[4], "short balance 5");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[4] + 2), 0, "assigned balance 5");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[5]), optionAmounts[5], "long balance 6");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[5] + 1), optionAmounts[5], "short balance 6");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[5] + 2), 0, "assigned balance 6");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[6]), optionAmounts[6], "long balance 7");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[6] + 1), optionAmounts[6], "short balance 7");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[6] + 2), 0, "assigned balance 7");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[7]), optionAmounts[7], "long balance 8");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[7] + 1), optionAmounts[7], "short balance 8");
+        assertEq(clarity.balanceOf(writer, optionTokenIds[7] + 2), 0, "assigned balance 8");
+
+        // check ERC20 balances
+        // console2.log("--- WETH");
+        // console2.log(wethBalance);
+        // console2.log(scaleDownOptionAmount(1e18) * optionAmounts[0]);
+        // console2.log(scaleDownOptionAmount(1e18) * optionAmounts[2]);
+        // console2.log(scaleDownOptionAmount(1e18) * optionAmounts[4]);
+        // console2.log(scaleDownOptionAmount(1e18) * optionAmounts[5]);
+        // console2.log("--- WBTC");
+        // console2.log(wbtcBalance);
+        // console2.log(scaleDownOptionAmount(1e8) * optionAmounts[6]);
+        // console2.log("--- LUSD");
+        // console2.log(lusdBalance);
+        // console2.log(scaleDownOptionAmount(1700e18) * optionAmounts[1]);
+        // console2.log(scaleDownOptionAmount(1725e18) * optionAmounts[3]);
+        // console2.log("--- USDC");
+        // console2.log(usdcBalance);
+        // console2.log(scaleDownOptionAmount(21_001e6) * optionAmounts[7]);
+        uint256 expectedWethBalance = wethBalance - (scaleDownOptionAmount(1e18) * optionAmounts[0])
+            - (scaleDownOptionAmount(1e18) * optionAmounts[2]) - (scaleDownOptionAmount(1e18) * optionAmounts[4])
+            - (scaleDownOptionAmount(1e18) * optionAmounts[5]);
+        uint256 expectedWbtcBalance = wbtcBalance - (scaleDownOptionAmount(1e8) * optionAmounts[6]);
+        uint256 expectedLusdBalance = lusdBalance - (scaleDownOptionAmount(1700e18) * optionAmounts[1])
+            - (scaleDownOptionAmount(1725e18) * optionAmounts[3]);
+        uint256 expectedUsdcBalance = usdcBalance - (scaleDownOptionAmount(21_001e6) * optionAmounts[7]);
+        assertEq(WETHLIKE.balanceOf(writer), expectedWethBalance, "WETH balance after write");
+        assertEq(WBTCLIKE.balanceOf(writer), expectedWbtcBalance, "WBTC balance after write");
+        assertEq(LUSDLIKE.balanceOf(writer), expectedLusdBalance, "LUSD balance after write");
+        assertEq(USDCLIKE.balanceOf(writer), expectedUsdcBalance, "USDC balance after write");
+    }
+
+    function testRevert_batchWrite_whenArrayLengthZero() public {
+        vm.expectRevert(OptionErrors.BatchWriteArrayLengthZero.selector);
+
+        uint256[] memory optionTokenIds = new uint256[](0);
+        uint80[] memory optionAmounts = new uint80[](1);
+        optionAmounts[0] = 123e6;
+
+        vm.prank(writer);
+        clarity.batchWrite(optionTokenIds, optionAmounts);
+    }
+
+    function testRevert_batchWrite_whenArrayLengthMismatch() public {
+        vm.expectRevert(OptionErrors.BatchWriteArrayLengthMismatch.selector);
+
+        uint256[] memory optionTokenIds = new uint256[](1);
+        optionTokenIds[0] = 213;
+        uint80[] memory optionAmounts = new uint80[](2);
+        optionAmounts[0] = 456e6;
+        optionAmounts[1] = 789e6;
+
+        vm.prank(writer);
+        clarity.batchWrite(optionTokenIds, optionAmounts);
+    }
+
+    // TODO add more batchWrite() tests for write() sad paths (eg, option expired, write amount zero)
 }
