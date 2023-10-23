@@ -81,18 +81,18 @@ abstract contract BaseClarityMarketsTest is Test {
             writers[i] = makeAddress(string(abi.encodePacked("writer", i + 1)));
             holders[i] = makeAddress(string(abi.encodePacked("holder", i + 1)));
 
-            deal(address(WETHLIKE), writers[i], scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
-            deal(address(WBTCLIKE), writers[i], scaleAssetAmount(WBTCLIKE, STARTING_BALANCE));
-            deal(address(LINKLIKE), writers[i], scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
-            deal(address(PEPELIKE), writers[i], scaleAssetAmount(PEPELIKE, STARTING_BALANCE));
-            deal(address(LUSDLIKE), writers[i], scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
-            deal(address(USDCLIKE), writers[i], scaleAssetAmount(USDCLIKE, STARTING_BALANCE));
-            deal(address(WETHLIKE), holders[i], scaleAssetAmount(WETHLIKE, STARTING_BALANCE));
-            deal(address(WBTCLIKE), holders[i], scaleAssetAmount(WBTCLIKE, STARTING_BALANCE));
-            deal(address(LINKLIKE), holders[i], scaleAssetAmount(LINKLIKE, STARTING_BALANCE));
-            deal(address(PEPELIKE), holders[i], scaleAssetAmount(PEPELIKE, STARTING_BALANCE));
-            deal(address(LUSDLIKE), holders[i], scaleAssetAmount(LUSDLIKE, STARTING_BALANCE));
-            deal(address(USDCLIKE), holders[i], scaleAssetAmount(USDCLIKE, STARTING_BALANCE));
+            deal(address(WETHLIKE), writers[i], scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+            deal(address(WBTCLIKE), writers[i], scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
+            deal(address(LINKLIKE), writers[i], scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+            deal(address(PEPELIKE), writers[i], scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE));
+            deal(address(LUSDLIKE), writers[i], scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+            deal(address(USDCLIKE), writers[i], scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+            deal(address(WETHLIKE), holders[i], scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+            deal(address(WBTCLIKE), holders[i], scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
+            deal(address(LINKLIKE), holders[i], scaleUpAssetAmount(LINKLIKE, STARTING_BALANCE));
+            deal(address(PEPELIKE), holders[i], scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE));
+            deal(address(LUSDLIKE), holders[i], scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+            deal(address(USDCLIKE), holders[i], scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
         }
         writer = writers[0];
         holder = holders[0];
@@ -124,8 +124,12 @@ abstract contract BaseClarityMarketsTest is Test {
 
     ///////// Asset Helpers
 
-    function scaleAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
+    function scaleUpAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
         return amount * 10 ** token.decimals();
+    }
+
+    function scaleDownOptionAmount(uint256 amount) internal view returns (uint80) {
+        return SafeCastLib.safeCastTo80(amount / 10 ** clarity.OPTION_CONTRACT_SCALAR());
     }
 
     ///////// Assertion Helpers
