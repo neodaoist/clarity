@@ -19,4 +19,10 @@ library OptionErrors {
     error ExerciseWindowExpiryPast(uint32 expiryTimestamp);
 
     error StrikePriceTooLarge(uint256 strikePrice);
+
+    error OptionDoesNotExist(uint256 optionTokenId);
+
+    error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
+
+    error WriteAmountZero();
 }

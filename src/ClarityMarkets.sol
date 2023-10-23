@@ -28,7 +28,7 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 /// transfer, and settlement of options and futures on the Ethereum blockchain. The protocol
 /// is open source, open state, and open access. It has zero oracles, zero governance, and
 /// zero custody. It is designed to be secure, composable, immutable, ergonomic, and gas minimal.
-contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
+contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI, ERC6909 {
     /////////
 
     using LibOptionToken for Option;
@@ -193,6 +193,45 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
             _write(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionAmount, OptionType.PUT);
     }
 
+    function write(uint256 _optionTokenId, uint80 optionAmount) external override {
+        ///////// Function Requirements
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+        uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
+        if (expiryTimestamp < block.timestamp) {
+            revert OptionErrors.OptionExpired(_optionTokenId, expiryTimestamp);
+        }
+        if (optionAmount == 0) {
+            revert OptionErrors.WriteAmountZero();
+        }
+        // TODO check that amount is not greater than writeableAmount ?
+
+        ///////// Effects // TODO refactor to DRY up Write effects and interactions
+        // Mint the longs and shorts
+        _mint(msg.sender, _optionTokenId, optionAmount);
+        _mint(msg.sender, _optionTokenId + 1, optionAmount);
+
+        // Track the asset liability
+        address writeAsset = optionStored.writeAsset;
+        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
+        _incrementAssetLiability(writeAsset, fullAmountForWrite);
+
+        ///////// Interactions
+        // Transfer in the write asset
+        SafeTransferLib.safeTransferFrom(ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite);
+
+        // Log events
+        emit WriteOptions(msg.sender, _optionTokenId, optionAmount);
+
+        ///////// Protocol Invariant
+        // Check that the asset liabilities can be met
+        _verifyAfter(optionStored.writeAsset, optionStored.exerciseAsset);
+    }
+
+    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {}
+
     function _write(
         address baseAsset,
         address quoteAsset,
@@ -238,7 +277,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
 
         ///////// Effects
         // Calculate the write and exercise amounts for clearing purposes
-        ClearingAssetInfo memory assetInfo; // temporary struct
+        ClearingAssetInfo memory assetInfo; // memory struct to avoid stack too deep
         if (optionType == OptionType.CALL) {
             assetInfo = ClearingAssetInfo({
                 writeAsset: baseAsset,
@@ -317,10 +356,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909 {
         // Check that the asset liabilities can be met
         _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
     }
-
-    function write(uint256 _optionTokenId, uint80 optionsAmount) external override {}
-
-    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {}
 
     function exercise(uint256 _optionTokenId, uint80 optionsAmount) external override {}
 
