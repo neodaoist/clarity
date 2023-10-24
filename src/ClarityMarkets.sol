@@ -49,7 +49,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     ///////// Public State
 
-    mapping(uint256 => uint256[]) public shortOwnersOf;
+    mapping(uint256 => address[]) public shortOwnersOf;
 
     ///////// Public Constant/Immutable
 
@@ -213,6 +213,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _mint(msg.sender, _optionTokenId, optionAmount);
         _mint(msg.sender, _optionTokenId + 1, optionAmount);
 
+        // Track the short owner
+        shortOwnersOf[_optionTokenId].push(msg.sender);
+
         // Track the asset liability
         address writeAsset = optionStored.writeAsset;
         uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
@@ -347,6 +350,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             _mint(msg.sender, _optionTokenId, optionAmount);
             _mint(msg.sender, _optionTokenId + 1, optionAmount);
 
+            // Track the short owner
+            shortOwnersOf[_optionTokenId].push(msg.sender);
+
             // Track the asset liability
             uint256 fullAmountForWrite = uint256(assetInfo.writeAmount) * optionAmount;
             _incrementAssetLiability(assetInfo.writeAsset, fullAmountForWrite);
@@ -379,9 +385,102 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
     }
 
-    function exercise(uint256 _optionTokenId, uint80 optionsAmount) external override {}
+    function exercise(uint256 _optionTokenId, uint80 optionAmount) external override {
+        ///////// Function Requirements // TODO
+        // Check that the option amount is not zero
+        if (optionAmount == 0) {
+            revert OptionErrors.ExerciseAmountZero();
+        }
 
-    function netoff(uint256 _optionTokenId, uint80 optionsAmount)
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+
+        // // Check that the optionTokenId is long // TODO this may not be needed; wait to remove until netOff() and redeem() are implemented
+        // if (uint8(_optionTokenId) > 0) {
+        //     revert OptionErrors.OptionTokenIdNotLong(_optionTokenId);
+        // }
+
+        // Scope to avoid stack too deep
+        {
+            // Check that the option is within an exercise window
+            uint32 exerciseTimestamp = optionStored.exerciseWindow.exerciseTimestamp;
+            uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
+            if (block.timestamp < exerciseTimestamp || block.timestamp > expiryTimestamp) {
+                revert OptionErrors.OptionNotWithinExerciseWindow(exerciseTimestamp, expiryTimestamp);
+            }
+
+            // Check that the caller holds sufficient longs to exercise
+            uint256 optionBalance = balanceOf[msg.sender][_optionTokenId];
+            if (optionAmount > optionBalance) {
+                revert OptionErrors.ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
+            }
+        }
+
+        ///////// Effects
+        // Setup the assignment wheel
+        address writeAsset = optionStored.writeAsset;
+        address exerciseAsset = optionStored.exerciseAsset;
+        address[] storage shortOwners = shortOwnersOf[_optionTokenId];
+        uint32 assignmentSeed = optionStored.assignmentSeed;
+
+        // Iterate through writers until the option amount is fully assigned
+        uint256 assignmentIndex = assignmentSeed % shortOwners.length;
+        while (optionAmount > 0) {
+            //
+            bool sufficient = false;
+            address shortOwner = shortOwners[assignmentIndex];
+            uint80 shortAmount = SafeCastLib.safeCastTo80(balanceOf[shortOwner][_optionTokenId + 1]);
+
+            // Check if the short owner has enough shorts to cover the amount to be assigned
+            if (shortAmount >= optionAmount) {
+                shortAmount = optionAmount;
+                sufficient = true;
+            }
+
+            // Burn the shorts and mint the assigned shorts
+            _burn(shortOwner, _optionTokenId + 1, shortAmount);
+            _mint(shortOwner, _optionTokenId + 2, shortAmount);
+
+            // If a sufficient amount of shorts have been assigned, the assignment process is complete
+            if (sufficient) {
+                break;
+            }
+
+            // Else, decrement the option amount needing to be assigned still and continue iterating through writers
+            optionAmount -= shortAmount;
+            assignmentIndex++;
+        }
+
+        // Burn the longs
+        _burn(msg.sender, _optionTokenId, optionAmount);
+
+        // Track the asset liabilities
+        uint256 fullAmountForExercise = uint256(optionStored.exerciseAmount) * optionAmount;
+        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
+        _incrementAssetLiability(exerciseAsset, fullAmountForExercise);
+        _decrementAssetLiability(writeAsset, fullAmountForWrite);
+
+        ///////// Interactions
+        // Transfer in the exercise asset
+        SafeTransferLib.safeTransferFrom(
+            ERC20(exerciseAsset), msg.sender, address(this), fullAmountForExercise
+        );
+
+        // Transfer out the write asset
+        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, fullAmountForWrite);
+
+        // Log event
+        // TODO
+
+        ///////// Protocol Invariant
+        // Check that the asset liabilities can be met
+        _verifyAfter(writeAsset, exerciseAsset);
+    }
+
+    function netOff(uint256 _optionTokenId, uint80 optionsAmount)
         external
         override
         returns (uint176 writeAssetNettedOff)

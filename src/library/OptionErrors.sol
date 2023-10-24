@@ -20,6 +20,7 @@ library OptionErrors {
 
     error StrikePriceTooLarge(uint256 strikePrice);
 
+    /// @dev Also used in views and Exercise, Net Off, and Redeem features
     error OptionDoesNotExist(uint256 optionTokenId);
 
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
@@ -29,4 +30,14 @@ library OptionErrors {
     error BatchWriteArrayLengthZero();
 
     error BatchWriteArrayLengthMismatch();
+
+    ///////// Exercise
+
+    error ExerciseAmountZero();
+
+    error OptionTokenIdNotLong(uint256 optionTokenId);
+
+    error OptionNotWithinExerciseWindow(uint32 exerciseTimestamp, uint32 expiryTimestamp);
+
+    error ExerciseAmountExceedsLongBalance(uint256 optionAmount, uint256 optionBalance);
 }
