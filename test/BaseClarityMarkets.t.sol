@@ -252,7 +252,7 @@ abstract contract BaseClarityMarketsTest is Test {
 
     // TODO dupe for now, until 0.8.22 resolves this bug
 
-    event CreateOption(
+    event OptionCreated(
         uint256 indexed optionTokenId,
         address indexed baseAsset,
         address indexed quoteAsset,
@@ -262,5 +262,9 @@ abstract contract BaseClarityMarketsTest is Test {
         IOptionToken.OptionType optionType
     );
 
-    event WriteOptions(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsWritten(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+
+    event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+
+    event ShortsAssigned(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
 }

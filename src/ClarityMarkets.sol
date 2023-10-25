@@ -233,7 +233,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         SafeTransferLib.safeTransferFrom(ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite);
 
         // Log events
-        emit WriteOptions(msg.sender, _optionTokenId, optionAmount);
+        emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
 
         ///////// Protocol Invariant
         // Check that the asset liabilities can be met
@@ -373,7 +373,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // Else the option is just created, with no options actually written and therefore no long/short tokens minted
 
         // Log events
-        emit CreateOption(
+        emit OptionCreated(
             _optionTokenId,
             baseAsset,
             quoteAsset,
@@ -383,8 +383,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             OptionType.CALL
         );
         if (optionAmount > 0) {
-            // repeating this conditional logic, so that CreateOption emits before WriteOptions
-            emit WriteOptions(msg.sender, _optionTokenId, optionAmount);
+            // repeating this conditional logic, so that OptionCreated emits before OptionsWritten
+            emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
         }
 
         ///////// Protocol Invariant
@@ -430,19 +430,19 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // uint256 assignmentIndex = assignmentSeed % tickets.length;
         uint80 amountNeedingAssignment = optionAmount;
 
-        // Turn the wheel -- iterate through open tickets until the option amount is fully assigned
+        // Turn the wheel -- iterate through open tickets until the option amount is fully assigned // TEMP naive implementation
         uint256 assignmentIndex = 0;
         while (amountNeedingAssignment > 0) {
             //
             AssignmentWheelTurnOutcome turnOutcome;
             Ticket storage ticket = tickets[assignmentIndex];
             address writer = ticket.writer;
-            uint80 shortAmount = ticket.shortAmount; // TEMP = SafeCastLib.safeCastTo80(balanceOf[writer][_optionTokenId + 1]);
+            uint80 shortAmount = ticket.shortAmount;
 
-            console2.log("--------- Top of while() loop");
-            console2.log("assignmentIndex                  ", assignmentIndex);
-            console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
-            console2.log("shortAmount available in ticket  ", shortAmount);
+            // console2.log("--------- Top of while() loop");
+            // console2.log("assignmentIndex                  ", assignmentIndex);
+            // console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
+            // console2.log("shortAmount available in ticket  ", shortAmount);
 
             // Check if this ticket has sufficient shorts to cover the amount needing to be assigned
             if (shortAmount > amountNeedingAssignment) {
@@ -477,6 +477,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             _burn(writer, _optionTokenId + 1, shortAmount);
             _mint(writer, _optionTokenId + 2, shortAmount);
 
+            // Log assignment event
+            emit ShortsAssigned(writer, _optionTokenId, shortAmount);
+
             // If a sufficient amount of shorts have been assigned, the assignment process is complete
             if (turnOutcome != AssignmentWheelTurnOutcome.INSUFFICIENT) {
                 break;
@@ -484,7 +487,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
             // Else, decrement the option amount still needing to be assigned and turn the wheel again
             amountNeedingAssignment -= shortAmount;
-            assignmentIndex++; // TODO needs to handle roll over
+            assignmentIndex++; // TODO handle roll over -- start w/ simple background, scenarios A-F, paths 2 and 3
         }
 
         // Burn the holder's longs
@@ -505,8 +508,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // Transfer out the write asset
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, fullAmountForWrite);
 
-        // Log event
-        // TODO
+        // Log exercise event
+        emit OptionsExercised(msg.sender, _optionTokenId, optionAmount);
 
         ///////// Protocol Invariant
         // Check that the asset liabilities can be met

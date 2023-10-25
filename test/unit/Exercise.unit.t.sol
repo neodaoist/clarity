@@ -186,6 +186,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         _;
     }
 
+    /////////
     // function exercise(uint256 _optionTokenId, uint80 optionsAmount) external
 
     function test_exercise() public {
@@ -258,6 +259,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         // When holder1 exercises 0.1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 0.1e6);
         clarity.exercise(oti1, 0.1e6);
         vm.stopPrank();
 
@@ -294,6 +296,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         // When holder1 exercises 0.15 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 0.15e6);
         clarity.exercise(oti1, 0.15e6);
         vm.stopPrank();
 
@@ -330,6 +333,8 @@ contract ExerciseTest is BaseClarityMarketsTest {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 0.15e6);
+        checkEvent_exercise_ShortsAssigned(writer2, oti1, 0.05e6);
         clarity.exercise(oti1, 0.2e6);
         vm.stopPrank();
 
@@ -366,6 +371,8 @@ contract ExerciseTest is BaseClarityMarketsTest {
         // When holder1 exercises 0.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 0.15e6);
+        checkEvent_exercise_ShortsAssigned(writer2, oti1, 0.35e6);
         clarity.exercise(oti1, 0.5e6);
         vm.stopPrank();
 
@@ -402,6 +409,9 @@ contract ExerciseTest is BaseClarityMarketsTest {
         // When holder1 exercises 1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 0.15e6);
+        checkEvent_exercise_ShortsAssigned(writer2, oti1, 0.35e6);
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 0.5e6);
         clarity.exercise(oti1, 1e6);
         vm.stopPrank();
 
@@ -438,6 +448,9 @@ contract ExerciseTest is BaseClarityMarketsTest {
         // When holder1 exercises 2.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 0.15e6);
+        checkEvent_exercise_ShortsAssigned(writer2, oti1, 0.35e6);
+        checkEvent_exercise_ShortsAssigned(writer1, oti1, 2e6);
         clarity.exercise(oti1, 2.5e6);
         vm.stopPrank();
 
@@ -500,6 +513,28 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "holder1 LUSD balance after exercise"
         );
     }
+
+    // Events
+
+    function testEvent_exercise_OptionsExercised() public withSimpleBackground(1700e18) {
+        vm.startPrank(holder);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+
+        vm.expectEmit(true, true, true, true);
+        emit OptionsExercised(holder, oti1, 1.000005e6);
+
+        clarity.exercise(oti1, 1.000005e6);
+        vm.stopPrank();
+    }
+
+    function checkEvent_exercise_ShortsAssigned(address _writer, uint256 optionTokenId, uint80 optionAmount)
+        private
+    {
+        vm.expectEmit(true, true, true, true);
+        emit ShortsAssigned(_writer, optionTokenId, optionAmount);
+    }
+
+    // Sad Paths
 
     function testRevert_exercise_whenExerciseAmountZero() public {
         vm.expectRevert(OptionErrors.ExerciseAmountZero.selector);
