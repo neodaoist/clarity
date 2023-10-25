@@ -125,7 +125,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
-    ///////// Position Views
+    ///////// Option Position Views
 
     function position(uint256 _optionTokenId)
         external
@@ -139,17 +139,17 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         returns (PositionTokenType _positionTokenType)
     {}
 
+    function positionNettableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+
+    function positionRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+
     ///////// Option State Views
 
-    function openInterest(uint256 _optionTokenId) external view returns (uint80 optionAmount) {}
+    function openInterest(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
-    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 __writeableAmount) {}
+    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
-    function exercisableAmount(uint256 _optionTokenId) external view returns (uint80 assignableAmount) {}
-
-    function writerNettableAmount(uint256 _optionTokenId) external view returns (uint80 nettableAmount) {}
-
-    function writerRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 redeemableAmount) {}
+    function reedemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
     ///////// ERC6909MetadataModified
 
