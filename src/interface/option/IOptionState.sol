@@ -2,11 +2,18 @@
 pragma solidity 0.8.21;
 
 interface IOptionState {
+    /////////
+
+    struct Ticket {
+        address writer;
+        uint80 shortAmount;
+    }
+
     struct OptionState {
         uint80 amountWritten;
         uint80 amountExercised;
         uint80 amountNettedOff;
-        uint16 somethingImportant;
+        uint16 openTicketAmount;
     }
 
     /////////

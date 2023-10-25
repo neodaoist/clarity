@@ -17,9 +17,38 @@ abstract contract BaseClarityMarketsTest is Test {
 
     // Actors
     address internal writer;
+    address internal writer1;
+    address internal writer2;
+    address internal writer3;
+    address internal writer4;
+    address internal writer5;
+    address internal writer6;
+    address internal writer7;
+    address internal writer8;
+    address internal writer9;
+    address internal writer10;
     address internal holder;
-    address[] internal writers;
-    address[] internal holders;
+    address internal holder1;
+    address internal holder2;
+    address internal holder3;
+    address internal holder4;
+    address internal holder5;
+    address internal holder6;
+    address internal holder7;
+    address internal holder8;
+    address internal holder9;
+    address internal holder10;
+
+    uint256 internal writer1WethBalance;
+    uint256 internal writer1LusdBalance;
+    uint256 internal writer2WethBalance;
+    uint256 internal writer2LusdBalance;
+    uint256 internal writer3WethBalance;
+    uint256 internal writer3LusdBalance;
+    uint256 internal holder1WethBalance;
+    uint256 internal holder1LusdBalance;
+    uint256 internal holder2WethBalance;
+    uint256 internal holder2LusdBalance;
 
     uint256 internal constant NUM_TEST_USERS = 10;
 
@@ -59,6 +88,13 @@ abstract contract BaseClarityMarketsTest is Test {
 
     uint256 internal constant NUM_TEST_EXERCISE_WINDOWS = 4;
 
+    // Options
+    uint256 internal oti1;
+    uint256 internal oti2;
+    uint256 internal oti3;
+    uint256 internal oti4;
+    uint256 internal oti5;
+
     function setUp() public {
         // dawn
         vm.warp(DAWN);
@@ -75,8 +111,8 @@ abstract contract BaseClarityMarketsTest is Test {
         USDCLIKE = IERC20(address(new MockERC20("USDCLike", "USDCLIKE", 6)));
 
         // make test actors and mint assets
-        writers = new address[](NUM_TEST_USERS);
-        holders = new address[](NUM_TEST_USERS);
+        address[] memory writers = new address[](NUM_TEST_USERS);
+        address[] memory holders = new address[](NUM_TEST_USERS);
         for (uint256 i = 0; i < NUM_TEST_USERS; i++) {
             writers[i] = makeAddress(string(abi.encodePacked("writer", i + 1)));
             holders[i] = makeAddress(string(abi.encodePacked("holder", i + 1)));
@@ -95,7 +131,27 @@ abstract contract BaseClarityMarketsTest is Test {
             deal(address(USDCLIKE), holders[i], scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
         }
         writer = writers[0];
+        writer1 = writers[0];
+        writer2 = writers[1];
+        writer3 = writers[2];
+        writer4 = writers[3];
+        writer5 = writers[4];
+        writer6 = writers[5];
+        writer7 = writers[6];
+        writer8 = writers[7];
+        writer9 = writers[8];
+        writer10 = writers[9];
         holder = holders[0];
+        holder1 = holders[0];
+        holder2 = holders[1];
+        holder3 = holders[2];
+        holder4 = holders[3];
+        holder5 = holders[4];
+        holder6 = holders[5];
+        holder7 = holders[6];
+        holder8 = holders[7];
+        holder9 = holders[8];
+        holder10 = holders[9];
 
         // make test exercise windows
         americanExWeeklies = new uint32[][](4);
