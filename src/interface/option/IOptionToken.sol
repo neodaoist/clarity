@@ -65,5 +65,9 @@ interface IOptionToken {
         bool isCall
     ) external view returns (uint256 optionTokenId);
 
-    function option(uint256 optionTokenId) external view returns (Option memory _option);
+    function option(uint256 optionTokenId) external view returns (Option memory option);
+
+    function optionType(uint256 optionTokenId) external view returns (OptionType optionType);
+
+    function exerciseStyle(uint256 optionTokenId) external view returns (ExerciseStyle exerciseStyle);
 }

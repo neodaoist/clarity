@@ -40,4 +40,8 @@ library OptionErrors {
     error OptionNotWithinExerciseWindow(uint32 exerciseTimestamp, uint32 expiryTimestamp);
 
     error ExerciseAmountExceedsLongBalance(uint256 optionAmount, uint256 optionBalance);
+
+    ///////// Views
+
+    error InvalidPositionTokenType(uint256 tokenId);
 }

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import {Test, console2} from "forge-std/Test.sol";
+import {Test, console2, stdError} from "forge-std/Test.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {MockERC20} from "./util/MockERC20.sol";
 
 import "../src/ClarityMarkets.sol";
 import "../src/interface/option/IOptionToken.sol";
+import "../src/interface/option/IOptionPosition.sol";
 import "../src/interface/option/IOptionEvents.sol";
 
 abstract contract BaseClarityMarketsTest is Test {
@@ -154,6 +155,7 @@ abstract contract BaseClarityMarketsTest is Test {
         holder10 = holders[9];
 
         // make test exercise windows
+        // American
         americanExWeeklies = new uint32[][](4);
         americanExWeeklies[0] = new uint32[](2);
         americanExWeeklies[1] = new uint32[](2);
@@ -167,6 +169,21 @@ abstract contract BaseClarityMarketsTest is Test {
         americanExWeeklies[2][1] = FRI3;
         americanExWeeklies[3][0] = FRI3 + 1 seconds;
         americanExWeeklies[3][1] = FRI4;
+
+        // European
+        europeanExWeeklies = new uint32[][](4);
+        europeanExWeeklies[0] = new uint32[](2);
+        europeanExWeeklies[1] = new uint32[](2);
+        europeanExWeeklies[2] = new uint32[](2);
+        europeanExWeeklies[3] = new uint32[](2);
+        europeanExWeeklies[0][0] = FRI1 - 1 hours;
+        europeanExWeeklies[0][1] = FRI1;
+        europeanExWeeklies[1][0] = FRI2 - 1 hours;
+        europeanExWeeklies[1][1] = FRI2;
+        europeanExWeeklies[2][0] = FRI3 - 1 hours;
+        europeanExWeeklies[2][1] = FRI3;
+        europeanExWeeklies[3][0] = FRI4 - 1 hours;
+        europeanExWeeklies[3][1] = FRI4;
     }
 
     ///////// Test Backgrounds
@@ -248,7 +265,7 @@ abstract contract BaseClarityMarketsTest is Test {
         _;
     }
 
-    modifier withMediumBackground() {
+    modifier withMediumBackground(uint256 writes) {
         //
         _;
     }
@@ -371,14 +388,22 @@ abstract contract BaseClarityMarketsTest is Test {
     ///////// Asset Helpers
 
     function scaleUpAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
-        return amount * 10 ** token.decimals();
+        return amount * (10 ** token.decimals());
+    }
+
+    function scaleDownAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
+        return amount / (10 ** token.decimals());
+    }
+
+    function scaleUpOptionAmount(uint256 amount) internal view returns (uint80) {
+        return SafeCastLib.safeCastTo80(amount * (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
     function scaleDownOptionAmount(uint256 amount) internal view returns (uint80) {
-        return SafeCastLib.safeCastTo80(amount / 10 ** clarity.OPTION_CONTRACT_SCALAR());
+        return SafeCastLib.safeCastTo80(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
-    ///////// Custom Type Assertion Helpers
+    ///////// Custom Type Assertions
 
     function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b) internal {
         if (a != b) {
@@ -440,7 +465,27 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    ///////// Event Assertion Helpers
+    function assertEq(IOptionPosition.PositionTokenType a, IOptionPosition.PositionTokenType b) internal {
+        if (a != b) {
+            emit log("Error: a == b not satisfied [PositionTokenType]");
+            emit log_named_uint("      Left", uint8(a));
+            emit log_named_uint("     Right", uint8(b));
+            fail();
+        }
+    }
+
+    function assertEq(
+        IOptionPosition.PositionTokenType a,
+        IOptionPosition.PositionTokenType b,
+        string memory err
+    ) internal {
+        if (a != b) {
+            emit log_named_string("Error", err);
+            assertEq(a, b);
+        }
+    }
+
+    ///////// Event Assertions
 
     function checkEvent_exercise_ShortsAssigned(address _writer, uint256 optionTokenId, uint80 optionAmount)
         internal
