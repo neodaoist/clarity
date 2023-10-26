@@ -19,7 +19,7 @@ interface IOptionActions {
     function write(uint256 optionTokenId, uint80 optionAmount) external;
     function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external;
     function exercise(uint256 optionTokenId, uint80 optionAmount) external;
-    function netoff(uint256 optionTokenId, uint80 optionAmount)
+    function netOff(uint256 optionTokenId, uint80 optionAmount)
         external
         returns (uint176 writeAssetNettedOff); // TODO width needs to change
     function redeem(uint256 optionTokenId)

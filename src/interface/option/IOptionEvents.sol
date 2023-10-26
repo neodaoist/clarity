@@ -8,7 +8,7 @@ interface IOptionEvents {
 
     ///////// Write
 
-    event CreateOption(
+    event OptionCreated(
         uint256 indexed optionTokenId,
         address indexed baseAsset,
         address indexed quoteAsset,
@@ -18,5 +18,11 @@ interface IOptionEvents {
         IOptionToken.OptionType optionType
     );
 
-    event WriteOptions(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsWritten(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+
+    ///////// Exercise
+
+    event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+
+    event ShortsAssigned(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
 }

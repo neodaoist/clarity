@@ -25,9 +25,10 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 /// @author ?????????
 ///
 /// @notice Clarity is a decentralized counterparty clearinghouse (DCP), for the writing,
-/// transfer, and settlement of options and futures on the Ethereum blockchain. The protocol
-/// is open source, open state, and open access. It has zero oracles, zero governance, and
-/// zero custody. It is designed to be secure, composable, immutable, ergonomic, and gas minimal.
+/// transfer, and settlement of options and futures contracts on the Ethereum blockchain.
+/// The protocol is open source, open state, and open access. It has zero oracles, zero
+/// governance, and zero custody. It is designed to be secure, composable, immutable,
+/// ergonomic, and gas minimal.
 contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI, ERC6909 {
     /////////
 
@@ -47,9 +48,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         uint64 exerciseAmount;
     }
 
-    ///////// Public State
+    ///////// Private Enums
 
-    mapping(uint256 => uint256[]) public shortOwnersOf;
+    enum AssignmentWheelTurnOutcome {
+        INSUFFICIENT,
+        EXACTLY_SUFFICIENT,
+        MORE_THAN_SUFFICIENT
+    }
 
     ///////// Public Constant/Immutable
 
@@ -62,6 +67,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     mapping(uint256 => OptionStorage) private optionStorage;
 
     mapping(address => uint256) private assetLiabilities;
+
+    mapping(uint256 => Ticket[]) private openTickets;
 
     ///////// Option Token Views
 
@@ -118,7 +125,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
-    ///////// Position Views
+    ///////// Option Position Views
 
     function position(uint256 _optionTokenId)
         external
@@ -132,17 +139,17 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         returns (PositionTokenType _positionTokenType)
     {}
 
+    function positionNettableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+
+    function positionRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+
     ///////// Option State Views
 
-    function openInterest(uint256 _optionTokenId) external view returns (uint80 optionAmount) {}
+    function openInterest(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
-    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 __writeableAmount) {}
+    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
-    function exercisableAmount(uint256 _optionTokenId) external view returns (uint80 assignableAmount) {}
-
-    function writerNettableAmount(uint256 _optionTokenId) external view returns (uint80 nettableAmount) {}
-
-    function writerRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 redeemableAmount) {}
+    function reedemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
     ///////// ERC6909MetadataModified
 
@@ -191,67 +198,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     ) external returns (uint256 _optionTokenId) {
         _optionTokenId =
             _write(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionAmount, OptionType.PUT);
-    }
-
-    function write(uint256 _optionTokenId, uint80 optionAmount) public override {
-        ///////// Function Requirements
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
-        if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
-        }
-        uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
-        if (expiryTimestamp < block.timestamp) {
-            revert OptionErrors.OptionExpired(_optionTokenId, expiryTimestamp);
-        }
-        if (optionAmount == 0) {
-            revert OptionErrors.WriteAmountZero();
-        }
-        // TODO check that amount is not greater than writeableAmount ?
-
-        ///////// Effects // TODO refactor to DRY up Write effects and interactions
-        // Mint the longs and shorts
-        _mint(msg.sender, _optionTokenId, optionAmount);
-        _mint(msg.sender, _optionTokenId + 1, optionAmount);
-
-        // Track the asset liability
-        address writeAsset = optionStored.writeAsset;
-        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
-        _incrementAssetLiability(writeAsset, fullAmountForWrite);
-
-        ///////// Interactions
-        // Transfer in the write asset
-        SafeTransferLib.safeTransferFrom(ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite);
-
-        // Log events
-        emit WriteOptions(msg.sender, _optionTokenId, optionAmount);
-
-        ///////// Protocol Invariant
-        // Check that the asset liabilities can be met
-        _verifyAfter(writeAsset, optionStored.exerciseAsset);
-    }
-
-    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {
-        ///////// Function Requirements
-        uint256 idsLength = optionTokenIds.length;
-        // Check that the arrays are not empty
-        if (idsLength == 0) {
-            revert OptionErrors.BatchWriteArrayLengthZero();
-        }
-        // Check that the arrays are the same length
-        if (idsLength != optionAmounts.length) {
-            revert OptionErrors.BatchWriteArrayLengthMismatch();
-        }
-
-        ///////// Effects, Interactions, Protocol Invariant
-        // Iterate through the arrays, writing on each option
-        for (uint256 i = 0; i < idsLength;) {
-            write(optionTokenIds[i], optionAmounts[i]);
-
-            // An array can't have a total length larger than the max uint256 value
-            unchecked {
-                ++i;
-            }
-        }
     }
 
     function _write(
@@ -304,7 +250,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             assetInfo = ClearingAssetInfo({
                 writeAsset: baseAsset,
                 writeDecimals: baseDecimals,
-                writeAmount: (10 ** (baseDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64(),
+                writeAmount: (10 ** (baseDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
                 exerciseAsset: quoteAsset,
                 exerciseDecimals: quoteDecimals,
                 exerciseAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64()
@@ -313,7 +259,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             assetInfo = ClearingAssetInfo({
                 writeAsset: quoteAsset,
                 writeDecimals: quoteDecimals,
-                writeAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64(),
+                writeAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
                 exerciseAsset: baseAsset,
                 exerciseDecimals: baseDecimals,
                 exerciseAmount: (10 ** (baseDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64()
@@ -347,6 +293,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             _mint(msg.sender, _optionTokenId, optionAmount);
             _mint(msg.sender, _optionTokenId + 1, optionAmount);
 
+            // Track the ticket
+            openTickets[_optionTokenId].push(Ticket({writer: msg.sender, shortAmount: optionAmount}));
+
             // Track the asset liability
             uint256 fullAmountForWrite = uint256(assetInfo.writeAmount) * optionAmount;
             _incrementAssetLiability(assetInfo.writeAsset, fullAmountForWrite);
@@ -360,7 +309,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // Else the option is just created, with no options actually written and therefore no long/short tokens minted
 
         // Log events
-        emit CreateOption(
+        emit OptionCreated(
             _optionTokenId,
             baseAsset,
             quoteAsset,
@@ -370,8 +319,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             OptionType.CALL
         );
         if (optionAmount > 0) {
-            // repeating this conditional logic, so that CreateOption emits before WriteOptions
-            emit WriteOptions(msg.sender, _optionTokenId, optionAmount);
+            // repeating this conditional logic, so that OptionCreated emits before OptionsWritten
+            emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
         }
 
         ///////// Protocol Invariant
@@ -379,9 +328,202 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
     }
 
-    function exercise(uint256 _optionTokenId, uint80 optionsAmount) external override {}
+    function write(uint256 _optionTokenId, uint80 optionAmount) public override {
+        ///////// Function Requirements
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
 
-    function netoff(uint256 _optionTokenId, uint80 optionsAmount)
+        // Check that the option is not expired
+        uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
+        if (expiryTimestamp < block.timestamp) {
+            revert OptionErrors.OptionExpired(_optionTokenId, expiryTimestamp);
+        }
+
+        // Check that the option is not exercised
+        if (optionAmount == 0) {
+            revert OptionErrors.WriteAmountZero();
+        }
+
+        // TODO check that amount is not greater than writeableAmount
+
+        ///////// Effects // TODO refactor to DRY up Write effects and interactions
+        // Mint the longs and shorts
+        _mint(msg.sender, _optionTokenId, optionAmount);
+        _mint(msg.sender, _optionTokenId + 1, optionAmount);
+
+        // Track the ticket
+        openTickets[_optionTokenId].push(Ticket({writer: msg.sender, shortAmount: optionAmount}));
+
+        // Track the asset liability
+        address writeAsset = optionStored.writeAsset;
+        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
+        _incrementAssetLiability(writeAsset, fullAmountForWrite);
+
+        ///////// Interactions
+        // Transfer in the write asset
+        SafeTransferLib.safeTransferFrom(ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite);
+
+        // Log events
+        emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
+
+        ///////// Protocol Invariant
+        // Check that the asset liabilities can be met
+        _verifyAfter(writeAsset, optionStored.exerciseAsset);
+    }
+
+    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {
+        ///////// Function Requirements
+        uint256 idsLength = optionTokenIds.length;
+        // Check that the arrays are not empty
+        if (idsLength == 0) {
+            revert OptionErrors.BatchWriteArrayLengthZero();
+        }
+        // Check that the arrays are the same length
+        if (idsLength != optionAmounts.length) {
+            revert OptionErrors.BatchWriteArrayLengthMismatch();
+        }
+
+        ///////// Effects, Interactions, Protocol Invariant
+        // Iterate through the arrays, writing on each option
+        for (uint256 i = 0; i < idsLength;) {
+            write(optionTokenIds[i], optionAmounts[i]);
+
+            // An array can't have a total length larger than the max uint256 value
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function exercise(uint256 _optionTokenId, uint80 optionAmount) external override {
+        ///////// Function Requirements
+        // Check that the exercise amount is not zero
+        if (optionAmount == 0) {
+            revert OptionErrors.ExerciseAmountZero();
+        }
+
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+
+        // Scope to avoid stack too deep
+        {
+            // Check that the option is within an exercise window
+            uint32 exerciseTimestamp = optionStored.exerciseWindow.exerciseTimestamp;
+            uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
+            if (block.timestamp < exerciseTimestamp || block.timestamp > expiryTimestamp) {
+                revert OptionErrors.OptionNotWithinExerciseWindow(exerciseTimestamp, expiryTimestamp);
+            }
+
+            // Check that the caller holds sufficient longs to exercise
+            uint256 optionBalance = balanceOf[msg.sender][_optionTokenId];
+            if (optionAmount > optionBalance) {
+                revert OptionErrors.ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
+            }
+        }
+
+        ///////// Effects
+        // Setup the assignment wheel // TEMP naive implementation
+        uint80 amountNeedingAssignment = optionAmount;
+        address writeAsset = optionStored.writeAsset;
+        address exerciseAsset = optionStored.exerciseAsset;
+        Ticket[] storage tickets = openTickets[_optionTokenId];
+        uint32 assignmentSeed = optionStored.assignmentSeed;
+        uint256 assignmentIndex = assignmentSeed % tickets.length;
+
+        // Turn the wheel -- iterate pseudorandomly thru open tickets until the option amount is fully assigned
+        while (amountNeedingAssignment > 0) {
+            // Get the ticket
+            AssignmentWheelTurnOutcome turnOutcome;
+            Ticket storage ticket = tickets[assignmentIndex];
+            address writer = ticket.writer;
+            uint80 shortAmount = ticket.shortAmount;
+
+            // TEMP
+            // console2.log("--------- Top of assignment wheel turn");
+            // console2.log("assignmentIndex                  ", assignmentIndex);
+            // console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
+            // console2.log("shortAmount available in ticket  ", shortAmount);
+
+            // Check if this ticket has sufficient shorts to cover the option amount needing assignment
+            if (shortAmount > amountNeedingAssignment) {
+                // This ticket is more than sufficient to cover
+                turnOutcome = AssignmentWheelTurnOutcome.MORE_THAN_SUFFICIENT;
+
+                // Decrement the amount of outstanding shorts on this ticket, but keep it open
+                tickets[assignmentIndex].shortAmount -= shortAmount;
+                shortAmount = amountNeedingAssignment;
+            } else if (shortAmount == amountNeedingAssignment) {
+                // This ticket is exactly sufficient to cover
+                turnOutcome = AssignmentWheelTurnOutcome.EXACTLY_SUFFICIENT;
+
+                // Remove the ticket from open tickets
+                if (tickets.length == 1) {
+                    tickets.pop();
+                } else {
+                    Ticket storage lastTicket = tickets[tickets.length - 1];
+                    tickets[assignmentIndex] = lastTicket;
+                    tickets.pop();
+                }
+            } else {
+                // This ticket is insufficient to cover
+                turnOutcome = AssignmentWheelTurnOutcome.INSUFFICIENT;
+
+                // Remove the ticket from open tickets
+                Ticket storage lastTicket = tickets[tickets.length - 1];
+                tickets[assignmentIndex] = lastTicket;
+                tickets.pop();
+            }
+
+            // Burn the writer's shorts and mint them assigned shorts
+            _burn(writer, _optionTokenId + 1, shortAmount);
+            _mint(writer, _optionTokenId + 2, shortAmount);
+
+            // Log assignment event
+            emit ShortsAssigned(writer, _optionTokenId, shortAmount);
+
+            // If a sufficient amount of shorts have been assigned, the assignment process is complete
+            if (turnOutcome != AssignmentWheelTurnOutcome.INSUFFICIENT) {
+                break;
+            }
+
+            // Else, decrement the option amount still needing to be assigned and turn the wheel again
+            amountNeedingAssignment -= shortAmount;
+            assignmentIndex = assignmentSeed % tickets.length;
+        }
+
+        // Burn the holder's longs
+        _burn(msg.sender, _optionTokenId, optionAmount);
+
+        // Track the asset liabilities
+        uint256 fullAmountForExercise = uint256(optionStored.exerciseAmount) * optionAmount;
+        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
+        _incrementAssetLiability(exerciseAsset, fullAmountForExercise);
+        _decrementAssetLiability(writeAsset, fullAmountForWrite);
+
+        ///////// Interactions
+        // Transfer in the exercise asset
+        SafeTransferLib.safeTransferFrom(
+            ERC20(exerciseAsset), msg.sender, address(this), fullAmountForExercise
+        );
+
+        // Transfer out the write asset
+        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, fullAmountForWrite);
+
+        // Log exercise event
+        emit OptionsExercised(msg.sender, _optionTokenId, optionAmount);
+
+        ///////// Protocol Invariant
+        // Check that the asset liabilities can be met
+        _verifyAfter(writeAsset, exerciseAsset);
+    }
+
+    function netOff(uint256 _optionTokenId, uint80 optionsAmount)
         external
         override
         returns (uint176 writeAssetNettedOff)

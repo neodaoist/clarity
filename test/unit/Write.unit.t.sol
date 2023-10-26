@@ -92,7 +92,7 @@ contract WriteTest is BaseClarityMarketsTest {
         // WETH-LUSD 1
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 oti1 =
+        oti1 =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.0275e6);
         vm.stopPrank();
 
@@ -121,8 +121,7 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti2 =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6);
+        oti2 = clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6);
 
         // check option exists
         option = clarity.option(oti2);
@@ -149,8 +148,7 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti3 =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[1], 1700e18, 1e6);
+        oti3 = clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[1], 1700e18, 1e6);
 
         // check option exists
         option = clarity.option(oti3);
@@ -177,8 +175,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.startPrank(writer);
         WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        uint256 oti4 =
-            clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
+        oti4 = clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
         vm.stopPrank();
 
         // check option exists
@@ -205,8 +202,7 @@ contract WriteTest is BaseClarityMarketsTest {
         wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti5 =
-            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1800e6, 1e6);
+        oti5 = clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1800e6, 1e6);
 
         // check option exists
         option = clarity.option(oti5);
@@ -256,7 +252,9 @@ contract WriteTest is BaseClarityMarketsTest {
     // TODO valid but almost expired
     // TODO add totalSupply() checks
 
-    function testEvent_writeCall_CreateOption() public {
+    // Events
+
+    function testEvent_writeCall_OptionCreated() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
@@ -265,7 +263,7 @@ contract WriteTest is BaseClarityMarketsTest {
         ) << 8;
 
         vm.expectEmit(true, true, true, true);
-        emit CreateOption(
+        emit OptionCreated(
             expectedOptionTokenId,
             address(WETHLIKE),
             address(LUSDLIKE),
@@ -279,7 +277,7 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
     }
 
-    function testEvent_writeCall_WriteOptions() public {
+    function testEvent_writeCall_OptionsWritten() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
@@ -288,11 +286,13 @@ contract WriteTest is BaseClarityMarketsTest {
         ) << 8;
 
         vm.expectEmit(true, true, true, true);
-        emit WriteOptions(writer, expectedOptionTokenId, 0.005e6);
+        emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.005e6);
         vm.stopPrank();
     }
+
+    // Sad Paths
 
     function testRevert_writeCall_whenAssetsIdentical() public {
         vm.expectRevert(
@@ -496,7 +496,7 @@ contract WriteTest is BaseClarityMarketsTest {
         // WETH-LUSD 1
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 oti1 =
+        oti1 =
             clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.0275e6);
         vm.stopPrank();
 
@@ -525,8 +525,7 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti2 =
-            clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6);
+        oti2 = clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6);
 
         // check option exists
         option = clarity.option(oti2);
@@ -553,8 +552,7 @@ contract WriteTest is BaseClarityMarketsTest {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 oti3 =
-            clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[1], 1700e18, 1e6);
+        oti3 = clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[1], 1700e18, 1e6);
 
         // check option exists
         option = clarity.option(oti3);
@@ -581,8 +579,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.startPrank(writer);
         WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        uint256 oti4 =
-            clarity.writePut(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
+        oti4 = clarity.writePut(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[0], 20_000e18, 10e6);
         vm.stopPrank();
 
         // check option exists
@@ -610,8 +607,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 oti5 =
-            clarity.writePut(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1800e6, 1e6);
+        oti5 = clarity.writePut(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1800e6, 1e6);
         vm.stopPrank();
 
         // check option exists
@@ -660,7 +656,9 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
     }
 
-    function testEvent_writePut_CreateOption() public {
+    // Events
+
+    function testEvent_writePut_OptionCreated() public {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
@@ -669,7 +667,7 @@ contract WriteTest is BaseClarityMarketsTest {
         ) << 8;
 
         vm.expectEmit(true, true, true, true);
-        emit CreateOption(
+        emit OptionCreated(
             expectedOptionTokenId,
             address(WETHLIKE),
             address(LUSDLIKE),
@@ -683,7 +681,7 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
     }
 
-    function testEvent_writePut_WriteOptions() public {
+    function testEvent_writePut_OptionsWritten() public {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
@@ -692,11 +690,13 @@ contract WriteTest is BaseClarityMarketsTest {
         ) << 8;
 
         vm.expectEmit(true, true, true, true);
-        emit WriteOptions(writer, expectedOptionTokenId, 0.005e6);
+        emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
         clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.005e6);
         vm.stopPrank();
     }
+
+    // Sad Paths
 
     function testRevert_writePut_whenAssetsIdentical() public {
         vm.expectRevert(
@@ -852,7 +852,9 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance - (1700e18 * 1.35), "LUSD balance after write");
     }
 
-    function testEvent_write_whenCall_WriteOptions() public {
+    // Events
+
+    function testEvent_write_whenCall_OptionsWritten() public {
         vm.startPrank(writer);
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
@@ -864,13 +866,13 @@ contract WriteTest is BaseClarityMarketsTest {
         ) << 8;
 
         vm.expectEmit(true, true, true, true);
-        emit WriteOptions(writer, expectedOptionTokenId, 0.005e6);
+        emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
         clarity.write(optionTokenId, 0.005e6);
         vm.stopPrank();
     }
 
-    function testEvent_write_whenPut_WriteOptions() public {
+    function testEvent_write_whenPut_OptionsWritten() public {
         vm.startPrank(writer);
         uint256 optionTokenId =
             clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
@@ -882,11 +884,13 @@ contract WriteTest is BaseClarityMarketsTest {
         ) << 8;
 
         vm.expectEmit(true, true, true, true);
-        emit WriteOptions(writer, expectedOptionTokenId, 0.006e6);
+        emit OptionsWritten(writer, expectedOptionTokenId, 0.006e6);
 
         clarity.write(optionTokenId, 0.006e6);
         vm.stopPrank();
     }
+
+    // Sad Paths
 
     function testRevert_write_whenOptionDoesNotExist() public {
         uint256 optionTokenId = LibOptionToken.hashOption(
@@ -1051,6 +1055,10 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(LUSDLIKE.balanceOf(writer), expectedLusdBalance, "LUSD balance after write");
         assertEq(USDCLIKE.balanceOf(writer), expectedUsdcBalance, "USDC balance after write");
     }
+
+    // TODO check events in above test
+
+    // Sad Paths
 
     function testRevert_batchWrite_whenArrayLengthZero() public {
         vm.expectRevert(OptionErrors.BatchWriteArrayLengthZero.selector);
