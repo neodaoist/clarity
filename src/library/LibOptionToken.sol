@@ -23,6 +23,7 @@ library LibOptionToken {
         );
     }
 
+    // TODO more thinking on European exercise, what this really means -- **no** early assignment risk for writers
     // TODO add Bermudan support
 
     function determineExerciseStyle(uint32[] calldata exerciseWindows)
