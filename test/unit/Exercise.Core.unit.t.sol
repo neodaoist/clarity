@@ -103,6 +103,58 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
+    function test_exercise_upperBounds() public {
+        uint256 numWrites = 3000;
+        uint256 optionAmountWritten;
+
+        deal(address(LUSDLIKE), holder, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000_000));
+
+        uint256 holderWethBalance = WETHLIKE.balanceOf(holder);
+        uint256 holderLusdBalance = LUSDLIKE.balanceOf(holder);
+
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+        for (uint256 i = 0; i < numWrites; i++) {
+            uint80 amount = uint80(bound(uint256(keccak256(abi.encodePacked("setec astronomy", i))), 0, type(uint24).max));
+            optionAmountWritten += amount;
+
+            clarity.write(optionTokenId, amount);
+        }
+        clarity.transfer(holder, optionTokenId, optionAmountWritten);
+        vm.stopPrank();
+
+        // pre exercise checks
+        assertEq(clarity.balanceOf(writer, optionTokenId), 0, "writer long balance before exercise");
+        assertEq(clarity.balanceOf(writer, optionTokenId + 1), optionAmountWritten, "writer short balance before exercise");
+        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "writer assigned balance before exercise");
+        assertEq(clarity.balanceOf(holder, optionTokenId), optionAmountWritten, "holder long balance before exercise");
+        assertEq(clarity.balanceOf(holder, optionTokenId + 1), 0, "holder short balance before exercise");
+        assertEq(clarity.balanceOf(holder, optionTokenId + 2), 0, "holder assigned balance before exercise");
+
+        vm.warp(americanExWeeklies[0][0]);
+        vm.startPrank(holder);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000_000));
+        clarity.exercise(optionTokenId, uint80(optionAmountWritten));
+        vm.stopPrank();
+
+        // check option balances
+        assertEq(clarity.balanceOf(writer, optionTokenId), 0, "writer long balance after exercise");
+        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 0, "writer short balance after exercise");
+        assertEq(clarity.balanceOf(writer, optionTokenId + 2), optionAmountWritten, "writer assigned balance after exercise");
+        assertEq(clarity.balanceOf(holder, optionTokenId), 0, "holder long balance after exercise");
+        assertEq(clarity.balanceOf(holder, optionTokenId + 1), 0, "holder short balance after exercise");
+        assertEq(clarity.balanceOf(holder, optionTokenId + 2), 0, "holder assigned balance after exercise");        
+
+        // check asset balances
+        assertEq(WETHLIKE.balanceOf(holder), holderWethBalance + scaleDownOptionAmount(1e18) * optionAmountWritten, "holder WETH balance after exercise");
+        assertEq(
+            LUSDLIKE.balanceOf(holder),
+            holderLusdBalance - scaleDownOptionAmount(1700e18) * optionAmountWritten,
+            "holder LUSD balance after exercise"
+        );
+    }
+
     // Events
 
     function testEvent_exercise_OptionsExercised() public withSimpleBackground(1700e18) {

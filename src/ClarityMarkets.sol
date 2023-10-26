@@ -79,6 +79,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         uint256 strikePrice,
         bool isCall
     ) external view returns (uint256 _optionTokenId) {
+        // TODO initial checks
+
         // Hash the option
         uint248 optionHash = LibOptionToken.hashOption(
             baseAsset, quoteAsset, exerciseWindows, strikePrice, isCall ? OptionType.CALL : OptionType.PUT
@@ -97,7 +99,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     }
 
     function option(uint256 _optionTokenId) external view returns (Option memory _option) {
-        // Check that it is a Long, Short, or Assigned Short token
+        // Check that it is a long
         // TODO
 
         // Get the option from storage
@@ -125,6 +127,59 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
+    function optionType(uint256 _optionTokenId) external view returns (OptionType _optionType) {
+        // TODO initial checks
+
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+
+        // Check that the option has been created
+        if (optionStored.writeAsset == address(0)) {
+            // TODO revert
+        }
+
+        _optionType = optionStored.optionType;
+    }
+
+    function exerciseStyle(uint256 _optionTokenId) external view returns (ExerciseStyle _exerciseStyle) {
+        // TODO initial checks
+
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+
+        // Check that the option has been created
+        if (optionStored.writeAsset == address(0)) {
+            // TODO revert
+        }
+
+        _exerciseStyle = optionStored.exerciseStyle;
+    }
+
+    ///////// Option State Views
+
+    function optionState(uint256 _optionTokenId) external view returns (OptionState memory state) {
+        // Check that it is a long
+        // TODO
+
+        state = OptionState({
+            amountWritten: totalSupply[_optionTokenId].safeCastTo80(),
+            amountExercised: totalSupply[_optionTokenId + 2].safeCastTo80(),
+            amountNettedOff: 0, // TBD
+            numOpenTickets: openTickets[_optionTokenId].length.safeCastTo16()
+        });
+    }
+
+    function openInterest(uint256 _optionTokenId) external view returns (uint80 amount) {
+        // Check that it is a long
+        // TODO
+
+        amount = totalSupply[_optionTokenId].safeCastTo80();
+    }
+
+    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+
+    function reedemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+
     ///////// Option Position Views
 
     function position(uint256 _optionTokenId)
@@ -142,14 +197,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     function positionNettableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
     function positionRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
-
-    ///////// Option State Views
-
-    function openInterest(uint256 _optionTokenId) external view returns (uint80 amount) {}
-
-    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
-
-    function reedemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
     ///////// ERC6909MetadataModified
 
@@ -206,7 +253,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         uint32[] calldata exerciseWindow,
         uint256 strikePrice,
         uint80 optionAmount,
-        OptionType optionType
+        OptionType _optionType
     ) private returns (uint256 _optionTokenId) {
         ///////// Function Requirements
         // Check that assets are valid
@@ -246,7 +293,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         ///////// Effects
         // Calculate the write and exercise amounts for clearing purposes
         ClearingAssetInfo memory assetInfo; // memory struct to avoid stack too deep
-        if (optionType == OptionType.CALL) {
+        if (_optionType == OptionType.CALL) {
             assetInfo = ClearingAssetInfo({
                 writeAsset: baseAsset,
                 writeDecimals: baseDecimals,
@@ -267,11 +314,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
 
         // Determine the exercise style
-        ExerciseStyle exerciseStyle = LibOptionToken.determineExerciseStyle(exerciseWindow);
+        ExerciseStyle exStyle = LibOptionToken.determineExerciseStyle(exerciseWindow);
 
         // Generate the optionTokenId
         uint248 optionHash =
-            LibOptionToken.hashOption(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionType);
+            LibOptionToken.hashOption(baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType);
         _optionTokenId = optionHash << 8;
 
         // Store the option information
@@ -280,8 +327,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             writeAmount: assetInfo.writeAmount,
             writeDecimals: assetInfo.writeDecimals,
             exerciseDecimals: assetInfo.exerciseDecimals,
-            optionType: optionType,
-            exerciseStyle: exerciseStyle,
+            optionType: _optionType,
+            exerciseStyle: exStyle,
             exerciseAsset: assetInfo.exerciseAsset,
             exerciseAmount: assetInfo.exerciseAmount,
             assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),

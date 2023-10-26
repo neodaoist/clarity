@@ -248,7 +248,7 @@ abstract contract BaseClarityMarketsTest is Test {
         _;
     }
 
-    modifier withMediumBackground() {
+    modifier withMediumBackground(uint256 writes) {
         //
         _;
     }
@@ -371,11 +371,19 @@ abstract contract BaseClarityMarketsTest is Test {
     ///////// Asset Helpers
 
     function scaleUpAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
-        return amount * 10 ** token.decimals();
+        return amount * (10 ** token.decimals());
+    }
+
+    function scaleDownAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
+        return amount / (10 ** token.decimals());
+    }
+
+    function scaleUpOptionAmount(uint256 amount) internal view returns (uint80) {
+        return SafeCastLib.safeCastTo80(amount * (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
     function scaleDownOptionAmount(uint256 amount) internal view returns (uint80) {
-        return SafeCastLib.safeCastTo80(amount / 10 ** clarity.OPTION_CONTRACT_SCALAR());
+        return SafeCastLib.safeCastTo80(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
     ///////// Custom Type Assertion Helpers
