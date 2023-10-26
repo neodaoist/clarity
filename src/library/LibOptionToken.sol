@@ -8,6 +8,8 @@ library LibOptionToken {
     /////////
 
     // TODO generally robustify
+    // TODO convert to internal only
+    // TODO rationalize all functionality across libraries
 
     function hashOption(
         address baseAsset,
@@ -21,6 +23,26 @@ library LibOptionToken {
                 keccak256(abi.encodePacked(baseAsset, quoteAsset, exerciseWindows, strikePrice, optionType))
             )
         );
+    }
+
+    function hashToTokenId(uint248 tokenId) external pure returns (uint256) {
+        // TODO
+    }
+
+    function tokenIdToHash(uint256 tokenId) external pure returns (uint248) {
+        return uint248(tokenId >> 8);
+    }
+
+    function anyToLong(uint256 tokenId) external pure returns (uint256) {
+        // TODO
+    }
+
+    function longToShort(uint256 tokenId) external pure returns (uint256) {
+        // TODO
+    }
+
+    function longToAssignedShort(uint256 tokenId) external pure returns (uint256) {
+        // TODO
     }
 
     // TODO more thinking on European exercise, what this really means -- **no** early assignment risk for writers

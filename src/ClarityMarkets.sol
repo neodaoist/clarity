@@ -64,7 +64,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     ///////// Private State
 
-    mapping(uint256 => OptionStorage) private optionStorage;
+    mapping(uint248 => OptionStorage) private optionStorage;
 
     mapping(address => uint256) private assetLiabilities;
 
@@ -87,7 +87,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         );
 
         // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        OptionStorage storage optionStored = optionStorage[optionHash];
         address writeAsset = optionStored.writeAsset;
 
         // Check that the option has been created
@@ -103,7 +103,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // TODO
 
         // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        OptionStorage storage optionStored = optionStorage[LibOptionToken.tokenIdToHash(_optionTokenId)];
         address writeAsset = optionStored.writeAsset;
 
         // Check that the option has been created
@@ -131,7 +131,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // TODO initial checks
 
         // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        OptionStorage storage optionStored = optionStorage[LibOptionToken.tokenIdToHash(_optionTokenId)];
 
         // Check that the option has been created
         if (optionStored.writeAsset == address(0)) {
@@ -145,7 +145,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // TODO initial checks
 
         // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        OptionStorage storage optionStored = optionStorage[LibOptionToken.tokenIdToHash(_optionTokenId)];
 
         // Check that the option has been created
         if (optionStored.writeAsset == address(0)) {
@@ -191,7 +191,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // TODO
 
         // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        OptionStorage storage optionStored = optionStorage[LibOptionToken.tokenIdToHash(_optionTokenId)];
 
         // Check that the option has been created
         if (optionStored.writeAsset == address(0)) {
@@ -217,7 +217,21 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         external
         view
         returns (PositionTokenType _positionTokenType)
-    {}
+    {
+        // Implicitly check that it is a valid position token type --
+        // discard the upper 31B (the option hash) to get the lowest
+        // 1B, then unsafely cast to PositionTokenType enum type
+        _positionTokenType = PositionTokenType(tokenId & 0xFF);
+
+        // TODO DRY up via refactoring into internal check function
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[LibOptionToken.tokenIdToHash(tokenId)];
+
+        // Check that the option has been created
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(tokenId);
+        }
+    }
 
     function positionNettableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
@@ -347,7 +361,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _optionTokenId = optionHash << 8;
 
         // Store the option information
-        optionStorage[_optionTokenId] = OptionStorage({
+        optionStorage[LibOptionToken.tokenIdToHash(_optionTokenId)] = OptionStorage({
             writeAsset: assetInfo.writeAsset,
             writeAmount: assetInfo.writeAmount,
             writeDecimals: assetInfo.writeDecimals,
@@ -403,7 +417,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     function write(uint256 _optionTokenId, uint80 optionAmount) public override {
         ///////// Function Requirements
         // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        OptionStorage storage optionStored = optionStorage[LibOptionToken.tokenIdToHash(_optionTokenId)];
         if (optionStored.writeAsset == address(0)) {
             revert OptionErrors.OptionDoesNotExist(_optionTokenId);
         }
@@ -470,6 +484,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
     }
 
+    // NOTE that transfer of shorts is not yet supported, and breaks exercise assignment
+
     function exercise(uint256 _optionTokenId, uint80 optionAmount) external override {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -478,10 +494,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
 
         // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+        OptionStorage storage optionStored = optionStorage[LibOptionToken.tokenIdToHash(_optionTokenId)];
         if (optionStored.writeAsset == address(0)) {
             revert OptionErrors.OptionDoesNotExist(_optionTokenId);
         }
+
+        //  Check that the position token type is a long
+        // TODO
 
         // Scope to avoid stack too deep
         {
@@ -553,7 +572,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             }
 
             // Burn the writer's shorts and mint them assigned shorts
-            _burn(writer, _optionTokenId + 1, shortAmount);
+            _burn(writer, _optionTokenId + 1, shortAmount); // TODO
             _mint(writer, _optionTokenId + 2, shortAmount);
 
             // Log assignment event

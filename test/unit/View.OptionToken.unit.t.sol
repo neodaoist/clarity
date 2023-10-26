@@ -56,7 +56,7 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
         vm.stopPrank();
-        
+
         assertEq(clarity.exerciseStyle(optionTokenId), IOptionToken.ExerciseStyle.AMERICAN, "exercise style");
     }
 
@@ -66,7 +66,7 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), europeanExWeeklies[0], 1700e18, 0);
         vm.stopPrank();
-        
+
         assertEq(clarity.exerciseStyle(optionTokenId), IOptionToken.ExerciseStyle.EUROPEAN, "exercise style");
     }
 }

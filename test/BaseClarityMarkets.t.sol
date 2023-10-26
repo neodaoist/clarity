@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import {Test, console2} from "forge-std/Test.sol";
+import {Test, console2, stdError} from "forge-std/Test.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {MockERC20} from "./util/MockERC20.sol";
 
 import "../src/ClarityMarkets.sol";
 import "../src/interface/option/IOptionToken.sol";
+import "../src/interface/option/IOptionPosition.sol";
 import "../src/interface/option/IOptionEvents.sol";
 
 abstract contract BaseClarityMarketsTest is Test {
@@ -402,7 +403,7 @@ abstract contract BaseClarityMarketsTest is Test {
         return SafeCastLib.safeCastTo80(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
-    ///////// Custom Type Assertion Helpers
+    ///////// Custom Type Assertions
 
     function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b) internal {
         if (a != b) {
@@ -464,7 +465,27 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    ///////// Event Assertion Helpers
+    function assertEq(IOptionPosition.PositionTokenType a, IOptionPosition.PositionTokenType b) internal {
+        if (a != b) {
+            emit log("Error: a == b not satisfied [PositionTokenType]");
+            emit log_named_uint("      Left", uint8(a));
+            emit log_named_uint("     Right", uint8(b));
+            fail();
+        }
+    }
+
+    function assertEq(
+        IOptionPosition.PositionTokenType a,
+        IOptionPosition.PositionTokenType b,
+        string memory err
+    ) internal {
+        if (a != b) {
+            emit log_named_string("Error", err);
+            assertEq(a, b);
+        }
+    }
+
+    ///////// Event Assertions
 
     function checkEvent_exercise_ShortsAssigned(address _writer, uint256 optionTokenId, uint80 optionAmount)
         internal
