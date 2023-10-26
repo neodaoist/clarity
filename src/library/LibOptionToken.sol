@@ -31,7 +31,7 @@ library LibOptionToken {
         pure
         returns (IOptionToken.ExerciseStyle exerciseStyle)
     {
-        if (exerciseWindows[1] - exerciseWindows[0] <= 1 days) {
+        if (exerciseWindows[1] - exerciseWindows[0] <= 1 hours) {
             exerciseStyle = IOptionToken.ExerciseStyle.EUROPEAN;
         } else {
             exerciseStyle = IOptionToken.ExerciseStyle.AMERICAN;

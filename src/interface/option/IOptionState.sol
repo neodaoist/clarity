@@ -10,11 +10,12 @@ interface IOptionState {
         uint80 shortAmount;
     }
 
+    // QUESTION is this even needed, and if so, might we actually store it
     struct OptionState {
         uint80 amountWritten;
         uint80 amountExercised;
         uint80 amountNettedOff;
-        uint16 numOpenTickets; // QUESTION ditto
+        uint16 numOpenTickets;
     }
 
     /////////

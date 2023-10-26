@@ -35,6 +35,7 @@ contract OptionStateViewsTest is BaseClarityMarketsTest {
     }
 
     // TODO whenNettedOff
+    // TODO whenRedeemed
     // TODO reverts
 
     /////////

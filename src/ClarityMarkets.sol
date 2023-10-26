@@ -186,7 +186,32 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         external
         view
         returns (Position memory _position, int160 magnitude)
-    {}
+    {
+        // Check that it is a long
+        // TODO
+
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[_optionTokenId];
+
+        // Check that the option has been created
+        if (optionStored.writeAsset == address(0)) {
+            // TODO revert
+        }
+
+        // Get the position
+        uint256 longBalance = balanceOf[msg.sender][_optionTokenId];
+        uint256 shortBalance = balanceOf[msg.sender][_optionTokenId + 1];
+        uint256 assignedShortBalance = balanceOf[msg.sender][_optionTokenId + 2];
+
+        _position = Position({
+            amountLong: longBalance.safeCastTo80(),
+            amountShort: shortBalance.safeCastTo80(),
+            amountAssignedShort: assignedShortBalance.safeCastTo80()
+        });
+
+        // Calculate the magnitude
+        magnitude = int160(int256(longBalance) - int256(shortBalance));
+    }
 
     function positionTokenType(uint256 tokenId)
         external

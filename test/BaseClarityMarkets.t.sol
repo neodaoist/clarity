@@ -175,13 +175,13 @@ abstract contract BaseClarityMarketsTest is Test {
         europeanExWeeklies[1] = new uint32[](2);
         europeanExWeeklies[2] = new uint32[](2);
         europeanExWeeklies[3] = new uint32[](2);
-        europeanExWeeklies[0][0] = DAWN + 6 days;
+        europeanExWeeklies[0][0] = FRI1 - 1 hours;
         europeanExWeeklies[0][1] = FRI1;
-        europeanExWeeklies[1][0] = FRI1 + 6 days;
+        europeanExWeeklies[1][0] = FRI2 - 1 hours;
         europeanExWeeklies[1][1] = FRI2;
-        europeanExWeeklies[2][0] = FRI2 + 6 days;
+        europeanExWeeklies[2][0] = FRI3 - 1 hours;
         europeanExWeeklies[2][1] = FRI3;
-        europeanExWeeklies[3][0] = FRI3 + 6 days;
+        europeanExWeeklies[3][0] = FRI4 - 1 hours;
         europeanExWeeklies[3][1] = FRI4;
     }
 
