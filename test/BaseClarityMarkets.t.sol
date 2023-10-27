@@ -465,9 +465,9 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(IOptionPosition.PositionTokenType a, IOptionPosition.PositionTokenType b) internal {
+    function assertEq(IOptionToken.TokenType a, IOptionToken.TokenType b) internal {
         if (a != b) {
-            emit log("Error: a == b not satisfied [PositionTokenType]");
+            emit log("Error: a == b not satisfied [TokenType]");
             emit log_named_uint("      Left", uint8(a));
             emit log_named_uint("     Right", uint8(b));
             fail();
@@ -475,8 +475,8 @@ abstract contract BaseClarityMarketsTest is Test {
     }
 
     function assertEq(
-        IOptionPosition.PositionTokenType a,
-        IOptionPosition.PositionTokenType b,
+        IOptionToken.TokenType a,
+        IOptionToken.TokenType b,
         string memory err
     ) internal {
         if (a != b) {

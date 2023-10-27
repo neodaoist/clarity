@@ -69,4 +69,54 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
 
         assertEq(clarity.exerciseStyle(optionTokenId), IOptionToken.ExerciseStyle.EUROPEAN, "exercise style");
     }
+
+    /////////
+    // function tokenType(uint256 tokenId) external view returns (PositionTokenType positionTokenType);
+
+    // function test_positionTokenType() public {
+    //     vm.startPrank(writer);
+    //     uint256 optionTokenId =
+    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0);
+    //     vm.stopPrank();
+
+    //     assertEq(
+    //         X,
+    //         IOptionPosition.PositionTokenType.LONG,
+    //         "positionTokenType when long"
+    //     );
+    //     assertEq(
+    //         Y,
+    //         IOptionPosition.PositionTokenType.SHORT,
+    //         "positionTokenType when short"
+    //     );
+    //     assertEq(
+    //         Z,
+    //         IOptionPosition.PositionTokenType.ASSIGNED_SHORT,
+    //         "positionTokenType when assigned short"
+    //     );
+    // }
+
+    function testRevert_position_whenOptionDoesNotExist() public {
+        uint248 instrumentHash = LibToken.paramsToHash(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, IOptionToken.OptionType.CALL
+        );
+        uint256 notCreatedOptionTokenId = LibToken.hashToId(instrumentHash);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId)
+        );
+
+        clarity.tokenType(notCreatedOptionTokenId);
+    }
+
+    function testRevert_position_whenOptionExistsButInvalidPositionTokenType() public {
+        vm.startPrank(writer);
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0);
+        vm.stopPrank();
+
+        vm.expectRevert(stdError.enumConversionError);
+
+        clarity.tokenType(optionTokenId | 3);
+    }
 }

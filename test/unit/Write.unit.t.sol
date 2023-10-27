@@ -258,9 +258,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionCreated(
@@ -281,9 +282,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
@@ -662,9 +664,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionCreated(
@@ -685,9 +688,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
@@ -861,9 +865,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
@@ -879,9 +884,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.006e6);
@@ -893,9 +899,10 @@ contract WriteTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_write_whenOptionDoesNotExist() public {
-        uint256 optionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 optionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, optionTokenId));
 

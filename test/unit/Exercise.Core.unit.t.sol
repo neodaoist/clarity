@@ -209,13 +209,13 @@ contract ExerciseTest is BaseClarityMarketsTest {
     //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
     //     vm.stopPrank();
 
-    //     uint256 short = (uint248(optionTokenId >> 8) << 8) + 1;
+    //     uint256 short = Y;
     //     vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, short));
 
     //     vm.prank(holder);
     //     clarity.exercise(short, 1e6);
 
-    //     uint256 assignedShort = (uint248(optionTokenId >> 8) << 8) + 2;
+    //     uint256 assignedShort = Z;
     //     vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, assignedShort));
 
     //     vm.prank(holder);

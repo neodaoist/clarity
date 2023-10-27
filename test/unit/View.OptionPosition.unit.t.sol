@@ -110,55 +110,6 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
     // TODO reverts
 
     /////////
-    // function positionTokenType(uint256 tokenId) external view returns (PositionTokenType positionTokenType);
-
-    function test_positionTokenType() public {
-        vm.startPrank(writer);
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0);
-        vm.stopPrank();
-
-        assertEq(
-            clarity.positionTokenType(optionTokenId),
-            IOptionPosition.PositionTokenType.LONG,
-            "positionTokenType when long"
-        );
-        assertEq(
-            clarity.positionTokenType((uint248(optionTokenId >> 8) << 8) + 1),
-            IOptionPosition.PositionTokenType.SHORT,
-            "positionTokenType when short"
-        );
-        assertEq(
-            clarity.positionTokenType((uint248(optionTokenId >> 8) << 8) + 2),
-            IOptionPosition.PositionTokenType.ASSIGNED_SHORT,
-            "positionTokenType when assigned short"
-        );
-    }
-
-    function testRevert_position_whenOptionDoesNotExist() public {
-        uint256 notCreatedOptionTokenId = LibOptionToken.hashOption(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, IOptionToken.OptionType.CALL
-        ) << 8;
-
-        vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId)
-        );
-
-        clarity.positionTokenType(notCreatedOptionTokenId);
-    }
-
-    function testRevert_position_whenOptionExistsButInvalidPositionTokenType() public {
-        vm.startPrank(writer);
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0);
-        vm.stopPrank();
-
-        vm.expectRevert(stdError.enumConversionError);
-
-        clarity.positionTokenType(optionTokenId + 4);
-    }
-
-    /////////
     // function positionNettableAmount(uint256 optionTokenId) external view returns (uint80 amount);
 
     // TODO

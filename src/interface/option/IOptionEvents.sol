@@ -25,4 +25,8 @@ interface IOptionEvents {
     event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
 
     event ShortsAssigned(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+
+    ///////// Net Off
+
+    event OptionsNettedOff(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
 }

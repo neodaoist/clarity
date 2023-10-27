@@ -44,6 +44,12 @@ interface IOptionToken {
         BERMUDAN
     }
 
+    enum TokenType {
+        LONG,
+        SHORT,
+        ASSIGNED_SHORT
+    }
+
     /// @dev Represents a time window in which an option can be exercised
     /// @param exerciseTimestamp The first timestamp in this window on or after which the option can be exercised
     /// @param expiryTimestamp The last timestamp in this window before or on which the option can be exercised
