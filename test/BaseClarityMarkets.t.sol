@@ -74,6 +74,15 @@ abstract contract BaseClarityMarketsTest is Test {
     uint32 internal constant THU3 = DAWN + 20 days;
     uint32 internal constant THU4 = DAWN + 27 days;
 
+    // Parameterized exercise timestamp to test various assignment paths, via different
+    // assigment seeds and therefore different initial assignment indices
+    uint32 internal constant exSimplePath1 = DAWN + 5 seconds; // assignment path 0, 1, 2
+    uint32 internal constant exSimplePath2 = DAWN + 2 seconds; // assignment path 0, 2, 1
+    uint32 internal constant exSimplePath3 = DAWN + 3 seconds; // assignment path 1, 0, 2
+    uint32 internal constant exSimplePath4 = DAWN + 4 seconds; // assignment path 1, 2, 0
+    uint32 internal constant exSimplePath5 = DAWN + 1 seconds; // assignment path 2, 0, 1
+    uint32 internal constant exSimplePath6 = DAWN + 10 seconds; // assignment path 2, 1, 0
+
     uint32[][] internal americanExDailies;
     uint32[][] internal americanExWeeklies;
     uint32[][] internal americanExMonthlies;
@@ -188,15 +197,11 @@ abstract contract BaseClarityMarketsTest is Test {
 
     ///////// Test Backgrounds
 
-    // Parameterized strike price to test various assignment paths, via different
-    // assigment seeds and therefore different initial assignment indices:
-    //   1707e18 -- assignment path 0, 1, 2
-    //   1702e18 -- assignment path 0, 2, 1
-    //   1712e18 -- assignment path 1, 0, 2
-    //   1700e18 -- assignment path 1, 2, 0
-    //   1706e18 -- assignment path 2, 0, 1
-    //   1715e18 -- assignment path 2, 1, 0
-    modifier withSimpleBackground(uint256 strikePrice) {
+    modifier withSimpleBackground(uint32 exerciseTimestamp) {
+        uint32[] memory exerciseWindow = new uint32[](2);
+        exerciseWindow[0] = exerciseTimestamp;
+        exerciseWindow[1] = FRI2;
+
         writer1WethBalance = WETHLIKE.balanceOf(writer1);
         writer1LusdBalance = LUSDLIKE.balanceOf(writer1);
         writer2WethBalance = WETHLIKE.balanceOf(writer2);
@@ -208,7 +213,7 @@ abstract contract BaseClarityMarketsTest is Test {
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         oti1 = clarity.writeCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], strikePrice, 0.15e6
+            address(WETHLIKE), address(LUSDLIKE), exerciseWindow, 1750e18, 0.15e6
         );
         vm.stopPrank();
 
@@ -260,7 +265,7 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(LUSDLIKE.balanceOf(holder1), holder1LusdBalance, "holder1 LUSD balance before exercise");
 
         // warp to exercise window
-        vm.warp(americanExWeeklies[0][1]);
+        vm.warp(exerciseTimestamp);
 
         _;
     }

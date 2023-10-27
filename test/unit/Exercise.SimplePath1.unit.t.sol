@@ -10,7 +10,7 @@ contract ExerciseSimpleBackgroundPath1Test is BaseClarityMarketsTest {
 
     function test_exercise_whenSimpleA_andOneHolderExercisesLessThanTicket1_path1()
         public
-        withSimpleBackground(1707e18)
+        withSimpleBackground(exSimplePath1)
     {
         // When holder1 exercises 0.1 options of oti1
         vm.startPrank(holder1);
@@ -40,14 +40,14 @@ contract ExerciseSimpleBackgroundPath1Test is BaseClarityMarketsTest {
         );
         assertEq(
             LUSDLIKE.balanceOf(holder1),
-            holder1LusdBalance - (1707e18 * 0.1),
+            holder1LusdBalance - (1750e18 * 0.1),
             "holder1 LUSD balance after exercise"
         );
     }
 
     function test_exercise_whenSimpleB_andOneHolderExercisesEqualToTicket1_path1()
         public
-        withSimpleBackground(1707e18)
+        withSimpleBackground(exSimplePath1)
     {
         // When holder1 exercises 0.15 options of oti1
         vm.startPrank(holder1);
@@ -77,14 +77,14 @@ contract ExerciseSimpleBackgroundPath1Test is BaseClarityMarketsTest {
         );
         assertEq(
             LUSDLIKE.balanceOf(holder1),
-            holder1LusdBalance - (1707e18 * 0.15),
+            holder1LusdBalance - (1750e18 * 0.15),
             "holder1 LUSD balance after exercise"
         );
     }
 
     function test_exercise_whenSimpleC_andOneHolderExercisesLessThanTicket2_path1()
         public
-        withSimpleBackground(1707e18)
+        withSimpleBackground(exSimplePath1)
     {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
@@ -115,14 +115,14 @@ contract ExerciseSimpleBackgroundPath1Test is BaseClarityMarketsTest {
         );
         assertEq(
             LUSDLIKE.balanceOf(holder1),
-            holder1LusdBalance - (1707e18 * 0.2),
+            holder1LusdBalance - (1750e18 * 0.2),
             "holder1 LUSD balance after exercise"
         );
     }
 
     function test_exercise_whenSimpleD_andOneHolderExercisesEqualToTicket2_path1()
         public
-        withSimpleBackground(1707e18)
+        withSimpleBackground(exSimplePath1)
     {
         // When holder1 exercises 0.5 options of oti1
         vm.startPrank(holder1);
@@ -153,14 +153,14 @@ contract ExerciseSimpleBackgroundPath1Test is BaseClarityMarketsTest {
         );
         assertEq(
             LUSDLIKE.balanceOf(holder1),
-            holder1LusdBalance - (1707e18 * 0.5),
+            holder1LusdBalance - (1750e18 * 0.5),
             "holder1 LUSD balance after exercise"
         );
     }
 
     function test_exercise_whenSimpleE_andOneHolderExercisesLessThanTicket3_path1()
         public
-        withSimpleBackground(1707e18)
+        withSimpleBackground(exSimplePath1)
     {
         // When holder1 exercises 1 options of oti1
         vm.startPrank(holder1);
@@ -192,14 +192,14 @@ contract ExerciseSimpleBackgroundPath1Test is BaseClarityMarketsTest {
         );
         assertEq(
             LUSDLIKE.balanceOf(holder1),
-            holder1LusdBalance - (1707e18 * 1),
+            holder1LusdBalance - (1750e18 * 1),
             "holder1 LUSD balance after exercise"
         );
     }
 
     function test_exercise_whenSimpleF_andOneHolderExercisesEqualToTicket3_path1()
         public
-        withSimpleBackground(1707e18)
+        withSimpleBackground(exSimplePath1)
     {
         // When holder1 exercises 2.5 options of oti1
         vm.startPrank(holder1);
@@ -231,7 +231,7 @@ contract ExerciseSimpleBackgroundPath1Test is BaseClarityMarketsTest {
         );
         assertEq(
             LUSDLIKE.balanceOf(holder1),
-            holder1LusdBalance - (1707e18 * 2.5),
+            holder1LusdBalance - (1750e18 * 2.5),
             "holder1 LUSD balance after exercise"
         );
     }

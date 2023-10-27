@@ -175,7 +175,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
     // Events
 
-    function testEvent_exercise_OptionsExercised() public withSimpleBackground(1700e18) {
+    function testEvent_exercise_OptionsExercised() public withSimpleBackground(DAWN) {
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 

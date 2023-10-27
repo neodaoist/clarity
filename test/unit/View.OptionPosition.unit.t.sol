@@ -65,7 +65,7 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         assertEq(magnitude, 0.5e6, "holder1 magnitude");
     }
 
-    function test_position_writer_whenAssigned() public withSimpleBackground(1707e18) {
+    function test_position_writer_whenAssigned() public withSimpleBackground(exSimplePath1) {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -105,7 +105,7 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
 
     // TODO writer whenRedeemed
 
-    function test_position_holder_whenExercised() public withSimpleBackground(1707e18) {}
+    function test_position_holder_whenExercised() public withSimpleBackground(DAWN) {}
 
     // TODO reverts
 

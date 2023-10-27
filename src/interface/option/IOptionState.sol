@@ -20,8 +20,6 @@ interface IOptionState {
 
     /////////
 
-    function optionState(uint256 optionTokenId) external view returns (OptionState memory optionState);
-
     function openInterest(uint256 optionTokenId) external view returns (uint80 amount);
 
     function writeableAmount(uint256 optionTokenId) external view returns (uint80 amount);

@@ -9,12 +9,12 @@ library LibToken {
     function paramsToHash(
         address baseAsset,
         address quoteAsset,
-        uint32[] memory exerciseWindows,
+        uint32[] memory exerciseWindow,
         uint256 strikePrice,
         IOptionToken.OptionType optionType
     ) internal pure returns (uint248) {
         return uint248(
-            bytes31(keccak256(abi.encode(baseAsset, quoteAsset, exerciseWindows, strikePrice, optionType)))
+            bytes31(keccak256(abi.encode(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionType)))
         );
     }
 

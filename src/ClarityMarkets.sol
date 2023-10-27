@@ -175,18 +175,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     ///////// Option State Views
 
-    function optionState(uint256 _optionTokenId) external view returns (OptionState memory state) {
-        // Check that it is a long
-        // TODO
-
-        state = OptionState({
-            amountWritten: totalSupply[_optionTokenId].safeCastTo80(),
-            amountExercised: totalSupply[_optionTokenId.longToShort()].safeCastTo80(),
-            amountNettedOff: 0, // TBD
-            numOpenTickets: openTickets[_optionTokenId].length.safeCastTo16()
-        });
-    }
-
     function openInterest(uint256 _optionTokenId) external view returns (uint80 amount) {
         // Check that it is a long
         // TODO
@@ -368,7 +356,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             exerciseStyle: exStyle,
             exerciseAsset: assetInfo.exerciseAsset,
             exerciseAmount: assetInfo.exerciseAmount,
-            assignmentSeed: uint32(uint256(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
+            assignmentSeed: uint32(bytes4(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
             exerciseWindow: LibTime.toExerciseWindow(exerciseWindow)
         });
 
@@ -534,10 +522,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             uint80 shortAmount = ticket.shortAmount;
 
             // TEMP
-            console2.log("--------- Top of assignment wheel turn");
-            console2.log("assignmentIndex                  ", assignmentIndex);
-            console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
-            console2.log("shortAmount available in ticket  ", shortAmount);
+            // console2.log("--------- Top of assignment wheel turn");
+            // console2.log("assignmentIndex                  ", assignmentIndex);
+            // console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
+            // console2.log("shortAmount available in ticket  ", shortAmount);
 
             // Check if this ticket has sufficient shorts to cover the option amount needing assignment
             if (shortAmount > amountNeedingAssignment) {
