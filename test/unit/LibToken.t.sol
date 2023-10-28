@@ -179,7 +179,11 @@ contract LibTokenTest is BaseClarityMarketsTest {
 
         assertEq(LibToken.tokenType(longId), IOptionToken.TokenType.LONG, "tokenType(longId)");
         assertEq(LibToken.tokenType(shortId), IOptionToken.TokenType.SHORT, "tokenType(shortId)");
-        assertEq(LibToken.tokenType(assignedShortId), IOptionToken.TokenType.ASSIGNED_SHORT, "tokenType(assignedShortId)");
+        assertEq(
+            LibToken.tokenType(assignedShortId),
+            IOptionToken.TokenType.ASSIGNED_SHORT,
+            "tokenType(assignedShortId)"
+        );
     }
 
     function testRevert_tokenType_whenNotValid() public {

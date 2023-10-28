@@ -153,11 +153,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _exerciseStyle = optionStored.exerciseStyle;
     }
 
-    function tokenType(uint256 tokenId)
-        external
-        view
-        returns (TokenType _tokenType)
-    {
+    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
         // Implicitly check that it is a valid position token type --
         // discard the upper 31B (the option hash) to get the lowest
         // 1B, then unsafely cast to PositionTokenType enum type
@@ -605,7 +601,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         override
         returns (uint256 writeAssetNettedOff)
     {
-        // Function Requirements
+        ///////// Function Requirements
         // Check that the exercise amount is not zero
         if (optionAmount == 0) {
             revert OptionErrors.ExerciseAmountZero();
@@ -618,12 +614,18 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             revert OptionErrors.OptionDoesNotExist(_optionTokenId);
         }
 
-        // Check that the option exists
         // Check that the position token type is a long
-        // Check that the caller holds sufficient longs and shorts to net off
         // TODO
 
-        // Effects
+        // Check that the caller holds sufficient longs and shorts to net off
+        if (optionAmount > balanceOf[msg.sender][_optionTokenId]) {
+            revert OptionErrors.InsufficientLongBalance(_optionTokenId, optionAmount);
+        }
+        if (optionAmount > balanceOf[msg.sender][_optionTokenId.longToShort()]) {
+            revert OptionErrors.InsufficientShortBalance(_optionTokenId, optionAmount);
+        }
+
+        ///////// Effects
         // TODO handle open tickets
 
         // Burn the caller's longs and shorts
@@ -631,17 +633,17 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
 
         // Track the asset liabilities
-        writeAssetNettedOff = uint256(optionStored.writeAmount) * optionAmount;
+        writeAssetNettedOff = optionStored.writeAmount * optionAmount;
         _decrementAssetLiability(writeAsset, writeAssetNettedOff);
 
-        // Interactions
+        ///////// Interactions
         // Transfer out the write asset
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
 
         // Log net off event
         emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
 
-        // Protocol Invariant
+        ///////// Protocol Invariant
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 

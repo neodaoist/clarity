@@ -212,9 +212,7 @@ abstract contract BaseClarityMarketsTest is Test {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeCall(
-            address(WETHLIKE), address(LUSDLIKE), exerciseWindow, 1750e18, 0.15e6
-        );
+        oti1 = clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), exerciseWindow, 1750e18, 0.15e6);
         vm.stopPrank();
 
         // And writer2 writes 0.35 options of oti1
@@ -479,11 +477,7 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(
-        IOptionToken.TokenType a,
-        IOptionToken.TokenType b,
-        string memory err
-    ) internal {
+    function assertEq(IOptionToken.TokenType a, IOptionToken.TokenType b, string memory err) internal {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);

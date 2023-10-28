@@ -41,6 +41,12 @@ library OptionErrors {
 
     error ExerciseAmountExceedsLongBalance(uint256 optionAmount, uint256 optionBalance);
 
+    ///////// Net Off
+
+    error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
+
+    error InsufficientShortBalance(uint256 optionTokenId, uint256 optionBalance);
+
     ///////// Views
 
     error InvalidPositionTokenType(uint256 tokenId);

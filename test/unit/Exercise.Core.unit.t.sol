@@ -25,11 +25,27 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         // pre exercise checks
         assertEq(clarity.balanceOf(writer, optionTokenId), 1.1e6, "writer long balance before exercise");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 2.25e6, "writer short balance before exercise");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "writer assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
+            2.25e6,
+            "writer short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
+            0,
+            "writer assigned balance before exercise"
+        );
         assertEq(clarity.balanceOf(holder, optionTokenId), 1.15e6, "holder long balance before exercise");
-        assertEq(clarity.balanceOf(holder, optionTokenId + 1), 0, "holder short balance before exercise");
-        assertEq(clarity.balanceOf(holder, optionTokenId + 2), 0, "holder assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            0,
+            "holder short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            0,
+            "holder assigned balance before exercise"
+        );
         assertEq(
             WETHLIKE.balanceOf(writer),
             writerWethBalance - (1e18 * 2.25),
@@ -49,13 +65,27 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         // post exercise checks
         assertEq(clarity.balanceOf(writer, optionTokenId), 1.1e6, "writer long balance after exercise");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1.45e6, "writer short balance after exercise");
         assertEq(
-            clarity.balanceOf(writer, optionTokenId + 2), 0.8e6, "writer assigned balance after exercise"
+            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
+            1.45e6,
+            "writer short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
+            0.8e6,
+            "writer assigned balance after exercise"
         );
         assertEq(clarity.balanceOf(holder, optionTokenId), 0.35e6, "holder long balance after exercise");
-        assertEq(clarity.balanceOf(holder, optionTokenId + 1), 0, "holder short balance after exercise");
-        assertEq(clarity.balanceOf(holder, optionTokenId + 2), 0, "holder assigned balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            0,
+            "holder short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            0,
+            "holder assigned balance after exercise"
+        );
         assertEq(
             WETHLIKE.balanceOf(writer),
             writerWethBalance - (1e18 * 2.25),
@@ -129,18 +159,30 @@ contract ExerciseTest is BaseClarityMarketsTest {
         // pre exercise checks
         assertEq(clarity.balanceOf(writer, optionTokenId), 0, "writer long balance before exercise");
         assertEq(
-            clarity.balanceOf(writer, optionTokenId + 1),
+            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
             optionAmountWritten,
             "writer short balance before exercise"
         );
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "writer assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
+            0,
+            "writer assigned balance before exercise"
+        );
         assertEq(
             clarity.balanceOf(holder, optionTokenId),
             optionAmountWritten,
             "holder long balance before exercise"
         );
-        assertEq(clarity.balanceOf(holder, optionTokenId + 1), 0, "holder short balance before exercise");
-        assertEq(clarity.balanceOf(holder, optionTokenId + 2), 0, "holder assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            0,
+            "holder short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            0,
+            "holder assigned balance before exercise"
+        );
 
         vm.warp(americanExWeeklies[0][0]);
         vm.startPrank(holder);
@@ -150,15 +192,27 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         // check option balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 0, "writer long balance after exercise");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 0, "writer short balance after exercise");
         assertEq(
-            clarity.balanceOf(writer, optionTokenId + 2),
+            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
+            0,
+            "writer short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
             optionAmountWritten,
             "writer assigned balance after exercise"
         );
         assertEq(clarity.balanceOf(holder, optionTokenId), 0, "holder long balance after exercise");
-        assertEq(clarity.balanceOf(holder, optionTokenId + 1), 0, "holder short balance after exercise");
-        assertEq(clarity.balanceOf(holder, optionTokenId + 2), 0, "holder assigned balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            0,
+            "holder short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            0,
+            "holder assigned balance after exercise"
+        );
 
         // check asset balances
         assertEq(

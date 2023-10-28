@@ -40,8 +40,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance - 1e18, "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
@@ -69,8 +71,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // no change
         assertEq(clarity.balanceOf(writer, optionTokenId), 0, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 0, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 0, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
@@ -446,8 +450,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance - 1700e18, "LUSD balance after write");
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
     }
@@ -475,8 +481,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // no change
         assertEq(clarity.balanceOf(writer, optionTokenId), 0, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 0, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 0, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
     }
@@ -830,8 +838,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1.25e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1.25e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1.25e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance - (1e18 * 1.25), "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
@@ -850,8 +860,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1.35e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1.35e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1.35e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance - (1700e18 * 1.35), "LUSD balance after write");
     }
