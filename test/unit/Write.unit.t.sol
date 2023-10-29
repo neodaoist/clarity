@@ -40,8 +40,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance - 1e18, "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
@@ -69,8 +71,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // no change
         assertEq(clarity.balanceOf(writer, optionTokenId), 0, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 0, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 0, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
@@ -258,9 +262,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionCreated(
@@ -281,9 +286,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
@@ -444,8 +450,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance - 1700e18, "LUSD balance after write");
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
     }
@@ -473,8 +481,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // no change
         assertEq(clarity.balanceOf(writer, optionTokenId), 0, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 0, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 0, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
     }
@@ -662,9 +672,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionCreated(
@@ -685,9 +696,10 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
@@ -826,8 +838,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1.25e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1.25e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1.25e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance - (1e18 * 1.25), "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
@@ -846,8 +860,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         // check balances
         assertEq(clarity.balanceOf(writer, optionTokenId), 1.35e6, "long balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 1), 1.35e6, "short balance");
-        assertEq(clarity.balanceOf(writer, optionTokenId + 2), 0, "assigned balance");
+        assertEq(clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)), 1.35e6, "short balance");
+        assertEq(
+            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)), 0, "assigned balance"
+        );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance - (1700e18 * 1.35), "LUSD balance after write");
     }
@@ -861,9 +877,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
@@ -879,9 +896,10 @@ contract WriteTest is BaseClarityMarketsTest {
 
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
-        uint256 expectedOptionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, IOptionToken.OptionType.PUT
-        ) << 8;
+        );
+        uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
         emit OptionsWritten(writer, expectedOptionTokenId, 0.006e6);
@@ -893,9 +911,10 @@ contract WriteTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_write_whenOptionDoesNotExist() public {
-        uint256 optionTokenId = LibOptionToken.hashOption(
+        uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, IOptionToken.OptionType.CALL
-        ) << 8;
+        );
+        uint256 optionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, optionTokenId));
 

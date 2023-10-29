@@ -21,7 +21,7 @@ interface IOptionActions {
     function exercise(uint256 optionTokenId, uint80 optionAmount) external;
     function netOff(uint256 optionTokenId, uint80 optionAmount)
         external
-        returns (uint176 writeAssetNettedOff); // TODO width needs to change
+        returns (uint256 writeAssetNettedOff); // TODO width needs to change
     function redeem(uint256 optionTokenId)
         external
         returns (uint176 writeAssetRedeemed, uint176 exerciseAssetRedeemed); // TODO width needs to change
