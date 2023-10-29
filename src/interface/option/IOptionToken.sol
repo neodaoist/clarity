@@ -5,11 +5,10 @@ interface IOptionToken {
     /////////
 
     // max option token types                       = 2^248  = 4.5e74 = 2^256 / 2^8
-    // max options                                  = 2^80   = 1.2e18 = ~quintillion contracts OI, bc option scalar is 6
-    // max W or X asset for an option token type    = 2^64   = 1.8e19 = ~18 million units notional, bc option scalar is 6
-    // max W or X asset collateral for an option    = 2^136  = 8.7e40 = 2^80 * 2^56
+    // max options                                  = 2^64   = 1.2e18 = ~18 trillion contracts OI, bc option scalar is 6
+    // max W or X asset for an option token type    = 2^64   = 1.2e18 = ~18 million units notional, bc option scalar is 6
+    // max W or X asset collateral for an option    = 2^126  = 3.4e38 = 2^64 * 2^64
     // max asset pairs, for option token types               = 2.1e96 = 2^160 * 2^160
-    // max time pairs, for exercise windows                  = 128    = (2^32 * 2^8) / 2^32 / 2
 
     struct Option {
         address baseAsset;

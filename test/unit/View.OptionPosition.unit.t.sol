@@ -110,12 +110,12 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
     // TODO reverts
 
     /////////
-    // function positionNettableAmount(uint256 optionTokenId) external view returns (uint80 amount);
+    // function positionNettableAmount(uint256 optionTokenId) external view returns (uint64 amount);
 
     // TODO
 
     /////////
-    // function positionRedeemableAmount(uint256 optionTokenId) external view returns (uint80 amount);
+    // function positionRedeemableAmount(uint256 optionTokenId) external view returns (uint64 amount);
 
     // TODO
 }

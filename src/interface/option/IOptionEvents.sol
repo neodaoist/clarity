@@ -18,13 +18,13 @@ interface IOptionEvents {
         IOptionToken.OptionType optionType
     );
 
-    event OptionsWritten(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsWritten(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
 
     ///////// Exercise
 
-    event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
 
     ///////// Net Off
 
-    event OptionsNettedOff(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsNettedOff(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
 }

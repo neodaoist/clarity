@@ -38,23 +38,25 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     ///////// Private Structs
 
     struct OptionStorage {
+        // slot 0
         address writeAsset;
         uint64 writeAmount;
         uint8 writeDecimals;
-        uint8 exerciseDecimals;
         OptionType optionType;
         ExerciseStyle exerciseStyle;
+        // slot 1
         address exerciseAsset;
         uint64 exerciseAmount;
-        uint32 assignmentSeed;
-        ExerciseWindow exerciseWindow; // TODO add Bermudan support
+        uint8 exerciseDecimals;
+        // slot 2
         OptionState optionState;
+        ExerciseWindow exerciseWindow;
     }
 
     struct OptionState {
-        uint80 amountWritten;
-        uint80 amountExercised;
-        uint80 amountNettedOff;
+        uint64 amountWritten;
+        uint64 amountExercised;
+        uint64 amountNettedOff;
     }
 
     struct ClearingAssetInfo {
@@ -181,16 +183,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     ///////// Option State Views
 
-    function openInterest(uint256 _optionTokenId) external view returns (uint80 amount) {
+    function openInterest(uint256 _optionTokenId) external view returns (uint64 amount) {
         // Check that it is a long
         // TODO
 
-        amount = totalSupply[_optionTokenId].safeCastTo80();
+        amount = totalSupply[_optionTokenId].safeCastTo64();
     }
 
-    function writeableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+    function writeableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
 
-    function reedemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+    function reedemableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
 
     ///////// Rebasing Token Balance Views
 
@@ -250,18 +252,18 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         uint256 assignedShortBalance = balanceOf(msg.sender, _optionTokenId.longToAssignedShort());
 
         _position = Position({
-            amountLong: longBalance.safeCastTo80(),
-            amountShort: shortBalance.safeCastTo80(),
-            amountAssignedShort: assignedShortBalance.safeCastTo80()
+            amountLong: longBalance.safeCastTo64(),
+            amountShort: shortBalance.safeCastTo64(),
+            amountAssignedShort: assignedShortBalance.safeCastTo64()
         });
 
         // Calculate the magnitude
         magnitude = int160(int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance));
     }
 
-    function positionNettableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+    function positionNettableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
 
-    function positionRedeemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
+    function positionRedeemableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
 
     ///////// ERC6909MetadataModified
 
@@ -297,7 +299,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         address quoteAsset,
         uint32[] calldata exerciseWindow,
         uint256 strikePrice,
-        uint80 optionAmount
+        uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
         _optionTokenId =
             _write(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionAmount, OptionType.CALL);
@@ -308,7 +310,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         address quoteAsset,
         uint32[] calldata exerciseWindow,
         uint256 strikePrice,
-        uint80 optionAmount
+        uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
         _optionTokenId =
             _write(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionAmount, OptionType.PUT);
@@ -319,7 +321,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         address quoteAsset,
         uint32[] calldata exerciseWindow,
         uint256 strikePrice,
-        uint80 optionAmount,
+        uint64 optionAmount,
         OptionType _optionType
     ) private returns (uint256 _optionTokenId) {
         ///////// Function Requirements
@@ -393,14 +395,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             writeAsset: assetInfo.writeAsset,
             writeAmount: assetInfo.writeAmount,
             writeDecimals: assetInfo.writeDecimals,
-            exerciseDecimals: assetInfo.exerciseDecimals,
             optionType: _optionType,
             exerciseStyle: exStyle,
             exerciseAsset: assetInfo.exerciseAsset,
             exerciseAmount: assetInfo.exerciseAmount,
-            assignmentSeed: uint32(bytes4(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
-            exerciseWindow: LibTime.toExerciseWindow(exerciseWindow),
-            optionState: OptionState({amountWritten: optionAmount, amountExercised: 0, amountNettedOff: 0})
+            exerciseDecimals: assetInfo.exerciseDecimals,
+            optionState: OptionState({amountWritten: optionAmount, amountExercised: 0, amountNettedOff: 0}),
+            exerciseWindow: LibTime.toExerciseWindow(exerciseWindow)
         });
 
         if (optionAmount > 0) {
@@ -440,7 +441,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
     }
 
-    function write(uint256 _optionTokenId, uint80 optionAmount) public override {
+    function write(uint256 _optionTokenId, uint64 optionAmount) public override {
         ///////// Function Requirements
         // Check that the option amount is not zero
         if (optionAmount == 0) {
@@ -486,7 +487,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
-    function batchWrite(uint256[] calldata optionTokenIds, uint80[] calldata optionAmounts) external {
+    function batchWrite(uint256[] calldata optionTokenIds, uint64[] calldata optionAmounts) external {
         ///////// Function Requirements
         uint256 idsLength = optionTokenIds.length;
         // Check that the arrays are not empty
@@ -510,7 +511,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
     }
 
-    function exercise(uint256 _optionTokenId, uint80 optionAmount) external override {
+    function exercise(uint256 _optionTokenId, uint64 optionAmount) external override {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
         if (optionAmount == 0) {
@@ -546,79 +547,12 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // Update the option state
         optionStored.optionState.amountExercised += optionAmount;
 
-        // // Setup the assignment wheel // TEMP naive implementation
-        // uint80 amountNeedingAssignment = optionAmount;
-        address writeAsset = optionStored.writeAsset;
-        address exerciseAsset = optionStored.exerciseAsset;
-        // Ticket[] storage tickets = openTickets[_optionTokenId];
-        // uint32 assignmentSeed = optionStored.assignmentSeed;
-        // uint256 assignmentIndex = assignmentSeed % tickets.length;
-
-        // // Turn the wheel -- iterate pseudorandomly thru open tickets until the option amount is fully assigned
-        // while (amountNeedingAssignment > 0) {
-        //     // Get the ticket
-        //     AssignmentWheelTurnOutcome turnOutcome;
-        //     Ticket storage ticket = tickets[assignmentIndex];
-        //     address writer = ticket.writer;
-        //     uint80 shortAmount = ticket.shortAmount;
-
-        //     // TEMP
-        //     // console2.log("--------- Top of assignment wheel turn");
-        //     // console2.log("assignmentIndex                  ", assignmentIndex);
-        //     // console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
-        //     // console2.log("shortAmount available in ticket  ", shortAmount);
-
-        //     // Check if this ticket has sufficient shorts to cover the option amount needing assignment
-        //     if (shortAmount > amountNeedingAssignment) {
-        //         // This ticket is more than sufficient to cover
-        //         turnOutcome = AssignmentWheelTurnOutcome.MORE_THAN_SUFFICIENT;
-
-        //         // Decrement the amount of outstanding shorts on this ticket, but keep it open
-        //         tickets[assignmentIndex].shortAmount -= shortAmount;
-        //         shortAmount = amountNeedingAssignment;
-        //     } else if (shortAmount == amountNeedingAssignment) {
-        //         // This ticket is exactly sufficient to cover
-        //         turnOutcome = AssignmentWheelTurnOutcome.EXACTLY_SUFFICIENT;
-
-        //         // Remove the ticket from open tickets
-        //         if (tickets.length == 1) {
-        //             tickets.pop();
-        //         } else {
-        //             Ticket storage lastTicket = tickets[tickets.length - 1];
-        //             tickets[assignmentIndex] = lastTicket;
-        //             tickets.pop();
-        //         }
-        //     } else {
-        //         // This ticket is insufficient to cover
-        //         turnOutcome = AssignmentWheelTurnOutcome.INSUFFICIENT;
-
-        //         // Remove the ticket from open tickets
-        //         Ticket storage lastTicket = tickets[tickets.length - 1];
-        //         tickets[assignmentIndex] = lastTicket;
-        //         tickets.pop();
-        //     }
-
-        //     // Burn the writer's shorts and mint them assigned shorts
-        //     _burn(writer, _optionTokenId.longToShort(), shortAmount);
-        //     _mint(writer, _optionTokenId.longToAssignedShort(), shortAmount);
-
-        //     // Log assignment event
-        //     emit ShortsAssigned(writer, _optionTokenId, shortAmount);
-
-        //     // If a sufficient amount of shorts have been assigned, the assignment process is complete
-        //     if (turnOutcome != AssignmentWheelTurnOutcome.INSUFFICIENT) {
-        //         break;
-        //     }
-
-        //     // Else, decrement the option amount still needing to be assigned and turn the wheel again
-        //     amountNeedingAssignment -= shortAmount;
-        //     assignmentIndex = assignmentSeed % tickets.length;
-        // }
-
         // Burn the holder's longs
         _burn(msg.sender, _optionTokenId, optionAmount);
 
         // Track the asset liabilities
+        address writeAsset = optionStored.writeAsset;
+        address exerciseAsset = optionStored.exerciseAsset;
         uint256 fullAmountForExercise = uint256(optionStored.exerciseAmount) * optionAmount;
         uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
         _incrementAssetLiability(exerciseAsset, fullAmountForExercise);
@@ -641,7 +575,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _verifyAfter(writeAsset, exerciseAsset);
     }
 
-    function netOff(uint256 _optionTokenId, uint80 optionAmount)
+    function netOff(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
         returns (uint256 writeAssetNettedOff)
@@ -724,15 +658,15 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     /////////
 
-    function _assignShorts(uint256 _optionTokenId, uint80 amountToAssign) private {}
+    function _assignShorts(uint256 _optionTokenId, uint64 amountToAssign) private {}
 
     /////////
 
-    function _writeableAmount(uint256 _optionTokenId) private view returns (uint80 __writeableAmount) {}
+    function _writeableAmount(uint256 _optionTokenId) private view returns (uint64 __writeableAmount) {}
 
-    function _exercisableAmount(uint256 _optionTokenId) private view returns (uint80 assignableAmount) {}
+    function _exercisableAmount(uint256 _optionTokenId) private view returns (uint64 assignableAmount) {}
 
-    function _writerNettableAmount(uint256 _optionTokenId) private view returns (uint80 nettableAmount) {}
+    function _writerNettableAmount(uint256 _optionTokenId) private view returns (uint64 nettableAmount) {}
 
-    function _writerRedeemableAmount(uint256 _optionTokenId) private view returns (uint80 redeemableAmount) {}
+    function _writerRedeemableAmount(uint256 _optionTokenId) private view returns (uint64 redeemableAmount) {}
 }

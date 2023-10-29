@@ -7,7 +7,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
     /////////
 
     /////////
-    // function exercise(uint256 _optionTokenId, uint80 optionsAmount) external
+    // function exercise(uint256 _optionTokenId, uint64 optionsAmount) external
 
     function test_exercise() public {
         uint256 writerWethBalance = WETHLIKE.balanceOf(writer);
@@ -496,8 +496,8 @@ contract ExerciseTest is BaseClarityMarketsTest {
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
         for (uint256 i = 0; i < numWrites; i++) {
-            uint80 amount =
-                uint80(bound(uint256(keccak256(abi.encodePacked("setec astronomy", i))), 0, type(uint24).max));
+            uint64 amount =
+                uint64(bound(uint256(keccak256(abi.encodePacked("setec astronomy", i))), 0, type(uint24).max));
             optionAmountWritten += amount;
 
             clarity.write(optionTokenId, amount);
@@ -536,7 +536,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         vm.warp(americanExWeeklies[0][0]);
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000_000));
-        clarity.exercise(optionTokenId, uint80(optionAmountWritten));
+        clarity.exercise(optionTokenId, uint64(optionAmountWritten));
         vm.stopPrank();
 
         // check option balances
