@@ -7,7 +7,7 @@ contract NetOffTest is BaseClarityMarketsTest {
     /////////
 
     /////////
-    // function netOff(uint256 _optionTokenId, uint80 optionsAmount)
+    // function netOff(uint256 _optionTokenId, uint64 optionsAmount)
     //     external
     //     override
     //     returns (uint176 writeAssetNettedOff)

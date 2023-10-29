@@ -390,12 +390,12 @@ abstract contract BaseClarityMarketsTest is Test {
         return amount / (10 ** token.decimals());
     }
 
-    function scaleUpOptionAmount(uint256 amount) internal view returns (uint80) {
-        return SafeCastLib.safeCastTo80(amount * (10 ** clarity.OPTION_CONTRACT_SCALAR()));
+    function scaleUpOptionAmount(uint256 amount) internal view returns (uint64) {
+        return SafeCastLib.safeCastTo64(amount * (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
-    function scaleDownOptionAmount(uint256 amount) internal view returns (uint80) {
-        return SafeCastLib.safeCastTo80(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
+    function scaleDownOptionAmount(uint256 amount) internal view returns (uint64) {
+        return SafeCastLib.safeCastTo64(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
     ///////// Custom Type Assertions
@@ -490,9 +490,9 @@ abstract contract BaseClarityMarketsTest is Test {
         IOptionToken.OptionType optionType
     );
 
-    event OptionsWritten(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsWritten(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
 
-    event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
 
-    event OptionsNettedOff(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsNettedOff(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
 }

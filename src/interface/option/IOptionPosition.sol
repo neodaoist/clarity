@@ -6,9 +6,9 @@ interface IOptionPosition {
 
     /// @notice Explain to an end user what this does
     struct Position {
-        uint80 amountLong; // optionTokenId
-        uint80 amountShort; // optionTokenId | 1
-        uint80 amountAssignedShort; // optionTokenId | 2
+        uint64 amountLong; // optionTokenId
+        uint64 amountShort; // optionTokenId | 1
+        uint64 amountAssignedShort; // optionTokenId | 2
     }
 
     /////////
@@ -18,7 +18,7 @@ interface IOptionPosition {
         view
         returns (Position memory position, int160 magnitude);
 
-    function positionNettableAmount(uint256 optionTokenId) external view returns (uint80 amount);
+    function positionNettableAmount(uint256 optionTokenId) external view returns (uint64 amount);
 
-    function positionRedeemableAmount(uint256 optionTokenId) external view returns (uint80 amount);
+    function positionRedeemableAmount(uint256 optionTokenId) external view returns (uint64 amount);
 }
