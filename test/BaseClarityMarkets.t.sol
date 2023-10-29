@@ -74,15 +74,6 @@ abstract contract BaseClarityMarketsTest is Test {
     uint32 internal constant THU3 = DAWN + 20 days;
     uint32 internal constant THU4 = DAWN + 27 days;
 
-    // Parameterized exercise timestamp to test various assignment paths, via different
-    // assigment seeds and therefore different initial assignment indices
-    uint32 internal constant exSimplePath1 = DAWN + 5 seconds; // assignment path 0, 1, 2
-    uint32 internal constant exSimplePath2 = DAWN + 2 seconds; // assignment path 0, 2, 1
-    uint32 internal constant exSimplePath3 = DAWN + 3 seconds; // assignment path 1, 0, 2
-    uint32 internal constant exSimplePath4 = DAWN + 4 seconds; // assignment path 1, 2, 0
-    uint32 internal constant exSimplePath5 = DAWN + 1 seconds; // assignment path 2, 0, 1
-    uint32 internal constant exSimplePath6 = DAWN + 10 seconds; // assignment path 2, 1, 0
-
     uint32[][] internal americanExDailies;
     uint32[][] internal americanExWeeklies;
     uint32[][] internal americanExMonthlies;
@@ -197,9 +188,9 @@ abstract contract BaseClarityMarketsTest is Test {
 
     ///////// Test Backgrounds
 
-    modifier withSimpleBackground(uint32 exerciseTimestamp) {
+    modifier withSimpleBackground() {
         uint32[] memory exerciseWindow = new uint32[](2);
-        exerciseWindow[0] = exerciseTimestamp;
+        exerciseWindow[0] = FRI1 + 1 seconds;
         exerciseWindow[1] = FRI2;
 
         writer1WethBalance = WETHLIKE.balanceOf(writer1);
@@ -263,13 +254,14 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(LUSDLIKE.balanceOf(holder1), holder1LusdBalance, "holder1 LUSD balance before exercise");
 
         // warp to exercise window
-        vm.warp(exerciseTimestamp);
+        vm.warp(FRI1 + 1 seconds);
 
         _;
     }
 
     modifier withMediumBackground(uint256 writes) {
-        //
+        // TODO
+
         _;
     }
 
@@ -486,13 +478,6 @@ abstract contract BaseClarityMarketsTest is Test {
 
     ///////// Event Assertions
 
-    function checkEvent_exercise_ShortsAssigned(address _writer, uint256 optionTokenId, uint80 optionAmount)
-        internal
-    {
-        vm.expectEmit(true, true, true, true);
-        emit ShortsAssigned(_writer, optionTokenId, optionAmount);
-    }
-
     // TODO dupe for now, until Solidity 0.8.22 resolves this bug
 
     event OptionCreated(
@@ -509,5 +494,5 @@ abstract contract BaseClarityMarketsTest is Test {
 
     event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
 
-    event ShortsAssigned(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
+    event OptionsNettedOff(address indexed caller, uint256 indexed optionTokenId, uint80 optionAmount);
 }

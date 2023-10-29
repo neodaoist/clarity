@@ -42,6 +42,10 @@ library LibToken {
         return tokenId ^ 2;
     }
 
+    function assignedShortToShort(uint256 tokenId) internal pure returns (uint256) {
+        return (tokenId ^ 2) | 1;
+    }
+
     function tokenType(uint256 tokenId) internal pure returns (IOptionToken.TokenType) {
         return IOptionToken.TokenType(tokenId & 0xFF);
     }

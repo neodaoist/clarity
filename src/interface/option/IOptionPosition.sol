@@ -5,9 +5,6 @@ interface IOptionPosition {
     /////////
 
     /// @notice Explain to an end user what this does
-    /// @dev amountExercisable =
-    /// amountNettable =
-    /// amountRedeemable =
     struct Position {
         uint80 amountLong; // optionTokenId
         uint80 amountShort; // optionTokenId | 1

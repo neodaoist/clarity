@@ -11,11 +11,11 @@ contract OptionStateViewsTest is BaseClarityMarketsTest {
     /////////
     // function openInterest(uint256 optionTokenId) external view returns (uint80 amount);
 
-    function test_openInterest_whenWritten() public withSimpleBackground(DAWN) {
+    function test_openInterest_whenWritten() public withSimpleBackground {
         assertEq(clarity.openInterest(oti1), 2.5e6, "open interest");
     }
 
-    function test_openInterest_whenExercised() public withSimpleBackground(DAWN) {
+    function test_openInterest_whenExercised() public withSimpleBackground {
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
         clarity.exercise(oti1, 0.2e6);

@@ -65,7 +65,7 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         assertEq(magnitude, 0.5e6, "holder1 magnitude");
     }
 
-    function test_position_writer_whenAssigned() public withSimpleBackground(exSimplePath1) {
+    function test_position_writer_whenAssigned() public withSimpleBackground {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -78,18 +78,18 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         (IOptionPosition.Position memory position, int160 magnitude) = clarity.position(oti1);
 
         assertEq(position.amountLong, 0, "writer1 amount long");
-        assertEq(position.amountShort, 2e6, "writer1 amount short");
-        assertEq(position.amountAssignedShort, 0.15e6, "writer1 amount assigned short");
-        assertEq(magnitude, -2e6, "writer1 magnitude");
+        assertEq(position.amountShort, (2.15e6 * (2.5e6 - 0.2e6)) / 2.5e6, "writer1 amount short");
+        assertEq(position.amountAssignedShort, (2.15e6 * 0.2e6) / 2.5e6, "writer1 amount assigned short");
+        assertEq(magnitude, -2.15e6, "writer1 magnitude");
 
         // check writer2 position
         vm.prank(writer2);
         (position, magnitude) = clarity.position(oti1);
 
         assertEq(position.amountLong, 0, "writer2 amount long");
-        assertEq(position.amountShort, 0.3e6, "writer2 amount short");
-        assertEq(position.amountAssignedShort, 0.05e6, "writer2 amount assigned short");
-        assertEq(magnitude, -0.3e6, "writer2 magnitude");
+        assertEq(position.amountShort, (0.35e6 * (2.5e6 - 0.2e6)) / 2.5e6, "writer2 amount short");
+        assertEq(position.amountAssignedShort, (0.35e6 * 0.2e6) / 2.5e6, "writer2 amount assigned short");
+        assertEq(magnitude, -0.35e6, "writer2 magnitude");
 
         // check holder1 position
         vm.prank(holder1);
@@ -105,7 +105,7 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
 
     // TODO writer whenRedeemed
 
-    function test_position_holder_whenExercised() public withSimpleBackground(DAWN) {}
+    // TODO writer whenExercised
 
     // TODO reverts
 
