@@ -65,6 +65,8 @@ contract NetOffTest is BaseClarityMarketsTest {
         assertEq(LUSDLIKE.balanceOf(writer), writerLusdBalance, "writer LUSD balance after net off");
     }
 
+    // TODO add event tests
+
     // Sad Paths
 
     function testRevert_netOff_whenOptionDoesNotExist() public {

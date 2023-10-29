@@ -13,7 +13,7 @@ import {LibTime} from "./library/LibTime.sol";
 import {OptionErrors} from "./library/OptionErrors.sol";
 import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
 
-import {ERC6909} from "solmate/tokens/ERC6909.sol";
+import {ERC6909Rebasing} from "./external/ERC6909Rebasing.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
@@ -28,7 +28,7 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 /// The protocol is open source, open state, and open access. It has zero oracles, zero
 /// governance, and zero custody. It is designed to be secure, composable, immutable,
 /// ergonomic, and gas minimal.
-contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI, ERC6909 {
+contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI, ERC6909Rebasing {
     /////////
 
     using LibToken for uint256;
@@ -37,6 +37,26 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     ///////// Private Structs
 
+    struct OptionStorage {
+        address writeAsset;
+        uint64 writeAmount;
+        uint8 writeDecimals;
+        uint8 exerciseDecimals;
+        OptionType optionType;
+        ExerciseStyle exerciseStyle;
+        address exerciseAsset;
+        uint64 exerciseAmount;
+        uint32 assignmentSeed;
+        ExerciseWindow exerciseWindow; // TODO add Bermudan support
+        OptionState optionState;
+    }
+
+    struct OptionState {
+        uint80 amountWritten;
+        uint80 amountExercised;
+        uint80 amountNettedOff;
+    }
+
     struct ClearingAssetInfo {
         address writeAsset;
         uint8 writeDecimals;
@@ -44,14 +64,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         address exerciseAsset;
         uint8 exerciseDecimals;
         uint64 exerciseAmount;
-    }
-
-    ///////// Private Enums
-
-    enum AssignmentWheelTurnOutcome {
-        INSUFFICIENT,
-        EXACTLY_SUFFICIENT,
-        MORE_THAN_SUFFICIENT
     }
 
     ///////// Public Constant/Immutable
@@ -65,8 +77,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     mapping(uint248 => OptionStorage) private optionStorage;
 
     mapping(address => uint256) private assetLiabilities;
-
-    mapping(uint256 => Ticket[]) private openTickets;
 
     ///////// Option Token Views
 
@@ -182,6 +192,40 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     function reedemableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
 
+    ///////// Rebasing Token Balance Views
+
+    function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(tokenId);
+        }
+
+        // Calculate the balance
+        TokenType _tokenType = tokenId.tokenType();
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountExercised = optionStored.optionState.amountExercised;
+
+        // If never any open interest for this created option, all balances will be zero
+        if (amountWritten == 0 && amountExercised == 0) {
+            return 0;
+        }
+
+        // If long, the balance is the actual amount held by owner
+        if (_tokenType == TokenType.LONG) {
+            return internalBalanceOf[owner][tokenId];
+        } else if (_tokenType == TokenType.SHORT) {
+            // If short, the balance is their proportional share of the unassigned shorts
+            return (internalBalanceOf[owner][tokenId] * (amountWritten - amountExercised)) / amountWritten;
+        } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+            // If assigned short, the balance is their proportional share of the assigned shorts
+            return
+                (internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised) / amountWritten;
+        } else {
+            revert OptionErrors.InvalidPositionTokenType(tokenId);
+        }
+    }
+
     ///////// Option Position Views
 
     function position(uint256 _optionTokenId)
@@ -201,9 +245,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
 
         // Get the position
-        uint256 longBalance = balanceOf[msg.sender][_optionTokenId];
-        uint256 shortBalance = balanceOf[msg.sender][_optionTokenId.longToShort()];
-        uint256 assignedShortBalance = balanceOf[msg.sender][_optionTokenId.longToAssignedShort()];
+        uint256 longBalance = balanceOf(msg.sender, _optionTokenId);
+        uint256 shortBalance = balanceOf(msg.sender, _optionTokenId.longToShort());
+        uint256 assignedShortBalance = balanceOf(msg.sender, _optionTokenId.longToAssignedShort());
 
         _position = Position({
             amountLong: longBalance.safeCastTo80(),
@@ -212,7 +256,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         });
 
         // Calculate the magnitude
-        magnitude = int160(int256(longBalance) - int256(shortBalance));
+        magnitude = int160(int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance));
     }
 
     function positionNettableAmount(uint256 _optionTokenId) external view returns (uint80 amount) {}
@@ -245,6 +289,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     }
 
     ///////// Option Actions
+
+    // TODO refactor to DRY up write business logic
 
     function writeCall(
         address baseAsset,
@@ -353,16 +399,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             exerciseAsset: assetInfo.exerciseAsset,
             exerciseAmount: assetInfo.exerciseAmount,
             assignmentSeed: uint32(bytes4(keccak256(abi.encodePacked(optionHash, block.timestamp)))),
-            exerciseWindow: LibTime.toExerciseWindow(exerciseWindow)
+            exerciseWindow: LibTime.toExerciseWindow(exerciseWindow),
+            optionState: OptionState({amountWritten: optionAmount, amountExercised: 0, amountNettedOff: 0})
         });
 
         if (optionAmount > 0) {
             // Mint the longs and shorts
             _mint(msg.sender, _optionTokenId, optionAmount);
             _mint(msg.sender, _optionTokenId.longToShort(), optionAmount);
-
-            // Track the ticket
-            openTickets[_optionTokenId].push(Ticket({writer: msg.sender, shortAmount: optionAmount}));
 
             // Track the asset liability
             uint256 fullAmountForWrite = uint256(assetInfo.writeAmount) * optionAmount;
@@ -398,6 +442,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     function write(uint256 _optionTokenId, uint80 optionAmount) public override {
         ///////// Function Requirements
+        // Check that the option amount is not zero
+        if (optionAmount == 0) {
+            revert OptionErrors.WriteAmountZero();
+        }
+
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
@@ -410,20 +459,15 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             revert OptionErrors.OptionExpired(_optionTokenId, expiryTimestamp);
         }
 
-        // Check that the option is not exercised
-        if (optionAmount == 0) {
-            revert OptionErrors.WriteAmountZero();
-        }
-
         // TODO check that amount is not greater than writeableAmount
 
-        ///////// Effects // TODO refactor to DRY up Write effects and interactions
+        ///////// Effects
+        // Update the option state
+        optionStored.optionState.amountWritten += optionAmount;
+
         // Mint the longs and shorts
         _mint(msg.sender, _optionTokenId, optionAmount);
         _mint(msg.sender, _optionTokenId.longToShort(), optionAmount);
-
-        // Track the ticket
-        openTickets[_optionTokenId].push(Ticket({writer: msg.sender, shortAmount: optionAmount}));
 
         // Track the asset liability
         address writeAsset = optionStored.writeAsset;
@@ -466,8 +510,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
     }
 
-    // NOTE that transfer of shorts is not yet supported, and breaks exercise assignment
-
     function exercise(uint256 _optionTokenId, uint80 optionAmount) external override {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -494,81 +536,84 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             }
 
             // Check that the caller holds sufficient longs to exercise
-            uint256 optionBalance = balanceOf[msg.sender][_optionTokenId];
+            uint256 optionBalance = balanceOf(msg.sender, _optionTokenId);
             if (optionAmount > optionBalance) {
                 revert OptionErrors.ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
             }
         }
 
         ///////// Effects
-        // Setup the assignment wheel // TEMP naive implementation
-        uint80 amountNeedingAssignment = optionAmount;
+        // Update the option state
+        optionStored.optionState.amountExercised += optionAmount;
+
+        // // Setup the assignment wheel // TEMP naive implementation
+        // uint80 amountNeedingAssignment = optionAmount;
         address writeAsset = optionStored.writeAsset;
         address exerciseAsset = optionStored.exerciseAsset;
-        Ticket[] storage tickets = openTickets[_optionTokenId];
-        uint32 assignmentSeed = optionStored.assignmentSeed;
-        uint256 assignmentIndex = assignmentSeed % tickets.length;
+        // Ticket[] storage tickets = openTickets[_optionTokenId];
+        // uint32 assignmentSeed = optionStored.assignmentSeed;
+        // uint256 assignmentIndex = assignmentSeed % tickets.length;
 
-        // Turn the wheel -- iterate pseudorandomly thru open tickets until the option amount is fully assigned
-        while (amountNeedingAssignment > 0) {
-            // Get the ticket
-            AssignmentWheelTurnOutcome turnOutcome;
-            Ticket storage ticket = tickets[assignmentIndex];
-            address writer = ticket.writer;
-            uint80 shortAmount = ticket.shortAmount;
+        // // Turn the wheel -- iterate pseudorandomly thru open tickets until the option amount is fully assigned
+        // while (amountNeedingAssignment > 0) {
+        //     // Get the ticket
+        //     AssignmentWheelTurnOutcome turnOutcome;
+        //     Ticket storage ticket = tickets[assignmentIndex];
+        //     address writer = ticket.writer;
+        //     uint80 shortAmount = ticket.shortAmount;
 
-            // TEMP
-            // console2.log("--------- Top of assignment wheel turn");
-            // console2.log("assignmentIndex                  ", assignmentIndex);
-            // console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
-            // console2.log("shortAmount available in ticket  ", shortAmount);
+        //     // TEMP
+        //     // console2.log("--------- Top of assignment wheel turn");
+        //     // console2.log("assignmentIndex                  ", assignmentIndex);
+        //     // console2.log("optionAmount to be assigned      ", amountNeedingAssignment);
+        //     // console2.log("shortAmount available in ticket  ", shortAmount);
 
-            // Check if this ticket has sufficient shorts to cover the option amount needing assignment
-            if (shortAmount > amountNeedingAssignment) {
-                // This ticket is more than sufficient to cover
-                turnOutcome = AssignmentWheelTurnOutcome.MORE_THAN_SUFFICIENT;
+        //     // Check if this ticket has sufficient shorts to cover the option amount needing assignment
+        //     if (shortAmount > amountNeedingAssignment) {
+        //         // This ticket is more than sufficient to cover
+        //         turnOutcome = AssignmentWheelTurnOutcome.MORE_THAN_SUFFICIENT;
 
-                // Decrement the amount of outstanding shorts on this ticket, but keep it open
-                tickets[assignmentIndex].shortAmount -= shortAmount;
-                shortAmount = amountNeedingAssignment;
-            } else if (shortAmount == amountNeedingAssignment) {
-                // This ticket is exactly sufficient to cover
-                turnOutcome = AssignmentWheelTurnOutcome.EXACTLY_SUFFICIENT;
+        //         // Decrement the amount of outstanding shorts on this ticket, but keep it open
+        //         tickets[assignmentIndex].shortAmount -= shortAmount;
+        //         shortAmount = amountNeedingAssignment;
+        //     } else if (shortAmount == amountNeedingAssignment) {
+        //         // This ticket is exactly sufficient to cover
+        //         turnOutcome = AssignmentWheelTurnOutcome.EXACTLY_SUFFICIENT;
 
-                // Remove the ticket from open tickets
-                if (tickets.length == 1) {
-                    tickets.pop();
-                } else {
-                    Ticket storage lastTicket = tickets[tickets.length - 1];
-                    tickets[assignmentIndex] = lastTicket;
-                    tickets.pop();
-                }
-            } else {
-                // This ticket is insufficient to cover
-                turnOutcome = AssignmentWheelTurnOutcome.INSUFFICIENT;
+        //         // Remove the ticket from open tickets
+        //         if (tickets.length == 1) {
+        //             tickets.pop();
+        //         } else {
+        //             Ticket storage lastTicket = tickets[tickets.length - 1];
+        //             tickets[assignmentIndex] = lastTicket;
+        //             tickets.pop();
+        //         }
+        //     } else {
+        //         // This ticket is insufficient to cover
+        //         turnOutcome = AssignmentWheelTurnOutcome.INSUFFICIENT;
 
-                // Remove the ticket from open tickets
-                Ticket storage lastTicket = tickets[tickets.length - 1];
-                tickets[assignmentIndex] = lastTicket;
-                tickets.pop();
-            }
+        //         // Remove the ticket from open tickets
+        //         Ticket storage lastTicket = tickets[tickets.length - 1];
+        //         tickets[assignmentIndex] = lastTicket;
+        //         tickets.pop();
+        //     }
 
-            // Burn the writer's shorts and mint them assigned shorts
-            _burn(writer, _optionTokenId.longToShort(), shortAmount);
-            _mint(writer, _optionTokenId.longToAssignedShort(), shortAmount);
+        //     // Burn the writer's shorts and mint them assigned shorts
+        //     _burn(writer, _optionTokenId.longToShort(), shortAmount);
+        //     _mint(writer, _optionTokenId.longToAssignedShort(), shortAmount);
 
-            // Log assignment event
-            emit ShortsAssigned(writer, _optionTokenId, shortAmount);
+        //     // Log assignment event
+        //     emit ShortsAssigned(writer, _optionTokenId, shortAmount);
 
-            // If a sufficient amount of shorts have been assigned, the assignment process is complete
-            if (turnOutcome != AssignmentWheelTurnOutcome.INSUFFICIENT) {
-                break;
-            }
+        //     // If a sufficient amount of shorts have been assigned, the assignment process is complete
+        //     if (turnOutcome != AssignmentWheelTurnOutcome.INSUFFICIENT) {
+        //         break;
+        //     }
 
-            // Else, decrement the option amount still needing to be assigned and turn the wheel again
-            amountNeedingAssignment -= shortAmount;
-            assignmentIndex = assignmentSeed % tickets.length;
-        }
+        //     // Else, decrement the option amount still needing to be assigned and turn the wheel again
+        //     amountNeedingAssignment -= shortAmount;
+        //     assignmentIndex = assignmentSeed % tickets.length;
+        // }
 
         // Burn the holder's longs
         _burn(msg.sender, _optionTokenId, optionAmount);
@@ -618,15 +663,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // TODO
 
         // Check that the caller holds sufficient longs and shorts to net off
-        if (optionAmount > balanceOf[msg.sender][_optionTokenId]) {
+        if (optionAmount > balanceOf(msg.sender, _optionTokenId)) {
             revert OptionErrors.InsufficientLongBalance(_optionTokenId, optionAmount);
         }
-        if (optionAmount > balanceOf[msg.sender][_optionTokenId.longToShort()]) {
+        if (optionAmount > balanceOf(msg.sender, _optionTokenId.longToShort())) {
             revert OptionErrors.InsufficientShortBalance(_optionTokenId, optionAmount);
         }
 
         ///////// Effects
-        // TODO handle open tickets
+        // Update option state
+        optionStored.optionState.amountNettedOff += optionAmount;
 
         // Burn the caller's longs and shorts
         _burn(msg.sender, _optionTokenId, optionAmount);

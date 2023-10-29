@@ -11,19 +11,6 @@ interface IOptionToken {
     // max asset pairs, for option token types               = 2.1e96 = 2^160 * 2^160
     // max time pairs, for exercise windows                  = 128    = (2^32 * 2^8) / 2^32 / 2
 
-    struct OptionStorage {
-        address writeAsset;
-        uint64 writeAmount;
-        uint8 writeDecimals;
-        uint8 exerciseDecimals;
-        OptionType optionType;
-        ExerciseStyle exerciseStyle;
-        address exerciseAsset;
-        uint64 exerciseAmount;
-        uint32 assignmentSeed;
-        ExerciseWindow exerciseWindow; // TODO add Bermudan support
-    }
-
     struct Option {
         address baseAsset;
         address quoteAsset;

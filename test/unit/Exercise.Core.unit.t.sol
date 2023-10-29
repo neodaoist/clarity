@@ -63,29 +63,34 @@ contract ExerciseTest is BaseClarityMarketsTest {
         clarity.exercise(optionTokenId, 0.8e6);
         vm.stopPrank();
 
-        // post exercise checks
-        assertEq(clarity.balanceOf(writer, optionTokenId), 1.1e6, "writer long balance after exercise");
+        // Then
+        // check option balances
+        assertEq(clarity.balanceOf(writer1, optionTokenId), 1.1e6, "oti1 writer1 long balance after exercise");
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
-            1.45e6,
-            "writer short balance after exercise"
+            clarity.balanceOf(writer1, LibToken.longToShort(optionTokenId)),
+            (2.25e6 * (2.25e6 - 0.8e6)) / 2.25e6,
+            "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
-            0.8e6,
-            "writer assigned balance after exercise"
+            clarity.balanceOf(writer1, LibToken.longToAssignedShort(optionTokenId)),
+            (2.25e6 * 0.8e6) / 2.25e6,
+            "oti1 writer1 assigned balance after exercise"
         );
-        assertEq(clarity.balanceOf(holder, optionTokenId), 0.35e6, "holder long balance after exercise");
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(holder1, optionTokenId), 0.35e6, "oti1 holder1 long balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToShort(optionTokenId)),
             0,
-            "holder short balance after exercise"
+            "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(holder1, LibToken.longToAssignedShort(optionTokenId)),
             0,
-            "holder assigned balance after exercise"
+            "oti1 holder1 assigned balance after exercise"
         );
+
+        // check asset balances
         assertEq(
             WETHLIKE.balanceOf(writer),
             writerWethBalance - (1e18 * 2.25),
@@ -102,36 +107,380 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
-    function txxxest_exercise_many_whenComplex_AndOneHolderExercisesAllOnce() public withComplexBackground {
-        // When holder1 exercises 2.45 options of oti1
+    // Happy path, Simple background, Scenarios A-F
+
+    function test_exercise_whenSimpleA_andOneHolderExercisesLessThanTicket1() public withSimpleBackground {
+        // When holder1 exercises 0.1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 2.45e6);
+        clarity.exercise(oti1, 0.1e6);
         vm.stopPrank();
 
         // Then
         // check option balances
         assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
-        assertEq(clarity.balanceOf(writer1, oti1 + 1), 777, "oti1 writer1 short balance after exercise");
-        assertEq(clarity.balanceOf(writer1, oti1 + 2), 0, "oti1 writer1 assigned balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            (2.15e6 * (2.5e6 - 0.1e6)) / 2.5e6,
+            "oti1 writer1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            (2.15e6 * 0.1e6) / 2.5e6,
+            "oti1 writer1 assigned balance after exercise"
+        );
         assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
-        assertEq(clarity.balanceOf(writer2, oti1 + 1), 888, "oti1 writer2 short balance after exercise");
-        assertEq(clarity.balanceOf(writer2, oti1 + 2), 0, "oti1 writer2 assigned balance after exercise");
-        assertEq(clarity.balanceOf(writer3, oti1), 0, "oti1 writer3 long balance after exercise");
-        assertEq(clarity.balanceOf(writer3, oti1 + 1), 999, "oti1 writer3 short balance after exercise");
-        assertEq(clarity.balanceOf(writer3, oti1 + 2), 0, "oti1 writer3 assigned balance after exercise");
-        assertEq(clarity.balanceOf(holder1, oti1), 0, "oti1 holder1 long balance after exercise");
-        assertEq(clarity.balanceOf(holder1, oti1 + 1), 0, "oti1 holder1 short balance after exercise");
-        assertEq(clarity.balanceOf(holder1, oti1 + 2), 0, "oti1 holder1 assigned balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            (0.35e6 * (2.5e6 - 0.1e6)) / 2.5e6,
+            "oti1 writer2 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            (0.35e6 * 0.1e6) / 2.5e6,
+            "oti1 writer2 assigned balance after exercise"
+        );
+
+        assertEq(clarity.balanceOf(holder1, oti1), 2.4e6, "oti1 holder1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            0,
+            "oti1 holder1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            0,
+            "oti1 holder1 assigned balance after exercise"
+        );
 
         // check asset balances
-        assertEq(WETHLIKE.balanceOf(holder1), holder1WethBalance, "holder1 WETH balance after exercise");
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance + (1e18 * 0.1),
+            "holder1 WETH balance after exercise"
+        );
         assertEq(
             LUSDLIKE.balanceOf(holder1),
-            holder1LusdBalance - (1700e6 * 2.25),
+            holder1LusdBalance - (1750e18 * 0.1),
             "holder1 LUSD balance after exercise"
         );
     }
+
+    function test_exercise_whenSimpleB_andOneHolderExercisesEqualToTicket1() public withSimpleBackground {
+        // When holder1 exercises 0.15 options of oti1
+        vm.startPrank(holder1);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        clarity.exercise(oti1, 0.15e6);
+        vm.stopPrank();
+
+        // Then
+        // check option balances
+        assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            (2.15e6 * (2.5e6 - 0.15e6)) / 2.5e6,
+            "oti1 writer1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            (2.15e6 * 0.15e6) / 2.5e6,
+            "oti1 writer1 assigned balance after exercise"
+        );
+        assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            (0.35e6 * (2.5e6 - 0.15e6)) / 2.5e6,
+            "oti1 writer2 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            (0.35e6 * 0.15e6) / 2.5e6,
+            "oti1 writer2 assigned balance after exercise"
+        );
+
+        assertEq(clarity.balanceOf(holder1, oti1), 2.35e6, "oti1 holder1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            0,
+            "oti1 holder1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            0,
+            "oti1 holder1 assigned balance after exercise"
+        );
+
+        // check asset balances
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance + (1e18 * 0.15),
+            "holder1 WETH balance after exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder1),
+            holder1LusdBalance - (1750e18 * 0.15),
+            "holder1 LUSD balance after exercise"
+        );
+    }
+
+    function test_exercise_whenSimpleC_andOneHolderExercisesLessThanTicket2() public withSimpleBackground {
+        // When holder1 exercises 0.2 options of oti1
+        vm.startPrank(holder1);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        clarity.exercise(oti1, 0.2e6);
+        vm.stopPrank();
+
+        // Then
+        // check option balances
+        assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            (2.15e6 * (2.5e6 - 0.2e6)) / 2.5e6,
+            "oti1 writer1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            (2.15e6 * 0.2e6) / 2.5e6,
+            "oti1 writer1 assigned balance after exercise"
+        );
+        assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            (0.35e6 * (2.5e6 - 0.2e6)) / 2.5e6,
+            "oti1 writer2 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            (0.35e6 * 0.2e6) / 2.5e6,
+            "oti1 writer2 assigned balance after exercise"
+        );
+
+        assertEq(clarity.balanceOf(holder1, oti1), 2.3e6, "oti1 holder1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            0,
+            "oti1 holder1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            0,
+            "oti1 holder1 assigned balance after exercise"
+        );
+
+        // check asset balances
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance + (1e18 * 0.2),
+            "holder1 WETH balance after exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder1),
+            holder1LusdBalance - (1750e18 * 0.2),
+            "holder1 LUSD balance after exercise"
+        );
+    }
+
+    function test_exercise_whenSimpleD_andOneHolderExercisesEqualToTicket2() public withSimpleBackground {
+        // When holder1 exercises 0.5 options of oti1
+        vm.startPrank(holder1);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        clarity.exercise(oti1, 0.5e6);
+        vm.stopPrank();
+
+        // Then
+        // check option balances
+        assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            (2.15e6 * (2.5e6 - 0.5e6)) / 2.5e6,
+            "oti1 writer1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            (2.15e6 * 0.5e6) / 2.5e6,
+            "oti1 writer1 assigned balance after exercise"
+        );
+        assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            (0.35e6 * (2.5e6 - 0.5e6)) / 2.5e6,
+            "oti1 writer2 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            (0.35e6 * 0.5e6) / 2.5e6,
+            "oti1 writer2 assigned balance after exercise"
+        );
+
+        assertEq(clarity.balanceOf(holder1, oti1), 2e6, "oti1 holder1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            0,
+            "oti1 holder1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            0,
+            "oti1 holder1 assigned balance after exercise"
+        );
+
+        // check asset balances
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance + (1e18 * 0.5),
+            "holder1 WETH balance after exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder1),
+            holder1LusdBalance - (1750e18 * 0.5),
+            "holder1 LUSD balance after exercise"
+        );
+    }
+
+    function test_exercise_whenSimpleE_andOneHolderExercisesLessThanTicket3() public withSimpleBackground {
+        // When holder1 exercises 1 options of oti1
+        vm.startPrank(holder1);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        clarity.exercise(oti1, 1e6);
+        vm.stopPrank();
+
+        // Then
+        // check option balances
+        assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            (2.15e6 * (2.5e6 - 1e6)) / 2.5e6,
+            "oti1 writer1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            (2.15e6 * 1e6) / 2.5e6,
+            "oti1 writer1 assigned balance after exercise"
+        );
+        assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            (0.35e6 * (2.5e6 - 1e6)) / 2.5e6,
+            "oti1 writer2 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            (0.35e6 * 1e6) / 2.5e6,
+            "oti1 writer2 assigned balance after exercise"
+        );
+
+        assertEq(clarity.balanceOf(holder1, oti1), 1.5e6, "oti1 holder1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            0,
+            "oti1 holder1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            0,
+            "oti1 holder1 assigned balance after exercise"
+        );
+
+        // check asset balances
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance + (1e18 * 1),
+            "holder1 WETH balance after exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder1),
+            holder1LusdBalance - (1750e18 * 1),
+            "holder1 LUSD balance after exercise"
+        );
+    }
+
+    function test_exercise_whenSimpleF_andOneHolderExercisesEqualToTicket3() public withSimpleBackground {
+        // When holder1 exercises 2.5 options of oti1
+        vm.startPrank(holder1);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        clarity.exercise(oti1, 2.5e6);
+        vm.stopPrank();
+
+        // Then
+        // check option balances
+        assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            0,
+            "oti1 writer1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            2.15e6,
+            "oti1 writer1 assigned balance after exercise"
+        );
+        assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            0,
+            "oti1 writer2 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            0.35e6,
+            "oti1 writer2 assigned balance after exercise"
+        );
+
+        assertEq(clarity.balanceOf(holder1, oti1), 0, "oti1 holder1 long balance after exercise");
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            0,
+            "oti1 holder1 short balance after exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            0,
+            "oti1 holder1 assigned balance after exercise"
+        );
+
+        // check asset balances
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance + (1e18 * 2.5),
+            "holder1 WETH balance after exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder1),
+            holder1LusdBalance - (1750e18 * 2.5),
+            "holder1 LUSD balance after exercise"
+        );
+    }
+
+    // function test_exercise_many_whenComplex_AndOneHolderExercisesAllOnce() public withComplexBackground {
+    //     // When holder1 exercises 2.45 options of oti1
+    //     vm.startPrank(holder1);
+    //     LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+    //     clarity.exercise(oti1, 2.45e6);
+    //     vm.stopPrank();
+
+    //     // Then
+    //     // check option balances
+    //     assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
+    //     assertEq(clarity.balanceOf(writer1, LibToken.longToShort(oti1)), 777, "oti1 writer1 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)), 0, "oti1 writer1 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
+    //     assertEq(clarity.balanceOf(writer2, LibToken.longToShort(oti1)), 888, "oti1 writer2 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)), 0, "oti1 writer2 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer3, oti1), 0, "oti1 writer3 long balance after exercise");
+    //     assertEq(clarity.balanceOf(writer3, LibToken.longToShort(oti1)), 999, "oti1 writer3 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer3, LibToken.longToAssignedShort(oti1)), 0, "oti1 writer3 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(holder1, oti1), 0, "oti1 holder1 long balance after exercise");
+    //     assertEq(clarity.balanceOf(holder1, LibToken.longToShort(oti1)), 0, "oti1 holder1 short balance after exercise");
+    //     assertEq(clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)), 0, "oti1 holder1 assigned balance after exercise");
+
+    //     // check asset balances
+    //     assertEq(WETHLIKE.balanceOf(holder1), holder1WethBalance, "holder1 WETH balance after exercise");
+    //     assertEq(
+    //         LUSDLIKE.balanceOf(holder1),
+    //         holder1LusdBalance - (1700e6 * 2.25),
+    //         "holder1 LUSD balance after exercise"
+    //     );
+    // }
 
     function test_exercise_upperBounds() public {
         uint256 numWrites = 3000;
@@ -229,7 +578,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
     // Events
 
-    function testEvent_exercise_OptionsExercised() public withSimpleBackground(DAWN) {
+    function testEvent_exercise_OptionsExercised() public withSimpleBackground {
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
