@@ -404,6 +404,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             exerciseWindow: LibTime.toExerciseWindow(exerciseWindow)
         });
 
+        // Store the option name/symbols
+        names[_optionTokenId] = "clr-stETH-aUSDC-20OCT23-1750-C"; // TODO
+
         if (optionAmount > 0) {
             // Mint the longs and shorts
             _mint(msg.sender, _optionTokenId, optionAmount);

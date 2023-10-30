@@ -30,12 +30,6 @@ interface IOptionToken {
         BERMUDAN
     }
 
-    enum TokenType {
-        LONG,
-        SHORT,
-        ASSIGNED_SHORT
-    }
-
     /// @dev Represents a time window in which an option can be exercised
     /// @param exerciseTimestamp The first timestamp in this window on or after which the option can be exercised
     /// @param expiryTimestamp The last timestamp in this window before or on which the option can be exercised
@@ -44,8 +38,15 @@ interface IOptionToken {
         uint32 expiryTimestamp; // ditto
     }
 
+    enum TokenType {
+        LONG,
+        SHORT,
+        ASSIGNED_SHORT
+    }
+
     // TODO double check combinatorics of packing OTTs into uint248
     // TODO double check entropy of uint32 assignmentSeed
+    // TODO analyze and reconsider dependency graph
 
     /////////
 
@@ -62,4 +63,7 @@ interface IOptionToken {
     function optionType(uint256 optionTokenId) external view returns (OptionType optionType);
 
     function exerciseStyle(uint256 optionTokenId) external view returns (ExerciseStyle exerciseStyle);
+
+    // TODO add
+    // function exerciseWindow() external view returns (IOptionToken.ExerciseWindow memory exerciseWindow);
 }

@@ -96,7 +96,7 @@ abstract contract BaseClarityMarketsTest is Test {
     uint256 internal oti4;
     uint256 internal oti5;
 
-    function setUp() public {
+    function setUp() public virtual {
         // dawn
         vm.warp(DAWN);
 
