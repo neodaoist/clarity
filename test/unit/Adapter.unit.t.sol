@@ -24,10 +24,14 @@ contract AdapterTest is BaseClarityMarketsTest {
     }
 
     /////////
+    // Construction
 
     function test_initial() public {
         assertEq(address(factory.clarity()), address(clarity));
     }
+
+    /////////
+    // function deployWrappedLong(uint256 optionTokenId) external returns (address wrapperAddress);
 
     //
     function test_deployWrappedLong() public {
@@ -80,7 +84,57 @@ contract AdapterTest is BaseClarityMarketsTest {
         assertEq(factory.wrapperFor(optionTokenId), longWrapperAddress, "wrapper address from factory");
     }
 
-    function test_deployedWrappedLong_andWrapLongs() public {
+    /////////
+    // function deployWrappedLong(uint256 optionTokenId) external returns (address wrapperAddress);
+
+    // TODO
+
+    /////////
+    // function wrapperFor(uint256 tokenId) external view returns (address wrapperAddress);
+
+    // TODO
+
+    // Sad Paths
+
+    function testRevert_deployWrappedLong_whenOptionDoesNotExist() public {
+        vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, 456));
+
+        vm.prank(writer);
+        factory.deployWrappedLong(456);
+    }
+
+    function testRevert_deployWrappedLong_whenWrapperAlreadyDeployed() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
+        factory.deployWrappedLong(optionTokenId);
+        vm.stopPrank();
+
+        vm.expectRevert(abi.encodeWithSelector(OptionErrors.WrappedLongAlreadyDeployed.selector, optionTokenId));
+
+        vm.prank(writer);
+        factory.deployWrappedLong(optionTokenId);
+    }
+
+    function testRevert_deployWrappedLong_whenOptionAlreadyExpired() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
+        vm.stopPrank();
+        
+        vm.warp(americanExWeeklies[0][1] + 1 seconds);
+
+        vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionExpired.selector, optionTokenId, uint32(block.timestamp)));
+
+        vm.prank(writer);
+        factory.deployWrappedLong(optionTokenId);
+    }
+
+    //////// ClarityWrappedLong
+
+    function test_wrapLongs() public {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -123,4 +177,20 @@ contract AdapterTest is BaseClarityMarketsTest {
         assertEq(longWrapper.totalSupply(), 8e6);
         assertEq(longWrapper.balanceOf(writer), 8e6, "wrapper balance after wrap");
     }
+
+    // TODO sad paths
+
+    /////////
+    // function unwrapLongs(uint256 amount) external;
+
+    // TODO
+
+    /////////
+    // function exerciseLongs(uint256 amount) external;
+
+    // TODO
+
+    /////////
+    // ClarityWrappedShort
+    
 }

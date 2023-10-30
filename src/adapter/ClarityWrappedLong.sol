@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "../interface/adapter/IWrappedOption.sol";
+// Interfaces
+import {IOptionToken} from "../interface/option/IOptionToken.sol";
+import {IWrappedOption} from "../interface/adapter/IWrappedOption.sol";
 import {IClarityWrappedLong} from "../interface/adapter/IClarityWrappedLong.sol";
 
+// Contracts
 import {ClarityMarkets} from "../ClarityMarkets.sol";
+import {OptionErrors} from "../library/OptionErrors.sol";
 
+// External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
 contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
@@ -48,7 +53,14 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
 
     function wrapLongs(uint256 amount) external {
         ///////// Function Requirements
+        
         // TODO
+
+        // Check that the caller holds sufficient longs of this option
+        uint256 optionBalance = clarity.balanceOf(msg.sender, optionTokenId);
+        if (optionBalance == 0) {
+            revert OptionErrors.InsufficientLongBalance(optionTokenId, optionBalance);
+        }
 
         ///////// Effects
         // Mint the wrapped longs to the caller
