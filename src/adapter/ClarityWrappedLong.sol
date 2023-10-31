@@ -27,8 +27,8 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         clarity = _clarity;
         optionTokenId = _optionTokenId;
 
-        // Log ClarityERC20LongWrapperDeployed event
-        // TODO
+        // Log event
+        emit ClarityWrappedLongDeployed(_optionTokenId, address(this));
     }
 
     /////////
@@ -78,8 +78,8 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         // Transfer the longs from the caller to the wrapper
         clarity.transferFrom(msg.sender, address(this), optionTokenId, optionAmount);
 
-        // Log ClarityERC20LongsWrapped event
-        // TODO
+        // Log event
+        emit ClarityLongsWrapped(msg.sender, optionTokenId, uint64(optionAmount));
     }
 
     function unwrapLongs(uint256 optionAmount) external {
@@ -103,8 +103,8 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         // Transfer the longs from the wrapper to the caller
         clarity.transfer(msg.sender, optionTokenId, optionAmount);
 
-        // Log ClarityERC20LongsUnwrapped event
-        // TODO
+        // Log event
+        emit ClarityLongsUnwrapped(msg.sender, optionTokenId, uint64(optionAmount));
     }
 
     function exerciseLongs(uint256 optionAmount) external {

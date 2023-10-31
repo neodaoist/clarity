@@ -15,8 +15,8 @@ contract AdapterTest is BaseClarityMarketsTest {
     using LibToken for uint256;
 
     ClarityERC20Factory internal factory;
-    ClarityWrappedLong internal longWrapper;
-    ClarityWrappedShort internal shortWrapper;
+    ClarityWrappedLong internal wrappedLong;
+    ClarityWrappedShort internal wrappedShort;
 
     function setUp() public override {
         super.setUp();
@@ -58,11 +58,11 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // When writer deploys ClarityWrappedLong
         vm.prank(writer);
-        address longWrapperAddress = factory.deployWrappedLong(optionTokenId);
+        address wrappedLongAddress = factory.deployWrappedLong(optionTokenId);
 
         // Then
         // check deployed wrapper
-        ClarityWrappedLong wrapper = ClarityWrappedLong(longWrapperAddress);
+        ClarityWrappedLong wrapper = ClarityWrappedLong(wrappedLongAddress);
         string memory expectedName = string(abi.encodePacked("w", clarity.names(optionTokenId)));
         assertEq(wrapper.name(), expectedName, "wrapper name");
         assertEq(wrapper.symbol(), expectedName, "wrapper symbol");
@@ -83,24 +83,24 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         // check factory state
-        assertEq(factory.wrapperFor(optionTokenId), longWrapperAddress, "wrapper address from factory");
+        assertEq(factory.wrapperFor(optionTokenId), wrappedLongAddress, "wrapper address from factory");
     }
 
     function test_deployWrappedLong_many() public {
         uint256 numOptions = 10;
         uint256[] memory optionTokenIds = new uint256[](numOptions);
-        ClarityWrappedLong[] memory longWrappers = new ClarityWrappedLong[](numOptions);
+        ClarityWrappedLong[] memory wrappedLongs = new ClarityWrappedLong[](numOptions);
 
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
             optionTokenIds[i] = clarity.writeCall(
-                address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], (1750 + i) * 10**18, 10e6
+                address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], (1750 + i) * 10 ** 18, 10e6
             );
 
             // When writer deploys ClarityWrappedLong
-            longWrappers[i] = ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
+            wrappedLongs[i] = ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
         }
         vm.stopPrank();
 
@@ -108,22 +108,22 @@ contract AdapterTest is BaseClarityMarketsTest {
         for (uint256 i = 0; i < numOptions; i++) {
             // check deployed wrapper
             string memory expectedName = string(abi.encodePacked("w", clarity.names(optionTokenIds[i])));
-            assertEq(longWrappers[i].name(), expectedName, "wrapper name");
-            assertEq(longWrappers[i].symbol(), expectedName, "wrapper symbol");
-            assertEq(longWrappers[i].decimals(), clarity.decimals(optionTokenIds[i]), "wrapper decimals");
-            assertEq(longWrappers[i].optionTokenId(), optionTokenIds[i], "wrapper optionTokenId");
-            // assertEq(longWrappers[i].option(), clarity.option(optionTokenIds[i]));
-            assertEq(longWrappers[i].optionType(), IOptionToken.OptionType.CALL, "wrapper optionType");
+            assertEq(wrappedLongs[i].name(), expectedName, "wrapper name");
+            assertEq(wrappedLongs[i].symbol(), expectedName, "wrapper symbol");
+            assertEq(wrappedLongs[i].decimals(), clarity.decimals(optionTokenIds[i]), "wrapper decimals");
+            assertEq(wrappedLongs[i].optionTokenId(), optionTokenIds[i], "wrapper optionTokenId");
+            // assertEq(wrappedLongs[i].option(), clarity.option(optionTokenIds[i]));
+            assertEq(wrappedLongs[i].optionType(), IOptionToken.OptionType.CALL, "wrapper optionType");
             assertEq(
-                longWrappers[i].exerciseStyle(), IOptionToken.ExerciseStyle.AMERICAN, "wrapper exerciseStyle"
+                wrappedLongs[i].exerciseStyle(), IOptionToken.ExerciseStyle.AMERICAN, "wrapper exerciseStyle"
             );
             assertEq(
-                longWrappers[i].exerciseWindow().exerciseTimestamp,
+                wrappedLongs[i].exerciseWindow().exerciseTimestamp,
                 americanExWeeklies[0][0],
                 "wrapper exerciseWindow.exerciseTimestamp"
             );
             assertEq(
-                longWrappers[i].exerciseWindow().expiryTimestamp,
+                wrappedLongs[i].exerciseWindow().expiryTimestamp,
                 americanExWeeklies[0][1],
                 "wrapper exerciseWindow.expiryTimestamp"
             );
@@ -131,10 +131,28 @@ contract AdapterTest is BaseClarityMarketsTest {
             // check factory state
             assertEq(
                 factory.wrapperFor(optionTokenIds[i]),
-                address(longWrappers[i]),
+                address(wrappedLongs[i]),
                 "wrapper address from factory"
             );
         }
+    }
+
+    // Events
+
+    function testEvent_deployWrappedLong() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
+
+        // Then
+        vm.expectEmit(true, false, true, true); // TODO fix once deterministic deploys
+        emit ClarityWrappedLongDeployed(optionTokenId, address(0x1234));
+
+        // When
+        factory.deployWrappedLong(optionTokenId);
+        vm.stopPrank();
     }
 
     // Sad Paths
@@ -202,7 +220,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
         // pre checks
@@ -219,8 +237,8 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // When writer wraps 8 options
         vm.startPrank(writer);
-        clarity.approve(address(longWrapper), optionTokenId, type(uint256).max);
-        longWrapper.wrapLongs(8e6);
+        clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
+        wrappedLong.wrapLongs(8e6);
         vm.stopPrank();
 
         // Then
@@ -237,7 +255,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         // wrapper
-        address wrapperAddress = address(longWrapper);
+        address wrapperAddress = address(wrappedLong);
         assertEq(clarity.balanceOf(wrapperAddress, optionTokenId), 8e6, "wrapper long balance after wrap");
         assertEq(
             clarity.balanceOf(wrapperAddress, optionTokenId.longToShort()),
@@ -251,23 +269,23 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         // check wrapper balance
-        assertEq(longWrapper.totalSupply(), 8e6, "wrapper totalSupply after wrap");
-        assertEq(longWrapper.balanceOf(writer), 8e6, "wrapper balance after wrap");
+        assertEq(wrappedLong.totalSupply(), 8e6, "wrapper totalSupply after wrap");
+        assertEq(wrappedLong.balanceOf(writer), 8e6, "wrapper balance after wrap");
     }
 
     function test_wrapLongs_manyOptions() public {
         uint256 numOptions = 10;
         uint256[] memory optionTokenIds = new uint256[](numOptions);
-        ClarityWrappedLong[] memory longWrappers = new ClarityWrappedLong[](numOptions);
+        ClarityWrappedLong[] memory wrappedLongs = new ClarityWrappedLong[](numOptions);
 
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
             optionTokenIds[i] = clarity.writeCall(
-                address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], (1750 + i) * 10**18, 10e6
+                address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], (1750 + i) * 10 ** 18, 10e6
             );
-            longWrappers[i] = ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
+            wrappedLongs[i] = ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
 
             // pre checks
             // check option balances
@@ -284,8 +302,8 @@ contract AdapterTest is BaseClarityMarketsTest {
             );
 
             // When writer wraps options
-            clarity.approve(address(longWrappers[i]), optionTokenIds[i], type(uint256).max);
-            longWrappers[i].wrapLongs((10 - i) * 10**6);
+            clarity.approve(address(wrappedLongs[i]), optionTokenIds[i], type(uint256).max);
+            wrappedLongs[i].wrapLongs((10 - i) * 10 ** 6);
         }
         vm.stopPrank();
 
@@ -294,7 +312,7 @@ contract AdapterTest is BaseClarityMarketsTest {
             // check option balances
             // writer
             assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i]), i * 10**6, "writer long balance after wrap"
+                clarity.balanceOf(writer, optionTokenIds[i]), i * 10 ** 6, "writer long balance after wrap"
             );
             assertEq(
                 clarity.balanceOf(writer, optionTokenIds[i].longToShort()),
@@ -308,10 +326,10 @@ contract AdapterTest is BaseClarityMarketsTest {
             );
 
             // wrapper
-            address wrapperAddress = address(longWrappers[i]);
+            address wrapperAddress = address(wrappedLongs[i]);
             assertEq(
                 clarity.balanceOf(wrapperAddress, optionTokenIds[i]),
-                (10 - i) * 10**6,
+                (10 - i) * 10 ** 6,
                 "wrapper long balance after wrap"
             );
             assertEq(
@@ -326,12 +344,32 @@ contract AdapterTest is BaseClarityMarketsTest {
             );
 
             // check wrapper balances
-            assertEq(longWrappers[i].totalSupply(), (10 - i) * 10**6, "wrapper totalSupply after wrap");
-            assertEq(longWrappers[i].balanceOf(writer), (10 - i) * 10**6, "wrapper balance after wrap");
+            assertEq(wrappedLongs[i].totalSupply(), (10 - i) * 10 ** 6, "wrapper totalSupply after wrap");
+            assertEq(wrappedLongs[i].balanceOf(writer), (10 - i) * 10 ** 6, "wrapper balance after wrap");
         }
     }
 
     // TODO test_wrapLongs_manyOptions_manyCallers
+
+    // Events
+
+    function testEvent_wrapLongs() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
+
+        // Then
+        vm.expectEmit(true, true, true, true);
+        emit ClarityLongsWrapped(writer, optionTokenId, 8e6);
+
+        // When
+        wrappedLong.wrapLongs(8e6);
+        vm.stopPrank();
+    }
 
     // Sad Paths
 
@@ -340,13 +378,13 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
         vm.expectRevert(OptionErrors.WrapAmountZero.selector);
 
         vm.prank(writer);
-        longWrapper.wrapLongs(0);
+        wrappedLong.wrapLongs(0);
     }
 
     function testRevert_wrapLongs_whenOptionExpired() public {
@@ -354,7 +392,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
         vm.warp(americanExWeeklies[0][1] + 1 seconds);
@@ -366,7 +404,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         vm.prank(writer);
-        longWrapper.wrapLongs(10e6);
+        wrappedLong.wrapLongs(10e6);
     }
 
     function testRevert_wrapLongs_whenCallerHoldsInsufficientLongs() public {
@@ -374,7 +412,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
         vm.expectRevert(
@@ -382,7 +420,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         vm.prank(writer);
-        longWrapper.wrapLongs(10.000001e6);
+        wrappedLong.wrapLongs(10.000001e6);
     }
 
     function testRevert_wrapLongs_whenCallerHasGrantedInsufficientClearinghouseApproval() public {
@@ -391,16 +429,16 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
 
         // And insufficient Clearinghouse approval has been granted to Factory
-        clarity.approve(address(longWrapper), optionTokenId, 8e6 - 1);
+        clarity.approve(address(wrappedLong), optionTokenId, 8e6 - 1);
 
         // Then
         vm.expectRevert(stdError.arithmeticError);
 
         // When
-        longWrapper.wrapLongs(8e6);
+        wrappedLong.wrapLongs(8e6);
         vm.stopPrank();
     }
 
@@ -413,9 +451,9 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
-        clarity.approve(address(longWrapper), optionTokenId, type(uint256).max);
-        longWrapper.wrapLongs(8e6);
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
+        wrappedLong.wrapLongs(8e6);
         vm.stopPrank();
 
         // pre checks
@@ -432,7 +470,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         // wrapper
-        address wrapperAddress = address(longWrapper);
+        address wrapperAddress = address(wrappedLong);
         assertEq(clarity.balanceOf(wrapperAddress, optionTokenId), 8e6, "wrapper long balance before unwrap");
         assertEq(
             clarity.balanceOf(wrapperAddress, optionTokenId.longToShort()),
@@ -446,12 +484,12 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         // check wrapper balance
-        assertEq(longWrapper.totalSupply(), 8e6);
-        assertEq(longWrapper.balanceOf(writer), 8e6, "wrapper balance before unwrap");
+        assertEq(wrappedLong.totalSupply(), 8e6);
+        assertEq(wrappedLong.balanceOf(writer), 8e6, "wrapper balance before unwrap");
 
         // When writer unwraps 5 options
         vm.prank(writer);
-        longWrapper.unwrapLongs(5e6);
+        wrappedLong.unwrapLongs(5e6);
 
         // Then
         // check option balances
@@ -480,31 +518,31 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
 
         // check wrapper balance
-        assertEq(longWrapper.totalSupply(), 3e6, "wrapper totalSupply after unwrap");
-        assertEq(longWrapper.balanceOf(writer), 3e6, "wrapper balance after unwrap");
+        assertEq(wrappedLong.totalSupply(), 3e6, "wrapper totalSupply after unwrap");
+        assertEq(wrappedLong.balanceOf(writer), 3e6, "wrapper balance after unwrap");
     }
 
     function test_unwrapLongs_many() public {
         uint256 numOptions = 10;
         uint256[] memory optionTokenIds = new uint256[](numOptions);
-        ClarityWrappedLong[] memory longWrappers = new ClarityWrappedLong[](numOptions);
+        ClarityWrappedLong[] memory wrappedLongs = new ClarityWrappedLong[](numOptions);
 
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
             optionTokenIds[i] = clarity.writeCall(
-                address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], (1750 + i) * 10**18, 10e6
+                address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], (1750 + i) * 10 ** 18, 10e6
             );
-            longWrappers[i] = ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
-            clarity.approve(address(longWrappers[i]), optionTokenIds[i], type(uint256).max);
-            longWrappers[i].wrapLongs((10 - i) * 10**6);
+            wrappedLongs[i] = ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
+            clarity.approve(address(wrappedLongs[i]), optionTokenIds[i], type(uint256).max);
+            wrappedLongs[i].wrapLongs((10 - i) * 10 ** 6);
 
             // pre checks
             // check option balances
             // writer
             assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i]), i * 10**6, "writer long balance before unwrap"
+                clarity.balanceOf(writer, optionTokenIds[i]), i * 10 ** 6, "writer long balance before unwrap"
             );
             assertEq(
                 clarity.balanceOf(writer, optionTokenIds[i].longToShort()),
@@ -518,10 +556,10 @@ contract AdapterTest is BaseClarityMarketsTest {
             );
 
             // wrapper
-            address wrapperAddress = address(longWrappers[i]);
+            address wrapperAddress = address(wrappedLongs[i]);
             assertEq(
                 clarity.balanceOf(wrapperAddress, optionTokenIds[i]),
-                (10 - i) * 10**6,
+                (10 - i) * 10 ** 6,
                 "wrapper long balance before unwrap"
             );
             assertEq(
@@ -536,11 +574,11 @@ contract AdapterTest is BaseClarityMarketsTest {
             );
 
             // check wrapper balance
-            assertEq(longWrappers[i].totalSupply(), (10 - i) * 10**6, "wrapper totalSupply before unwrap");
-            assertEq(longWrappers[i].balanceOf(writer), (10 - i) * 10**6, "wrapper balance before unwrap");
+            assertEq(wrappedLongs[i].totalSupply(), (10 - i) * 10 ** 6, "wrapper totalSupply before unwrap");
+            assertEq(wrappedLongs[i].balanceOf(writer), (10 - i) * 10 ** 6, "wrapper balance before unwrap");
 
             // When
-            longWrappers[i].unwrapLongs(((10 - i) * 10**6) - (i * 10**5));
+            wrappedLongs[i].unwrapLongs(((10 - i) * 10 ** 6) - (i * 10 ** 5));
         }
         vm.stopPrank();
 
@@ -549,7 +587,9 @@ contract AdapterTest is BaseClarityMarketsTest {
             // check option balances
             // writer
             assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i]), 10e6 - (i * 10**5), "writer long balance after unwrap"
+                clarity.balanceOf(writer, optionTokenIds[i]),
+                10e6 - (i * 10 ** 5),
+                "writer long balance after unwrap"
             );
             assertEq(
                 clarity.balanceOf(writer, optionTokenIds[i].longToShort()),
@@ -563,10 +603,10 @@ contract AdapterTest is BaseClarityMarketsTest {
             );
 
             // wrapper
-            address wrapperAddress = address(longWrappers[i]);
+            address wrapperAddress = address(wrappedLongs[i]);
             assertEq(
                 clarity.balanceOf(wrapperAddress, optionTokenIds[i]),
-                i * 10**5,
+                i * 10 ** 5,
                 "wrapper long balance after unwrap"
             );
             assertEq(
@@ -581,9 +621,30 @@ contract AdapterTest is BaseClarityMarketsTest {
             );
 
             // check wrapper balance
-            assertEq(longWrappers[i].totalSupply(), i * 10**5, "wrapper totalSupply after unwrap");
-            assertEq(longWrappers[i].balanceOf(writer), i * 10**5, "wrapper balance after unwrap");
+            assertEq(wrappedLongs[i].totalSupply(), i * 10 ** 5, "wrapper totalSupply after unwrap");
+            assertEq(wrappedLongs[i].balanceOf(writer), i * 10 ** 5, "wrapper balance after unwrap");
         }
+    }
+
+    // Events
+
+    function testEvent_unwrapLongs() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId =
+            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
+        wrappedLong.wrapLongs(8e6);
+
+        // Then
+        vm.expectEmit(true, true, true, true);
+        emit ClarityLongsUnwrapped(writer, optionTokenId, 5.000001e6);
+
+        // When
+        wrappedLong.unwrapLongs(5.000001e6);
+        vm.stopPrank();
     }
 
     // Sad Paths
@@ -594,9 +655,9 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
-        clarity.approve(address(longWrapper), optionTokenId, type(uint256).max);
-        longWrapper.wrapLongs(8e6);
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
+        wrappedLong.wrapLongs(8e6);
         vm.stopPrank();
 
         // Then
@@ -604,7 +665,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        longWrapper.unwrapLongs(0);
+        wrappedLong.unwrapLongs(0);
     }
 
     function testRevert_unwrapLongs_whenCallerHoldsInsufficientWrappedLongs() public {
@@ -613,9 +674,9 @@ contract AdapterTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
-        longWrapper = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
-        clarity.approve(address(longWrapper), optionTokenId, type(uint256).max);
-        longWrapper.wrapLongs(8e6);
+        wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
+        clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
+        wrappedLong.wrapLongs(8e6);
         vm.stopPrank();
 
         // Then
@@ -625,7 +686,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        longWrapper.unwrapLongs(8.000001e6);
+        wrappedLong.unwrapLongs(8.000001e6);
     }
 
     /////////
