@@ -17,7 +17,10 @@ interface IOptionActions {
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
     function write(uint256 optionTokenId, uint64 optionAmount) external;
-    function batchWrite(uint256[] calldata optionTokenIds, uint64[] calldata optionAmounts) external;
+    function batchWrite(
+        uint256[] calldata optionTokenIds,
+        uint64[] calldata optionAmounts
+    ) external;
     function exercise(uint256 optionTokenId, uint64 optionAmount) external;
     function netOff(uint256 optionTokenId, uint64 optionAmount)
         external

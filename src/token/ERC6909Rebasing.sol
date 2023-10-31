@@ -8,7 +8,11 @@ import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
 /// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol)
-abstract contract ERC6909Rebasing is IERC6909, IERC6909MetadataModified, IERC6909MetadataURI {
+abstract contract ERC6909Rebasing is
+    IERC6909,
+    IERC6909MetadataModified,
+    IERC6909MetadataURI
+{
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
@@ -37,7 +41,11 @@ abstract contract ERC6909Rebasing is IERC6909, IERC6909MetadataModified, IERC690
                               ERC6909 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function transfer(address receiver, uint256 id, uint256 amount) public virtual returns (bool) {
+    function transfer(address receiver, uint256 id, uint256 amount)
+        public
+        virtual
+        returns (bool)
+    {
         internalBalanceOf[msg.sender][id] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -76,7 +84,11 @@ abstract contract ERC6909Rebasing is IERC6909, IERC6909MetadataModified, IERC690
         return true;
     }
 
-    function approve(address spender, uint256 id, uint256 amount) public virtual returns (bool) {
+    function approve(address spender, uint256 id, uint256 amount)
+        public
+        virtual
+        returns (bool)
+    {
         allowance[msg.sender][spender][id] = amount;
 
         emit Approval(msg.sender, spender, id, amount);

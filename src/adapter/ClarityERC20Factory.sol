@@ -26,7 +26,10 @@ contract ClarityERC20Factory is IClarityERC20Factory {
 
     /////////
 
-    function deployWrappedLong(uint256 optionTokenId) external returns (address wrapperAddress) {
+    function deployWrappedLong(uint256 optionTokenId)
+        external
+        returns (address wrapperAddress)
+    {
         ///////// Function Requirements
         // Check that the option exists
         IOptionToken.Option memory option = clarity.option(optionTokenId);
@@ -49,15 +52,20 @@ contract ClarityERC20Factory is IClarityERC20Factory {
 
         ///////// Interactions
         // Deploy a new ClarityWrappedLong contract
-        string memory wrappedName = string(abi.encodePacked("w", clarity.names(optionTokenId)));
-        ClarityWrappedLong wrapper = new ClarityWrappedLong(clarity, optionTokenId, wrappedName);
+        string memory wrappedName =
+            string(abi.encodePacked("w", clarity.names(optionTokenId)));
+        ClarityWrappedLong wrapper =
+            new ClarityWrappedLong(clarity, optionTokenId, wrappedName);
         wrapperAddress = address(wrapper);
 
         // Store the deployed address for the wrapper
         wrapperFor[optionTokenId] = wrapperAddress;
     }
 
-    function deployWrappedShort(uint256 shortTokenId) external returns (address wrapperAddress) {
+    function deployWrappedShort(uint256 shortTokenId)
+        external
+        returns (address wrapperAddress)
+    {
         revert("not yet impl");
     }
 }

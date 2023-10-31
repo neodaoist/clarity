@@ -8,4 +8,10 @@ import {IOptionActions} from "./option/IOptionActions.sol";
 import {IOptionEvents} from "./option/IOptionEvents.sol";
 import {IOptionPosition} from "./option/IOptionPosition.sol";
 
-interface IOptionMarkets is IOptionToken, IOptionState, IOptionActions, IOptionEvents, IOptionPosition {}
+interface IOptionMarkets is
+    IOptionToken,
+    IOptionState,
+    IOptionActions,
+    IOptionEvents,
+    IOptionPosition
+{}

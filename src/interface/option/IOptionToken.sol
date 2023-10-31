@@ -61,9 +61,15 @@ interface IOptionToken {
 
     function option(uint256 optionTokenId) external view returns (Option memory option);
 
-    function optionType(uint256 optionTokenId) external view returns (OptionType optionType);
+    function optionType(uint256 optionTokenId)
+        external
+        view
+        returns (OptionType optionType);
 
-    function exerciseStyle(uint256 optionTokenId) external view returns (ExerciseStyle exerciseStyle);
+    function exerciseStyle(uint256 optionTokenId)
+        external
+        view
+        returns (ExerciseStyle exerciseStyle);
 
     // TODO add
     // function exerciseWindow() external view returns (IOptionToken.ExerciseWindow memory exerciseWindow);

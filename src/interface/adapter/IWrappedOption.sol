@@ -8,6 +8,12 @@ interface IWrappedOption {
     function optionTokenId() external view returns (uint256 optionTokenId);
     function option() external view returns (IOptionToken.Option memory option);
     function optionType() external view returns (IOptionToken.OptionType optionType);
-    function exerciseStyle() external view returns (IOptionToken.ExerciseStyle exerciseStyle);
-    function exerciseWindow() external view returns (IOptionToken.ExerciseWindow memory exerciseWindow);
+    function exerciseStyle()
+        external
+        view
+        returns (IOptionToken.ExerciseStyle exerciseStyle);
+    function exerciseWindow()
+        external
+        view
+        returns (IOptionToken.ExerciseWindow memory exerciseWindow);
 }

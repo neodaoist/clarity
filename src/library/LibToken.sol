@@ -17,7 +17,13 @@ library LibToken {
         IOptionToken.OptionType optionType
     ) internal pure returns (uint248) {
         return uint248(
-            bytes31(keccak256(abi.encode(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionType)))
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        baseAsset, quoteAsset, exerciseWindow, strikePrice, optionType
+                    )
+                )
+            )
         );
     }
 

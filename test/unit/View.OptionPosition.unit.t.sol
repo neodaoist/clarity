@@ -20,8 +20,9 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         // Given writer1 writes 1 options
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
+        );
         vm.stopPrank();
 
         // And writer2 writes 0.25 options
@@ -41,7 +42,8 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         // Then
         // check writer1 position
         vm.prank(writer1);
-        (IOptionPosition.Position memory position, int160 magnitude) = clarity.position(optionTokenId);
+        (IOptionPosition.Position memory position, int160 magnitude) =
+            clarity.position(optionTokenId);
 
         assertEq(position.amountLong, 2.5e6, "writer1 amount long");
         assertEq(position.amountShort, 3e6, "writer1 amount short");
@@ -77,11 +79,20 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         // Then
         // check writer1 position
         vm.prank(writer1);
-        (IOptionPosition.Position memory position, int160 magnitude) = clarity.position(oti1);
+        (IOptionPosition.Position memory position, int160 magnitude) =
+            clarity.position(oti1);
 
         assertEq(position.amountLong, 0, "writer1 amount long");
-        assertEq(position.amountShort, (2.15e6 * (2.5e6 - 0.2e6)) / 2.5e6, "writer1 amount short");
-        assertEq(position.amountAssignedShort, (2.15e6 * 0.2e6) / 2.5e6, "writer1 amount assigned short");
+        assertEq(
+            position.amountShort,
+            (2.15e6 * (2.5e6 - 0.2e6)) / 2.5e6,
+            "writer1 amount short"
+        );
+        assertEq(
+            position.amountAssignedShort,
+            (2.15e6 * 0.2e6) / 2.5e6,
+            "writer1 amount assigned short"
+        );
         assertEq(magnitude, -2.15e6, "writer1 magnitude");
 
         // check writer2 position
@@ -89,8 +100,16 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         (position, magnitude) = clarity.position(oti1);
 
         assertEq(position.amountLong, 0, "writer2 amount long");
-        assertEq(position.amountShort, (0.35e6 * (2.5e6 - 0.2e6)) / 2.5e6, "writer2 amount short");
-        assertEq(position.amountAssignedShort, (0.35e6 * 0.2e6) / 2.5e6, "writer2 amount assigned short");
+        assertEq(
+            position.amountShort,
+            (0.35e6 * (2.5e6 - 0.2e6)) / 2.5e6,
+            "writer2 amount short"
+        );
+        assertEq(
+            position.amountAssignedShort,
+            (0.35e6 * 0.2e6) / 2.5e6,
+            "writer2 amount assigned short"
+        );
         assertEq(magnitude, -0.35e6, "writer2 magnitude");
 
         // check holder1 position

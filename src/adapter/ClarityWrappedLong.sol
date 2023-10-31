@@ -45,7 +45,11 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         return clarity.exerciseStyle(optionTokenId);
     }
 
-    function exerciseWindow() external view returns (IOptionToken.ExerciseWindow memory) {
+    function exerciseWindow()
+        external
+        view
+        returns (IOptionToken.ExerciseWindow memory)
+    {
         return clarity.option(optionTokenId).exerciseWindow;
     }
 

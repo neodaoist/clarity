@@ -6,7 +6,13 @@ interface IOptionState {
 
     function openInterest(uint256 optionTokenId) external view returns (uint64 amount);
 
-    function writeableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    function writeableAmount(uint256 optionTokenId)
+        external
+        view
+        returns (uint64 amount);
 
-    function reedemableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    function reedemableAmount(uint256 optionTokenId)
+        external
+        view
+        returns (uint64 amount);
 }

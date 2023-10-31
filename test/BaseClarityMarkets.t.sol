@@ -124,18 +124,66 @@ abstract contract BaseClarityMarketsTest is Test {
             writers[i] = makeAddress(string(abi.encodePacked("writer", i + 1)));
             holders[i] = makeAddress(string(abi.encodePacked("holder", i + 1)));
 
-            deal(address(WETHLIKE), writers[i], scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-            deal(address(WBTCLIKE), writers[i], scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-            deal(address(LINKLIKE), writers[i], scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-            deal(address(PEPELIKE), writers[i], scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE));
-            deal(address(LUSDLIKE), writers[i], scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-            deal(address(USDCLIKE), writers[i], scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-            deal(address(WETHLIKE), holders[i], scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-            deal(address(WBTCLIKE), holders[i], scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-            deal(address(LINKLIKE), holders[i], scaleUpAssetAmount(LINKLIKE, STARTING_BALANCE));
-            deal(address(PEPELIKE), holders[i], scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE));
-            deal(address(LUSDLIKE), holders[i], scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-            deal(address(USDCLIKE), holders[i], scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+            deal(
+                address(WETHLIKE),
+                writers[i],
+                scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(WBTCLIKE),
+                writers[i],
+                scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(LINKLIKE),
+                writers[i],
+                scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(PEPELIKE),
+                writers[i],
+                scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(LUSDLIKE),
+                writers[i],
+                scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(USDCLIKE),
+                writers[i],
+                scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(WETHLIKE),
+                holders[i],
+                scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(WBTCLIKE),
+                holders[i],
+                scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(LINKLIKE),
+                holders[i],
+                scaleUpAssetAmount(LINKLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(PEPELIKE),
+                holders[i],
+                scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(LUSDLIKE),
+                holders[i],
+                scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE)
+            );
+            deal(
+                address(USDCLIKE),
+                holders[i],
+                scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE)
+            );
         }
         writer = writers[0];
         writer1 = writers[0];
@@ -209,7 +257,9 @@ abstract contract BaseClarityMarketsTest is Test {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), exerciseWindow, 1750e18, 0.15e6);
+        oti1 = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), exerciseWindow, 1750e18, 0.15e6
+        );
         vm.stopPrank();
 
         // And writer2 writes 0.35 options of oti1
@@ -232,16 +282,52 @@ abstract contract BaseClarityMarketsTest is Test {
 
         // pre exercise check option balances
         // oti1
-        assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance before exercise");
-        assertEq(clarity.balanceOf(writer1, oti1 + 1), 2.15e6, "oti1 writer1 short balance before exercise");
-        assertEq(clarity.balanceOf(writer1, oti1 + 2), 0, "oti1 writer1 assigned balance before exercise");
-        assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance before exercise");
-        assertEq(clarity.balanceOf(writer2, oti1 + 1), 0.35e6, "oti1 writer2 short balance before exercise");
-        assertEq(clarity.balanceOf(writer2, oti1 + 2), 0, "oti1 writer2 assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(writer1, oti1),
+            0,
+            "oti1 writer1 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, oti1 + 1),
+            2.15e6,
+            "oti1 writer1 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, oti1 + 2),
+            0,
+            "oti1 writer1 assigned balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, oti1),
+            0,
+            "oti1 writer2 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, oti1 + 1),
+            0.35e6,
+            "oti1 writer2 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, oti1 + 2),
+            0,
+            "oti1 writer2 assigned balance before exercise"
+        );
 
-        assertEq(clarity.balanceOf(holder1, oti1), 2.5e6, "oti1 holder1 long balance before exercise");
-        assertEq(clarity.balanceOf(holder1, oti1 + 1), 0, "oti1 holder1 short balance before exercise");
-        assertEq(clarity.balanceOf(holder1, oti1 + 2), 0, "oti1 holder1 assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(holder1, oti1),
+            2.5e6,
+            "oti1 holder1 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, oti1 + 1),
+            0,
+            "oti1 holder1 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, oti1 + 2),
+            0,
+            "oti1 holder1 assigned balance before exercise"
+        );
 
         // check asset balances
         assertEq(
@@ -249,15 +335,31 @@ abstract contract BaseClarityMarketsTest is Test {
             writer1WethBalance - (1e18 * 2.15),
             "writer1 WETH balance before exercise"
         );
-        assertEq(LUSDLIKE.balanceOf(writer1), writer1LusdBalance, "writer1 LUSD balance before exercise");
+        assertEq(
+            LUSDLIKE.balanceOf(writer1),
+            writer1LusdBalance,
+            "writer1 LUSD balance before exercise"
+        );
         assertEq(
             WETHLIKE.balanceOf(writer2),
             writer2WethBalance - (1e18 * 0.35),
             "writer2 WETH balance before exercise"
         );
-        assertEq(LUSDLIKE.balanceOf(writer2), writer2LusdBalance, "writer2 LUSD balance before exercise");
-        assertEq(WETHLIKE.balanceOf(holder1), holder1WethBalance, "holder1 WETH balance before exercise");
-        assertEq(LUSDLIKE.balanceOf(holder1), holder1LusdBalance, "holder1 LUSD balance before exercise");
+        assertEq(
+            LUSDLIKE.balanceOf(writer2),
+            writer2LusdBalance,
+            "writer2 LUSD balance before exercise"
+        );
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance,
+            "holder1 WETH balance before exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder1),
+            holder1LusdBalance,
+            "holder1 LUSD balance before exercise"
+        );
 
         // warp to exercise window
         vm.warp(FRI1 + 1 seconds);
@@ -286,7 +388,9 @@ abstract contract BaseClarityMarketsTest is Test {
         // Given writer1 writes 1.25 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1.25e6);
+        oti1 = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1.25e6
+        );
         vm.stopPrank();
 
         // And writer2 writes 0.25 options of oti1
@@ -301,7 +405,9 @@ abstract contract BaseClarityMarketsTest is Test {
 
         // And writer1 writes 1 option of oti2
         vm.prank(writer1);
-        oti2 = clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6);
+        oti2 = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
+        );
 
         // And writer1 writes 1 option of oti1
         vm.prank(writer1);
@@ -325,31 +431,115 @@ abstract contract BaseClarityMarketsTest is Test {
 
         // pre exercise check option balances
         // oti1
-        assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance before exercise");
-        assertEq(clarity.balanceOf(writer1, oti1 + 1), 1.75e6, "oti1 writer1 short balance before exercise");
-        assertEq(clarity.balanceOf(writer1, oti1 + 2), 0, "oti1 writer1 assigned balance before exercise");
-        assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance before exercise");
-        assertEq(clarity.balanceOf(writer2, oti1 + 1), 0.25e6, "oti1 writer2 short balance before exercise");
-        assertEq(clarity.balanceOf(writer2, oti1 + 2), 0, "oti1 writer2 assigned balance before exercise");
-        assertEq(clarity.balanceOf(writer3, oti1), 0, "oti1 writer3 long balance before exercise");
-        assertEq(clarity.balanceOf(writer3, oti1 + 1), 0.5e6, "oti1 writer3 short balance before exercise");
-        assertEq(clarity.balanceOf(writer3, oti1 + 2), 0, "oti1 writer3 assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(writer1, oti1),
+            0,
+            "oti1 writer1 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, oti1 + 1),
+            1.75e6,
+            "oti1 writer1 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, oti1 + 2),
+            0,
+            "oti1 writer1 assigned balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, oti1),
+            0,
+            "oti1 writer2 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, oti1 + 1),
+            0.25e6,
+            "oti1 writer2 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer2, oti1 + 2),
+            0,
+            "oti1 writer2 assigned balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer3, oti1),
+            0,
+            "oti1 writer3 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer3, oti1 + 1),
+            0.5e6,
+            "oti1 writer3 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer3, oti1 + 2),
+            0,
+            "oti1 writer3 assigned balance before exercise"
+        );
 
-        assertEq(clarity.balanceOf(holder1, oti1), 2.45e6, "oti1 holder1 long balance before exercise");
-        assertEq(clarity.balanceOf(holder1, oti1 + 1), 0, "oti1 holder1 short balance before exercise");
-        assertEq(clarity.balanceOf(holder1, oti1 + 2), 0, "oti1 holder1 assigned balance before exercise");
-        assertEq(clarity.balanceOf(holder2, oti1), 0.05e6, "oti1 holder2 long balance before exercise");
-        assertEq(clarity.balanceOf(holder2, oti1 + 1), 0, "oti1 holder2 short balance before exercise");
-        assertEq(clarity.balanceOf(holder2, oti1 + 2), 0, "oti1 holder2 assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(holder1, oti1),
+            2.45e6,
+            "oti1 holder1 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, oti1 + 1),
+            0,
+            "oti1 holder1 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, oti1 + 2),
+            0,
+            "oti1 holder1 assigned balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder2, oti1),
+            0.05e6,
+            "oti1 holder2 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder2, oti1 + 1),
+            0,
+            "oti1 holder2 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder2, oti1 + 2),
+            0,
+            "oti1 holder2 assigned balance before exercise"
+        );
 
         // oti2
-        assertEq(clarity.balanceOf(writer1, oti2), 0.05e6, "oti2 writer1 long balance before exercise");
-        assertEq(clarity.balanceOf(writer1, oti2 + 1), 1e6, "oti2 writer1 short balance before exercise");
-        assertEq(clarity.balanceOf(writer1, oti2 + 2), 0, "oti2 writer1 assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(writer1, oti2),
+            0.05e6,
+            "oti2 writer1 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, oti2 + 1),
+            1e6,
+            "oti2 writer1 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(writer1, oti2 + 2),
+            0,
+            "oti2 writer1 assigned balance before exercise"
+        );
 
-        assertEq(clarity.balanceOf(holder1, oti2), 0.95e6, "oti2 holder1 long balance before exercise");
-        assertEq(clarity.balanceOf(holder1, oti2 + 1), 0, "oti2 holder1 short balance before exercise");
-        assertEq(clarity.balanceOf(holder1, oti2 + 2), 0, "oti2 holder1 assigned balance before exercise");
+        assertEq(
+            clarity.balanceOf(holder1, oti2),
+            0.95e6,
+            "oti2 holder1 long balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, oti2 + 1),
+            0,
+            "oti2 holder1 short balance before exercise"
+        );
+        assertEq(
+            clarity.balanceOf(holder1, oti2 + 2),
+            0,
+            "oti2 holder1 assigned balance before exercise"
+        );
 
         // check asset balances
         assertEq(
@@ -357,19 +547,51 @@ abstract contract BaseClarityMarketsTest is Test {
             writer1WethBalance - (1e18 * 2.25) - (1e18 * 1),
             "writer1 WETH balance before exercise"
         );
-        assertEq(LUSDLIKE.balanceOf(writer1), writer1LusdBalance, "writer1 LUSD balance before exercise");
+        assertEq(
+            LUSDLIKE.balanceOf(writer1),
+            writer1LusdBalance,
+            "writer1 LUSD balance before exercise"
+        );
         assertEq(
             WETHLIKE.balanceOf(writer2),
             writer2WethBalance - (1e18 * 0.25),
             "writer2 WETH balance before exercise"
         );
-        assertEq(LUSDLIKE.balanceOf(writer2), writer2LusdBalance, "writer2 LUSD balance before exercise");
-        assertEq(WETHLIKE.balanceOf(writer3), writer3WethBalance, "writer3 WETH balance before exercise");
-        assertEq(LUSDLIKE.balanceOf(writer3), writer3LusdBalance, "writer3 LUSD balance before exercise");
-        assertEq(WETHLIKE.balanceOf(holder1), holder1WethBalance, "holder1 WETH balance before exercise");
-        assertEq(LUSDLIKE.balanceOf(holder1), holder1LusdBalance, "holder1 LUSD balance before exercise");
-        assertEq(WETHLIKE.balanceOf(holder2), holder2WethBalance, "holder2 WETH balance before exercise");
-        assertEq(LUSDLIKE.balanceOf(holder2), holder2LusdBalance, "holder2 LUSD balance before exercise");
+        assertEq(
+            LUSDLIKE.balanceOf(writer2),
+            writer2LusdBalance,
+            "writer2 LUSD balance before exercise"
+        );
+        assertEq(
+            WETHLIKE.balanceOf(writer3),
+            writer3WethBalance,
+            "writer3 WETH balance before exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(writer3),
+            writer3LusdBalance,
+            "writer3 LUSD balance before exercise"
+        );
+        assertEq(
+            WETHLIKE.balanceOf(holder1),
+            holder1WethBalance,
+            "holder1 WETH balance before exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder1),
+            holder1LusdBalance,
+            "holder1 LUSD balance before exercise"
+        );
+        assertEq(
+            WETHLIKE.balanceOf(holder2),
+            holder2WethBalance,
+            "holder2 WETH balance before exercise"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(holder2),
+            holder2LusdBalance,
+            "holder2 LUSD balance before exercise"
+        );
 
         // warp to exercise window
         vm.warp(americanExWeeklies[0][1]);
@@ -388,11 +610,19 @@ abstract contract BaseClarityMarketsTest is Test {
 
     ///////// Asset Helpers
 
-    function scaleUpAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
+    function scaleUpAssetAmount(IERC20 token, uint256 amount)
+        internal
+        view
+        returns (uint256)
+    {
         return amount * (10 ** token.decimals());
     }
 
-    function scaleDownAssetAmount(IERC20 token, uint256 amount) internal view returns (uint256) {
+    function scaleDownAssetAmount(IERC20 token, uint256 amount)
+        internal
+        view
+        returns (uint256)
+    {
         return amount / (10 ** token.decimals());
     }
 
@@ -429,14 +659,20 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b, string memory err) internal {
+    function assertEq(
+        IOptionToken.OptionType a,
+        IOptionToken.OptionType b,
+        string memory err
+    ) internal {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
 
-    function assertEq(IOptionToken.ExerciseStyle a, IOptionToken.ExerciseStyle b) internal {
+    function assertEq(IOptionToken.ExerciseStyle a, IOptionToken.ExerciseStyle b)
+        internal
+    {
         if (a != b) {
             emit log("Error: a == b not satisfied [ExerciseStyle]");
             emit log_named_uint("      Left", uint8(a));
@@ -445,16 +681,21 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(IOptionToken.ExerciseStyle a, IOptionToken.ExerciseStyle b, string memory err)
-        internal
-    {
+    function assertEq(
+        IOptionToken.ExerciseStyle a,
+        IOptionToken.ExerciseStyle b,
+        string memory err
+    ) internal {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
 
-    function assertEq(IOptionToken.ExerciseWindow memory a, IOptionToken.ExerciseWindow memory b) internal {
+    function assertEq(
+        IOptionToken.ExerciseWindow memory a,
+        IOptionToken.ExerciseWindow memory b
+    ) internal {
         if (a.exerciseTimestamp != b.exerciseTimestamp) {
             emit log("Error: a == b not satisfied [ExerciseWindow.exerciseTimestamp]");
             emit log_named_uint("      Left", a.exerciseTimestamp);
@@ -474,7 +715,10 @@ abstract contract BaseClarityMarketsTest is Test {
         IOptionToken.ExerciseWindow memory b,
         string memory err
     ) internal {
-        if (a.exerciseTimestamp != b.exerciseTimestamp || a.expiryTimestamp != b.expiryTimestamp) {
+        if (
+            a.exerciseTimestamp != b.exerciseTimestamp
+                || a.expiryTimestamp != b.expiryTimestamp
+        ) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
@@ -489,7 +733,11 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(IOptionToken.TokenType a, IOptionToken.TokenType b, string memory err) internal {
+    function assertEq(
+        IOptionToken.TokenType a,
+        IOptionToken.TokenType b,
+        string memory err
+    ) internal {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);
@@ -510,25 +758,47 @@ abstract contract BaseClarityMarketsTest is Test {
         IOptionToken.OptionType optionType
     );
 
-    event OptionsWritten(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
+    event OptionsWritten(
+        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    );
 
-    event OptionsExercised(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
+    event OptionsExercised(
+        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    );
 
-    event OptionsNettedOff(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
+    event OptionsNettedOff(
+        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    );
 
-    event ClarityWrappedLongDeployed(uint256 indexed optionTokenId, address indexed wrapperAddress);
+    event ClarityWrappedLongDeployed(
+        uint256 indexed optionTokenId, address indexed wrapperAddress
+    );
 
-    event ClarityWrappedShortDeployed(uint256 indexed shortTokenId, address indexed wrapperAddress);
+    event ClarityWrappedShortDeployed(
+        uint256 indexed shortTokenId, address indexed wrapperAddress
+    );
 
-    event ClarityLongsWrapped(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
+    event ClarityLongsWrapped(
+        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    );
 
-    event ClarityLongsUnwrapped(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
+    event ClarityLongsUnwrapped(
+        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    );
 
-    event ClarityLongsExercised(address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount);
+    event ClarityLongsExercised(
+        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    );
 
-    event ClarityShortsWrapped(address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount);
+    event ClarityShortsWrapped(
+        address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
+    );
 
-    event ClarityShortsUnwrapped(address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount);
+    event ClarityShortsUnwrapped(
+        address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
+    );
 
-    event ClarityShortsRedeemed(address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount);
+    event ClarityShortsRedeemed(
+        address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
+    );
 }
