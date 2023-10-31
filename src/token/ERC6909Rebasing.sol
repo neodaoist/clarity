@@ -58,7 +58,9 @@ abstract contract ERC6909Rebasing is IERC6909, IERC6909MetadataModified, IERC690
     {
         if (msg.sender != sender && !isOperator[sender][msg.sender]) {
             uint256 allowed = allowance[sender][msg.sender][id];
-            if (allowed != type(uint256).max) allowance[sender][msg.sender][id] = allowed - amount;
+            if (allowed != type(uint256).max) {
+                allowance[sender][msg.sender][id] = allowed - amount;
+            }
         }
 
         internalBalanceOf[sender][id] -= amount;

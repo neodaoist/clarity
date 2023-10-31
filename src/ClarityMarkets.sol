@@ -299,6 +299,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Option Actions
 
+    // Write
+
     // TODO refactor to DRY up write business logic
 
     function writeCall(
@@ -429,7 +431,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                 ERC20(assetInfo.writeAsset), msg.sender, address(this), fullAmountForWrite
             );
         }
-        // Else the option is just created, with no options actually written and therefore no long/short tokens minted
+        // Else the option is just created, with no options actually written and
+        // therefore no long/short tokens minted
 
         // Log events
         emit OptionCreated(
@@ -521,6 +524,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
     }
 
+    // Exercise
+
     function exercise(uint256 _optionTokenId, uint64 optionAmount) external override {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -585,6 +590,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _verifyAfter(writeAsset, exerciseAsset);
     }
 
+    // Net Off
+
     function netOff(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
@@ -637,6 +644,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
+    // Redeem
+
     function redeem(uint256 _optionTokenId)
         external
         override
@@ -647,7 +656,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     // TODO add skim() as a Pool action, maybe not an Option action
 
-    /////////
+    ///////// Callback
 
     function clarityCallback(Callback calldata _callback) external {}
 

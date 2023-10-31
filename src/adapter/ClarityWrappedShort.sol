@@ -7,4 +7,18 @@ import {IClarityWrappedShort} from "../interface/adapter/IClarityWrappedShort.so
 // Contracts
 import {ClarityMarkets} from "../ClarityMarkets.sol";
 
-contract ClarityWrappedShort is IClarityWrappedShort {}
+contract ClarityWrappedShort is IClarityWrappedShort {
+    /////////
+
+    function wrapShorts(uint256 shortAmount) external {
+        revert("not yet impl");
+    }
+
+    function unwrapShorts(uint256 shortAmount) external {
+        revert("not yet impl");
+    }
+
+    function redeemShorts(uint256 shortAmount) external {
+        revert("not yet impl");
+    }
+}

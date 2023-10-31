@@ -82,7 +82,32 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         // TODO
     }
 
-    function unwrapLongs(uint256 optionAmount) external {}
+    function unwrapLongs(uint256 optionAmount) external {
+        ///////// Function Requirements
+        // Check that the option amount is not zero
+        if (optionAmount == 0) {
+            revert OptionErrors.UnwrapAmountZero();
+        }
 
-    function exerciseLongs(uint256 optionAmount) external {}
+        // Check that the caller holds sufficient wrapped longs of this option
+        uint256 wrappedBalance = balanceOf[msg.sender];
+        if (wrappedBalance < optionAmount) {
+            revert OptionErrors.InsufficientWrappedBalance(optionTokenId, wrappedBalance);
+        }
+
+        ///////// Effects
+        // Burn the wrapped longs from the caller
+        _burn(msg.sender, optionAmount);
+
+        ///////// Interactions
+        // Transfer the longs from the wrapper to the caller
+        clarity.transfer(msg.sender, optionTokenId, optionAmount);
+
+        // Log ClarityERC20LongsUnwrapped event
+        // TODO
+    }
+
+    function exerciseLongs(uint256 optionAmount) external {
+        revert("not yet impl");
+    }
 }

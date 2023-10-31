@@ -58,4 +58,8 @@ library OptionErrors {
     error WrappedLongAlreadyDeployed(uint256 optionTokenId);
 
     error WrapAmountZero();
+
+    error UnwrapAmountZero();
+
+    error InsufficientWrappedBalance(uint256 optionTokenId, uint256 wrappedBalance);
 }

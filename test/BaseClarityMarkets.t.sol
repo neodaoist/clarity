@@ -404,6 +404,20 @@ abstract contract BaseClarityMarketsTest is Test {
         return SafeCastLib.safeCastTo64(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
     }
 
+    ///////// Custom Multi Assertions
+    // Note be mindful not to add too many multi assertions and/or too much misdirection
+
+    function assertClarityBalanceOf(
+        address addr,
+        uint256 optionTokenId,
+        uint256 expectedLongBalance,
+        uint256 expectedShortBalance,
+        uint256 expectedAssignedShortBalance,
+        string memory message
+    ) internal {
+        revert("not yet impl");
+    }
+
     ///////// Custom Type Assertions
 
     function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b) internal {
