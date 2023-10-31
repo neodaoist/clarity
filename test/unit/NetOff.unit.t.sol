@@ -11,7 +11,7 @@ contract NetOffTest is BaseClarityMarketsTest {
     // function netOff(uint256 _optionTokenId, uint64 optionsAmount)
     //     external
     //     override
-    //     returns (uint176 writeAssetNettedOff)
+    //     returns (uint128 writeAssetNettedOff)
 
     function test_netOff() public {
         uint256 writerWethBalance = WETHLIKE.balanceOf(writer);

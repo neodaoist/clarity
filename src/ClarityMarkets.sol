@@ -66,7 +66,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint64 amountNettedOff;
     }
 
-    struct ClearingAssetInfo {
+    struct AssetClearingInfo { // memory struct
         address writeAsset;
         uint8 writeDecimals;
         uint64 writeAmount;
@@ -228,6 +228,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     {}
 
     ///////// Rebasing Token Balance Views
+
+    // IDEA consider returning zero long balance after last expiry
 
     function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
         // Check that the option exists
@@ -430,9 +432,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         ///////// Effects
         // Calculate the write and exercise amounts for clearing purposes
-        ClearingAssetInfo memory assetInfo; // memory struct to avoid stack too deep
+        AssetClearingInfo memory assetInfo; // memory struct to avoid stack too deep
         if (_optionType == OptionType.CALL) {
-            assetInfo = ClearingAssetInfo({
+            assetInfo = AssetClearingInfo({
                 writeAsset: baseAsset,
                 writeDecimals: baseDecimals,
                 writeAmount: (10 ** (baseDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
@@ -441,7 +443,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                 exerciseAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64()
             });
         } else {
-            assetInfo = ClearingAssetInfo({
+            assetInfo = AssetClearingInfo({
                 writeAsset: quoteAsset,
                 writeDecimals: quoteDecimals,
                 writeAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
@@ -671,7 +673,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     function netOff(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
-        returns (uint256 writeAssetNettedOff)
+        returns (uint128 writeAssetNettedOff)
     {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -725,9 +727,44 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     function redeem(uint256 _optionTokenId)
         external
         override
-        returns (uint176 writeAssetRedeemed, uint176 exerciseAssetRedeemed)
+        returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed)
     {
-        revert("not yet impl");
+        ///////// Function Requirements
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        address writeAsset = optionStored.writeAsset;
+        if (writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+
+        // Check that the position token type is a short ?
+
+        // Check that the caller holds sufficient shorts to redeem
+
+        // Check that the option is expired (for unassigned shorts) or,
+        // that there are some assigned shorts that can be redeemed
+
+        ///////// Effects
+        // Update option state
+        // optionStored.optionState.amountRedeemed += optionAmount;
+
+        // Burn the caller's shorts
+        uint64 shortAmount = uint64(balanceOf(msg.sender, _optionTokenId));
+        _burn(msg.sender, _optionTokenId, shortAmount);
+
+        // Track the asset liabilities
+        writeAssetRedeemed = optionStored.writeAmount * shortAmount;
+        // _decrementAssetLiability(writeAsset, writeAssetRedeemed);
+
+        ///////// Interactions
+        // Transfer out the write asset
+        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetRedeemed);
+
+        // Log event
+        // TODO
+
+        ///////// Protocol Invariant
+        // TODO
     }
 
     /////////
