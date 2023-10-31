@@ -4,6 +4,11 @@ pragma solidity 0.8.21;
 interface IOptionToken {
     /////////
 
+    // TODO double check combinatorics of packing OTTs into uint248
+    // TODO double check entropy of uint32 assignmentSeed
+    // TODO analyze and reconsider dependency graph
+    // TODO consider a helpful view function in IOptionToken for this
+
     // max option token types                       = 2^248  = 4.5e74 = 2^256 / 2^8
     // max options                                  = 2^64   = 1.2e18 = ~18 trillion contracts OI, bc option scalar is 6
     // max W or X asset for an option token type    = 2^64   = 1.2e18 = ~18 million units notional, bc option scalar is 6
@@ -43,10 +48,6 @@ interface IOptionToken {
         SHORT,
         ASSIGNED_SHORT
     }
-
-    // TODO double check combinatorics of packing OTTs into uint248
-    // TODO double check entropy of uint32 assignmentSeed
-    // TODO analyze and reconsider dependency graph
 
     /////////
 

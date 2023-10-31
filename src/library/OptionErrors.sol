@@ -43,11 +43,11 @@ library OptionErrors {
 
     ///////// Net Off
 
-    /// @dev Also used in ERC20Factory
+    /// @dev Also used in ERC20Factory and ClarityWrappedLong
     error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
 
-    /// @dev Also used in ERC20Factory
-    error InsufficientShortBalance(uint256 optionTokenId, uint256 optionBalance);
+    /// @dev Also used in ERC20Factory and ClarityWrappedShort
+    error InsufficientShortBalance(uint256 shortTokenId, uint256 shortBalance);
 
     ///////// Views
 
@@ -56,4 +56,6 @@ library OptionErrors {
     ///////// Adapter
 
     error WrappedLongAlreadyDeployed(uint256 optionTokenId);
+
+    error WrapAmountZero();
 }

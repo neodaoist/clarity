@@ -51,30 +51,38 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
 
     /////////
 
-    function wrapLongs(uint256 amount) external {
+    function wrapLongs(uint256 optionAmount) external {
         ///////// Function Requirements
+        // Check that the option amount is not zero
+        if (optionAmount == 0) {
+            revert OptionErrors.WrapAmountZero();
+        }
 
-        // TODO
+        // Check that the option is not expired
+        IOptionToken.Option memory _option = clarity.option(optionTokenId);
+        if (block.timestamp > _option.exerciseWindow.expiryTimestamp) {
+            revert OptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
+        }
 
         // Check that the caller holds sufficient longs of this option
         uint256 optionBalance = clarity.balanceOf(msg.sender, optionTokenId);
-        if (optionBalance == 0) {
+        if (optionBalance < optionAmount) {
             revert OptionErrors.InsufficientLongBalance(optionTokenId, optionBalance);
         }
 
         ///////// Effects
         // Mint the wrapped longs to the caller
-        _mint(msg.sender, amount);
+        _mint(msg.sender, optionAmount);
 
         ///////// Interactions
         // Transfer the longs from the caller to the wrapper
-        clarity.transferFrom(msg.sender, address(this), optionTokenId, amount);
+        clarity.transferFrom(msg.sender, address(this), optionTokenId, optionAmount);
 
         // Log ClarityERC20LongsWrapped event
         // TODO
     }
 
-    function unwrapLongs(uint256 amount) external {}
+    function unwrapLongs(uint256 optionAmount) external {}
 
-    function exerciseLongs(uint256 amount) external {}
+    function exerciseLongs(uint256 optionAmount) external {}
 }
