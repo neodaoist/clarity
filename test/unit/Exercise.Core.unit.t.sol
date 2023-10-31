@@ -110,7 +110,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
     // Happy path, Simple background, Scenarios A-F
 
-    function test_exercise_whenSimpleA_andOneHolderExercisesLessThanTicket1() public withSimpleBackground {
+    function test_exercise_whenSimpleA_andOneHolderExercisesLessThanWrite1() public withSimpleBackground {
         // When holder1 exercises 0.1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -167,7 +167,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
-    function test_exercise_whenSimpleB_andOneHolderExercisesEqualToTicket1() public withSimpleBackground {
+    function test_exercise_whenSimpleB_andOneHolderExercisesEqualToWrite1() public withSimpleBackground {
         // When holder1 exercises 0.15 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -224,7 +224,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
-    function test_exercise_whenSimpleC_andOneHolderExercisesLessThanTicket2() public withSimpleBackground {
+    function test_exercise_whenSimpleC_andOneHolderExercisesLessThanWrite2() public withSimpleBackground {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -281,7 +281,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
-    function test_exercise_whenSimpleD_andOneHolderExercisesEqualToTicket2() public withSimpleBackground {
+    function test_exercise_whenSimpleD_andOneHolderExercisesEqualToWrite2() public withSimpleBackground {
         // When holder1 exercises 0.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -338,7 +338,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
-    function test_exercise_whenSimpleE_andOneHolderExercisesLessThanTicket3() public withSimpleBackground {
+    function test_exercise_whenSimpleE_andOneHolderExercisesLessThanWrite3() public withSimpleBackground {
         // When holder1 exercises 1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -395,7 +395,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
-    function test_exercise_whenSimpleF_andOneHolderExercisesEqualToTicket3() public withSimpleBackground {
+    function test_exercise_whenSimpleF_andOneHolderExercisesEqualToWrite3() public withSimpleBackground {
         // When holder1 exercises 2.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));

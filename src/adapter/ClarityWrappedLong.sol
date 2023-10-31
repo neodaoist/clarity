@@ -51,7 +51,7 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
 
     /////////
 
-    function wrapLongs(uint256 optionAmount) external {
+    function wrapLongs(uint64 optionAmount) external {
         ///////// Function Requirements
         // Check that the option amount is not zero
         if (optionAmount == 0) {
@@ -79,10 +79,10 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         clarity.transferFrom(msg.sender, address(this), optionTokenId, optionAmount);
 
         // Log event
-        emit ClarityLongsWrapped(msg.sender, optionTokenId, uint64(optionAmount));
+        emit ClarityLongsWrapped(msg.sender, optionTokenId, optionAmount);
     }
 
-    function unwrapLongs(uint256 optionAmount) external {
+    function unwrapLongs(uint64 optionAmount) external {
         ///////// Function Requirements
         // Check that the option amount is not zero
         if (optionAmount == 0) {
@@ -104,10 +104,10 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         clarity.transfer(msg.sender, optionTokenId, optionAmount);
 
         // Log event
-        emit ClarityLongsUnwrapped(msg.sender, optionTokenId, uint64(optionAmount));
+        emit ClarityLongsUnwrapped(msg.sender, optionTokenId, optionAmount);
     }
 
-    function exerciseLongs(uint256 optionAmount) external {
+    function exerciseLongs(uint64 optionAmount) external {
         revert("not yet impl");
     }
 }

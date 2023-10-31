@@ -10,15 +10,15 @@ import {ClarityMarkets} from "../ClarityMarkets.sol";
 contract ClarityWrappedShort is IClarityWrappedShort {
     /////////
 
-    function wrapShorts(uint256 shortAmount) external {
+    function wrapShorts(uint64 shortAmount) external {
         revert("not yet impl");
     }
 
-    function unwrapShorts(uint256 shortAmount) external {
+    function unwrapShorts(uint64 shortAmount) external {
         revert("not yet impl");
     }
 
-    function redeemShorts(uint256 shortAmount) external {
+    function redeemShorts(uint64 shortAmount) external {
         revert("not yet impl");
     }
 }
