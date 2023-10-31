@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
+// Test Harness
+import "../BaseClarityMarkets.t.sol";
+
+// Interfaces
 import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 import {ClarityWrappedLong} from "../../src/adapter/ClarityWrappedLong.sol";
 import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
-
-import "../BaseClarityMarkets.t.sol";
 
 contract AdapterTest is BaseClarityMarketsTest {
     /////////
@@ -111,7 +113,9 @@ contract AdapterTest is BaseClarityMarketsTest {
         factory.deployWrappedLong(optionTokenId);
         vm.stopPrank();
 
-        vm.expectRevert(abi.encodeWithSelector(OptionErrors.WrappedLongAlreadyDeployed.selector, optionTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.WrappedLongAlreadyDeployed.selector, optionTokenId)
+        );
 
         vm.prank(writer);
         factory.deployWrappedLong(optionTokenId);
@@ -123,10 +127,14 @@ contract AdapterTest is BaseClarityMarketsTest {
         uint256 optionTokenId =
             clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6);
         vm.stopPrank();
-        
+
         vm.warp(americanExWeeklies[0][1] + 1 seconds);
 
-        vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionExpired.selector, optionTokenId, uint32(block.timestamp)));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                OptionErrors.OptionExpired.selector, optionTokenId, uint32(block.timestamp)
+            )
+        );
 
         vm.prank(writer);
         factory.deployWrappedLong(optionTokenId);
@@ -192,5 +200,4 @@ contract AdapterTest is BaseClarityMarketsTest {
 
     /////////
     // ClarityWrappedShort
-    
 }

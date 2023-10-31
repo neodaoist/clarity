@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "../../src/library/LibToken.sol";
-
+// Test Harness
 import "../BaseClarityMarkets.t.sol";
+
+// Library Under test
+import {LibToken} from "../../src/library/LibToken.sol";
 
 contract LibTokenTest is BaseClarityMarketsTest {
     /////////

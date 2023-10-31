@@ -1,21 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import {console2} from "forge-std/console2.sol"; // TEMP
+// TEMP
+import {console2} from "forge-std/console2.sol";
 
+// Interfaces
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
-import {IERC6909MetadataURI} from "./interface/external/IERC6909MetadataURI.sol";
-import {IERC20Minimal} from "./interface/external/IERC20Minimal.sol";
+import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
+import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
+// Libraries
 import {LibToken} from "./library/LibToken.sol";
-import {LibTime} from "./library/LibTime.sol";
 import {OptionErrors} from "./library/OptionErrors.sol";
-import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
 
-import {ERC6909Rebasing} from "./external/ERC6909Rebasing.sol";
-import {ERC20} from "solmate/tokens/ERC20.sol";
+// External Libraries
+import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
+
+// Contracts
+import {ERC6909Rebasing} from "./token/ERC6909Rebasing.sol";
+
+// External Contracts
+import {ERC20} from "solmate/tokens/ERC20.sol";
 
 /// @title clarity.markets
 ///
@@ -383,7 +390,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
 
         // Determine the exercise style
-        ExerciseStyle exStyle = LibTime.determineExerciseStyle(exerciseWindow);
+        ExerciseStyle exStyle = LibToken.determineExerciseStyle(exerciseWindow);
 
         // Generate the optionTokenId
         uint248 optionHash =
@@ -401,7 +408,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             exerciseAmount: assetInfo.exerciseAmount,
             exerciseDecimals: assetInfo.exerciseDecimals,
             optionState: OptionState({amountWritten: optionAmount, amountExercised: 0, amountNettedOff: 0}),
-            exerciseWindow: LibTime.toExerciseWindow(exerciseWindow)
+            exerciseWindow: LibToken.toExerciseWindow(exerciseWindow)
         });
 
         // Store the option name/symbols

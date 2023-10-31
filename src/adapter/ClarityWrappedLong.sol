@@ -53,7 +53,7 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
 
     function wrapLongs(uint256 amount) external {
         ///////// Function Requirements
-        
+
         // TODO
 
         // Check that the caller holds sufficient longs of this option

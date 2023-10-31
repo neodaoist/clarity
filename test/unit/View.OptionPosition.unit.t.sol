@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "../../src/interface/option/IOptionPosition.sol";
-
+// Test Harness
 import "../BaseClarityMarkets.t.sol";
+
+// Views Under Test
+import {IOptionPosition} from "../../src/interface/option/IOptionPosition.sol";
 
 contract OptionPositionViewsTest is BaseClarityMarketsTest {
     /////////

@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import {Test, console2, stdError} from "forge-std/Test.sol";
+// External Test Interfaces
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+
+// External Test Helpers
+import {Test, console2, stdError} from "forge-std/Test.sol";
+
+// Test Contracts
 import {MockERC20} from "./util/MockERC20.sol";
 
+// Interfaces
+import {IOptionToken} from "../src/interface/option/IOptionToken.sol";
+
+// Contract Under Test
 import "../src/ClarityMarkets.sol";
-import "../src/interface/option/IOptionToken.sol";
-import "../src/interface/option/IOptionPosition.sol";
-import "../src/interface/option/IOptionEvents.sol";
 
 abstract contract BaseClarityMarketsTest is Test {
     /////////

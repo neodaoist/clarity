@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity 0.8.21;
 
-import "./IERC165.sol";
+// Interfaces
+import {IERC165} from "./IERC165.sol";
 
 // Forked from ERC-6909 (https://github.com/jtriley-eth/ERC-6909)
 interface IERC6909 is IERC165 {

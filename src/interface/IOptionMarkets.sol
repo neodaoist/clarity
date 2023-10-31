@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "./option/IOptionToken.sol";
-import "./option/IOptionState.sol";
-import "./option/IOptionActions.sol";
-import "./option/IOptionEvents.sol";
-import "./option/IOptionPosition.sol";
+// Interfaces
+import {IOptionToken} from "./option/IOptionToken.sol";
+import {IOptionState} from "./option/IOptionState.sol";
+import {IOptionActions} from "./option/IOptionActions.sol";
+import {IOptionEvents} from "./option/IOptionEvents.sol";
+import {IOptionPosition} from "./option/IOptionPosition.sol";
 
 interface IOptionMarkets is IOptionToken, IOptionState, IOptionActions, IOptionEvents, IOptionPosition {}

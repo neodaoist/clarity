@@ -1,20 +1,25 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity 0.8.21;
+
+// Interfaces
+import {IERC6909} from "../interface/token/IERC6909.sol";
+import {IERC6909MetadataModified} from "../interface/token/IERC6909MetadataModified.sol";
+import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
 /// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol)
-abstract contract ERC6909Rebasing {
+abstract contract ERC6909Rebasing is IERC6909, IERC6909MetadataModified, IERC6909MetadataURI {
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event OperatorSet(address indexed owner, address indexed operator, bool approved);
+    // event OperatorSet(address indexed owner, address indexed operator, bool approved);
 
-    event Approval(address indexed owner, address indexed spender, uint256 indexed id, uint256 amount);
+    // event Approval(address indexed owner, address indexed spender, uint256 indexed id, uint256 amount);
 
-    event Transfer(
-        address caller, address indexed from, address indexed to, uint256 indexed id, uint256 amount
-    );
+    // event Transfer(
+    //     address caller, address indexed from, address indexed to, uint256 indexed id, uint256 amount
+    // );
 
     /*//////////////////////////////////////////////////////////////
                              ERC6909 STORAGE
