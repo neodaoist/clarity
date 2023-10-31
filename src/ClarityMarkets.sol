@@ -31,11 +31,11 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 /// @author ?????????
 ///
 /// @notice Clarity is a decentralized counterparty clearinghouse (DCP), for the writing,
-/// transfer, and settlement of options and futures contracts on the Ethereum blockchain.
-/// The protocol is open source, open state, and open access. It has zero oracles, zero
-/// governance, and zero custody. It is designed to be secure, composable, immutable,
-/// ergonomic, and gas minimal.
-contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI, ERC6909Rebasing {
+/// transfer, and settlement of options and futures contracts on the Ethereum Virtual Machine
+/// (EVM). The protocol is open source, open state, and open access. It has zero oracles, zero
+/// governance, and zero custody. It is designed to be secure, composable, immutable, ergonomic,
+/// and gas minimal.
+contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     /////////
 
     using LibToken for uint256;
