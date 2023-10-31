@@ -1,21 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import {console2} from "forge-std/console2.sol"; // TEMP
+// TEMP
+import {console2} from "forge-std/console2.sol";
 
+// Interfaces
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
-import {IERC6909MetadataURI} from "./interface/external/IERC6909MetadataURI.sol";
-import {IERC20Minimal} from "./interface/external/IERC20Minimal.sol";
+import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
+import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
+// Libraries
 import {LibToken} from "./library/LibToken.sol";
-import {LibTime} from "./library/LibTime.sol";
 import {OptionErrors} from "./library/OptionErrors.sol";
-import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
 
-import {ERC6909Rebasing} from "./external/ERC6909Rebasing.sol";
-import {ERC20} from "solmate/tokens/ERC20.sol";
+// External Libraries
+import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
+
+// Contracts
+import {ERC6909Rebasing} from "./token/ERC6909Rebasing.sol";
+
+// External Contracts
+import {ERC20} from "solmate/tokens/ERC20.sol";
 
 /// @title clarity.markets
 ///
@@ -24,11 +31,11 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 /// @author ?????????
 ///
 /// @notice Clarity is a decentralized counterparty clearinghouse (DCP), for the writing,
-/// transfer, and settlement of options and futures contracts on the Ethereum blockchain.
-/// The protocol is open source, open state, and open access. It has zero oracles, zero
-/// governance, and zero custody. It is designed to be secure, composable, immutable,
-/// ergonomic, and gas minimal.
-contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI, ERC6909Rebasing {
+/// transfer, and settlement of options and futures contracts on the Ethereum Virtual Machine
+/// (EVM). The protocol is open source, open state, and open access. It has zero oracles, zero
+/// governance, and zero custody. It is designed to be secure, composable, immutable, ergonomic,
+/// and gas minimal.
+contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     /////////
 
     using LibToken for uint256;
@@ -93,7 +100,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
         // Hash the option
         uint248 optionHash = LibToken.paramsToHash(
-            baseAsset, quoteAsset, exerciseWindows, strikePrice, isCall ? OptionType.CALL : OptionType.PUT
+            baseAsset,
+            quoteAsset,
+            exerciseWindows,
+            strikePrice,
+            isCall ? OptionType.CALL : OptionType.PUT
         );
 
         // Get the option from storage
@@ -108,7 +119,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _optionTokenId = optionHash.hashToId();
     }
 
-    function option(uint256 _optionTokenId) external view returns (Option memory _option) {
+    function option(uint256 _optionTokenId)
+        external
+        view
+        returns (Option memory _option)
+    {
         // Check that it is a long
         // TODO
 
@@ -125,19 +140,25 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         if (optionStored.optionType == OptionType.CALL) {
             _option.baseAsset = writeAsset;
             _option.quoteAsset = optionStored.exerciseAsset;
-            _option.strikePrice = (optionStored.exerciseAmount * (10 ** OPTION_CONTRACT_SCALAR));
+            _option.strikePrice =
+                (optionStored.exerciseAmount * (10 ** OPTION_CONTRACT_SCALAR));
             _option.optionType = OptionType.CALL;
         } else {
             _option.baseAsset = optionStored.exerciseAsset;
             _option.quoteAsset = writeAsset;
-            _option.strikePrice = (optionStored.writeAmount * (10 ** OPTION_CONTRACT_SCALAR));
+            _option.strikePrice =
+                (optionStored.writeAmount * (10 ** OPTION_CONTRACT_SCALAR));
             _option.optionType = OptionType.PUT;
         }
         _option.exerciseWindow = optionStored.exerciseWindow;
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
-    function optionType(uint256 _optionTokenId) external view returns (OptionType _optionType) {
+    function optionType(uint256 _optionTokenId)
+        external
+        view
+        returns (OptionType _optionType)
+    {
         // TODO initial checks
 
         // Get the option from storage
@@ -151,7 +172,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _optionType = optionStored.optionType;
     }
 
-    function exerciseStyle(uint256 _optionTokenId) external view returns (ExerciseStyle _exerciseStyle) {
+    function exerciseStyle(uint256 _optionTokenId)
+        external
+        view
+        returns (ExerciseStyle _exerciseStyle)
+    {
         // TODO initial checks
 
         // Get the option from storage
@@ -190,9 +215,17 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         amount = totalSupply[_optionTokenId].safeCastTo64();
     }
 
-    function writeableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
+    function writeableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint64 amount)
+    {}
 
-    function reedemableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
+    function reedemableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint64 amount)
+    {}
 
     ///////// Rebasing Token Balance Views
 
@@ -218,11 +251,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             return internalBalanceOf[owner][tokenId];
         } else if (_tokenType == TokenType.SHORT) {
             // If short, the balance is their proportional share of the unassigned shorts
-            return (internalBalanceOf[owner][tokenId] * (amountWritten - amountExercised)) / amountWritten;
+            return (internalBalanceOf[owner][tokenId] * (amountWritten - amountExercised))
+                / amountWritten;
         } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
             // If assigned short, the balance is their proportional share of the assigned shorts
-            return
-                (internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised) / amountWritten;
+            return (
+                internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised
+            ) / amountWritten;
         } else {
             revert OptionErrors.InvalidPositionTokenType(tokenId);
         }
@@ -249,7 +284,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // Get the position
         uint256 longBalance = balanceOf(msg.sender, _optionTokenId);
         uint256 shortBalance = balanceOf(msg.sender, _optionTokenId.longToShort());
-        uint256 assignedShortBalance = balanceOf(msg.sender, _optionTokenId.longToAssignedShort());
+        uint256 assignedShortBalance =
+            balanceOf(msg.sender, _optionTokenId.longToAssignedShort());
 
         _position = Position({
             amountLong: longBalance.safeCastTo64(),
@@ -258,12 +294,22 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         });
 
         // Calculate the magnitude
-        magnitude = int160(int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance));
+        magnitude = int160(
+            int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance)
+        );
     }
 
-    function positionNettableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
+    function positionNettableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint64 amount)
+    {}
 
-    function positionRedeemableAmount(uint256 _optionTokenId) external view returns (uint64 amount) {}
+    function positionRedeemableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint64 amount)
+    {}
 
     ///////// ERC6909MetadataModified
 
@@ -292,6 +338,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     ///////// Option Actions
 
+    // Write
+
     // TODO refactor to DRY up write business logic
 
     function writeCall(
@@ -301,8 +349,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         uint256 strikePrice,
         uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
-        _optionTokenId =
-            _write(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionAmount, OptionType.CALL);
+        _optionTokenId = _write(
+            baseAsset,
+            quoteAsset,
+            exerciseWindow,
+            strikePrice,
+            optionAmount,
+            OptionType.CALL
+        );
     }
 
     function writePut(
@@ -312,8 +366,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         uint256 strikePrice,
         uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
-        _optionTokenId =
-            _write(baseAsset, quoteAsset, exerciseWindow, strikePrice, optionAmount, OptionType.PUT);
+        _optionTokenId = _write(
+            baseAsset,
+            quoteAsset,
+            exerciseWindow,
+            strikePrice,
+            optionAmount,
+            OptionType.PUT
+        );
     }
 
     function _write(
@@ -333,10 +393,15 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // TODO decide how to combine/remove IERC20Minimal and ERC20 type cast
         uint8 baseDecimals = IERC20Minimal(baseAsset).decimals();
         uint8 quoteDecimals = IERC20Minimal(quoteAsset).decimals();
-        if (baseDecimals < OPTION_CONTRACT_SCALAR || baseDecimals > MAXIMUM_ERC20_DECIMALS) {
+        if (
+            baseDecimals < OPTION_CONTRACT_SCALAR || baseDecimals > MAXIMUM_ERC20_DECIMALS
+        ) {
             revert OptionErrors.AssetDecimalsOutOfRange(baseAsset, baseDecimals);
         }
-        if (quoteDecimals < OPTION_CONTRACT_SCALAR || quoteDecimals > MAXIMUM_ERC20_DECIMALS) {
+        if (
+            quoteDecimals < OPTION_CONTRACT_SCALAR
+                || quoteDecimals > MAXIMUM_ERC20_DECIMALS
+        ) {
             revert OptionErrors.AssetDecimalsOutOfRange(quoteAsset, quoteDecimals);
         }
 
@@ -345,10 +410,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             revert OptionErrors.ExerciseWindowMispaired();
         }
         if (exerciseWindow[0] == exerciseWindow[1]) {
-            revert OptionErrors.ExerciseWindowZeroTime(exerciseWindow[0], exerciseWindow[1]);
+            revert OptionErrors.ExerciseWindowZeroTime(
+                exerciseWindow[0], exerciseWindow[1]
+            );
         }
         if (exerciseWindow[0] > exerciseWindow[1]) {
-            revert OptionErrors.ExerciseWindowMisordered(exerciseWindow[0], exerciseWindow[1]);
+            revert OptionErrors.ExerciseWindowMisordered(
+                exerciseWindow[0], exerciseWindow[1]
+            );
         }
         if (exerciseWindow[1] <= block.timestamp) {
             revert OptionErrors.ExerciseWindowExpiryPast(exerciseWindow[1]);
@@ -383,11 +452,12 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
 
         // Determine the exercise style
-        ExerciseStyle exStyle = LibTime.determineExerciseStyle(exerciseWindow);
+        ExerciseStyle exStyle = LibToken.determineExerciseStyle(exerciseWindow);
 
         // Generate the optionTokenId
-        uint248 optionHash =
-            LibToken.paramsToHash(baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType);
+        uint248 optionHash = LibToken.paramsToHash(
+            baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType
+        );
         _optionTokenId = optionHash.hashToId();
 
         // Store the option information
@@ -400,9 +470,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             exerciseAsset: assetInfo.exerciseAsset,
             exerciseAmount: assetInfo.exerciseAmount,
             exerciseDecimals: assetInfo.exerciseDecimals,
-            optionState: OptionState({amountWritten: optionAmount, amountExercised: 0, amountNettedOff: 0}),
-            exerciseWindow: LibTime.toExerciseWindow(exerciseWindow)
+            optionState: OptionState({
+                amountWritten: optionAmount,
+                amountExercised: 0,
+                amountNettedOff: 0
+            }),
+            exerciseWindow: LibToken.toExerciseWindow(exerciseWindow)
         });
+
+        // Store the option name/symbols
+        names[_optionTokenId] = "clr-stETH-aUSDC-20OCT23-1750-C"; // TEMP
 
         if (optionAmount > 0) {
             // Mint the longs and shorts
@@ -419,7 +496,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
                 ERC20(assetInfo.writeAsset), msg.sender, address(this), fullAmountForWrite
             );
         }
-        // Else the option is just created, with no options actually written and therefore no long/short tokens minted
+        // Else the option is just created, with no options actually written and
+        // therefore no long/short tokens minted
 
         // Log events
         emit OptionCreated(
@@ -477,7 +555,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
         ///////// Interactions
         // Transfer in the write asset
-        SafeTransferLib.safeTransferFrom(ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite);
+        SafeTransferLib.safeTransferFrom(
+            ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite
+        );
 
         // Log events
         emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
@@ -487,7 +567,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
-    function batchWrite(uint256[] calldata optionTokenIds, uint64[] calldata optionAmounts) external {
+    function batchWrite(
+        uint256[] calldata optionTokenIds,
+        uint64[] calldata optionAmounts
+    ) external {
         ///////// Function Requirements
         uint256 idsLength = optionTokenIds.length;
         // Check that the arrays are not empty
@@ -511,6 +594,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         }
     }
 
+    // Exercise
+
     function exercise(uint256 _optionTokenId, uint64 optionAmount) external override {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -532,14 +617,19 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
             // Check that the option is within an exercise window
             uint32 exerciseTimestamp = optionStored.exerciseWindow.exerciseTimestamp;
             uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
-            if (block.timestamp < exerciseTimestamp || block.timestamp > expiryTimestamp) {
-                revert OptionErrors.OptionNotWithinExerciseWindow(exerciseTimestamp, expiryTimestamp);
+            if (block.timestamp < exerciseTimestamp || block.timestamp > expiryTimestamp)
+            {
+                revert OptionErrors.OptionNotWithinExerciseWindow(
+                    exerciseTimestamp, expiryTimestamp
+                );
             }
 
             // Check that the caller holds sufficient longs to exercise
             uint256 optionBalance = balanceOf(msg.sender, _optionTokenId);
             if (optionAmount > optionBalance) {
-                revert OptionErrors.ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
+                revert OptionErrors.ExerciseAmountExceedsLongBalance(
+                    optionAmount, optionBalance
+                );
             }
         }
 
@@ -553,7 +643,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // Track the asset liabilities
         address writeAsset = optionStored.writeAsset;
         address exerciseAsset = optionStored.exerciseAsset;
-        uint256 fullAmountForExercise = uint256(optionStored.exerciseAmount) * optionAmount;
+        uint256 fullAmountForExercise =
+            uint256(optionStored.exerciseAmount) * optionAmount;
         uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
         _incrementAssetLiability(exerciseAsset, fullAmountForExercise);
         _decrementAssetLiability(writeAsset, fullAmountForWrite);
@@ -574,6 +665,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         // Check that the asset liabilities can be met
         _verifyAfter(writeAsset, exerciseAsset);
     }
+
+    // Net Off
 
     function netOff(uint256 _optionTokenId, uint64 optionAmount)
         external
@@ -627,17 +720,21 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
+    // Redeem
+
     function redeem(uint256 _optionTokenId)
         external
         override
         returns (uint176 writeAssetRedeemed, uint176 exerciseAssetRedeemed)
-    {}
+    {
+        revert("not yet impl");
+    }
 
     /////////
 
     // TODO add skim() as a Pool action, maybe not an Option action
 
-    /////////
+    ///////// Callback
 
     function clarityCallback(Callback calldata _callback) external {}
 
@@ -652,8 +749,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
     }
 
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
-        assert(IERC20Minimal(writeAsset).balanceOf(address(this)) >= assetLiabilities[writeAsset]);
-        assert(IERC20Minimal(exerciseAsset).balanceOf(address(this)) >= assetLiabilities[exerciseAsset]);
+        assert(
+            IERC20Minimal(writeAsset).balanceOf(address(this))
+                >= assetLiabilities[writeAsset]
+        );
+        assert(
+            IERC20Minimal(exerciseAsset).balanceOf(address(this))
+                >= assetLiabilities[exerciseAsset]
+        );
     }
 
     /////////
@@ -662,11 +765,27 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, IERC6909MetadataURI
 
     /////////
 
-    function _writeableAmount(uint256 _optionTokenId) private view returns (uint64 __writeableAmount) {}
+    function _writeableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint64 __writeableAmount)
+    {}
 
-    function _exercisableAmount(uint256 _optionTokenId) private view returns (uint64 assignableAmount) {}
+    function _exercisableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint64 assignableAmount)
+    {}
 
-    function _writerNettableAmount(uint256 _optionTokenId) private view returns (uint64 nettableAmount) {}
+    function _writerNettableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint64 nettableAmount)
+    {}
 
-    function _writerRedeemableAmount(uint256 _optionTokenId) private view returns (uint64 redeemableAmount) {}
+    function _writerRedeemableAmount(uint256 _optionTokenId)
+        private
+        view
+        returns (uint64 redeemableAmount)
+    {}
 }

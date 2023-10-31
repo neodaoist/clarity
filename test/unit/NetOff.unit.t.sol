@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
+// Test Harness
 import "../BaseClarityMarkets.t.sol";
 
 contract NetOffTest is BaseClarityMarketsTest {
@@ -18,13 +19,18 @@ contract NetOffTest is BaseClarityMarketsTest {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
+        );
         vm.stopPrank();
 
         // pre net off
         // check option balances
-        assertEq(clarity.balanceOf(writer, optionTokenId), 1e6, "writer long balance before net off");
+        assertEq(
+            clarity.balanceOf(writer, optionTokenId),
+            1e6,
+            "writer long balance before net off"
+        );
         assertEq(
             clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
             1e6,
@@ -38,9 +44,15 @@ contract NetOffTest is BaseClarityMarketsTest {
 
         // check asset balances
         assertEq(
-            WETHLIKE.balanceOf(writer), writerWethBalance - (1e18 * 1), "writer WETH balance before net off"
+            WETHLIKE.balanceOf(writer),
+            writerWethBalance - (1e18 * 1),
+            "writer WETH balance before net off"
         );
-        assertEq(LUSDLIKE.balanceOf(writer), writerLusdBalance, "writer LUSD balance before net off");
+        assertEq(
+            LUSDLIKE.balanceOf(writer),
+            writerLusdBalance,
+            "writer LUSD balance before net off"
+        );
 
         // When writer nets off their full position
         vm.prank(writer);
@@ -48,7 +60,11 @@ contract NetOffTest is BaseClarityMarketsTest {
 
         // Then
         // check option balances
-        assertEq(clarity.balanceOf(writer, optionTokenId), 0, "writer long balance after net off");
+        assertEq(
+            clarity.balanceOf(writer, optionTokenId),
+            0,
+            "writer long balance after net off"
+        );
         assertEq(
             clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
             0,
@@ -61,8 +77,16 @@ contract NetOffTest is BaseClarityMarketsTest {
         );
 
         // check asset balances
-        assertEq(WETHLIKE.balanceOf(writer), writerWethBalance, "writer WETH balance after net off");
-        assertEq(LUSDLIKE.balanceOf(writer), writerLusdBalance, "writer LUSD balance after net off");
+        assertEq(
+            WETHLIKE.balanceOf(writer),
+            writerWethBalance,
+            "writer WETH balance after net off"
+        );
+        assertEq(
+            LUSDLIKE.balanceOf(writer),
+            writerLusdBalance,
+            "writer LUSD balance after net off"
+        );
     }
 
     // TODO add event tests
@@ -74,7 +98,9 @@ contract NetOffTest is BaseClarityMarketsTest {
 
         vm.prank(writer);
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, nonExistentOptionTokenId)
+            abi.encodeWithSelector(
+                OptionErrors.OptionDoesNotExist.selector, nonExistentOptionTokenId
+            )
         );
 
         clarity.netOff(nonExistentOptionTokenId, 1e6);
@@ -83,12 +109,15 @@ contract NetOffTest is BaseClarityMarketsTest {
     function testRevert_netOff_whenDontHoldSufficientLongs() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
+        );
         clarity.transfer(holder, optionTokenId, 0.1e6);
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.InsufficientLongBalance.selector, optionTokenId, 1e6)
+            abi.encodeWithSelector(
+                OptionErrors.InsufficientLongBalance.selector, optionTokenId, 1e6
+            )
         );
 
         clarity.netOff(optionTokenId, 1e6);
@@ -98,12 +127,15 @@ contract NetOffTest is BaseClarityMarketsTest {
     function testRevert_netOff_whenDontHoldSufficientShorts() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
+        );
         clarity.transfer(holder, LibToken.longToShort(optionTokenId), 0.1e6);
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.InsufficientShortBalance.selector, optionTokenId, 1e6)
+            abi.encodeWithSelector(
+                OptionErrors.InsufficientShortBalance.selector, optionTokenId, 1e6
+            )
         );
 
         clarity.netOff(optionTokenId, 1e6);

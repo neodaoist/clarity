@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "../../src/interface/option/IOptionToken.sol";
-
+// Test Harness
 import "../BaseClarityMarkets.t.sol";
+
+// Views Under Test
+import {IOptionToken} from "../../src/interface/option/IOptionToken.sol";
 
 contract OptionTokenViewsTest is BaseClarityMarketsTest {
     /////////
@@ -30,21 +32,27 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
     function test_optionType_whenCall() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+        );
         vm.stopPrank();
 
-        assertEq(clarity.optionType(optionTokenId), IOptionToken.OptionType.CALL, "option type");
+        assertEq(
+            clarity.optionType(optionTokenId), IOptionToken.OptionType.CALL, "option type"
+        );
     }
 
     function test_optionType_whenPut() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+        uint256 optionTokenId = clarity.writePut(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+        );
         vm.stopPrank();
 
-        assertEq(clarity.optionType(optionTokenId), IOptionToken.OptionType.PUT, "option type");
+        assertEq(
+            clarity.optionType(optionTokenId), IOptionToken.OptionType.PUT, "option type"
+        );
     }
 
     /////////
@@ -53,21 +61,31 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
     function test_exerciseStyle_whenAmerican() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+        );
         vm.stopPrank();
 
-        assertEq(clarity.exerciseStyle(optionTokenId), IOptionToken.ExerciseStyle.AMERICAN, "exercise style");
+        assertEq(
+            clarity.exerciseStyle(optionTokenId),
+            IOptionToken.ExerciseStyle.AMERICAN,
+            "exercise style"
+        );
     }
 
     function test_exerciseStyle_whenEuropean() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), europeanExWeeklies[0], 1700e18, 0);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), europeanExWeeklies[0], 1700e18, 0
+        );
         vm.stopPrank();
 
-        assertEq(clarity.exerciseStyle(optionTokenId), IOptionToken.ExerciseStyle.EUROPEAN, "exercise style");
+        assertEq(
+            clarity.exerciseStyle(optionTokenId),
+            IOptionToken.ExerciseStyle.EUROPEAN,
+            "exercise style"
+        );
     }
 
     /////////
@@ -98,12 +116,18 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
 
     function testRevert_position_whenOptionDoesNotExist() public {
         uint248 instrumentHash = LibToken.paramsToHash(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, IOptionToken.OptionType.CALL
+            address(WETHLIKE),
+            address(LUSDLIKE),
+            americanExWeeklies[0],
+            1750e18,
+            IOptionToken.OptionType.CALL
         );
         uint256 notCreatedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId)
+            abi.encodeWithSelector(
+                OptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId
+            )
         );
 
         clarity.tokenType(notCreatedOptionTokenId);
@@ -111,8 +135,9 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
 
     function testRevert_position_whenOptionExistsButInvalidPositionTokenType() public {
         vm.startPrank(writer);
-        uint256 optionTokenId =
-            clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
+        );
         vm.stopPrank();
 
         vm.expectRevert(stdError.enumConversionError);

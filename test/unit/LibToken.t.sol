@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "../../src/library/LibToken.sol";
-
+// Test Harness
 import "../BaseClarityMarkets.t.sol";
+
+// Library Under test
+import {LibToken} from "../../src/library/LibToken.sol";
 
 contract LibTokenTest is BaseClarityMarketsTest {
     /////////
@@ -156,7 +158,9 @@ contract LibTokenTest is BaseClarityMarketsTest {
         uint256 longId = LibToken.hashToId(instrumentHash);
         uint256 assignedShortId = LibToken.longToAssignedShort(longId);
 
-        assertEq(LibToken.assignedShortToLong(assignedShortId), longId, "assignedShortToLong");
+        assertEq(
+            LibToken.assignedShortToLong(assignedShortId), longId, "assignedShortToLong"
+        );
     }
 
     function test_assignedShortToShort() public {
@@ -177,7 +181,11 @@ contract LibTokenTest is BaseClarityMarketsTest {
         uint256 shortId = LibToken.longToShort(longId);
         uint256 assignedShortId = LibToken.longToAssignedShort(longId);
 
-        assertEq(LibToken.assignedShortToShort(assignedShortId), shortId, "assignedShortToShort");
+        assertEq(
+            LibToken.assignedShortToShort(assignedShortId),
+            shortId,
+            "assignedShortToShort"
+        );
     }
 
     function test_tokenType() public {
@@ -198,8 +206,14 @@ contract LibTokenTest is BaseClarityMarketsTest {
         uint256 shortId = longId | 1;
         uint256 assignedShortId = longId | 2;
 
-        assertEq(LibToken.tokenType(longId), IOptionToken.TokenType.LONG, "tokenType(longId)");
-        assertEq(LibToken.tokenType(shortId), IOptionToken.TokenType.SHORT, "tokenType(shortId)");
+        assertEq(
+            LibToken.tokenType(longId), IOptionToken.TokenType.LONG, "tokenType(longId)"
+        );
+        assertEq(
+            LibToken.tokenType(shortId),
+            IOptionToken.TokenType.SHORT,
+            "tokenType(shortId)"
+        );
         assertEq(
             LibToken.tokenType(assignedShortId),
             IOptionToken.TokenType.ASSIGNED_SHORT,

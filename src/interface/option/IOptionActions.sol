@@ -6,23 +6,26 @@ interface IOptionActions {
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
-        uint256 strikePrice,
+        uint256 strikePrice, // TODO consider specifying this better
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
     function writePut(
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
-        uint256 strikePrice,
+        uint256 strikePrice, // TODO ditto
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
     function write(uint256 optionTokenId, uint64 optionAmount) external;
-    function batchWrite(uint256[] calldata optionTokenIds, uint64[] calldata optionAmounts) external;
+    function batchWrite(
+        uint256[] calldata optionTokenIds,
+        uint64[] calldata optionAmounts
+    ) external;
     function exercise(uint256 optionTokenId, uint64 optionAmount) external;
     function netOff(uint256 optionTokenId, uint64 optionAmount)
         external
         returns (uint256 writeAssetNettedOff); // TODO width needs to change
     function redeem(uint256 optionTokenId)
         external
-        returns (uint176 writeAssetRedeemed, uint176 exerciseAssetRedeemed); // TODO width needs to change
+        returns (uint176 writeAssetRedeemed, uint176 exerciseAssetRedeemed); // TODO ditto
 }

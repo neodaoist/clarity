@@ -1,20 +1,29 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity 0.8.21;
+
+// Interfaces
+import {IERC6909} from "../interface/token/IERC6909.sol";
+import {IERC6909MetadataModified} from "../interface/token/IERC6909MetadataModified.sol";
+import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
 /// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol)
-abstract contract ERC6909Rebasing {
+abstract contract ERC6909Rebasing is
+    IERC6909,
+    IERC6909MetadataModified,
+    IERC6909MetadataURI
+{
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event OperatorSet(address indexed owner, address indexed operator, bool approved);
+    // event OperatorSet(address indexed owner, address indexed operator, bool approved);
 
-    event Approval(address indexed owner, address indexed spender, uint256 indexed id, uint256 amount);
+    // event Approval(address indexed owner, address indexed spender, uint256 indexed id, uint256 amount);
 
-    event Transfer(
-        address caller, address indexed from, address indexed to, uint256 indexed id, uint256 amount
-    );
+    // event Transfer(
+    //     address caller, address indexed from, address indexed to, uint256 indexed id, uint256 amount
+    // );
 
     /*//////////////////////////////////////////////////////////////
                              ERC6909 STORAGE
@@ -32,7 +41,11 @@ abstract contract ERC6909Rebasing {
                               ERC6909 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function transfer(address receiver, uint256 id, uint256 amount) public virtual returns (bool) {
+    function transfer(address receiver, uint256 id, uint256 amount)
+        public
+        virtual
+        returns (bool)
+    {
         internalBalanceOf[msg.sender][id] -= amount;
 
         // Cannot overflow because the sum of all user
@@ -53,7 +66,9 @@ abstract contract ERC6909Rebasing {
     {
         if (msg.sender != sender && !isOperator[sender][msg.sender]) {
             uint256 allowed = allowance[sender][msg.sender][id];
-            if (allowed != type(uint256).max) allowance[sender][msg.sender][id] = allowed - amount;
+            if (allowed != type(uint256).max) {
+                allowance[sender][msg.sender][id] = allowed - amount;
+            }
         }
 
         internalBalanceOf[sender][id] -= amount;
@@ -69,7 +84,11 @@ abstract contract ERC6909Rebasing {
         return true;
     }
 
-    function approve(address spender, uint256 id, uint256 amount) public virtual returns (bool) {
+    function approve(address spender, uint256 id, uint256 amount)
+        public
+        virtual
+        returns (bool)
+    {
         allowance[msg.sender][spender][id] = amount;
 
         emit Approval(msg.sender, spender, id, amount);

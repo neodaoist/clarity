@@ -18,7 +18,13 @@ interface IOptionPosition {
         view
         returns (Position memory position, int160 magnitude);
 
-    function positionNettableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    function positionNettableAmount(uint256 optionTokenId)
+        external
+        view
+        returns (uint64 amount);
 
-    function positionRedeemableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    function positionRedeemableAmount(uint256 optionTokenId)
+        external
+        view
+        returns (uint64 amount);
 }
