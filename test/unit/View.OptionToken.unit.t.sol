@@ -133,7 +133,7 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
         clarity.tokenType(notCreatedOptionTokenId);
     }
 
-    function testRevert_position_whenOptionExistsButInvalidPositionTokenType() public {
+    function testRevert_position_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0

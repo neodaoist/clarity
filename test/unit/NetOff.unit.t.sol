@@ -11,7 +11,7 @@ contract NetOffTest is BaseClarityMarketsTest {
     // function netOff(uint256 _optionTokenId, uint64 optionsAmount)
     //     external
     //     override
-    //     returns (uint176 writeAssetNettedOff)
+    //     returns (uint128 writeAssetNettedOff);
 
     function test_netOff() public {
         uint256 writerWethBalance = WETHLIKE.balanceOf(writer);
@@ -25,71 +25,35 @@ contract NetOffTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // pre net off
-        // check option balances
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId),
-            1e6,
-            "writer long balance before net off"
+        assertOptionBalances(writer, optionTokenId, 1e6, 1e6, 0, "writer before net off");
+        assertAssetBalance(
+            writer, WETHLIKE, writerWethBalance - (1e18 * 1), "writer before net off"
         );
-        assertEq(
-            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
-            1e6,
-            "writer short balance before net off"
-        );
-        assertEq(
-            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
-            0,
-            "writer assigned balance before net off"
-        );
+        assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer before net off");
 
-        // check asset balances
-        assertEq(
-            WETHLIKE.balanceOf(writer),
-            writerWethBalance - (1e18 * 1),
-            "writer WETH balance before net off"
-        );
-        assertEq(
-            LUSDLIKE.balanceOf(writer),
-            writerLusdBalance,
-            "writer LUSD balance before net off"
-        );
+        writerWethBalance = WETHLIKE.balanceOf(writer);
+        writerLusdBalance = LUSDLIKE.balanceOf(writer);
 
         // When writer nets off their full position
         vm.prank(writer);
-        clarity.netOff(optionTokenId, 1e6);
+        uint128 writeAssetNettedOff = clarity.netOff(optionTokenId, 1e6);
 
         // Then
-        // check option balances
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId),
-            0,
-            "writer long balance after net off"
+        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "writer after net off");
+        assertAssetBalance(
+            writer,
+            WETHLIKE,
+            writerWethBalance + writeAssetNettedOff,
+            "writer after net off"
         );
-        assertEq(
-            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
-            0,
-            "writer short balance after net off"
-        );
-        assertEq(
-            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
-            0,
-            "writer assigned balance after net off"
-        );
-
-        // check asset balances
-        assertEq(
-            WETHLIKE.balanceOf(writer),
-            writerWethBalance,
-            "writer WETH balance after net off"
-        );
-        assertEq(
-            LUSDLIKE.balanceOf(writer),
-            writerLusdBalance,
-            "writer LUSD balance after net off"
-        );
+        assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer after net off");
     }
 
-    // TODO add event tests
+    // TODO add more
+
+    // Events
+
+    // TODO
 
     // Sad Paths
 

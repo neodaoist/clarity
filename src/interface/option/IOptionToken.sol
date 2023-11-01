@@ -71,6 +71,7 @@ interface IOptionToken {
         view
         returns (ExerciseStyle exerciseStyle);
 
-    // TODO add
-    // function exerciseWindow() external view returns (IOptionToken.ExerciseWindow memory exerciseWindow);
+    // IDEA add:
+    // isWithinExerciseWindow()
+    // whenLastExpiry()
 }

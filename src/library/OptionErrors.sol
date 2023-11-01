@@ -49,9 +49,17 @@ library OptionErrors {
     /// @dev Also used in ERC20Factory and ClarityWrappedShort
     error InsufficientShortBalance(uint256 shortTokenId, uint256 shortBalance);
 
+    ///////// Redeem
+
+    error ShortBalanceZero(uint256 shortTokenId);
+
+    error EarlyRedemptionOnlyIfFullyAssigned();
+
+    error CanOnlyRedeemShort(uint256 tokenId); // TODO reframe to standardize with other errors
+
     ///////// Views
 
-    error InvalidPositionTokenType(uint256 tokenId);
+    error InvalidTokenType(uint256 tokenId);
 
     ///////// Adapter
 

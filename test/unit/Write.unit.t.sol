@@ -22,9 +22,13 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6
-        );
+        uint256 optionTokenId = clarity.writeCall({ // TODO update elsewhere
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 1e6
+        });
         vm.stopPrank();
 
         // check option exists

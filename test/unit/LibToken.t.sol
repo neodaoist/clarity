@@ -141,6 +141,31 @@ contract LibTokenTest is BaseClarityMarketsTest {
         assertEq(LibToken.shortToLong(shortId), longId, "shortToLong");
     }
 
+    function test_shortToAssignedShort() public {
+        uint248 instrumentHash = uint248(
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        address(WETHLIKE),
+                        address(USDCLIKE),
+                        americanExWeeklies[0],
+                        uint256(1750e18),
+                        IOptionToken.OptionType.CALL
+                    )
+                )
+            )
+        );
+        uint256 longId = LibToken.hashToId(instrumentHash);
+        uint256 shortId = LibToken.longToShort(longId);
+        uint256 assignedShortId = LibToken.longToAssignedShort(longId);
+
+        assertEq(
+            LibToken.shortToAssignedShort(shortId),
+            assignedShortId,
+            "shortToAssignedShort"
+        );
+    }
+
     function test_assignedShortToLong() public {
         uint248 instrumentHash = uint248(
             bytes31(

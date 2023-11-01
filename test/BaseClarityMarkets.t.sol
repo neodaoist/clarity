@@ -19,6 +19,8 @@ import "../src/ClarityMarkets.sol";
 abstract contract BaseClarityMarketsTest is Test {
     /////////
 
+    using LibToken for uint256;
+
     // DCP
     ClarityMarkets internal clarity;
 
@@ -637,7 +639,7 @@ abstract contract BaseClarityMarketsTest is Test {
     ///////// Custom Multi Assertions
     // Note be mindful not to add too many multi assertions and/or too much misdirection
 
-    function assertClarityBalanceOf(
+    function assertOptionBalances(
         address addr,
         uint256 optionTokenId,
         uint256 expectedLongBalance,
@@ -645,7 +647,34 @@ abstract contract BaseClarityMarketsTest is Test {
         uint256 expectedAssignedShortBalance,
         string memory message
     ) internal {
-        revert("not yet impl");
+        assertEq(
+            clarity.balanceOf(addr, optionTokenId),
+            expectedLongBalance,
+            string(abi.encodePacked("long balance ", message))
+        );
+        assertEq(
+            clarity.balanceOf(addr, optionTokenId.longToShort()),
+            expectedShortBalance,
+            string(abi.encodePacked("short balance ", message))
+        );
+        assertEq(
+            clarity.balanceOf(addr, optionTokenId.longToAssignedShort()),
+            expectedAssignedShortBalance,
+            string(abi.encodePacked("assigned short balance ", message))
+        );
+    }
+
+    function assertAssetBalance(
+        address addr,
+        IERC20 asset,
+        uint256 expectedBalance,
+        string memory message
+    ) internal {
+        assertEq(
+            asset.balanceOf(addr),
+            expectedBalance,
+            string(abi.encodePacked(asset.symbol(), " balance ", message))
+        );
     }
 
     ///////// Custom Type Assertions
@@ -770,6 +799,8 @@ abstract contract BaseClarityMarketsTest is Test {
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
     );
 
+    event ShortsRedeemed(address indexed caller, uint256 indexed shortTokenId);
+
     event ClarityWrappedLongDeployed(
         uint256 indexed optionTokenId, address indexed wrapperAddress
     );
@@ -786,9 +817,9 @@ abstract contract BaseClarityMarketsTest is Test {
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
     );
 
-    event ClarityLongsExercised(
-        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
-    );
+    // event ClarityLongsExercised(
+    //     address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    // );
 
     event ClarityShortsWrapped(
         address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
@@ -798,7 +829,7 @@ abstract contract BaseClarityMarketsTest is Test {
         address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
     );
 
-    event ClarityShortsRedeemed(
-        address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
-    );
+    // event ClarityShortsRedeemed(
+    //     address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
+    // );
 }

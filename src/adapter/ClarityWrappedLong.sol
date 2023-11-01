@@ -111,7 +111,7 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         emit ClarityLongsUnwrapped(msg.sender, optionTokenId, optionAmount);
     }
 
-    function exerciseLongs(uint64 optionAmount) external {
+    function exerciseLongs(uint64 /*optionAmount*/ ) external pure {
         revert("not yet impl");
     }
 }

@@ -29,7 +29,7 @@ abstract contract ERC6909Rebasing is
                              ERC6909 STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    mapping(uint256 => uint256) public totalSupply;
+    mapping(uint256 => uint256) public totalSupply; // TODO incorporate into tests
 
     mapping(address => mapping(address => bool)) public isOperator;
 

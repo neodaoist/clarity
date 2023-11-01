@@ -66,7 +66,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint64 amountNettedOff;
     }
 
-    struct ClearingAssetInfo {
+    struct AssetClearingInfo {
+        // memory struct
         address writeAsset;
         uint8 writeDecimals;
         uint64 writeAmount;
@@ -229,6 +230,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Rebasing Token Balance Views
 
+    // IDEA consider returning zero long balance after last expiry
+
     function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
@@ -240,6 +243,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         TokenType _tokenType = tokenId.tokenType();
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountExercised = optionStored.optionState.amountExercised;
+        // TODO account for amountNettedOff
 
         // If never any open interest for this created option, all balances will be zero
         if (amountWritten == 0 && amountExercised == 0) {
@@ -259,7 +263,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                 internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised
             ) / amountWritten;
         } else {
-            revert OptionErrors.InvalidPositionTokenType(tokenId);
+            // TODO is this state possible? bc will throw enum error instead
+            revert OptionErrors.InvalidTokenType(tokenId);
         }
     }
 
@@ -430,9 +435,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         ///////// Effects
         // Calculate the write and exercise amounts for clearing purposes
-        ClearingAssetInfo memory assetInfo; // memory struct to avoid stack too deep
+        AssetClearingInfo memory assetInfo; // memory struct to avoid stack too deep
         if (_optionType == OptionType.CALL) {
-            assetInfo = ClearingAssetInfo({
+            assetInfo = AssetClearingInfo({
                 writeAsset: baseAsset,
                 writeDecimals: baseDecimals,
                 writeAmount: (10 ** (baseDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
@@ -441,7 +446,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                 exerciseAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64()
             });
         } else {
-            assetInfo = ClearingAssetInfo({
+            assetInfo = AssetClearingInfo({
                 writeAsset: quoteAsset,
                 writeDecimals: quoteDecimals,
                 writeAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
@@ -655,7 +660,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             ERC20(exerciseAsset), msg.sender, address(this), fullAmountForExercise
         );
 
-        // Transfer out the write asset
+        // Transfer out the write asset // TODO add 1 wei gas optimization
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, fullAmountForWrite);
 
         // Log exercise event
@@ -671,7 +676,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     function netOff(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
-        returns (uint256 writeAssetNettedOff)
+        returns (uint128 writeAssetNettedOff)
     {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -710,7 +715,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _decrementAssetLiability(writeAsset, writeAssetNettedOff);
 
         ///////// Interactions
-        // Transfer out the write asset
+        // Transfer out the write asset // TODO add 1 wei gas optimization
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
 
         // Log net off event
@@ -722,12 +727,83 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     // Redeem
 
-    function redeem(uint256 _optionTokenId)
+    function redeem(uint256 shortTokenId)
         external
         override
-        returns (uint176 writeAssetRedeemed, uint176 exerciseAssetRedeemed)
+        returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed)
     {
-        revert("not yet impl");
+        ///////// Function Requirements
+        // Check that the token type is a short
+        if (shortTokenId.tokenType() != TokenType.SHORT) {
+            revert OptionErrors.CanOnlyRedeemShort(shortTokenId);
+        }
+
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[shortTokenId.idToHash()];
+        address writeAsset = optionStored.writeAsset;
+        if (writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(shortTokenId);
+        }
+
+        // Check that the caller holds shorts for this option
+        uint256 nonVirtualShortBalance = internalBalanceOf[msg.sender][shortTokenId];
+        if (nonVirtualShortBalance == 0) {
+            revert OptionErrors.ShortBalanceZero(shortTokenId);
+        }
+
+        ///////// Effects
+        // Determine the assignment status
+        uint256 unassignedShortAmount = balanceOf(msg.sender, shortTokenId);
+        uint256 assignedShortAmount =
+            balanceOf(msg.sender, shortTokenId.shortToAssignedShort());
+
+        // If fully assigned, redeem exercise asset and skip option expiry check
+        if (unassignedShortAmount == 0) {
+            exerciseAssetRedeemed =
+                optionStored.exerciseAmount * uint128(assignedShortAmount);
+        } else {
+            // Perform additional check that the option is expired
+            if (block.timestamp <= optionStored.exerciseWindow.expiryTimestamp) {
+                revert OptionErrors.EarlyRedemptionOnlyIfFullyAssigned();
+            }
+
+            // Calculate the asset redemption amounts, based on assignment status
+            // and caller's short balances
+            writeAssetRedeemed = optionStored.writeAmount * uint128(unassignedShortAmount);
+            exerciseAssetRedeemed =
+                optionStored.exerciseAmount * uint128(assignedShortAmount);
+        }
+
+        // Burn all the caller's (non-virtual-rebasing) shorts
+        _burn(msg.sender, shortTokenId, nonVirtualShortBalance);
+
+        // Track the asset liabilities
+        address exerciseAsset = optionStored.exerciseAsset;
+        if (writeAssetRedeemed > 0) {
+            _decrementAssetLiability(writeAsset, writeAssetRedeemed);
+        }
+        if (exerciseAssetRedeemed > 0) {
+            _decrementAssetLiability(exerciseAsset, exerciseAssetRedeemed);
+        }
+
+        ///////// Interactions
+        // Transfer out the write asset and exercise, as needed // TODO add 1 wei gas optimization
+        if (writeAssetRedeemed > 0) {
+            SafeTransferLib.safeTransfer(
+                ERC20(writeAsset), msg.sender, writeAssetRedeemed
+            );
+        }
+        if (exerciseAssetRedeemed > 0) {
+            SafeTransferLib.safeTransfer(
+                ERC20(exerciseAsset), msg.sender, exerciseAssetRedeemed
+            );
+        }
+
+        // Log event
+        emit ShortsRedeemed(msg.sender, shortTokenId);
+
+        ///////// Protocol Invariant
+        _verifyAfter(writeAsset, exerciseAsset);
     }
 
     /////////
