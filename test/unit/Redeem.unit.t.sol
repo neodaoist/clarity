@@ -74,13 +74,16 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) = clarity.redeem(optionTokenId);
+        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
+            clarity.redeem(optionTokenId);
 
         // Then
         assertEq(writeAssetRedeemed, 1e18 * 2.25, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 0, "exerciseAssetRedeemed");
         assertOptionBalances(writer, optionTokenId, 2.25e6, 0, 0, "after redeem");
-        assertAssetBalance(writer, WETHLIKE, wethBalance + writeAssetRedeemed, "after redeem");
+        assertAssetBalance(
+            writer, WETHLIKE, wethBalance + writeAssetRedeemed, "after redeem"
+        );
         assertAssetBalance(writer, LUSDLIKE, lusdBalance, "after redeem");
     }
 
@@ -116,14 +119,17 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) = clarity.redeem(optionTokenId);
+        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
+            clarity.redeem(optionTokenId);
 
         // Then
         assertEq(writeAssetRedeemed, 0, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1700e18 * 1.05, "exerciseAssetRedeemed");
         assertOptionBalances(writer, optionTokenId, 0, 1.25e6, 0, "after redeem");
         assertAssetBalance(writer, WETHLIKE, wethBalance, "after redeem");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem");        
+        assertAssetBalance(
+            writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem"
+        );
     }
 
     function txest_redeem_shortCall_whenPartiallyAssigned_AndAfterExpiry() public {
@@ -158,15 +164,19 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) = clarity.redeem(optionTokenId);
+        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
+            clarity.redeem(optionTokenId);
 
         // Then
         assertEq(writeAssetRedeemed, 1e18 * 1.25, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1700e18 * 1.05, "exerciseAssetRedeemed");
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
-        assertAssetBalance(writer, WETHLIKE, wethBalance + writeAssetRedeemed, "after redeem");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem");  
-        
+        assertAssetBalance(
+            writer, WETHLIKE, wethBalance + writeAssetRedeemed, "after redeem"
+        );
+        assertAssetBalance(
+            writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem"
+        );
     }
 
     function txest_redeem_shortCall_whenFullyAssigned_AndOnOrBeforeExpiry() public {
@@ -201,14 +211,17 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) = clarity.redeem(optionTokenId);
+        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
+            clarity.redeem(optionTokenId);
 
         // Then
         assertEq(writeAssetRedeemed, 0, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1700e18 * 2.25e6, "exerciseAssetRedeemed");
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
         assertAssetBalance(writer, WETHLIKE, wethBalance, "after redeem");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem");        
+        assertAssetBalance(
+            writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem"
+        );
     }
 
     function txest_redeem_shortCall_whenFullyAssigned_AndAfterExpiry() public {
@@ -243,14 +256,17 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) = clarity.redeem(optionTokenId);
+        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
+            clarity.redeem(optionTokenId);
 
         // Then
         assertEq(writeAssetRedeemed, 0, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1700e18 * 2.25e6, "exerciseAssetRedeemed");
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
         assertAssetBalance(writer, WETHLIKE, wethBalance, "after redeem");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem");             
+        assertAssetBalance(
+            writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem"
+        );
     }
 
     // TODO test redeem short put

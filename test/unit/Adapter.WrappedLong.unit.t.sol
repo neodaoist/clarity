@@ -37,22 +37,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // pre checks
-        // check option balances
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId),
-            10e6,
-            "writer long balance before wrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToShort()),
-            10e6,
-            "writer short balance before wrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToAssignedShort()),
-            0,
-            "writer assigned short balance before wrap"
-        );
+        assertOptionBalances(writer, optionTokenId, 10e6, 10e6, 0, "before wrap");
 
         // When writer wraps 8 options
         vm.startPrank(writer);
@@ -62,40 +47,8 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // Then
         // check option balances
-        // writer
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId),
-            2e6,
-            "writer long balance after wrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToShort()),
-            10e6,
-            "writer short balance after wrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToAssignedShort()),
-            0,
-            "writer assigned short balance after wrap"
-        );
-
-        // wrapper
-        address wrapperAddress = address(wrappedLong);
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId),
-            8e6,
-            "wrapper long balance after wrap"
-        );
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId.longToShort()),
-            0,
-            "wrapper short balance after wrap"
-        );
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId.longToAssignedShort()),
-            0,
-            "wrapper assigned short balance after wrap"
-        );
+        assertOptionBalances(writer, optionTokenId, 2e6, 10e6, 0, "after wrap");
+        assertOptionBalances(address(wrappedLong), optionTokenId, 8e6, 0, 0, "after wrap");
 
         // check wrapper balance
         assertEq(wrappedLong.totalSupply(), 8e6, "wrapper totalSupply after wrap");
@@ -123,20 +76,8 @@ contract AdapterTest is BaseClarityMarketsTest {
 
             // pre checks
             // check option balances
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i]),
-                10e6,
-                "writer long balance before wrap"
-            );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToShort()),
-                10e6,
-                "writer short balance before wrap"
-            );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToAssignedShort()),
-                0,
-                "writer assigned short balance before wrap"
+            assertOptionBalances(
+                writer, optionTokenIds[i], 10e6, 10e6, 0, "writer before wrap"
             );
 
             // When writer wraps options
@@ -150,39 +91,16 @@ contract AdapterTest is BaseClarityMarketsTest {
         // Then
         for (uint256 i = 0; i < numOptions; i++) {
             // check option balances
-            // writer
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i]),
-                i * 10 ** 6,
-                "writer long balance after wrap"
+            assertOptionBalances(
+                writer, optionTokenIds[i], i * 10 ** 6, 10e6, 0, "writer after wrap"
             );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToShort()),
-                10e6,
-                "writer short balance after wrap"
-            );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToAssignedShort()),
-                0,
-                "writer assigned short balance after wrap"
-            );
-
-            // wrapper
-            address wrapperAddress = address(wrappedLongs[i]);
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i]),
+            assertOptionBalances(
+                address(wrappedLongs[i]),
+                optionTokenIds[i],
                 (10 - i) * 10 ** 6,
-                "wrapper long balance after wrap"
-            );
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i].longToShort()),
                 0,
-                "wrapper short balance after wrap"
-            );
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i].longToAssignedShort()),
                 0,
-                "wrapper assigned short balance after wrap"
+                "wrapper after wrap"
             );
 
             // check wrapper balances
@@ -320,39 +238,9 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // pre checks
         // check option balances
-        // writer
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId),
-            2e6,
-            "writer long balance before unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToShort()),
-            10e6,
-            "writer short balance before unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToAssignedShort()),
-            0,
-            "writer assigned short balance before unwrap"
-        );
-
-        // wrapper
-        address wrapperAddress = address(wrappedLong);
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId),
-            8e6,
-            "wrapper long balance before unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId.longToShort()),
-            0,
-            "wrapper short balance before unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId.longToAssignedShort()),
-            0,
-            "wrapper assigned short balance before unwrap"
+        assertOptionBalances(writer, optionTokenId, 2e6, 10e6, 0, "writer before unwrap");
+        assertOptionBalances(
+            address(wrappedLong), optionTokenId, 8e6, 0, 0, "wrapper before unwrap"
         );
 
         // check wrapper balance
@@ -365,38 +253,9 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // Then
         // check option balances
-        // writer
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId),
-            7e6,
-            "writer long balance after unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToShort()),
-            10e6,
-            "writer short balance after unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToAssignedShort()),
-            0,
-            "writer assigned short balance after unwrap"
-        );
-
-        // wrapper
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId),
-            3e6,
-            "wrapper long balance after unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId.longToShort()),
-            0,
-            "wrapper short balance after unwrap"
-        );
-        assertEq(
-            clarity.balanceOf(wrapperAddress, optionTokenId.longToAssignedShort()),
-            0,
-            "wrapper assigned short balance after unwrap"
+        assertOptionBalances(writer, optionTokenId, 7e6, 10e6, 0, "writer after unwrap");
+        assertOptionBalances(
+            address(wrappedLong), optionTokenId, 3e6, 0, 0, "wrapper after unwrap"
         );
 
         // check wrapper balance
@@ -429,39 +288,16 @@ contract AdapterTest is BaseClarityMarketsTest {
 
             // pre checks
             // check option balances
-            // writer
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i]),
-                i * 10 ** 6,
-                "writer long balance before unwrap"
+            assertOptionBalances(
+                writer, optionTokenIds[i], i * 10 ** 6, 10e6, 0, "writer before unwrap"
             );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToShort()),
-                10e6,
-                "writer short balance before unwrap"
-            );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToAssignedShort()),
-                0,
-                "writer assigned short balance before unwrap"
-            );
-
-            // wrapper
-            address wrapperAddress = address(wrappedLongs[i]);
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i]),
+            assertOptionBalances(
+                address(wrappedLongs[i]),
+                optionTokenIds[i],
                 (10 - i) * 10 ** 6,
-                "wrapper long balance before unwrap"
-            );
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i].longToShort()),
                 0,
-                "wrapper short balance before unwrap"
-            );
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i].longToAssignedShort()),
                 0,
-                "wrapper assigned short balance before unwrap"
+                "wrapper before unwrap"
             );
 
             // check wrapper balance
@@ -484,39 +320,21 @@ contract AdapterTest is BaseClarityMarketsTest {
         // Then
         for (uint256 i = 0; i < numOptions; i++) {
             // check option balances
-            // writer
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i]),
+            assertOptionBalances(
+                writer,
+                optionTokenIds[i],
                 10e6 - (i * 10 ** 5),
-                "writer long balance after unwrap"
-            );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToShort()),
                 10e6,
-                "writer short balance after unwrap"
-            );
-            assertEq(
-                clarity.balanceOf(writer, optionTokenIds[i].longToAssignedShort()),
                 0,
-                "writer assigned short balance after unwrap"
+                "writer after unwrap"
             );
-
-            // wrapper
-            address wrapperAddress = address(wrappedLongs[i]);
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i]),
+            assertOptionBalances(
+                address(wrappedLongs[i]),
+                optionTokenIds[i],
                 i * 10 ** 5,
-                "wrapper long balance after unwrap"
-            );
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i].longToShort()),
                 0,
-                "wrapper short balance after unwrap"
-            );
-            assertEq(
-                clarity.balanceOf(wrapperAddress, optionTokenIds[i].longToAssignedShort()),
                 0,
-                "wrapper assigned short balance after unwrap"
+                "wrapper after unwrap"
             );
 
             // check wrapper balance

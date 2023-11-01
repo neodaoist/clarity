@@ -66,7 +66,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint64 amountNettedOff;
     }
 
-    struct AssetClearingInfo { // memory struct
+    struct AssetClearingInfo {
+        // memory struct
         address writeAsset;
         uint8 writeDecimals;
         uint64 writeAmount;
@@ -741,9 +742,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         // Calculate the assignment status
         uint64 unassignedShortAmount = uint64(balanceOf(msg.sender, _optionTokenId));
-        uint64 assignedShortAmount = uint64(
-            balanceOf(msg.sender, _optionTokenId.longToAssignedShort())
-        );
+        uint64 assignedShortAmount =
+            uint64(balanceOf(msg.sender, _optionTokenId.longToAssignedShort()));
 
         // Check that the caller holds sufficient shorts to redeem
 

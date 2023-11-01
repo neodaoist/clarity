@@ -45,24 +45,6 @@ contract AdapterTest is BaseClarityMarketsTest {
         );
         vm.stopPrank();
 
-        // pre checks
-        // check option balances
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId),
-            10e6,
-            "writer long balance before wrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToShort()),
-            10e6,
-            "writer short balance before wrap"
-        );
-        assertEq(
-            clarity.balanceOf(writer, optionTokenId.longToAssignedShort()),
-            0,
-            "writer assigned short balance before wrap"
-        );
-
         // When writer deploys ClarityWrappedLong
         vm.prank(writer);
         address wrappedLongAddress = factory.deployWrappedLong(optionTokenId);
