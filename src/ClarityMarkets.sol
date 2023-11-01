@@ -800,9 +800,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         // Log event
-        emit ShortsRedeemed(
-            msg.sender, shortTokenId.longToShort(), nonVirtualShortBalance
-        );
+        emit ShortsRedeemed(msg.sender, shortTokenId);
 
         ///////// Protocol Invariant
         _verifyAfter(writeAsset, exerciseAsset);

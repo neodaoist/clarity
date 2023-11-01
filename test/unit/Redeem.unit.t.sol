@@ -520,13 +520,55 @@ contract RedeemTest is BaseClarityMarketsTest {
         );
     }
 
-    // TODO test redeem short put
-
     // TODO test many
 
     // Events
 
-    // TODO
+    function testEvent_redeem_call() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 shortTokenId = clarity.writeCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 2.25e6
+        }).longToShort();
+
+        vm.warp(americanExWeeklies[0][1] + 1 seconds);
+
+        // Then
+        vm.expectEmit(true, true, true, true);
+        emit ShortsRedeemed(writer, shortTokenId);
+
+        // When
+        clarity.redeem(shortTokenId);
+        vm.stopPrank();
+    }
+
+    function testEvent_redeem_put() public {
+        // Given
+        vm.startPrank(writer);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        uint256 shortTokenId = clarity.writePut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 2.25e6
+        }).longToShort();
+
+        vm.warp(americanExWeeklies[0][1] + 1 seconds);
+
+        // Then
+        vm.expectEmit(true, true, true, true);
+        emit ShortsRedeemed(writer, shortTokenId);
+
+        // When
+        clarity.redeem(shortTokenId);
+        vm.stopPrank();
+    }
 
     // Sad Paths
 
@@ -601,5 +643,5 @@ contract RedeemTest is BaseClarityMarketsTest {
         clarity.redeem(nonexistentOptionTokenId);
     }
 
-    // TODO
+    // TODO more sad paths
 }

@@ -39,7 +39,5 @@ interface IOptionEvents {
 
     ///////// Redeem
 
-    event ShortsRedeemed(
-        address indexed caller, uint256 indexed optionTokenId, uint256 shortAmount
-    );
+    event ShortsRedeemed(address indexed caller, uint256 indexed shortTokenId);
 }

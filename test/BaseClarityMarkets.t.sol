@@ -799,6 +799,8 @@ abstract contract BaseClarityMarketsTest is Test {
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
     );
 
+    event ShortsRedeemed(address indexed caller, uint256 indexed shortTokenId);
+
     event ClarityWrappedLongDeployed(
         uint256 indexed optionTokenId, address indexed wrapperAddress
     );
@@ -815,9 +817,9 @@ abstract contract BaseClarityMarketsTest is Test {
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
     );
 
-    event ClarityLongsExercised(
-        address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
-    );
+    // event ClarityLongsExercised(
+    //     address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    // );
 
     event ClarityShortsWrapped(
         address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
@@ -827,7 +829,7 @@ abstract contract BaseClarityMarketsTest is Test {
         address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
     );
 
-    event ClarityShortsRedeemed(
-        address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
-    );
+    // event ClarityShortsRedeemed(
+    //     address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
+    // );
 }
