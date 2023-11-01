@@ -62,9 +62,9 @@ contract ClarityERC20Factory is IClarityERC20Factory {
         wrapperFor[optionTokenId] = wrapperAddress;
     }
 
-    function deployWrappedShort(uint256 shortTokenId)
-        external
-        returns (address wrapperAddress)
+    function deployWrappedShort(uint256 /*shortTokenId*/)
+        external pure
+        returns (address /*wrapperAddress*/)
     {
         revert("not yet impl");
     }

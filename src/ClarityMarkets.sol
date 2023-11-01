@@ -243,6 +243,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         TokenType _tokenType = tokenId.tokenType();
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountExercised = optionStored.optionState.amountExercised;
+        // TODO account for amountNettedOff
 
         // If never any open interest for this created option, all balances will be zero
         if (amountWritten == 0 && amountExercised == 0) {
@@ -262,7 +263,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                 internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised
             ) / amountWritten;
         } else {
-            revert OptionErrors.InvalidPositionTokenType(tokenId);
+            // TODO is this state possible? bc will throw enum error instead
+            revert OptionErrors.InvalidTokenType(tokenId);
         }
     }
 
@@ -658,7 +660,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             ERC20(exerciseAsset), msg.sender, address(this), fullAmountForExercise
         );
 
-        // Transfer out the write asset
+        // Transfer out the write asset // TODO add 1 wei gas optimization
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, fullAmountForWrite);
 
         // Log exercise event
@@ -713,7 +715,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _decrementAssetLiability(writeAsset, writeAssetNettedOff);
 
         ///////// Interactions
-        // Transfer out the write asset
+        // Transfer out the write asset // TODO add 1 wei gas optimization
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
 
         // Log net off event
@@ -725,51 +727,85 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     // Redeem
 
-    function redeem(uint256 _optionTokenId)
+    function redeem(uint256 shortTokenId)
         external
         override
         returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed)
     {
         ///////// Function Requirements
-        // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-        address writeAsset = optionStored.writeAsset;
-        if (writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        // Check that the token type is a short
+        if (shortTokenId.tokenType() != TokenType.SHORT) {
+            revert OptionErrors.CanOnlyRedeemShort(shortTokenId);
         }
 
-        // Check that the position token type is a short ?
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[shortTokenId.idToHash()];
+        address writeAsset = optionStored.writeAsset;
+        if (writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(shortTokenId);
+        }
 
-        // Calculate the assignment status
-        uint64 unassignedShortAmount = uint64(balanceOf(msg.sender, _optionTokenId));
-        uint64 assignedShortAmount =
-            uint64(balanceOf(msg.sender, _optionTokenId.longToAssignedShort()));
-
-        // Check that the caller holds sufficient shorts to redeem
-
-        // Check that the option is expired (for unassigned shorts) or,
-        // that there are some assigned shorts that can be redeemed
+        // Check that the caller holds shorts for this option
+        uint256 nonVirtualShortBalance = internalBalanceOf[msg.sender][shortTokenId];
+        if (nonVirtualShortBalance == 0) {
+            revert OptionErrors.ShortBalanceZero(shortTokenId);
+        }
 
         ///////// Effects
-        // Update option state
-        // optionStored.optionState.amountRedeemed += optionAmount;
+        // Determine the assignment status
+        uint256 unassignedShortAmount = balanceOf(msg.sender, shortTokenId);
+        uint256 assignedShortAmount =
+            balanceOf(msg.sender, shortTokenId.shortToAssignedShort());
 
-        // Burn the caller's shorts
-        _burn(msg.sender, _optionTokenId, unassignedShortAmount);
+        // If fully assigned, redeem exercise asset and skip option expiry check
+        if (unassignedShortAmount == 0) {
+            exerciseAssetRedeemed =
+                optionStored.exerciseAmount * uint128(assignedShortAmount);
+        } else {
+            // Perform additional check that the option is expired
+            if (block.timestamp <= optionStored.exerciseWindow.expiryTimestamp) {
+                revert OptionErrors.EarlyRedemptionOnlyIfFullyAssigned();
+            }
+
+            // Calculate the asset redemption amounts, based on assignment status
+            // and caller's short balances
+            writeAssetRedeemed = optionStored.writeAmount * uint128(unassignedShortAmount);
+            exerciseAssetRedeemed =
+                optionStored.exerciseAmount * uint128(assignedShortAmount);
+        }
+
+        // Burn all the caller's (non-virtual-rebasing) shorts
+        _burn(msg.sender, shortTokenId, nonVirtualShortBalance);
 
         // Track the asset liabilities
-        writeAssetRedeemed = optionStored.writeAmount * unassignedShortAmount;
-        // _decrementAssetLiability(writeAsset, writeAssetRedeemed);
+        address exerciseAsset = optionStored.exerciseAsset;
+        if (writeAssetRedeemed > 0) {
+            _decrementAssetLiability(writeAsset, writeAssetRedeemed);
+        }
+        if (exerciseAssetRedeemed > 0) {
+            _decrementAssetLiability(exerciseAsset, exerciseAssetRedeemed);
+        }
 
         ///////// Interactions
-        // Transfer out the write asset
-        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetRedeemed);
+        // Transfer out the write asset and exercise, as needed // TODO add 1 wei gas optimization
+        if (writeAssetRedeemed > 0) {
+            SafeTransferLib.safeTransfer(
+                ERC20(writeAsset), msg.sender, writeAssetRedeemed
+            );
+        }
+        if (exerciseAssetRedeemed > 0) {
+            SafeTransferLib.safeTransfer(
+                ERC20(exerciseAsset), msg.sender, exerciseAssetRedeemed
+            );
+        }
 
         // Log event
-        // TODO
+        emit ShortsRedeemed(
+            msg.sender, shortTokenId.longToShort(), nonVirtualShortBalance
+        );
 
         ///////// Protocol Invariant
-        // TODO
+        _verifyAfter(writeAsset, exerciseAsset);
     }
 
     /////////

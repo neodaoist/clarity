@@ -47,6 +47,10 @@ library LibToken {
         return tokenId ^ 1;
     }
 
+    function shortToAssignedShort(uint256 tokenId) internal pure returns (uint256) {
+        return (tokenId ^ 1) | 2;
+    }
+
     function assignedShortToLong(uint256 tokenId) internal pure returns (uint256) {
         return tokenId ^ 2;
     }

@@ -51,11 +51,15 @@ library OptionErrors {
 
     ///////// Redeem
 
-    error NoAssetsToRedeem();
+    error ShortBalanceZero(uint256 shortTokenId);
+
+    error EarlyRedemptionOnlyIfFullyAssigned();
+
+    error CanOnlyRedeemShort(uint256 tokenId); // TODO reframe to standardize with other errors
 
     ///////// Views
 
-    error InvalidPositionTokenType(uint256 tokenId);
+    error InvalidTokenType(uint256 tokenId);
 
     ///////// Adapter
 

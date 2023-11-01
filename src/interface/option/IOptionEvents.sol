@@ -7,6 +7,8 @@ import "./IOptionToken.sol";
 interface IOptionEvents {
     /////////
 
+    // TODO update uint widths to reduce type casts in production code
+
     ///////// Write
 
     event OptionCreated(
@@ -33,5 +35,11 @@ interface IOptionEvents {
 
     event OptionsNettedOff(
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
+    );
+
+    ///////// Redeem
+
+    event ShortsRedeemed(
+        address indexed caller, uint256 indexed optionTokenId, uint256 shortAmount
     );
 }
