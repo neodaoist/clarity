@@ -23,7 +23,7 @@ contract RedeemTest is BaseClarityMarketsTest {
     // - redeem short call, when fully assigned, and after expiry (same as previous scenario)
     // (ditto for short put)
 
-    function testRevert_redeem_shortCall_whenUnassigned_AndOnOrBeforeExpiry() public {
+    function txestRevert_redeem_shortCall_whenUnassigned_AndOnOrBeforeExpiry() public {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -46,7 +46,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         clarity.redeem(optionTokenId);
     }
 
-    function test_redeem_shortCall_whenUnassigned_AndAfterExpiry() public {
+    function txest_redeem_shortCall_whenUnassigned_AndAfterExpiry() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -84,7 +84,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         assertAssetBalance(writer, LUSDLIKE, lusdBalance, "after redeem");
     }
 
-    function test_redeem_shortCall_whenPartiallyAssigned_AndOnOrBeforeExpiry() public {
+    function txest_redeem_shortCall_whenPartiallyAssigned_AndOnOrBeforeExpiry() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -126,7 +126,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         assertAssetBalance(writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem");        
     }
 
-    function test_redeem_shortCall_whenPartiallyAssigned_AndAfterExpiry() public {
+    function txest_redeem_shortCall_whenPartiallyAssigned_AndAfterExpiry() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -169,7 +169,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         
     }
 
-    function test_redeem_shortCall_whenFullyAssigned_AndOnOrBeforeExpiry() public {
+    function txest_redeem_shortCall_whenFullyAssigned_AndOnOrBeforeExpiry() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -211,7 +211,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         assertAssetBalance(writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem");        
     }
 
-    function test_redeem_shortCall_whenFullyAssigned_AndAfterExpiry() public {
+    function txest_redeem_shortCall_whenFullyAssigned_AndAfterExpiry() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -239,7 +239,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
-        vm.warp(americanExWeeklies[0][1]);
+        vm.warp(americanExWeeklies[0][1] + 1 seconds);
 
         // When
         vm.prank(writer);

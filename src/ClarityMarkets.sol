@@ -739,6 +739,12 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         // Check that the position token type is a short ?
 
+        // Calculate the assignment status
+        uint64 unassignedShortAmount = uint64(balanceOf(msg.sender, _optionTokenId));
+        uint64 assignedShortAmount = uint64(
+            balanceOf(msg.sender, _optionTokenId.longToAssignedShort())
+        );
+
         // Check that the caller holds sufficient shorts to redeem
 
         // Check that the option is expired (for unassigned shorts) or,
@@ -749,11 +755,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // optionStored.optionState.amountRedeemed += optionAmount;
 
         // Burn the caller's shorts
-        uint64 shortAmount = uint64(balanceOf(msg.sender, _optionTokenId));
-        _burn(msg.sender, _optionTokenId, shortAmount);
+        _burn(msg.sender, _optionTokenId, unassignedShortAmount);
 
         // Track the asset liabilities
-        writeAssetRedeemed = optionStored.writeAmount * shortAmount;
+        writeAssetRedeemed = optionStored.writeAmount * unassignedShortAmount;
         // _decrementAssetLiability(writeAsset, writeAssetRedeemed);
 
         ///////// Interactions
