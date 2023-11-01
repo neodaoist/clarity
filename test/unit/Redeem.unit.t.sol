@@ -643,5 +643,29 @@ contract RedeemTest is BaseClarityMarketsTest {
         clarity.redeem(nonexistentOptionTokenId);
     }
 
-    // TODO more sad paths
+    function testRevert_redeem_whenShortBalanceZero() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 shortTokenId = clarity.writeCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 2.25e6
+        }).longToShort();
+        clarity.transfer(holder, shortTokenId, 2.25e6);
+        vm.stopPrank();
+
+        vm.warp(americanExWeeklies[0][1] + 1 seconds);
+
+        // Then
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.ShortBalanceZero.selector, shortTokenId)
+        );
+
+        // When
+        vm.prank(writer);
+        clarity.redeem(shortTokenId);
+    }
 }
