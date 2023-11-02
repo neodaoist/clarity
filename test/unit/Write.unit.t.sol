@@ -397,7 +397,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
-        emit OptionCreated(
+        emit IOptionEvents.OptionCreated(
             expectedOptionTokenId,
             address(WETHLIKE),
             address(LUSDLIKE),
@@ -427,7 +427,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
-        emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
+        emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
         clarity.writeCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.005e6
@@ -995,7 +995,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
-        emit OptionCreated(
+        emit IOptionEvents.OptionCreated(
             expectedOptionTokenId,
             address(WETHLIKE),
             address(LUSDLIKE),
@@ -1025,7 +1025,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
-        emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
+        emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
         clarity.writePut(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0.005e6
@@ -1287,7 +1287,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
-        emit OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
+        emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
         clarity.write(optionTokenId, 0.005e6);
         vm.stopPrank();
@@ -1311,7 +1311,7 @@ contract WriteTest is BaseClarityMarketsTest {
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectEmit(true, true, true, true);
-        emit OptionsWritten(writer, expectedOptionTokenId, 0.006e6);
+        emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.006e6);
 
         clarity.write(optionTokenId, 0.006e6);
         vm.stopPrank();

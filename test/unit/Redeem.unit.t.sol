@@ -540,7 +540,7 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, true, true, true);
-        emit ShortsRedeemed(writer, shortTokenId);
+        emit IOptionEvents.ShortsRedeemed(writer, shortTokenId);
 
         // When
         clarity.redeem(shortTokenId);
@@ -563,7 +563,7 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, true, true, true);
-        emit ShortsRedeemed(writer, shortTokenId);
+        emit IOptionEvents.ShortsRedeemed(writer, shortTokenId);
 
         // When
         clarity.redeem(shortTokenId);

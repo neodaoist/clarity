@@ -5,6 +5,11 @@ pragma solidity 0.8.22;
 import "../BaseClarityMarkets.t.sol";
 
 // Interfaces
+import {IClarityERC20Factory} from "../../src/interface/adapter/IClarityERC20Factory.sol";
+import {IClarityWrappedLong} from "../../src/interface/adapter/IClarityWrappedLong.sol";
+import {IClarityWrappedShort} from "../../src/interface/adapter/IClarityWrappedShort.sol";
+
+// Contracts Under Test
 import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 import {ClarityWrappedLong} from "../../src/adapter/ClarityWrappedLong.sol";
 import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
@@ -171,7 +176,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, false, true, true); // TODO fix once deterministic deploys
-        emit ClarityWrappedLongDeployed(optionTokenId, address(0x1234));
+        emit IClarityWrappedLong.ClarityWrappedLongDeployed(optionTokenId, address(0x1234));
 
         // When
         factory.deployWrappedLong(optionTokenId);
