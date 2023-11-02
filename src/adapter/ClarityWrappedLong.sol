@@ -20,8 +20,10 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
 
     uint256 public immutable optionTokenId;
 
+    uint8 private constant DECIMALS = 6;
+
     constructor(ClarityMarkets _clarity, uint256 _optionTokenId, string memory _name)
-        ERC20(_name, _name, 6)
+        ERC20(_name, _name, DECIMALS)
     {
         // Set state
         clarity = _clarity;
@@ -35,22 +37,6 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
 
     function option() external view returns (IOptionToken.Option memory) {
         return clarity.option(optionTokenId);
-    }
-
-    function optionType() external view returns (IOptionToken.OptionType) {
-        return clarity.optionType(optionTokenId);
-    }
-
-    function exerciseStyle() external view returns (IOptionToken.ExerciseStyle) {
-        return clarity.exerciseStyle(optionTokenId);
-    }
-
-    function exerciseWindow()
-        external
-        view
-        returns (IOptionToken.ExerciseWindow memory)
-    {
-        return clarity.option(optionTokenId).exerciseWindow;
     }
 
     /////////

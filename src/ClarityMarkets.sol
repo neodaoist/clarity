@@ -86,7 +86,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     mapping(uint248 => OptionStorage) private optionStorage;
 
-    mapping(address => uint256) private assetLiabilities;
+    mapping(address => uint256) private assetLiabilities; // TODO rename to token, underlying, or clearing liabilities
 
     ///////// Option Token Views
 
@@ -155,42 +155,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
-    function optionType(uint256 _optionTokenId)
-        external
-        view
-        returns (OptionType _optionType)
-    {
-        // TODO initial checks
-
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-
-        // Check that the option has been created
-        if (optionStored.writeAsset == address(0)) {
-            // TODO revert
-        }
-
-        _optionType = optionStored.optionType;
-    }
-
-    function exerciseStyle(uint256 _optionTokenId)
-        external
-        view
-        returns (ExerciseStyle _exerciseStyle)
-    {
-        // TODO initial checks
-
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-
-        // Check that the option has been created
-        if (optionStored.writeAsset == address(0)) {
-            // TODO revert
-        }
-
-        _exerciseStyle = optionStored.exerciseStyle;
-    }
-
     function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
         // Implicitly check that it is a valid position token type --
         // discard the upper 31B (the option hash) to get the lowest
@@ -216,13 +180,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         amount = totalSupply[_optionTokenId].safeCastTo64();
     }
 
-    function writeableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (uint64 amount)
-    {}
-
-    function reedemableAmount(uint256 _optionTokenId)
+    function remainingWriteableAmount(uint256 _optionTokenId)
         external
         view
         returns (uint64 amount)
@@ -230,7 +188,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Rebasing Token Balance Views
 
-    // IDEA consider returning zero long balance after last expiry
+    // IDEA consider returning zero long balance after last expiry, ditto for totalSupply()
 
     function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
         // Check that the option exists
@@ -313,7 +271,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     function positionRedeemableAmount(uint256 _optionTokenId)
         external
         view
-        returns (uint64 amount)
+        returns (uint64 amount, uint32 when)
     {}
 
     ///////// ERC6909MetadataModified
@@ -834,34 +792,4 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                 >= assetLiabilities[exerciseAsset]
         );
     }
-
-    /////////
-
-    function _assignShorts(uint256 _optionTokenId, uint64 amountToAssign) private {}
-
-    /////////
-
-    function _writeableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 __writeableAmount)
-    {}
-
-    function _exercisableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 assignableAmount)
-    {}
-
-    function _writerNettableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 nettableAmount)
-    {}
-
-    function _writerRedeemableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 redeemableAmount)
-    {}
 }

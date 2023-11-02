@@ -26,70 +26,66 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
 
     // TODO
 
-    /////////
-    // function optionType(uint256 optionTokenId) external view returns (OptionType optionType);
+    // TODO convert to option() tests
 
-    function test_optionType_whenCall() public {
-        vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
-        );
-        vm.stopPrank();
+    // function test_optionType_whenCall() public {
+    //     vm.startPrank(writer);
+    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+    //     uint256 optionTokenId = clarity.writeCall(
+    //         address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+    //     );
+    //     vm.stopPrank();
 
-        assertEq(
-            clarity.optionType(optionTokenId), IOptionToken.OptionType.CALL, "option type"
-        );
-    }
+    //     assertEq(
+    //         clarity.optionType(optionTokenId), IOptionToken.OptionType.CALL, "option type"
+    //     );
+    // }
 
-    function test_optionType_whenPut() public {
-        vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
-        );
-        vm.stopPrank();
+    // function test_optionType_whenPut() public {
+    //     vm.startPrank(writer);
+    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+    //     uint256 optionTokenId = clarity.writePut(
+    //         address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+    //     );
+    //     vm.stopPrank();
 
-        assertEq(
-            clarity.optionType(optionTokenId), IOptionToken.OptionType.PUT, "option type"
-        );
-    }
+    //     assertEq(
+    //         clarity.optionType(optionTokenId), IOptionToken.OptionType.PUT, "option type"
+    //     );
+    // }
 
-    /////////
-    // function exerciseStyle(uint256 optionTokenId) external view returns (ExerciseStyle exerciseStyle);
+    // function test_exerciseStyle_whenAmerican() public {
+    //     vm.startPrank(writer);
+    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+    //     uint256 optionTokenId = clarity.writeCall(
+    //         address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+    //     );
+    //     vm.stopPrank();
 
-    function test_exerciseStyle_whenAmerican() public {
-        vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
-        );
-        vm.stopPrank();
+    //     assertEq(
+    //         clarity.exerciseStyle(optionTokenId),
+    //         IOptionToken.ExerciseStyle.AMERICAN,
+    //         "exercise style"
+    //     );
+    // }
 
-        assertEq(
-            clarity.exerciseStyle(optionTokenId),
-            IOptionToken.ExerciseStyle.AMERICAN,
-            "exercise style"
-        );
-    }
+    // function test_exerciseStyle_whenEuropean() public {
+    //     vm.startPrank(writer);
+    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+    //     uint256 optionTokenId = clarity.writeCall(
+    //         address(WETHLIKE), address(LUSDLIKE), europeanExWeeklies[0], 1700e18, 0
+    //     );
+    //     vm.stopPrank();
 
-    function test_exerciseStyle_whenEuropean() public {
-        vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), address(LUSDLIKE), europeanExWeeklies[0], 1700e18, 0
-        );
-        vm.stopPrank();
-
-        assertEq(
-            clarity.exerciseStyle(optionTokenId),
-            IOptionToken.ExerciseStyle.EUROPEAN,
-            "exercise style"
-        );
-    }
+    //     assertEq(
+    //         clarity.exerciseStyle(optionTokenId),
+    //         IOptionToken.ExerciseStyle.EUROPEAN,
+    //         "exercise style"
+    //     );
+    // }
 
     /////////
-    // function tokenType(uint256 tokenId) external view returns (PositionTokenType positionTokenType);
+    // function tokenType(uint256 tokenId) external view returns (TokenType _tokenType);
 
     // function test_positionTokenType() public {
     //     vm.startPrank(writer);

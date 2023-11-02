@@ -50,28 +50,33 @@ contract AdapterTest is BaseClarityMarketsTest {
         address wrappedLongAddress = factory.deployWrappedLong(optionTokenId);
 
         // Then
-        // check deployed wrapper
-        ClarityWrappedLong wrapper = ClarityWrappedLong(wrappedLongAddress);
+        // check deployed wrapped long
+        wrappedLong = ClarityWrappedLong(wrappedLongAddress);
+
         string memory expectedName =
             string(abi.encodePacked("w", clarity.names(optionTokenId)));
-        assertEq(wrapper.name(), expectedName, "wrapper name");
-        assertEq(wrapper.symbol(), expectedName, "wrapper symbol");
-        assertEq(wrapper.decimals(), clarity.decimals(optionTokenId), "wrapper decimals");
-        assertEq(wrapper.optionTokenId(), optionTokenId, "wrapper optionTokenId");
-        // assertEq(wrapper.option(), clarity.option(optionTokenId));
-        assertEq(wrapper.optionType(), IOptionToken.OptionType.CALL, "wrapper optionType");
+        assertEq(wrappedLong.name(), expectedName, "wrapper name");
+        assertEq(wrappedLong.symbol(), expectedName, "wrapper symbol");
         assertEq(
-            wrapper.exerciseStyle(),
+            wrappedLong.decimals(), clarity.decimals(optionTokenId), "wrapper decimals"
+        );
+
+        assertEq(wrappedLong.optionTokenId(), optionTokenId, "wrapper optionTokenId");
+        // assertEq(wrapper.option(), clarity.option(optionTokenId)); // TODO consider adding
+        IOptionToken.Option memory option = wrappedLong.option();
+        assertEq(option.optionType, IOptionToken.OptionType.CALL, "wrapper optionType");
+        assertEq(
+            option.exerciseStyle,
             IOptionToken.ExerciseStyle.AMERICAN,
             "wrapper exerciseStyle"
         );
         assertEq(
-            wrapper.exerciseWindow().exerciseTimestamp,
+            option.exerciseWindow.exerciseTimestamp,
             americanExWeeklies[0][0],
             "wrapper exerciseWindow.exerciseTimestamp"
         );
         assertEq(
-            wrapper.exerciseWindow().expiryTimestamp,
+            option.exerciseWindow.expiryTimestamp,
             americanExWeeklies[0][1],
             "wrapper exerciseWindow.expiryTimestamp"
         );
@@ -119,29 +124,28 @@ contract AdapterTest is BaseClarityMarketsTest {
                 clarity.decimals(optionTokenIds[i]),
                 "wrapper decimals"
             );
+
             assertEq(
                 wrappedLongs[i].optionTokenId(),
                 optionTokenIds[i],
                 "wrapper optionTokenId"
             );
-            // assertEq(wrappedLongs[i].option(), clarity.option(optionTokenIds[i]));
+            IOptionToken.Option memory option = wrappedLongs[i].option();
             assertEq(
-                wrappedLongs[i].optionType(),
-                IOptionToken.OptionType.CALL,
-                "wrapper optionType"
+                option.optionType, IOptionToken.OptionType.CALL, "wrapper optionType"
             );
             assertEq(
-                wrappedLongs[i].exerciseStyle(),
+                option.exerciseStyle,
                 IOptionToken.ExerciseStyle.AMERICAN,
                 "wrapper exerciseStyle"
             );
             assertEq(
-                wrappedLongs[i].exerciseWindow().exerciseTimestamp,
+                option.exerciseWindow.exerciseTimestamp,
                 americanExWeeklies[0][0],
                 "wrapper exerciseWindow.exerciseTimestamp"
             );
             assertEq(
-                wrappedLongs[i].exerciseWindow().expiryTimestamp,
+                option.exerciseWindow.expiryTimestamp,
                 americanExWeeklies[0][1],
                 "wrapper exerciseWindow.expiryTimestamp"
             );

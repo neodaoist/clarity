@@ -7,7 +7,8 @@ interface IOptionToken {
     // TODO double check combinatorics of packing OTTs into uint248
     // TODO double check entropy of uint32 assignmentSeed
     // TODO analyze and reconsider dependency graph
-    // TODO consider a helpful view function in IOptionToken for this
+    // IDEA move tokenType to IOptionPosition
+    // IDEA add isWithinExerciseWindow() and  whenLastExpiry()
 
     // max option token types                       = 2^248  = 4.5e74 = 2^256 / 2^8
     // max options                                  = 2^64   = 1.2e18 = ~18 trillion contracts OI, bc option scalar is 6
@@ -61,17 +62,5 @@ interface IOptionToken {
 
     function option(uint256 optionTokenId) external view returns (Option memory option);
 
-    function optionType(uint256 optionTokenId)
-        external
-        view
-        returns (OptionType optionType);
-
-    function exerciseStyle(uint256 optionTokenId)
-        external
-        view
-        returns (ExerciseStyle exerciseStyle);
-
-    // IDEA add:
-    // isWithinExerciseWindow()
-    // whenLastExpiry()
+    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType);
 }

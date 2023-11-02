@@ -26,13 +26,19 @@ contract OptionStateViewsTest is BaseClarityMarketsTest {
         assertEq(clarity.openInterest(oti1), 2.3e6, "open interest");
     }
 
-    /////////
-    // function writeableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    // Sad Paths
 
     // TODO
 
     /////////
-    // function reedemableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    // function remainingWriteableAmount(uint256 optionTokenId)
+    //     external
+    //     view
+    //     returns (uint64 amount);
+
+    // TODO
+
+    // Sad Paths
 
     // TODO
 }

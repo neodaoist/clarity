@@ -26,5 +26,5 @@ interface IOptionPosition {
     function positionRedeemableAmount(uint256 optionTokenId)
         external
         view
-        returns (uint64 amount);
+        returns (uint64 amount, uint32 when);
 }
