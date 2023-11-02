@@ -176,7 +176,9 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, false, true, true); // TODO fix once deterministic deploys
-        emit IClarityWrappedLong.ClarityWrappedLongDeployed(optionTokenId, address(0x1234));
+        emit IClarityWrappedLong.ClarityWrappedLongDeployed(
+            optionTokenId, address(0x1234)
+        );
 
         // When
         factory.deployWrappedLong(optionTokenId);

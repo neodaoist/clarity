@@ -26,6 +26,8 @@ abstract contract BaseClarityMarketsTest is Test {
     ClarityMarkets internal clarity;
 
     // Actors
+    // TODO improve actor test fixture(s)
+
     address internal writer;
     address internal writer1;
     address internal writer2;
@@ -113,80 +115,39 @@ abstract contract BaseClarityMarketsTest is Test {
         clarity = new ClarityMarkets();
 
         // deploy test assets
-        WETHLIKE = IERC20(address(new MockERC20("WETHLike", "WETHLIKE", 18)));
-        WBTCLIKE = IERC20(address(new MockERC20("WBTCLike", "WBTCLIKE", 8)));
-        LINKLIKE = IERC20(address(new MockERC20("LINKLike", "LINKLIKE", 18)));
-        PEPELIKE = IERC20(address(new MockERC20("PEPELike", "PEPELIKE", 18)));
-        LUSDLIKE = IERC20(address(new MockERC20("LUSDLike", "LUSDLIKE", 18)));
-        USDCLIKE = IERC20(address(new MockERC20("USDCLike", "USDCLIKE", 6)));
+        WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETHLIKE", 18)));
+        WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTCLIKE", 8)));
+        LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINKLIKE", 18)));
+        PEPELIKE = IERC20(address(new MockERC20("PEPE Like", "PEPELIKE", 18)));
+        LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
+        USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
 
         // make test actors and mint assets
         address[] memory writers = new address[](NUM_TEST_USERS);
         address[] memory holders = new address[](NUM_TEST_USERS);
+        IERC20[] memory assets = new IERC20[](6);
+        assets[0] = WETHLIKE;
+        assets[1] = WBTCLIKE;
+        assets[2] = LINKLIKE;
+        assets[3] = PEPELIKE;
+        assets[4] = LUSDLIKE;
+        assets[5] = USDCLIKE;
         for (uint256 i = 0; i < NUM_TEST_USERS; i++) {
             writers[i] = makeAddress(string(abi.encodePacked("writer", i + 1)));
             holders[i] = makeAddress(string(abi.encodePacked("holder", i + 1)));
 
-            deal(
-                address(WETHLIKE),
-                writers[i],
-                scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(WBTCLIKE),
-                writers[i],
-                scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(LINKLIKE),
-                writers[i],
-                scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(PEPELIKE),
-                writers[i],
-                scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(LUSDLIKE),
-                writers[i],
-                scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(USDCLIKE),
-                writers[i],
-                scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(WETHLIKE),
-                holders[i],
-                scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(WBTCLIKE),
-                holders[i],
-                scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(LINKLIKE),
-                holders[i],
-                scaleUpAssetAmount(LINKLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(PEPELIKE),
-                holders[i],
-                scaleUpAssetAmount(PEPELIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(LUSDLIKE),
-                holders[i],
-                scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE)
-            );
-            deal(
-                address(USDCLIKE),
-                holders[i],
-                scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE)
-            );
+            for (uint256 j = 0; j < assets.length; j++) {
+                deal(
+                    address(assets[j]),
+                    writers[i],
+                    scaleUpAssetAmount(assets[j], STARTING_BALANCE)
+                );
+                deal(
+                    address(assets[j]),
+                    holders[i],
+                    scaleUpAssetAmount(assets[j], STARTING_BALANCE)
+                );
+            }
         }
         writer = writers[0];
         writer1 = writers[0];
