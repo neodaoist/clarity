@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.22;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -727,7 +727,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
         vm.expectEmit(true, true, true, true);
-        emit OptionsExercised(holder, oti1, 1.000005e6);
+        emit IOptionEvents.OptionsExercised(holder, oti1, 1.000005e6);
 
         clarity.exercise(oti1, 1.000005e6);
         vm.stopPrank();

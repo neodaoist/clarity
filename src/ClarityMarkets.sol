@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.22;
 
 // TEMP
 import {console2} from "forge-std/console2.sol";
@@ -86,7 +86,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     mapping(uint248 => OptionStorage) private optionStorage;
 
-    mapping(address => uint256) private assetLiabilities;
+    mapping(address => uint256) private clearingLiabilities;
 
     ///////// Option Token Views
 
@@ -155,42 +155,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
-    function optionType(uint256 _optionTokenId)
-        external
-        view
-        returns (OptionType _optionType)
-    {
-        // TODO initial checks
-
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-
-        // Check that the option has been created
-        if (optionStored.writeAsset == address(0)) {
-            // TODO revert
-        }
-
-        _optionType = optionStored.optionType;
-    }
-
-    function exerciseStyle(uint256 _optionTokenId)
-        external
-        view
-        returns (ExerciseStyle _exerciseStyle)
-    {
-        // TODO initial checks
-
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-
-        // Check that the option has been created
-        if (optionStored.writeAsset == address(0)) {
-            // TODO revert
-        }
-
-        _exerciseStyle = optionStored.exerciseStyle;
-    }
-
     function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
         // Implicitly check that it is a valid position token type --
         // discard the upper 31B (the option hash) to get the lowest
@@ -216,13 +180,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         amount = totalSupply[_optionTokenId].safeCastTo64();
     }
 
-    function writeableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (uint64 amount)
-    {}
-
-    function reedemableAmount(uint256 _optionTokenId)
+    function remainingWriteableAmount(uint256 _optionTokenId)
         external
         view
         returns (uint64 amount)
@@ -230,7 +188,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Rebasing Token Balance Views
 
-    // IDEA consider returning zero long balance after last expiry
+    // IDEA consider returning zero long balance after last expiry, ditto for totalSupply()
 
     function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
         // Check that the option exists
@@ -313,7 +271,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     function positionRedeemableAmount(uint256 _optionTokenId)
         external
         view
-        returns (uint64 amount)
+        returns (uint64 amount, uint32 when)
     {}
 
     ///////// ERC6909MetadataModified
@@ -493,7 +451,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
             // Track the asset liability
             uint256 fullAmountForWrite = uint256(assetInfo.writeAmount) * optionAmount;
-            _incrementAssetLiability(assetInfo.writeAsset, fullAmountForWrite);
+            _incrementClearingLiability(assetInfo.writeAsset, fullAmountForWrite);
 
             ///////// Interactions
             // Transfer in the write asset
@@ -520,7 +478,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         ///////// Protocol Invariant
-        // Check that the asset liabilities can be met
+        // Check that the clearing liabilities can be met
         _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
     }
 
@@ -556,7 +514,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Track the asset liability
         address writeAsset = optionStored.writeAsset;
         uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
-        _incrementAssetLiability(writeAsset, fullAmountForWrite);
+        _incrementClearingLiability(writeAsset, fullAmountForWrite);
 
         ///////// Interactions
         // Transfer in the write asset
@@ -568,7 +526,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
 
         ///////// Protocol Invariant
-        // Check that the asset liabilities can be met
+        // Check that the clearing liabilities can be met
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
@@ -589,13 +547,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         ///////// Effects, Interactions, Protocol Invariant
         // Iterate through the arrays, writing on each option
-        for (uint256 i = 0; i < idsLength;) {
+        for (uint256 i = 0; i < idsLength; i++) {
             write(optionTokenIds[i], optionAmounts[i]);
-
-            // An array can't have a total length larger than the max uint256 value
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -645,14 +598,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Burn the holder's longs
         _burn(msg.sender, _optionTokenId, optionAmount);
 
-        // Track the asset liabilities
+        // Track the clearing liabilities
         address writeAsset = optionStored.writeAsset;
         address exerciseAsset = optionStored.exerciseAsset;
         uint256 fullAmountForExercise =
             uint256(optionStored.exerciseAmount) * optionAmount;
         uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
-        _incrementAssetLiability(exerciseAsset, fullAmountForExercise);
-        _decrementAssetLiability(writeAsset, fullAmountForWrite);
+        _incrementClearingLiability(exerciseAsset, fullAmountForExercise);
+        _decrementClearingLiability(writeAsset, fullAmountForWrite);
 
         ///////// Interactions
         // Transfer in the exercise asset
@@ -667,7 +620,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         emit OptionsExercised(msg.sender, _optionTokenId, optionAmount);
 
         ///////// Protocol Invariant
-        // Check that the asset liabilities can be met
+        // Check that the clearing liabilities can be met
         _verifyAfter(writeAsset, exerciseAsset);
     }
 
@@ -710,9 +663,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _burn(msg.sender, _optionTokenId, optionAmount);
         _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
 
-        // Track the asset liabilities
+        // Track the clearing liabilities
         writeAssetNettedOff = optionStored.writeAmount * optionAmount;
-        _decrementAssetLiability(writeAsset, writeAssetNettedOff);
+        _decrementClearingLiability(writeAsset, writeAssetNettedOff);
 
         ///////// Interactions
         // Transfer out the write asset // TODO add 1 wei gas optimization
@@ -777,13 +730,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Burn all the caller's (non-virtual-rebasing) shorts
         _burn(msg.sender, shortTokenId, nonVirtualShortBalance);
 
-        // Track the asset liabilities
+        // Track the clearing liabilities
         address exerciseAsset = optionStored.exerciseAsset;
         if (writeAssetRedeemed > 0) {
-            _decrementAssetLiability(writeAsset, writeAssetRedeemed);
+            _decrementClearingLiability(writeAsset, writeAssetRedeemed);
         }
         if (exerciseAssetRedeemed > 0) {
-            _decrementAssetLiability(exerciseAsset, exerciseAssetRedeemed);
+            _decrementClearingLiability(exerciseAsset, exerciseAssetRedeemed);
         }
 
         ///////// Interactions
@@ -816,52 +769,22 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// FREI-PI
 
-    function _incrementAssetLiability(address asset, uint256 amount) internal {
-        assetLiabilities[asset] += amount;
+    function _incrementClearingLiability(address asset, uint256 amount) internal {
+        clearingLiabilities[asset] += amount;
     }
 
-    function _decrementAssetLiability(address asset, uint256 amount) internal {
-        assetLiabilities[asset] -= amount;
+    function _decrementClearingLiability(address asset, uint256 amount) internal {
+        clearingLiabilities[asset] -= amount;
     }
 
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
         assert(
             IERC20Minimal(writeAsset).balanceOf(address(this))
-                >= assetLiabilities[writeAsset]
+                >= clearingLiabilities[writeAsset]
         );
         assert(
             IERC20Minimal(exerciseAsset).balanceOf(address(this))
-                >= assetLiabilities[exerciseAsset]
+                >= clearingLiabilities[exerciseAsset]
         );
     }
-
-    /////////
-
-    function _assignShorts(uint256 _optionTokenId, uint64 amountToAssign) private {}
-
-    /////////
-
-    function _writeableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 __writeableAmount)
-    {}
-
-    function _exercisableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 assignableAmount)
-    {}
-
-    function _writerNettableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 nettableAmount)
-    {}
-
-    function _writerRedeemableAmount(uint256 _optionTokenId)
-        private
-        view
-        returns (uint64 redeemableAmount)
-    {}
 }

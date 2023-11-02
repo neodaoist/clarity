@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.22;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -540,7 +540,7 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, true, true, true);
-        emit ShortsRedeemed(writer, shortTokenId);
+        emit IOptionEvents.ShortsRedeemed(writer, shortTokenId);
 
         // When
         clarity.redeem(shortTokenId);
@@ -563,7 +563,7 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, true, true, true);
-        emit ShortsRedeemed(writer, shortTokenId);
+        emit IOptionEvents.ShortsRedeemed(writer, shortTokenId);
 
         // When
         clarity.redeem(shortTokenId);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.22;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -12,9 +12,9 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
 
     /////////
     // function position(uint256 optionTokenId)
-    // external
-    // view
-    // returns (Position memory position, int160 magnitude);
+    //     external
+    //     view
+    //     returns (Position memory position, int160 magnitude);
 
     function test_position() public {
         // Given writer1 writes 1 options
@@ -128,15 +128,31 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
 
     // TODO writer whenExercised
 
-    // TODO reverts
-
-    /////////
-    // function positionNettableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    // Sad Paths
 
     // TODO
 
     /////////
-    // function positionRedeemableAmount(uint256 optionTokenId) external view returns (uint64 amount);
+    // function positionNettableAmount(uint256 optionTokenId)
+    //     external
+    //     view
+    //     returns (uint64 amount);
+
+    // TODO
+
+    // Sad Paths
+
+    // TODO
+
+    /////////
+    // function positionRedeemableAmount(uint256 optionTokenId)
+    //     external
+    //     view
+    //     returns (uint64 amount, uint32 when);
+
+    // TODO
+
+    // Sad Paths
 
     // TODO
 }

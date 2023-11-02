@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.22;
 
 interface IOptionPosition {
     /////////
@@ -26,5 +26,5 @@ interface IOptionPosition {
     function positionRedeemableAmount(uint256 optionTokenId)
         external
         view
-        returns (uint64 amount);
+        returns (uint64 amount, uint32 when);
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.22;
 
 // Interfaces
 import {IERC6909} from "../interface/token/IERC6909.sol";
@@ -29,7 +29,7 @@ abstract contract ERC6909Rebasing is
                              ERC6909 STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    mapping(uint256 => uint256) public totalSupply; // TODO incorporate into tests
+    mapping(uint256 => uint256) public totalSupply; // TODO internalize and virtualize as well
 
     mapping(address => mapping(address => bool)) public isOperator;
 
