@@ -86,7 +86,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     mapping(uint248 => OptionStorage) private optionStorage;
 
-    mapping(address => uint256) private assetLiabilities; // TODO rename to token, underlying, or clearing liabilities
+    mapping(address => uint256) private clearingLiabilities;
 
     ///////// Option Token Views
 
@@ -451,7 +451,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
             // Track the asset liability
             uint256 fullAmountForWrite = uint256(assetInfo.writeAmount) * optionAmount;
-            _incrementAssetLiability(assetInfo.writeAsset, fullAmountForWrite);
+            _incrementClearingLiability(assetInfo.writeAsset, fullAmountForWrite);
 
             ///////// Interactions
             // Transfer in the write asset
@@ -478,7 +478,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         ///////// Protocol Invariant
-        // Check that the asset liabilities can be met
+        // Check that the clearing liabilities can be met
         _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
     }
 
@@ -514,7 +514,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Track the asset liability
         address writeAsset = optionStored.writeAsset;
         uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
-        _incrementAssetLiability(writeAsset, fullAmountForWrite);
+        _incrementClearingLiability(writeAsset, fullAmountForWrite);
 
         ///////// Interactions
         // Transfer in the write asset
@@ -526,7 +526,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
 
         ///////// Protocol Invariant
-        // Check that the asset liabilities can be met
+        // Check that the clearing liabilities can be met
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
@@ -603,14 +603,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Burn the holder's longs
         _burn(msg.sender, _optionTokenId, optionAmount);
 
-        // Track the asset liabilities
+        // Track the clearing liabilities
         address writeAsset = optionStored.writeAsset;
         address exerciseAsset = optionStored.exerciseAsset;
         uint256 fullAmountForExercise =
             uint256(optionStored.exerciseAmount) * optionAmount;
         uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
-        _incrementAssetLiability(exerciseAsset, fullAmountForExercise);
-        _decrementAssetLiability(writeAsset, fullAmountForWrite);
+        _incrementClearingLiability(exerciseAsset, fullAmountForExercise);
+        _decrementClearingLiability(writeAsset, fullAmountForWrite);
 
         ///////// Interactions
         // Transfer in the exercise asset
@@ -625,7 +625,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         emit OptionsExercised(msg.sender, _optionTokenId, optionAmount);
 
         ///////// Protocol Invariant
-        // Check that the asset liabilities can be met
+        // Check that the clearing liabilities can be met
         _verifyAfter(writeAsset, exerciseAsset);
     }
 
@@ -668,9 +668,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _burn(msg.sender, _optionTokenId, optionAmount);
         _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
 
-        // Track the asset liabilities
+        // Track the clearing liabilities
         writeAssetNettedOff = optionStored.writeAmount * optionAmount;
-        _decrementAssetLiability(writeAsset, writeAssetNettedOff);
+        _decrementClearingLiability(writeAsset, writeAssetNettedOff);
 
         ///////// Interactions
         // Transfer out the write asset // TODO add 1 wei gas optimization
@@ -735,13 +735,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Burn all the caller's (non-virtual-rebasing) shorts
         _burn(msg.sender, shortTokenId, nonVirtualShortBalance);
 
-        // Track the asset liabilities
+        // Track the clearing liabilities
         address exerciseAsset = optionStored.exerciseAsset;
         if (writeAssetRedeemed > 0) {
-            _decrementAssetLiability(writeAsset, writeAssetRedeemed);
+            _decrementClearingLiability(writeAsset, writeAssetRedeemed);
         }
         if (exerciseAssetRedeemed > 0) {
-            _decrementAssetLiability(exerciseAsset, exerciseAssetRedeemed);
+            _decrementClearingLiability(exerciseAsset, exerciseAssetRedeemed);
         }
 
         ///////// Interactions
@@ -774,22 +774,22 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// FREI-PI
 
-    function _incrementAssetLiability(address asset, uint256 amount) internal {
-        assetLiabilities[asset] += amount;
+    function _incrementClearingLiability(address asset, uint256 amount) internal {
+        clearingLiabilities[asset] += amount;
     }
 
-    function _decrementAssetLiability(address asset, uint256 amount) internal {
-        assetLiabilities[asset] -= amount;
+    function _decrementClearingLiability(address asset, uint256 amount) internal {
+        clearingLiabilities[asset] -= amount;
     }
 
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
         assert(
             IERC20Minimal(writeAsset).balanceOf(address(this))
-                >= assetLiabilities[writeAsset]
+                >= clearingLiabilities[writeAsset]
         );
         assert(
             IERC20Minimal(exerciseAsset).balanceOf(address(this))
-                >= assetLiabilities[exerciseAsset]
+                >= clearingLiabilities[exerciseAsset]
         );
     }
 }

@@ -6,14 +6,14 @@ interface IOptionActions {
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
-        uint256 strikePrice, // TODO consider specifying this precisely via width
+        uint256 strikePrice, // max value of 18446744073709551615000000 = ((2**64-1) * 10**6
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
     function writePut(
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
-        uint256 strikePrice, // TODO ditto
+        uint256 strikePrice, // max value of 18446744073709551615000000 = ((2**64-1) * 10**6
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
     function write(uint256 optionTokenId, uint64 optionAmount) external;
