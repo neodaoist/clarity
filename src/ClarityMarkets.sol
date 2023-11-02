@@ -547,13 +547,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         ///////// Effects, Interactions, Protocol Invariant
         // Iterate through the arrays, writing on each option
-        for (uint256 i = 0; i < idsLength;) {
+        for (uint256 i = 0; i < idsLength; i++) {
             write(optionTokenIds[i], optionAmounts[i]);
-
-            // An array can't have a total length larger than the max uint256 value
-            unchecked {
-                ++i;
-            }
         }
     }
 
