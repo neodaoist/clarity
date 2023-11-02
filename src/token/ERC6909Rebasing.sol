@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.21;
+pragma solidity 0.8.22;
 
 // Interfaces
 import {IERC6909} from "../interface/token/IERC6909.sol";
