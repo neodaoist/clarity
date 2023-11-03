@@ -303,8 +303,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     // Write
 
-    // TODO refactor to DRY up write business logic
-
     function writeCall(
         address baseAsset,
         address quoteAsset,
@@ -312,7 +310,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint256 strikePrice,
         uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
-        _optionTokenId = _write(
+        _optionTokenId = _writeNew(
             baseAsset,
             quoteAsset,
             exerciseWindow,
@@ -329,7 +327,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint256 strikePrice,
         uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
-        _optionTokenId = _write(
+        _optionTokenId = _writeNew(
             baseAsset,
             quoteAsset,
             exerciseWindow,
@@ -339,7 +337,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         );
     }
 
-    function _write(
+    function _writeNew(
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
@@ -417,7 +415,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Determine the exercise style
         ExerciseStyle exStyle = LibToken.determineExerciseStyle(exerciseWindow);
 
-        // Generate the optionTokenId
+        // Generate the option hash and option token id
         uint248 optionHash = LibToken.paramsToHash(
             baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType
         );
@@ -441,28 +439,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             exerciseWindow: LibToken.toExerciseWindow(exerciseWindow)
         });
 
-        // Store the option name/symbols
+        // Store the option name/symbol
         names[_optionTokenId] = "clr-stETH-aUSDC-20OCT23-1750-C"; // TEMP
 
-        if (optionAmount > 0) {
-            // Mint the longs and shorts
-            _mint(msg.sender, _optionTokenId, optionAmount);
-            _mint(msg.sender, _optionTokenId.longToShort(), optionAmount);
-
-            // Track the asset liability
-            uint256 fullAmountForWrite = uint256(assetInfo.writeAmount) * optionAmount;
-            _incrementClearingLiability(assetInfo.writeAsset, fullAmountForWrite);
-
-            ///////// Interactions
-            // Transfer in the write asset
-            SafeTransferLib.safeTransferFrom(
-                ERC20(assetInfo.writeAsset), msg.sender, address(this), fullAmountForWrite
-            );
-        }
-        // Else the option is just created, with no options actually written and
-        // therefore no long/short tokens minted
-
-        // Log events
+        // Log event (ideally this would be emitted in the Interactions section,
+        // but emitting here affords DRYer business logic for write)
         emit OptionCreated(
             _optionTokenId,
             baseAsset,
@@ -472,14 +453,43 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             strikePrice,
             OptionType.CALL
         );
+
+        // If the option amount is non-zero, actually write some options
         if (optionAmount > 0) {
-            // repeating this conditional logic, so that OptionCreated emits before OptionsWritten
-            emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
+            _writeOptions(
+                _optionTokenId, optionAmount, assetInfo.writeAsset, assetInfo.writeAmount
+            );
         }
+        // Else the option is just created, with no options actually written and
+        // therefore no long or short tokens minted
 
         ///////// Protocol Invariant
         // Check that the clearing liabilities can be met
         _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
+    }
+
+    function _writeOptions(
+        uint256 _optionTokenId,
+        uint64 optionAmount,
+        address writeAsset,
+        uint64 writeAmount
+    ) private {
+        // Mint the longs and shorts
+        _mint(msg.sender, _optionTokenId, optionAmount);
+        _mint(msg.sender, _optionTokenId.longToShort(), optionAmount);
+
+        // Track the asset liability
+        uint256 fullAmountForWrite = uint256(writeAmount) * optionAmount;
+        _incrementClearingLiability(writeAsset, fullAmountForWrite);
+
+        ///////// Interactions
+        // Transfer in the write asset
+        SafeTransferLib.safeTransferFrom(
+            ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite
+        );
+
+        // Log event
+        emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
     }
 
     function write(uint256 _optionTokenId, uint64 optionAmount) public override {
@@ -501,29 +511,17 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             revert OptionErrors.OptionExpired(_optionTokenId, expiryTimestamp);
         }
 
-        // TODO check that amount is not greater than writeableAmount
+        // Check that amount is not greater than remainingWritableAmount
+        // TODO
 
         ///////// Effects
         // Update the option state
-        optionStored.optionState.amountWritten += optionAmount;
+        uint64 amountWritten = optionStored.optionState.amountWritten; // gas optimization
+        optionStored.optionState.amountWritten = amountWritten + optionAmount;
 
-        // Mint the longs and shorts
-        _mint(msg.sender, _optionTokenId, optionAmount);
-        _mint(msg.sender, _optionTokenId.longToShort(), optionAmount);
-
-        // Track the asset liability
+        // Write the options
         address writeAsset = optionStored.writeAsset;
-        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
-        _incrementClearingLiability(writeAsset, fullAmountForWrite);
-
-        ///////// Interactions
-        // Transfer in the write asset
-        SafeTransferLib.safeTransferFrom(
-            ERC20(writeAsset), msg.sender, address(this), fullAmountForWrite
-        );
-
-        // Log events
-        emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
+        _writeOptions(_optionTokenId, optionAmount, writeAsset, optionStored.writeAmount);
 
         ///////// Protocol Invariant
         // Check that the clearing liabilities can be met
@@ -593,7 +591,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         ///////// Effects
         // Update the option state
-        optionStored.optionState.amountExercised += optionAmount;
+        uint64 amountExercised = optionStored.optionState.amountExercised; // gas optimization
+        optionStored.optionState.amountExercised = amountExercised + optionAmount;
 
         // Burn the holder's longs
         _burn(msg.sender, _optionTokenId, optionAmount);
@@ -657,7 +656,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         ///////// Effects
         // Update option state
-        optionStored.optionState.amountNettedOff += optionAmount;
+        uint64 amountNettedOff = optionStored.optionState.amountNettedOff; // gas optimization
+        optionStored.optionState.amountNettedOff = amountNettedOff + optionAmount;
 
         // Burn the caller's longs and shorts
         _burn(msg.sender, _optionTokenId, optionAmount);
