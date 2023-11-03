@@ -80,6 +80,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     uint8 public constant OPTION_CONTRACT_SCALAR = 6;
     uint8 public constant MAXIMUM_ERC20_DECIMALS = 18;
+    uint24 public constant MINIMUM_STRIKE_PRICE = 1e6; // TODO write test
     uint104 public constant MAXIMUM_STRIKE_PRICE = 18446744073709551615000000; // ((2**64-1) * 10**6
 
     ///////// Private State
@@ -190,9 +191,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     // IDEA consider returning zero long balance after last expiry, ditto for totalSupply()
 
-    function totalSupply(uint256 tokenId) public view returns (uint256) {
-        
-    }
+    function totalSupply(uint256 tokenId) public view returns (uint256) {}
 
     function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
         // Check that the option exists
@@ -217,8 +216,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             return internalBalanceOf[owner][tokenId];
         } else if (_tokenType == TokenType.SHORT) {
             // If short, the balance is their proportional share of the unassigned shorts
-            return (internalBalanceOf[owner][tokenId] * (amountWritten - amountNettedOff - amountExercised))
-                / amountWritten;
+            return (
+                internalBalanceOf[owner][tokenId]
+                    * (amountWritten - amountNettedOff - amountExercised)
+            ) / amountWritten;
         } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
             // If assigned short, the balance is their proportional share of the assigned shorts
             return (
