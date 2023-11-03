@@ -177,7 +177,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Check that it is a long
         // TODO
 
-        amount = totalSupply[_optionTokenId].safeCastTo64();
+        amount = internalTotalSupply[_optionTokenId].safeCastTo64(); // okay to use non-virtual-rebasing, bc longs do not rebase
     }
 
     function remainingWriteableAmount(uint256 _optionTokenId)
@@ -190,6 +190,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     // IDEA consider returning zero long balance after last expiry, ditto for totalSupply()
 
+    function totalSupply(uint256 tokenId) public view returns (uint256) {
+        
+    }
+
     function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
@@ -201,10 +205,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         TokenType _tokenType = tokenId.tokenType();
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountExercised = optionStored.optionState.amountExercised;
-        // TODO account for amountNettedOff
+        uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
 
         // If never any open interest for this created option, all balances will be zero
-        if (amountWritten == 0 && amountExercised == 0) {
+        if (amountWritten == 0) {
             return 0;
         }
 
@@ -213,7 +217,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             return internalBalanceOf[owner][tokenId];
         } else if (_tokenType == TokenType.SHORT) {
             // If short, the balance is their proportional share of the unassigned shorts
-            return (internalBalanceOf[owner][tokenId] * (amountWritten - amountExercised))
+            return (internalBalanceOf[owner][tokenId] * (amountWritten - amountNettedOff - amountExercised))
                 / amountWritten;
         } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
             // If assigned short, the balance is their proportional share of the assigned shorts

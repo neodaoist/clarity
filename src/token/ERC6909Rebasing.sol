@@ -29,7 +29,7 @@ abstract contract ERC6909Rebasing is
                              ERC6909 STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    mapping(uint256 => uint256) public totalSupply; // TODO internalize and virtualize as well
+    mapping(uint256 => uint256) internal internalTotalSupply; // TODO internalize and virtualize as well
 
     mapping(address => mapping(address => bool)) public isOperator;
 
@@ -118,7 +118,7 @@ abstract contract ERC6909Rebasing is
     //////////////////////////////////////////////////////////////*/
 
     function _mint(address receiver, uint256 id, uint256 amount) internal virtual {
-        totalSupply[id] += amount;
+        internalTotalSupply[id] += amount;
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
@@ -135,7 +135,7 @@ abstract contract ERC6909Rebasing is
         // Cannot underflow because a user's balance
         // will never be larger than the total supply.
         unchecked {
-            totalSupply[id] -= amount;
+            internalTotalSupply[id] -= amount;
         }
 
         emit Transfer(msg.sender, sender, address(0), id, amount);
