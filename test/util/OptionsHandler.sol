@@ -21,7 +21,7 @@ import {MockERC20} from "./MockERC20.sol";
 // Contract Under Test
 import "../../src/ClarityMarkets.sol";
 
-contract Handler is CommonBase, StdCheats, StdUtils {
+contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     /////////
 
     using LibToken for uint256;
@@ -75,7 +75,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINKLIKE", 18)));
         PEPELIKE = IERC20(address(new MockERC20("PEPE Like", "PEPELIKE", 18)));
         LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
+        FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
         USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
+        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18))); // TODO
 
         // setup possible assets
         possibleAssets.push(WETHLIKE);
@@ -87,12 +89,16 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         possibleAssets.push(USDCLIKE);
         possibleAssets.push(USDTLIKE);
 
-        // deal // TODO replace with multiple actors
-        for (uint256 j = 0; j < possibleAssets.length; j++) {
+        // setup actors // TODO replace with multiple actors
+        actor = address(0xAAAA);
+        vm.deal(actor, 10 ether);
+
+        // deal balances
+        for (uint256 i = 0; i < possibleAssets.length; i++) {
             deal(
-                address(possibleAssets[j]),
+                address(possibleAssets[i]),
                 actor,
-                scaleUpAssetAmount(possibleAssets[j], STARTING_BALANCE)
+                scaleUpAssetAmount(possibleAssets[i], STARTING_BALANCE)
             );
         }
     }
@@ -144,7 +150,8 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         optionAmount = bound(optionAmount, 10, type(uint32).max); // TODO improve
 
         // write call
-        vm.prank(actor);
+        vm.startPrank(actor);
+        possibleAssets[baseAssetIndex].approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeCall({
             baseAsset: address(possibleAssets[baseAssetIndex]),
             quoteAsset: address(possibleAssets[quoteAssetIndex]),
@@ -152,6 +159,7 @@ contract Handler is CommonBase, StdCheats, StdUtils {
             strikePrice: strikePrice,
             optionAmount: uint32(optionAmount)
         });
+        vm.stopPrank();
 
         // track object sets
         _assets.add(possibleAssets[baseAssetIndex]);
@@ -159,9 +167,9 @@ contract Handler is CommonBase, StdCheats, StdUtils {
         _options.add(optionTokenId);
 
         // track ghost variables
-        // ghost_longSumFor[optionTokenId] += optionAmount;
-        // ghost_shortSumFor[optionTokenId] += optionAmount;
-        // // ghost_assignedShortSumFor[optionTokenId] += 0; // no change
+        ghost_longSumFor[optionTokenId] += optionAmount;
+        ghost_shortSumFor[optionTokenId] += optionAmount;
+        // no change in ghost_assignedShortSumFor
     }
 
     function writeNewPut() external {}
@@ -229,6 +237,10 @@ contract Handler is CommonBase, StdCheats, StdUtils {
     }
 
     ///////// Options
+
+    function optionsCount() external view returns (uint256) {
+        return _options.count();
+    }
 
     function options() external view returns (uint256[] memory) {
         return _options.options;
