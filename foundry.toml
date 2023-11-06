@@ -5,3 +5,10 @@ libs = ["lib"]
 
 [fmt]
 line_length = 90
+
+[fuzz]
+
+[invariant]
+runs = 10
+depth = 10
+fail_on_revert = false

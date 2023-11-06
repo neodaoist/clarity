@@ -62,16 +62,21 @@ abstract contract BaseClarityMarketsTest is Test {
     uint256 internal holder2WethBalance;
     uint256 internal holder2LusdBalance;
 
-    uint256 internal constant NUM_TEST_USERS = 10;
+    uint256 internal constant NUM_TEST_ACTORS = 10;
 
     // Assets
+    // volatile
     IERC20 internal WETHLIKE;
     IERC20 internal WBTCLIKE;
     IERC20 internal LINKLIKE;
     IERC20 internal PEPELIKE;
+    // stable
+    IERC20 internal FRAXLIKE;
     IERC20 internal LUSDLIKE;
     IERC20 internal USDCLIKE;
+    IERC20 internal USDTLIKE;
 
+    uint256 internal constant NUM_TEST_ASSETS = 8;
     uint256 internal constant STARTING_BALANCE = 1_000_000;
 
     // Time
@@ -119,24 +124,28 @@ abstract contract BaseClarityMarketsTest is Test {
         WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTCLIKE", 8)));
         LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINKLIKE", 18)));
         PEPELIKE = IERC20(address(new MockERC20("PEPE Like", "PEPELIKE", 18)));
+        FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
         LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
         USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
+        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18)));
 
         // make test actors and mint assets
-        address[] memory writers = new address[](NUM_TEST_USERS);
-        address[] memory holders = new address[](NUM_TEST_USERS);
-        IERC20[] memory assets = new IERC20[](6);
+        address[] memory writers = new address[](NUM_TEST_ACTORS);
+        address[] memory holders = new address[](NUM_TEST_ACTORS);
+        IERC20[] memory assets = new IERC20[](NUM_TEST_ASSETS);
         assets[0] = WETHLIKE;
         assets[1] = WBTCLIKE;
         assets[2] = LINKLIKE;
         assets[3] = PEPELIKE;
-        assets[4] = LUSDLIKE;
-        assets[5] = USDCLIKE;
-        for (uint256 i = 0; i < NUM_TEST_USERS; i++) {
+        assets[4] = FRAXLIKE;
+        assets[5] = LUSDLIKE;
+        assets[6] = USDCLIKE;
+        assets[7] = USDTLIKE;
+        for (uint256 i = 0; i < NUM_TEST_ACTORS; i++) {
             writers[i] = makeAddress(string(abi.encodePacked("writer", i + 1)));
             holders[i] = makeAddress(string(abi.encodePacked("holder", i + 1)));
 
-            for (uint256 j = 0; j < assets.length; j++) {
+            for (uint256 j = 0; j < NUM_TEST_ASSETS; j++) {
                 deal(
                     address(assets[j]),
                     writers[i],
@@ -601,6 +610,30 @@ abstract contract BaseClarityMarketsTest is Test {
     ///////// Custom Multi Assertions
     // Note be mindful not to add too many multi assertions and/or too much misdirection
 
+    function assertTotalSupplies(
+        uint256 optionTokenId,
+        uint256 expectedLongTotalSupply,
+        uint256 expectedShortTotalSupply,
+        uint256 expectedAssignedShortTotalSupply,
+        string memory message
+    ) internal {
+        assertEq(
+            clarity.totalSupply(optionTokenId),
+            expectedLongTotalSupply,
+            string(abi.encodePacked("long total supply ", message))
+        );
+        assertEq(
+            clarity.totalSupply(optionTokenId.longToShort()),
+            expectedShortTotalSupply,
+            string(abi.encodePacked("short total supply ", message))
+        );
+        assertEq(
+            clarity.totalSupply(optionTokenId.longToAssignedShort()),
+            expectedAssignedShortTotalSupply,
+            string(abi.encodePacked("assigned short total supply ", message))
+        );
+    }
+
     function assertOptionBalances(
         address addr,
         uint256 optionTokenId,
@@ -640,6 +673,8 @@ abstract contract BaseClarityMarketsTest is Test {
     }
 
     ///////// Custom Type Assertions
+
+    // TODO add assertion for Option itself
 
     function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b) internal {
         if (a != b) {

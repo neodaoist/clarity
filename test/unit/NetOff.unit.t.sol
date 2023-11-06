@@ -20,7 +20,7 @@ contract NetOffTest is BaseClarityMarketsTest {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
         );
         vm.stopPrank();
 

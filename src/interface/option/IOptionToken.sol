@@ -11,8 +11,8 @@ interface IOptionToken {
     // IDEA add isWithinExerciseWindow() and  whenLastExpiry()
 
     // max option token types                       = 2^248  = 4.5e74 = 2^256 / 2^8
-    // max options                                  = 2^64   = 1.2e18 = ~18 trillion contracts OI, bc option scalar is 6
-    // max W or X asset for an option token type    = 2^64   = 1.2e18 = ~18 million units notional, bc option scalar is 6
+    // max options                                  = 2^64   = 1.8e18 = ~18 trillion contracts OI, bc option scalar is 6
+    // max W or X asset for an option token type    = 2^64   = 1.8e18 = ~18 million units notional, bc option scalar is 6
     // max W or X asset collateral for an option    = 2^126  = 3.4e38 = 2^64 * 2^64
     // max asset pairs, for option token types               = 2.1e96 = 2^160 * 2^160
 

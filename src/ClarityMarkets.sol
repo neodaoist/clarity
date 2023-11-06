@@ -80,6 +80,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     uint8 public constant OPTION_CONTRACT_SCALAR = 6;
     uint8 public constant MAXIMUM_ERC20_DECIMALS = 18;
+    uint24 public constant MINIMUM_STRIKE_PRICE = 1e6; // TODO write test
     uint104 public constant MAXIMUM_STRIKE_PRICE = 18446744073709551615000000; // ((2**64-1) * 10**6
 
     ///////// Private State
@@ -174,10 +175,18 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     ///////// Option State Views
 
     function openInterest(uint256 _optionTokenId) external view returns (uint64 amount) {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+
         // Check that it is a long
         // TODO
 
-        amount = totalSupply[_optionTokenId].safeCastTo64();
+        amount = optionStored.optionState.amountWritten
+            - optionStored.optionState.amountNettedOff
+            - optionStored.optionState.amountExercised;
     }
 
     function remainingWriteableAmount(uint256 _optionTokenId)
@@ -186,11 +195,12 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         returns (uint64 amount)
     {}
 
-    ///////// Rebasing Token Balance Views
+    ///////// Rebasing Token Views
 
-    // IDEA consider returning zero long balance after last expiry, ditto for totalSupply()
+    // TODO consider
+    // if (block.timestamp > optionStored.exerciseWindow.expiryTimestamp) long/short amount = 0;
 
-    function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
+    function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
@@ -198,31 +208,70 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         // Calculate the balance
-        TokenType _tokenType = tokenId.tokenType();
         uint256 amountWritten = optionStored.optionState.amountWritten;
-        uint256 amountExercised = optionStored.optionState.amountExercised;
-        // TODO account for amountNettedOff
+        uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
 
-        // If never any open interest for this created option, all balances will be zero
-        if (amountWritten == 0 && amountExercised == 0) {
-            return 0;
+        // If never any open interest for this created option, or everything written has been
+        // netted off, the total supply will be zero
+        if (amountWritten == 0 || amountWritten == amountNettedOff) {
+            amount = 0;
+        } else {
+            TokenType _tokenType = tokenId.tokenType();
+            uint256 amountExercised = optionStored.optionState.amountExercised;
+
+            // If long or short, total supply is amount written minus amount netted off minus amount exercised
+            if (_tokenType == TokenType.LONG || _tokenType == TokenType.SHORT) {
+                amount = amountWritten - amountNettedOff - amountExercised;
+            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+                // If assigned short, total supply is amount exercised
+                amount = amountExercised;
+            } else {
+                revert OptionErrors.InvalidTokenType(tokenId); // should be unreachable
+            }
+        }
+    }
+
+    function balanceOf(address owner, uint256 tokenId)
+        public
+        view
+        returns (uint256 amount)
+    {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(tokenId);
         }
 
-        // If long, the balance is the actual amount held by owner
-        if (_tokenType == TokenType.LONG) {
-            return internalBalanceOf[owner][tokenId];
-        } else if (_tokenType == TokenType.SHORT) {
-            // If short, the balance is their proportional share of the unassigned shorts
-            return (internalBalanceOf[owner][tokenId] * (amountWritten - amountExercised))
-                / amountWritten;
-        } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-            // If assigned short, the balance is their proportional share of the assigned shorts
-            return (
-                internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised
-            ) / amountWritten;
+        // Calculate the balance
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
+
+        // If never any open interest for this created option, or everything written has been
+        // netted off, all balances will be zero
+        if (amountWritten == 0 || amountWritten == amountNettedOff) {
+            amount = 0;
         } else {
-            // TODO is this state possible? bc will throw enum error instead
-            revert OptionErrors.InvalidTokenType(tokenId);
+            TokenType _tokenType = tokenId.tokenType();
+            uint256 amountExercised = optionStored.optionState.amountExercised;
+
+            // If long, the balance is the actual amount held by owner
+            if (_tokenType == TokenType.LONG) {
+                amount = internalBalanceOf[owner][tokenId];
+            } else if (_tokenType == TokenType.SHORT) {
+                // If short, the balance is their proportional share of the unassigned shorts
+                amount = (
+                    internalBalanceOf[owner][tokenId]
+                        * (amountWritten - amountNettedOff - amountExercised)
+                ) / (amountWritten - amountNettedOff);
+            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+                // If assigned short, the balance is their proportional share of the assigned shorts
+                amount = (
+                    internalBalanceOf[owner][tokenId.assignedShortToShort()]
+                        * amountExercised
+                ) / (amountWritten - amountNettedOff);
+            } else {
+                revert OptionErrors.InvalidTokenType(tokenId); // should be unreachable
+            }
         }
     }
 
@@ -664,7 +713,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
 
         // Track the clearing liabilities
-        writeAssetNettedOff = optionStored.writeAmount * optionAmount;
+        writeAssetNettedOff = uint128(optionStored.writeAmount) * uint128(optionAmount);
         _decrementClearingLiability(writeAsset, writeAssetNettedOff);
 
         ///////// Interactions
