@@ -29,7 +29,7 @@ abstract contract ERC6909Rebasing is
                              ERC6909 STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    mapping(uint256 => uint256) internal internalTotalSupply; // TODO internalize and virtualize as well
+    // NOTE typically totalSupply storage is here, but Clarity implements a fully virtual totalSupply()
 
     mapping(address => mapping(address => bool)) public isOperator;
 
@@ -40,6 +40,8 @@ abstract contract ERC6909Rebasing is
     /*//////////////////////////////////////////////////////////////
                               ERC6909 LOGIC
     //////////////////////////////////////////////////////////////*/
+
+    // TODO handle assigned shorts
 
     function transfer(address receiver, uint256 id, uint256 amount)
         public
@@ -118,7 +120,7 @@ abstract contract ERC6909Rebasing is
     //////////////////////////////////////////////////////////////*/
 
     function _mint(address receiver, uint256 id, uint256 amount) internal virtual {
-        internalTotalSupply[id] += amount; // TODO TBD
+        // NOTE typically totalSupply accounting is here, but Clarity implements a fully virtual totalSupply()
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
@@ -132,11 +134,7 @@ abstract contract ERC6909Rebasing is
     function _burn(address sender, uint256 id, uint256 amount) internal virtual {
         internalBalanceOf[sender][id] -= amount;
 
-        // Cannot underflow because a user's balance
-        // will never be larger than the total supply.
-        unchecked {
-            internalTotalSupply[id] -= amount; // TODO TBD
-        }
+        // NOTE typically totalSupply accounting is here, but Clarity implements a fully virtual totalSupply()
 
         emit Transfer(msg.sender, sender, address(0), id, amount);
     }

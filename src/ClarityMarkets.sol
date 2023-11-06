@@ -175,10 +175,18 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     ///////// Option State Views
 
     function openInterest(uint256 _optionTokenId) external view returns (uint64 amount) {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+
         // Check that it is a long
         // TODO
 
-        amount = internalTotalSupply[_optionTokenId].safeCastTo64(); // okay to use non-virtual-rebasing, bc longs do not rebase
+        amount = optionStored.optionState.amountWritten
+            - optionStored.optionState.amountNettedOff
+            - optionStored.optionState.amountExercised;
     }
 
     function remainingWriteableAmount(uint256 _optionTokenId)
@@ -213,8 +221,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                     // And if expired, total supply is 0
                     amount = 0;
                 } else {
-                    // Else, total supply is amount written minus amount netted off
-                    amount = amountWritten - amountNettedOff;
+                    // Else, total supply is amount written minus amount netted off minus amount exercised
+                    amount = amountWritten - amountNettedOff - amountExercised;
                 }
             } else if (_tokenType == TokenType.SHORT) {
                 // If short, total supply is amount written minus amount netted off minus amount exercised
@@ -710,18 +718,18 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
 
         // Track the clearing liabilities
-        writeAssetNettedOff = optionStored.writeAmount * optionAmount;
+        writeAssetNettedOff = uint128(optionStored.writeAmount) * uint128(optionAmount);
         _decrementClearingLiability(writeAsset, writeAssetNettedOff);
 
-        ///////// Interactions
-        // Transfer out the write asset // TODO add 1 wei gas optimization
-        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
+        // ///////// Interactions
+        // // Transfer out the write asset // TODO add 1 wei gas optimization
+        // SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
 
-        // Log net off event
-        emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
+        // // Log net off event
+        // emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
 
-        ///////// Protocol Invariant
-        _verifyAfter(writeAsset, optionStored.exerciseAsset);
+        // ///////// Protocol Invariant
+        // _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
     // Redeem
