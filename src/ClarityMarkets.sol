@@ -197,6 +197,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Rebasing Token Views
 
+    // TODO consider
+    // if (block.timestamp > optionStored.exerciseWindow.expiryTimestamp) long/short amount = 0;
+
     function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
@@ -208,30 +211,22 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
 
-        // If never any open interest for this created option, or anything written is netted off, total supply will be zero
+        // If never any open interest for this created option, or everything written has been
+        // netted off, the total supply will be zero
         if (amountWritten == 0 || amountWritten == amountNettedOff) {
             amount = 0;
         } else {
             TokenType _tokenType = tokenId.tokenType();
             uint256 amountExercised = optionStored.optionState.amountExercised;
 
-            // If long,
-            if (_tokenType == TokenType.LONG) {
-                if (block.timestamp > optionStored.exerciseWindow.expiryTimestamp) {
-                    // And if expired, total supply is 0
-                    amount = 0;
-                } else {
-                    // Else, total supply is amount written minus amount netted off minus amount exercised
-                    amount = amountWritten - amountNettedOff - amountExercised;
-                }
-            } else if (_tokenType == TokenType.SHORT) {
-                // If short, total supply is amount written minus amount netted off minus amount exercised
+            // If long or short, total supply is amount written minus amount netted off minus amount exercised
+            if (_tokenType == TokenType.LONG || _tokenType == TokenType.SHORT) {
                 amount = amountWritten - amountNettedOff - amountExercised;
             } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
                 // If assigned short, total supply is amount exercised
                 amount = amountExercised;
             } else {
-                revert OptionErrors.InvalidTokenType(tokenId); // unreachable
+                revert OptionErrors.InvalidTokenType(tokenId); // should be unreachable
             }
         }
     }
@@ -251,7 +246,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
 
-        // If never any open interest for this created option, or anything written has been
+        // If never any open interest for this created option, or everything written has been
         // netted off, all balances will be zero
         if (amountWritten == 0 || amountWritten == amountNettedOff) {
             amount = 0;
@@ -275,7 +270,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                         * amountExercised
                 ) / (amountWritten - amountNettedOff);
             } else {
-                revert OptionErrors.InvalidTokenType(tokenId); // unreachable
+                revert OptionErrors.InvalidTokenType(tokenId); // should be unreachable
             }
         }
     }
@@ -721,15 +716,15 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         writeAssetNettedOff = uint128(optionStored.writeAmount) * uint128(optionAmount);
         _decrementClearingLiability(writeAsset, writeAssetNettedOff);
 
-        // ///////// Interactions
-        // // Transfer out the write asset // TODO add 1 wei gas optimization
-        // SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
+        ///////// Interactions
+        // Transfer out the write asset // TODO add 1 wei gas optimization
+        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
 
-        // // Log net off event
-        // emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
+        // Log net off event
+        emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
 
-        // ///////// Protocol Invariant
-        // _verifyAfter(writeAsset, optionStored.exerciseAsset);
+        ///////// Protocol Invariant
+        _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
     // Redeem
