@@ -187,13 +187,9 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         returns (uint64 amount)
     {}
 
-    ///////// Rebasing Token Balance Views
+    ///////// Rebasing Token Views
 
-    // IDEA consider returning zero long balance after last expiry, ditto for totalSupply()
-
-    function totalSupply(uint256 tokenId) public view returns (uint256) {}
-
-    function balanceOf(address owner, uint256 tokenId) public view returns (uint256) {
+    function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
@@ -201,33 +197,78 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         // Calculate the balance
-        TokenType _tokenType = tokenId.tokenType();
         uint256 amountWritten = optionStored.optionState.amountWritten;
-        uint256 amountExercised = optionStored.optionState.amountExercised;
         uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
 
-        // If never any open interest for this created option, all balances will be zero
-        if (amountWritten == 0) {
-            return 0;
+        // If never any open interest for this created option, or anything written is netted off, total supply will be zero
+        if (amountWritten == 0 || amountWritten == amountNettedOff) {
+            amount = 0;
+        } else {
+            TokenType _tokenType = tokenId.tokenType();
+            uint256 amountExercised = optionStored.optionState.amountExercised;
+
+            // If long,
+            if (_tokenType == TokenType.LONG) {
+                if (block.timestamp > optionStored.exerciseWindow.expiryTimestamp) {
+                    // And if expired, total supply is 0
+                    amount = 0;
+                } else {
+                    // Else, total supply is amount written minus amount netted off
+                    amount = amountWritten - amountNettedOff;
+                }
+            } else if (_tokenType == TokenType.SHORT) {
+                // If short, total supply is amount written minus amount netted off minus amount exercised
+                amount = amountWritten - amountNettedOff - amountExercised;
+            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+                // If assigned short, total supply is amount exercised
+                amount = amountExercised;
+            } else {
+                revert OptionErrors.InvalidTokenType(tokenId); // unreachable
+            }
+        }
+    }
+
+    function balanceOf(address owner, uint256 tokenId)
+        public
+        view
+        returns (uint256 amount)
+    {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(tokenId);
         }
 
-        // If long, the balance is the actual amount held by owner
-        if (_tokenType == TokenType.LONG) {
-            return internalBalanceOf[owner][tokenId];
-        } else if (_tokenType == TokenType.SHORT) {
-            // If short, the balance is their proportional share of the unassigned shorts
-            return (
-                internalBalanceOf[owner][tokenId]
-                    * (amountWritten - amountNettedOff - amountExercised)
-            ) / amountWritten;
-        } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-            // If assigned short, the balance is their proportional share of the assigned shorts
-            return (
-                internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised
-            ) / amountWritten;
+        // Calculate the balance
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
+
+        // If never any open interest for this created option, or anything written has been
+        // netted off, all balances will be zero
+        if (amountWritten == 0 || amountWritten == amountNettedOff) {
+            amount = 0;
         } else {
-            // TODO is this state possible? bc will throw enum error instead
-            revert OptionErrors.InvalidTokenType(tokenId);
+            TokenType _tokenType = tokenId.tokenType();
+            uint256 amountExercised = optionStored.optionState.amountExercised;
+
+            // If long, the balance is the actual amount held by owner
+            if (_tokenType == TokenType.LONG) {
+                amount = internalBalanceOf[owner][tokenId];
+            } else if (_tokenType == TokenType.SHORT) {
+                // If short, the balance is their proportional share of the unassigned shorts
+                amount = (
+                    internalBalanceOf[owner][tokenId]
+                        * (amountWritten - amountNettedOff - amountExercised)
+                ) / (amountWritten - amountNettedOff);
+            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+                // If assigned short, the balance is their proportional share of the assigned shorts
+                amount = (
+                    internalBalanceOf[owner][tokenId.assignedShortToShort()]
+                        * amountExercised
+                ) / (amountWritten - amountNettedOff);
+            } else {
+                revert OptionErrors.InvalidTokenType(tokenId); // unreachable
+            }
         }
     }
 

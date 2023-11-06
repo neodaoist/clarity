@@ -32,11 +32,13 @@ library LibOptionSet {
 
     function reduce(
         OptionSet storage s,
+        address caller,
+        uint256 tokenId,
         uint256 acc,
-        function(uint256,uint256) external returns (uint256) func
+        function(uint256,address,uint256) external returns (uint256) func
     ) internal returns (uint256) {
         for (uint256 i = 0; i < s.options.length; ++i) {
-            acc = func(acc, s.options[i]);
+            acc = func(acc, caller, tokenId);
         }
         return acc;
     }

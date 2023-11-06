@@ -29,7 +29,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     using LibActorSet for ActorSet;
     using LibOptionSet for OptionSet;
 
-    ClarityMarkets private clarity; // CUT
+    ClarityMarkets private clarity; // Contract Under Test
 
     // Collection Helpers
     AssetSet private _assets;
@@ -40,11 +40,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     mapping(uint256 => uint256) public ghost_longSumFor;
     mapping(uint256 => uint256) public ghost_shortSumFor;
     mapping(uint256 => uint256) public ghost_assignedShortSumFor;
-
-    // mapping(uint256 => uint256) public ghost_writeSum;
-    // mapping(uint256 => uint256) public ghost_netSum;
-    // mapping(uint256 => uint256) public ghost_exerciseSum;
-    // mapping(uint256 => uint256) public ghost_redeemSum;
 
     // Assets
     // volatile
@@ -69,7 +64,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     constructor(ClarityMarkets _clarity) {
         clarity = _clarity;
 
-        // deploy test assets
+        // deploy test assets // TODO move to BaseTest
         WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETHLIKE", 18)));
         WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTCLIKE", 8)));
         LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINKLIKE", 18)));
@@ -77,7 +72,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
         FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
         USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
-        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18))); // TODO
+        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18))); // TODO add Tether idiosyncrasies
 
         // setup possible assets
         possibleAssets.push(WETHLIKE);
@@ -204,6 +199,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     ///////// Actors
 
+    // TODO WIP
+
+    function actorsCount() external view returns (uint256) {
+        return _actors.actors.length;
+    }
+
     function actors() external view returns (address[] memory) {
         return _actors.actors;
     }
@@ -220,6 +221,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     }
 
     ///////// Assets
+
+    // TODO WIP
+
+    function assetsCount() external view returns (uint256) {
+        return _assets.assets.length;
+    }
 
     function assets() external view returns (IERC20[] memory) {
         return _assets.assets;
@@ -238,6 +245,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     ///////// Options
 
+    // TODO WIP
+
     function optionsCount() external view returns (uint256) {
         return _options.count();
     }
@@ -252,8 +261,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     function reduceOptions(
         uint256 acc,
-        function(uint256,uint256) external returns (uint256) func
+        uint256 tokenId,
+        function(uint256,address,uint256) external returns (uint256) func
     ) public returns (uint256) {
-        return _options.reduce(acc, func);
+        return _options.reduce(actor, tokenId, acc, func);
     }
 }

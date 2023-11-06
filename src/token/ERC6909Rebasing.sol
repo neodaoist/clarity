@@ -118,7 +118,7 @@ abstract contract ERC6909Rebasing is
     //////////////////////////////////////////////////////////////*/
 
     function _mint(address receiver, uint256 id, uint256 amount) internal virtual {
-        internalTotalSupply[id] += amount;
+        internalTotalSupply[id] += amount; // TODO TBD
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
@@ -135,7 +135,7 @@ abstract contract ERC6909Rebasing is
         // Cannot underflow because a user's balance
         // will never be larger than the total supply.
         unchecked {
-            internalTotalSupply[id] -= amount;
+            internalTotalSupply[id] -= amount; // TODO TBD
         }
 
         emit Transfer(msg.sender, sender, address(0), id, amount);

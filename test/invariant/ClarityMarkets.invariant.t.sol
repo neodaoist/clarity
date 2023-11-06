@@ -41,6 +41,8 @@ contract ClarityMarketsInvariantTest is Test {
     function invariantB1_sumOfAllBalancesForTokenIdEqTotalSupply() public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 longTokenId = handler.options()[i];
+            uint256 shortTokenId = longTokenId.longToShort();
+            uint256 assignedShortTokenId = longTokenId.longToAssignedShort();
 
             assertEq(
                 clarity.totalSupply(longTokenId),
@@ -48,36 +50,20 @@ contract ClarityMarketsInvariantTest is Test {
                 "sumOfAllBalancesForTokenIdEqTotalSupply long"
             );
             assertEq(
-                clarity.totalSupply(longTokenId.longToShort()),
+                clarity.totalSupply(shortTokenId),
                 handler.ghost_shortSumFor(longTokenId),
                 "sumOfAllBalancesForTokenIdEqTotalSupply short"
             );
             assertEq(
-                clarity.totalSupply(longTokenId.longToAssignedShort()),
+                clarity.totalSupply(assignedShortTokenId),
                 handler.ghost_assignedShortSumFor(longTokenId),
                 "sumOfAllBalancesForTokenIdEqTotalSupply assignedShort"
             );
         }
     }
 
-    // uint256 sumOfLongBalances = handler.reduceActors(0, this.accumulateLongBalances);
-    // uint256 sumOfShortBalances = handler.reduceActors(0, this.accumulateShortBalances);
-    // uint256 sumOfAssignedShortBalances = handler.reduceActors(0, this.accumulateAssignedShortBalances);
-
     // function invariantC1_clearingLiabilityForAssetEqSumOfLongsShortsAndAssignedShortsLiability(
     // ) public {}
 
     // function invariantC1_totalSupplyOfLongsForOptionEqTotalSupplyOfShorts() public {}
-
-    ///////// Accumulators
-
-    // function accumulateBalances(uint256 balance, address caller, uint256 tokenId) external view returns (uint256) {
-    //     return balance + clarity.balanceOf(caller, tokenId);
-    // }
-
-    ///////// Assertions
-
-    // function assertAccountBalanceLteTotalSupply(address account) external {
-    //     assertLe(weth.balanceOf(account), weth.totalSupply());
-    // }
 }
