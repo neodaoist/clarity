@@ -26,17 +26,106 @@ contract OptionStateViewsTest is BaseClarityMarketsTest {
         assertEq(clarity.openInterest(oti1), 2.3e6, "open interest");
     }
 
+    // TODO more
+
     // Sad Paths
 
     // TODO
 
     /////////
-    // function remainingWriteableAmount(uint256 optionTokenId)
+    // function remainingWritableAmount(uint256 optionTokenId)
     //     external
     //     view
     //     returns (uint64 amount);
 
-    // TODO
+    function test_remainingWritableAmount_whenNoneWritten() public {
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+        );
+        vm.stopPrank();
+
+        assertEq(
+            clarity.remainingWriteableAmount(optionTokenId),
+            clarity.MAXIMUM_WRITABLE(),
+            "maximum writable when none written"
+        );
+    }
+
+    function test_remainingWritableAmount_whenSomeWritten() public {
+        uint64 amountWritten = 10.000001e6;
+
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE),
+            address(LUSDLIKE),
+            americanExWeeklies[0],
+            1700e18,
+            amountWritten
+        );
+        vm.stopPrank();
+
+        assertEq(
+            clarity.remainingWriteableAmount(optionTokenId),
+            clarity.MAXIMUM_WRITABLE() - amountWritten,
+            "maximum writable when some written"
+        );
+    }
+
+    function test_remainingWritableAmount_whenMostWritten() public {
+        uint64 amountWritten = (clarity.MAXIMUM_WRITABLE() * 4) / 5;
+
+        vm.startPrank(writer);
+        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 1e27));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 1e27));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE),
+            address(LUSDLIKE),
+            americanExWeeklies[0],
+            1700e18,
+            amountWritten
+        );
+        vm.stopPrank();
+
+        assertEq(
+            clarity.remainingWriteableAmount(optionTokenId),
+            clarity.MAXIMUM_WRITABLE() - amountWritten,
+            "maximum writable when some written"
+        );
+    }
+
+    function test_remainingWritableAmount_whenAllWritten() public {
+        vm.startPrank(writer);
+
+        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 1e27));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 1e27));
+        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 1e27));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1e27));
+
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE),
+            address(LUSDLIKE),
+            americanExWeeklies[0],
+            1700e18,
+            clarity.MAXIMUM_WRITABLE()
+        );
+
+        // even after netting off or exercising, remaining writable does not change
+        clarity.netOff(optionTokenId, 100e6);
+
+        vm.warp(americanExWeeklies[0][0]);
+
+        clarity.exercise(optionTokenId, 100e6);
+
+        vm.stopPrank();
+
+        assertEq(
+            clarity.remainingWriteableAmount(optionTokenId),
+            0,
+            "maximum writable when some written"
+        );
+    }
 
     // Sad Paths
 

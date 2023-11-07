@@ -583,6 +583,17 @@ contract WriteTest is BaseClarityMarketsTest {
         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), zeroTime, 1700e18, 1e6);
     }
 
+    function testRevert_writeCall_whenStrikePriceTooSmall() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
+        );
+
+        vm.prank(writer);
+        clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1e6 - 1, 1e6
+        );
+    }
+
     function testRevert_writeCall_whenStrikePriceTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -600,8 +611,23 @@ contract WriteTest is BaseClarityMarketsTest {
         );
     }
 
-    // TODO ditto for writePut(), write(), and batchWrite()
-    // TODO revert when trying to write too small an amount (1e-6 - 1)
+    function testRevert_writeCall_whenAmountGreaterThanMaximumWritable() public {
+        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
+
+        vm.startPrank(writer);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.WriteAmountTooLarge.selector, tooMuch)
+        );
+
+        clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, tooMuch
+        );
+        vm.stopPrank();
+    }
+
+    // TODO double check all relevant reverts covered for writePut(), write(), and batchWrite()
     // TODO insufficient asset balance
     // TODO insufficient asset approval
 
@@ -1181,6 +1207,17 @@ contract WriteTest is BaseClarityMarketsTest {
         clarity.writePut(address(WETHLIKE), address(LUSDLIKE), zeroTime, 1700e18, 1e6);
     }
 
+    function testRevert_writePut_whenStrikePriceTooSmall() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
+        );
+
+        vm.prank(writer);
+        clarity.writePut(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1e6 - 1, 1e6
+        );
+    }
+
     function testRevert_writePut_whenStrikePriceTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -1196,6 +1233,22 @@ contract WriteTest is BaseClarityMarketsTest {
             ((2 ** 64 - 1) * 1e6) + 1,
             1e6
         );
+    }
+
+    function testRevert_writePut_whenAmountGreaterThanMaximumWritable() public {
+        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
+
+        vm.startPrank(writer);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.WriteAmountTooLarge.selector, tooMuch)
+        );
+
+        clarity.writePut(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, tooMuch
+        );
+        vm.stopPrank();
     }
 
     /////////
@@ -1319,6 +1372,55 @@ contract WriteTest is BaseClarityMarketsTest {
 
     // Sad Paths
 
+    function testRevert_write_whenWriteAmountZero() public {
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+        );
+
+        vm.expectRevert(OptionErrors.WriteAmountZero.selector);
+
+        clarity.write(optionTokenId, 0);
+        vm.stopPrank();
+    }
+
+    function testRevert_write_whenInitialAmountGreaterThanMaximumWritable() public {
+        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
+
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+        );
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(OptionErrors.WriteAmountTooLarge.selector, tooMuch)
+        );
+
+        clarity.write(optionTokenId, tooMuch);
+        vm.stopPrank();
+    }
+
+    function testRevert_write_whenSubsequentAmountGreaterThanMaximumWritable() public {
+        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
+
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+        );
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        clarity.write(optionTokenId, 10e6);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                OptionErrors.WriteAmountTooLarge.selector, tooMuch - 10e6
+            )
+        );
+
+        clarity.write(optionTokenId, tooMuch - 10e6);
+        vm.stopPrank();
+    }
+
     function testRevert_write_whenOptionDoesNotExist() public {
         uint248 instrumentHash = LibToken.paramsToHash(
             address(WETHLIKE),
@@ -1356,18 +1458,6 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.warp(americanExWeeklies[0][1] + 1 seconds);
 
         clarity.write(optionTokenId, 1e6);
-        vm.stopPrank();
-    }
-
-    function testRevert_write_whenWriteAmountZero() public {
-        vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
-        );
-
-        vm.expectRevert(OptionErrors.WriteAmountZero.selector);
-
-        clarity.write(optionTokenId, 0);
         vm.stopPrank();
     }
 
