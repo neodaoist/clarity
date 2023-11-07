@@ -611,7 +611,7 @@ contract WriteTest is BaseClarityMarketsTest {
         );
     }
 
-    function testRevert_writeCall_whenGreaterThanMaximumWritable() public {
+    function testRevert_writeCall_whenAmountGreaterThanMaximumWritable() public {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
@@ -628,7 +628,6 @@ contract WriteTest is BaseClarityMarketsTest {
     }
 
     // TODO double check all relevant reverts covered for writePut(), write(), and batchWrite()
-    // TODO revert when trying to write too small an amount (1e-6 - 1)
     // TODO insufficient asset balance
     // TODO insufficient asset approval
 
@@ -1236,7 +1235,7 @@ contract WriteTest is BaseClarityMarketsTest {
         );
     }
 
-    function testRevert_writePut_whenGreaterThanMaximumWritable() public {
+    function testRevert_writePut_whenAmountGreaterThanMaximumWritable() public {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
