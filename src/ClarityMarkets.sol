@@ -11,7 +11,7 @@ import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
-import {LibString} from "./library/LibString.sol";
+import {LibMetadata} from "./library/LibMetadata.sol";
 import {LibTime} from "./library/LibTime.sol";
 import {LibToken} from "./library/LibToken.sol";
 import {OptionErrors} from "./library/OptionErrors.sol";
@@ -40,7 +40,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     /////////
 
-    using LibString for string;
+    using LibMetadata for bytes;
     using LibTime for uint32[];
     using LibToken for uint248;
     using LibToken for uint256;
@@ -368,14 +368,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// ERC6909MetadataURI
 
-    /// @dev Thrown when the id does not exist
-    /// @param id The id of the token
     error InvalidId(uint256 id);
 
-    /// @notice The URI for each id
-    /// @return The URI of the token
-    function tokenURI(uint256) public pure returns (string memory) {
-        return "setec astronomy";
+    function tokenURI(uint256) public pure returns (string memory uri) {
+        uri = LibMetadata.json("", "", 123, "", 123);
     }
 
     ///////// Option Actions
