@@ -44,6 +44,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Private Structs
 
+    // storage struct
     struct OptionStorage {
         // slot 0
         address writeAsset;
@@ -60,14 +61,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         ExerciseWindow exerciseWindow;
     }
 
+    // storage struct
     struct OptionState {
+        // slot 0
         uint64 amountWritten;
         uint64 amountExercised;
         uint64 amountNettedOff;
     }
 
+    // memory struct
     struct AssetClearingInfo {
-        // memory struct
         address writeAsset;
         uint8 writeDecimals;
         uint64 writeAmount;
@@ -79,9 +82,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     ///////// Public Constant/Immutable
 
     uint8 public constant OPTION_CONTRACT_SCALAR = 6;
+
     uint8 public constant MAXIMUM_ERC20_DECIMALS = 18;
-    uint24 public constant MINIMUM_STRIKE_PRICE = 1e6; // TODO write test
-    uint104 public constant MAXIMUM_STRIKE_PRICE = 18446744073709551615000000; // ((2**64-1) * 10**6
+
+    uint24 public constant MINIMUM_STRIKE_PRICE = 1e6;
+
+    // max strike price = ((2**64 - 1) * 10**6
+    uint104 public constant MAXIMUM_STRIKE_PRICE = 18_446_744_073_709_551_615e6;
+
+    // max writable on any option contract ≈ 2**64 / 10**6 ≈ 1.8 trillion contracts
+    uint64 public constant MAXIMUM_WRITABLE = 1_800_000_000_000e6;
 
     ///////// Private State
 
@@ -193,7 +203,18 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         external
         view
         returns (uint64 amount)
-    {}
+    {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+
+        // Check that it is a long
+        // TODO
+
+        amount = MAXIMUM_WRITABLE - optionStored.optionState.amountWritten;
+    }
 
     ///////// Rebasing Token Views
 
@@ -403,15 +424,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // TODO decide how to combine/remove IERC20Minimal and ERC20 type cast
         uint8 baseDecimals = IERC20Minimal(baseAsset).decimals();
         uint8 quoteDecimals = IERC20Minimal(quoteAsset).decimals();
-        if (
-            baseDecimals < OPTION_CONTRACT_SCALAR || baseDecimals > MAXIMUM_ERC20_DECIMALS
-        ) {
+        if (baseDecimals < OPTION_CONTRACT_SCALAR) {
             revert OptionErrors.AssetDecimalsOutOfRange(baseAsset, baseDecimals);
         }
-        if (
-            quoteDecimals < OPTION_CONTRACT_SCALAR
-                || quoteDecimals > MAXIMUM_ERC20_DECIMALS
-        ) {
+        if (baseDecimals > MAXIMUM_ERC20_DECIMALS) {
+            revert OptionErrors.AssetDecimalsOutOfRange(baseAsset, baseDecimals);
+        }
+        if (quoteDecimals < OPTION_CONTRACT_SCALAR) {
+            revert OptionErrors.AssetDecimalsOutOfRange(quoteAsset, quoteDecimals);
+        }
+        if (quoteDecimals > MAXIMUM_ERC20_DECIMALS) {
             revert OptionErrors.AssetDecimalsOutOfRange(quoteAsset, quoteDecimals);
         }
 
@@ -434,8 +456,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         // Check that strike price is valid
+        if (strikePrice < MINIMUM_STRIKE_PRICE) {
+            revert OptionErrors.StrikePriceTooSmall(strikePrice);
+        }
         if (strikePrice > MAXIMUM_STRIKE_PRICE) {
             revert OptionErrors.StrikePriceTooLarge(strikePrice);
+        }
+
+        // Check that option amount does not exceed max writable
+        if (optionAmount > MAXIMUM_WRITABLE) {
+            revert OptionErrors.WriteAmountTooLarge(optionAmount);
         }
 
         ///////// Effects
@@ -560,8 +590,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             revert OptionErrors.OptionExpired(_optionTokenId, expiryTimestamp);
         }
 
-        // Check that amount is not greater than remainingWritableAmount
-        // TODO
+        // Check that amount is not greater than the remaining writable amount
+        // (not DRY with remainingWritableAmount() but is more gas efficient)
+        if (optionAmount > (MAXIMUM_WRITABLE - optionStored.optionState.amountWritten)) {
+            revert OptionErrors.WriteAmountTooLarge(optionAmount);
+        }
 
         ///////// Effects
         // Update the option state
@@ -597,6 +630,61 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         for (uint256 i = 0; i < idsLength; i++) {
             write(optionTokenIds[i], optionAmounts[i]);
         }
+    }
+
+    // Net Off
+
+    function netOff(uint256 _optionTokenId, uint64 optionAmount)
+        external
+        override
+        returns (uint128 writeAssetNettedOff)
+    {
+        ///////// Function Requirements
+        // Check that the exercise amount is not zero
+        if (optionAmount == 0) {
+            revert OptionErrors.ExerciseAmountZero();
+        }
+
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        address writeAsset = optionStored.writeAsset;
+        if (writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+        }
+
+        // Check that the position token type is a long
+        // TODO
+
+        // Check that the caller holds sufficient longs and shorts to net off
+        if (optionAmount > balanceOf(msg.sender, _optionTokenId)) {
+            revert OptionErrors.InsufficientLongBalance(_optionTokenId, optionAmount);
+        }
+        if (optionAmount > balanceOf(msg.sender, _optionTokenId.longToShort())) {
+            revert OptionErrors.InsufficientShortBalance(_optionTokenId, optionAmount);
+        }
+
+        ///////// Effects
+        // Update option state
+        uint64 amountNettedOff = optionStored.optionState.amountNettedOff; // gas optimization
+        optionStored.optionState.amountNettedOff = amountNettedOff + optionAmount;
+
+        // Burn the caller's longs and shorts
+        _burn(msg.sender, _optionTokenId, optionAmount);
+        _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
+
+        // Track the clearing liabilities
+        writeAssetNettedOff = uint128(optionStored.writeAmount) * uint128(optionAmount);
+        _decrementClearingLiability(writeAsset, writeAssetNettedOff);
+
+        ///////// Interactions
+        // Transfer out the write asset // TODO add 1 wei gas optimization
+        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
+
+        // Log net off event
+        emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
+
+        ///////// Protocol Invariant
+        _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
     // Exercise
@@ -670,61 +758,6 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         ///////// Protocol Invariant
         // Check that the clearing liabilities can be met
         _verifyAfter(writeAsset, exerciseAsset);
-    }
-
-    // Net Off
-
-    function netOff(uint256 _optionTokenId, uint64 optionAmount)
-        external
-        override
-        returns (uint128 writeAssetNettedOff)
-    {
-        ///////// Function Requirements
-        // Check that the exercise amount is not zero
-        if (optionAmount == 0) {
-            revert OptionErrors.ExerciseAmountZero();
-        }
-
-        // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-        address writeAsset = optionStored.writeAsset;
-        if (writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
-        }
-
-        // Check that the position token type is a long
-        // TODO
-
-        // Check that the caller holds sufficient longs and shorts to net off
-        if (optionAmount > balanceOf(msg.sender, _optionTokenId)) {
-            revert OptionErrors.InsufficientLongBalance(_optionTokenId, optionAmount);
-        }
-        if (optionAmount > balanceOf(msg.sender, _optionTokenId.longToShort())) {
-            revert OptionErrors.InsufficientShortBalance(_optionTokenId, optionAmount);
-        }
-
-        ///////// Effects
-        // Update option state
-        uint64 amountNettedOff = optionStored.optionState.amountNettedOff; // gas optimization
-        optionStored.optionState.amountNettedOff = amountNettedOff + optionAmount;
-
-        // Burn the caller's longs and shorts
-        _burn(msg.sender, _optionTokenId, optionAmount);
-        _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
-
-        // Track the clearing liabilities
-        writeAssetNettedOff = uint128(optionStored.writeAmount) * uint128(optionAmount);
-        _decrementClearingLiability(writeAsset, writeAssetNettedOff);
-
-        ///////// Interactions
-        // Transfer out the write asset // TODO add 1 wei gas optimization
-        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
-
-        // Log net off event
-        emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
-
-        ///////// Protocol Invariant
-        _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
     // Redeem

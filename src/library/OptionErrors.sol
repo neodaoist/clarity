@@ -18,6 +18,8 @@ library OptionErrors {
 
     error ExerciseWindowExpiryPast(uint32 expiryTimestamp);
 
+    error StrikePriceTooSmall(uint256 strikePrice);
+
     error StrikePriceTooLarge(uint256 strikePrice);
 
     /// @dev Also used in Exercise, Net Off, Redeem, and views
@@ -26,6 +28,10 @@ library OptionErrors {
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
 
     error WriteAmountZero();
+
+    error WriteAmountTooSmall();
+
+    error WriteAmountTooLarge(uint64 optionAmount);
 
     error BatchWriteArrayLengthZero();
 

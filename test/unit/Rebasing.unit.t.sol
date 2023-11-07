@@ -12,7 +12,7 @@ contract RebasingTest is BaseClarityMarketsTest {
 
     uint64 internal constant SOME_WRITTEN = 10.000001e6;
     uint64 internal constant MANY_WRITTEN = 6_000_000e6;
-    uint64 internal constant MAX_WRITTEN = 1_800_000_000_000e6; // max OI of 18 trillion contracts
+    uint64 internal constant MAX_WRITTEN = 1_800_000_000_000e6; // max writable on any option contract
 
     uint64[] internal writeGivens;
 
@@ -34,16 +34,16 @@ contract RebasingTest is BaseClarityMarketsTest {
     // Scenarios testing various writing, netting off, and exercising combinations:
     //
     // Let W(o) be the amount written, N(o) the amount netted off, and X(o) the amount
-    // exercised. For each of valid combination of none, some, most, and all, we assert
-    // the correctnessof totalSupply() at the option level, and balanceOf() at the
+    // exercised. For each valid combination of none, some, most, and all, we assert
+    // the correctness of totalSupply() at the option level, and balanceOf() at the
     // position level. The scenarios are lettered A-J, and for each scenario we test
-    // the relevant none/some/many/max W(o) amounts. In the e2e and invariant tests,
-    // we will assert the correctness of the rebasing functionality with multiple
+    // each of the some/many/max W(o) amounts. In the e2e and invariant tests, we
+    // will assert the correctness of the rebasing functionality with multiple
     // writers/holders and multiple transfer scenarios.
     //
     //          | N(o) -------------------------|
-    // | X(o)---|   0   | Some  | Most  |  All  |
-    // |      0 |   A   |   B   |   C   |   D   |
+    // | X(o)---| None  | Some  | Most  |  All  |
+    // |   None |   A   |   B   |   C   |   D   |
     // |   Some |   E   |   F   |   G   |   -   |
     // |   Most |   H   |   I   |   -   |   -   |
     // |    All |   J   |   -   |   -   |   -   |
