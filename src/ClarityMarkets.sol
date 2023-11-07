@@ -11,6 +11,7 @@ import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
+import {LibTime} from "./library/LibTime.sol";
 import {LibToken} from "./library/LibToken.sol";
 import {OptionErrors} from "./library/OptionErrors.sol";
 
@@ -38,8 +39,10 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     /////////
 
-    using LibToken for uint256;
+    using LibTime for uint32;
+    using LibTime for uint32[];
     using LibToken for uint248;
+    using LibToken for uint256;
     using SafeCastLib for uint256;
 
     ///////// Private Structs
@@ -65,8 +68,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     struct OptionState {
         // slot 0
         uint64 amountWritten;
-        uint64 amountExercised;
         uint64 amountNettedOff;
+        uint64 amountExercised;
     }
 
     // memory struct
@@ -492,7 +495,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         // Determine the exercise style
-        ExerciseStyle exStyle = LibToken.determineExerciseStyle(exerciseWindow);
+        ExerciseStyle exStyle = exerciseWindow.determineExerciseStyle();
 
         // Generate the option hash and option token id
         uint248 optionHash = LibToken.paramsToHash(
@@ -501,7 +504,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         _optionTokenId = optionHash.hashToId();
 
         // Store the option information
-        optionStorage[_optionTokenId.idToHash()] = OptionStorage({
+        optionStorage[optionHash] = OptionStorage({
             writeAsset: assetInfo.writeAsset,
             writeAmount: assetInfo.writeAmount,
             writeDecimals: assetInfo.writeDecimals,
@@ -512,10 +515,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             exerciseDecimals: assetInfo.exerciseDecimals,
             optionState: OptionState({
                 amountWritten: optionAmount,
-                amountExercised: 0,
-                amountNettedOff: 0
+                amountNettedOff: 0,
+                amountExercised: 0
             }),
-            exerciseWindow: LibToken.toExerciseWindow(exerciseWindow)
+            exerciseWindow: exerciseWindow.toExerciseWindow()
         });
 
         // Store the option name/symbol
