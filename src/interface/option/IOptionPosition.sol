@@ -23,8 +23,13 @@ interface IOptionPosition {
         view
         returns (uint64 amount);
 
-    function positionRedeemableAmount(uint256 optionTokenId)
+    function positionRedeemableAmount(uint256 _optionTokenId)
         external
         view
-        returns (uint64 amount, uint32 when);
+        returns (
+            uint64 writeAssetAmount,
+            uint32 writeAssetWhen,
+            uint64 exerciseAssetAmount,
+            uint32 exerciseAssetWhen
+        );
 }

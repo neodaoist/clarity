@@ -10,7 +10,6 @@ library LibTime {
     ///////// Exercise Style
 
     // TODO more thinking on European exercise, what this really means -- **no** early assignment risk for writers
-    // TODO should this all be in one library
     // TODO add Bermudan support
 
     function determineExerciseStyle(uint32[] calldata exerciseWindows)

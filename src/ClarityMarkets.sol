@@ -11,6 +11,7 @@ import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
+import {LibString} from "./library/LibString.sol";
 import {LibTime} from "./library/LibTime.sol";
 import {LibToken} from "./library/LibToken.sol";
 import {OptionErrors} from "./library/OptionErrors.sol";
@@ -39,7 +40,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     /////////
 
-    using LibTime for uint32;
+    using LibString for string;
     using LibTime for uint32[];
     using LibToken for uint248;
     using LibToken for uint256;
@@ -338,13 +339,18 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     function positionNettableAmount(uint256 _optionTokenId)
         external
         view
-        returns (uint64 amount)
+        returns (uint64 optionAmount)
     {}
 
     function positionRedeemableAmount(uint256 _optionTokenId)
         external
         view
-        returns (uint64 amount, uint32 when)
+        returns (
+            uint64 writeAssetAmount,
+            uint32 writeAssetWhen,
+            uint64 exerciseAssetAmount,
+            uint32 exerciseAssetWhen
+        )
     {}
 
     ///////// ERC6909MetadataModified
