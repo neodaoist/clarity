@@ -368,10 +368,26 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// ERC6909MetadataURI
 
-    error InvalidId(uint256 id);
-
     function tokenURI(uint256) public pure returns (string memory uri) {
-        uri = LibMetadata.json("", "", 123, "", 123);
+        // Check that the option exists
+        // TODO
+
+        // TODO build param struct from option
+
+        uri = LibMetadata.tokenURI(
+            LibMetadata.TokenUriParameters({
+                ticker: "clr-WETH-FRAX-20OCT23-1750-C",
+                instrumentType: "Option",
+                instrumentSubtype: "Call",
+                tokenType: "Long",
+                baseAssetSymbol: "WETH",
+                quoteAssetSymbol: "FRAX",
+                expiry: 1697788800,
+                exerciseStyle: ExerciseStyle.AMERICAN,
+                strikePrice: 1950e18,
+                strikeDivisor: 18
+            })
+        );
     }
 
     ///////// Option Actions

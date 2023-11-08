@@ -1,0 +1,15 @@
+{
+    "name": "Clarity - clr-WETH-FRAX-20OCT23-1950-C",
+    "description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.",
+    "image": "data:image/svg+xml;base64,XYZBASE64ENCODEDSVGHEREXYZ",
+    "attributes": {
+        "instrument_type": "Option",
+        "instrument_subtype": "Call",
+        "token_type": "Long",
+        "base_asset": "WETH",
+        "quote_asset": "FRAX",
+        "expiry": "1697788800",
+        "exercise_style": "American",
+        "strike_price": "1950"
+    }
+}
