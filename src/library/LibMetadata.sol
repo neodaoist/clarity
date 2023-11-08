@@ -15,9 +15,8 @@ library LibMetadata {
         string baseAssetSymbol;
         string quoteAssetSymbol;
         uint32 expiry;
-        IOptionToken.ExerciseStyle exerciseStyle;
+        string exerciseStyle;
         uint256 strikePrice;
-        uint8 strikeDivisor;
     }
 
     function tokenURI(TokenUriParameters memory parameters)
@@ -78,9 +77,9 @@ library LibMetadata {
                 '", "expiry": "',
                 uint256ToString(parameters.expiry), // TODO
                 '", "exercise_style": "',
-                "American", // TODO parameters.exerciseStyle,
+                parameters.exerciseStyle,
                 '", "strike_price": "',
-                uint256ToString(parameters.strikePrice / (10 ** parameters.strikeDivisor)) // TODO
+                uint256ToString(parameters.strikePrice)
             )
         );
     }
@@ -144,9 +143,9 @@ library LibMetadata {
             abi.encodePacked(
                 uint256ToString(parameters.expiry), // TODO
                 '</text><text x="50" y="272" class="secondary">Exercise style: ',
-                "American", // TODO parameters.exerciseStyle,
+                parameters.exerciseStyle,
                 '</text><text x="50" y="308" class="secondary">Strike price: ',
-                uint256ToString(parameters.strikePrice / (10 ** parameters.strikeDivisor)) // TODO
+                uint256ToString(parameters.strikePrice)
             )
         );
     }
@@ -207,17 +206,17 @@ library LibMetadata {
         return string(result);
     }
 
-    // function bytes32ToString(bytes32 _bytes32) public pure returns (string memory) {
-    //     uint8 i = 0;
-    //     while (i < 32 && _bytes32[i] != 0) {
-    //         i++;
-    //     }
-    //     bytes memory bytesArray = new bytes(i);
-    //     for (i = 0; i < 32 && _bytes32[i] != 0; i++) {
-    //         bytesArray[i] = _bytes32[i];
-    //     }
-    //     return string(bytesArray);
-    // }
+    function bytes31ToString(bytes31 _bytes31) public pure returns (string memory) {
+        uint8 i = 0;
+        while (i < 31 && _bytes31[i] != 0) {
+            i++;
+        }
+        bytes memory bytesArray = new bytes(i);
+        for (i = 0; i < 31 && _bytes31[i] != 0; i++) {
+            bytesArray[i] = _bytes31[i];
+        }
+        return string(bytesArray);
+    }
 
     function uint256ToString(uint256 _uint256) internal pure returns (string memory) {
         unchecked {

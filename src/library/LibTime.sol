@@ -4,6 +4,9 @@ pragma solidity 0.8.22;
 // Interfaces
 import {IOptionToken} from "../interface/option/IOptionToken.sol";
 
+// Libraries
+import {OptionErrors} from "../library/OptionErrors.sol";
+
 library LibTime {
     /////////
 
@@ -21,6 +24,21 @@ library LibTime {
             exerciseStyle = IOptionToken.ExerciseStyle.EUROPEAN;
         } else {
             exerciseStyle = IOptionToken.ExerciseStyle.AMERICAN;
+        }
+    }
+
+    // TODO add unit test
+    function toString(IOptionToken.ExerciseStyle exerciseStyle)
+        internal
+        pure
+        returns (string memory str)
+    {
+        if (exerciseStyle == IOptionToken.ExerciseStyle.AMERICAN) {
+            str = "American";
+        } else if (exerciseStyle == IOptionToken.ExerciseStyle.EUROPEAN) {
+            str = "European";
+        } else {
+            revert OptionErrors.InvalidExerciseStyle(); // unreachable
         }
     }
 

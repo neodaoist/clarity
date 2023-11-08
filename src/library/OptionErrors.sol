@@ -67,6 +67,8 @@ library OptionErrors {
 
     error InvalidTokenType(uint256 tokenId);
 
+    error InvalidExerciseStyle();
+
     ///////// Adapter
 
     error WrappedLongAlreadyDeployed(uint256 optionTokenId);

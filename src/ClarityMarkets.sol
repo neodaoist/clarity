@@ -40,10 +40,12 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     /////////
 
-    using LibMetadata for bytes;
+    using LibMetadata for bytes31;
     using LibTime for uint32[];
+    using LibTime for ExerciseStyle;
     using LibToken for uint248;
     using LibToken for uint256;
+    using LibToken for string;
     using SafeCastLib for uint256;
 
     ///////// Private Structs
@@ -53,16 +55,22 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // slot 0
         address writeAsset;
         uint64 writeAmount;
-        uint8 writeDecimals;
+        // uint8 writeDecimals;
         OptionType optionType;
         ExerciseStyle exerciseStyle;
         // slot 1
         address exerciseAsset;
         uint64 exerciseAmount;
-        uint8 exerciseDecimals;
+        // uint8 exerciseDecimals;
         // slot 2
         OptionState optionState;
         ExerciseWindow exerciseWindow;
+    }
+
+    struct AssetStorage {
+        // slot 0
+        bytes31 symbol;
+        uint8 decimals;
     }
 
     // storage struct
@@ -98,6 +106,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     uint64 public constant MAXIMUM_WRITABLE = 1_800_000_000_000e6;
 
     ///////// Private State
+
+    /// @notice The ticker name for each instrument
+    mapping(uint256 => string) private tickers;
+
+    mapping(address => AssetStorage) public assetStorage;
 
     mapping(uint248 => OptionStorage) private optionStorage;
 
@@ -174,7 +187,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Implicitly check that it is a valid position token type --
         // discard the upper 31B (the option hash) to get the lowest
         // 1B, then unsafely cast to PositionTokenType enum type
-        _tokenType = TokenType(tokenId & 0xFF);
+        _tokenType = TokenType(tokenId & 0xFF); // TODO replace with LibToken
 
         // TODO DRY up via refactoring into internal check function
         // Get the option from storage
@@ -355,39 +368,68 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// ERC6909MetadataModified
 
-    /// @notice The name for each id
-    mapping(uint256 id => string name) public names;
+    /// @notice The symbol for each id
+    function names(uint256 id) public view returns (string memory name) {
+        name = tickers[id].tickerToSymbol(id);
+    }
 
     /// @notice The symbol for each id
-    mapping(uint256 id => string symbol) public symbols;
+    function symbols(uint256 id) public view returns (string memory symbol) {
+        symbol = tickers[id].tickerToSymbol(id);
+    }
 
     /// @notice The number of decimals for each id (always OPTION_CONTRACT_SCALAR)
-    function decimals(uint256 /*id*/ ) public pure returns (uint8) {
-        return OPTION_CONTRACT_SCALAR;
+    function decimals(uint256 /*id*/ ) public pure returns (uint8 amount) {
+        amount = OPTION_CONTRACT_SCALAR;
     }
 
     ///////// ERC6909MetadataURI
 
-    function tokenURI(uint256) public pure returns (string memory uri) {
+    function tokenURI(uint256 tokenId) public view returns (string memory uri) {
         // Check that the option exists
-        // TODO
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionErrors.OptionDoesNotExist(tokenId);
+        }
 
-        // TODO build param struct from option
+        // Build token URI parameters from option
+        AssetStorage storage writeAssetStored = assetStorage[optionStored.writeAsset];
+        AssetStorage storage exerciseAssetStored =
+            assetStorage[optionStored.exerciseAsset];
 
-        uri = LibMetadata.tokenURI(
-            LibMetadata.TokenUriParameters({
-                ticker: "clr-WETH-FRAX-20OCT23-1750-C",
-                instrumentType: "Option",
-                instrumentSubtype: "Call",
-                tokenType: "Long",
-                baseAssetSymbol: "WETH",
-                quoteAssetSymbol: "FRAX",
-                expiry: 1697788800,
-                exerciseStyle: ExerciseStyle.AMERICAN,
-                strikePrice: 1950e18,
-                strikeDivisor: 18
-            })
-        );
+        if (optionStored.optionType == OptionType.CALL) {
+            // If call, base asset is the write asset and quote asset is the exercise asset
+            uri = LibMetadata.tokenURI(
+                LibMetadata.TokenUriParameters({
+                    ticker: "clr-WETH-FRAX-20OCT23-1750-C", // TODO clr-stETH-sFRAX-20OCT23-170050-C
+                    instrumentType: "Option",
+                    instrumentSubtype: "Call",
+                    tokenType: tokenId.toTokenTypeString(),
+                    baseAssetSymbol: writeAssetStored.symbol.bytes31ToString(),
+                    quoteAssetSymbol: exerciseAssetStored.symbol.bytes31ToString(),
+                    expiry: optionStored.exerciseWindow.expiryTimestamp,
+                    exerciseStyle: optionStored.exerciseStyle.toString(),
+                    strikePrice: optionStored.exerciseAmount
+                        / (10 ** (exerciseAssetStored.decimals - OPTION_CONTRACT_SCALAR))
+                })
+            );
+        } else {
+            // If put, base asset is the exercise asset and quote asset is the write asset
+            uri = LibMetadata.tokenURI(
+                LibMetadata.TokenUriParameters({
+                    ticker: "clr-WETH-FRAX-20OCT23-1750-P", // TODO clr-stETH-sFRAX-20OCT23-170050-C
+                    instrumentType: "Option",
+                    instrumentSubtype: "Put",
+                    tokenType: tokenId.toTokenTypeString(),
+                    baseAssetSymbol: exerciseAssetStored.symbol.bytes31ToString(),
+                    quoteAssetSymbol: writeAssetStored.symbol.bytes31ToString(),
+                    expiry: optionStored.exerciseWindow.expiryTimestamp,
+                    exerciseStyle: optionStored.exerciseStyle.toString(),
+                    strikePrice: optionStored.writeAmount
+                        / (10 ** (writeAssetStored.decimals - OPTION_CONTRACT_SCALAR))
+                })
+            );
+        }
     }
 
     ///////// Option Actions
@@ -441,8 +483,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         if (baseAsset == quoteAsset) {
             revert OptionErrors.AssetsIdentical(baseAsset, quoteAsset);
         }
-        // TODO address the danger of external call
-        // TODO decide how to combine/remove IERC20Minimal and ERC20 type cast
+        // TODO address the potential danger of unsafe external call
         uint8 baseDecimals = IERC20Minimal(baseAsset).decimals();
         uint8 quoteDecimals = IERC20Minimal(quoteAsset).decimals();
         if (baseDecimals < OPTION_CONTRACT_SCALAR) {
@@ -490,6 +531,22 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         }
 
         ///////// Effects
+        // Store the asset information, if not already stored
+        // Scope to avoid stack too deep
+        {
+            AssetStorage storage baseAssetStored = assetStorage[baseAsset];
+            if (baseAssetStored.decimals == 0) {
+                baseAssetStored.symbol = bytes31(bytes(IERC20Minimal(baseAsset).symbol()));
+                baseAssetStored.decimals = baseDecimals;
+            }
+            AssetStorage storage quoteAssetStored = assetStorage[quoteAsset];
+            if (quoteAssetStored.decimals == 0) {
+                quoteAssetStored.symbol =
+                    bytes31(bytes(IERC20Minimal(quoteAsset).symbol()));
+                quoteAssetStored.decimals = quoteDecimals;
+            }
+        }
+
         // Calculate the write and exercise amounts for clearing purposes
         AssetClearingInfo memory assetInfo; // memory struct to avoid stack too deep
         if (_optionType == OptionType.CALL) {
@@ -525,12 +582,12 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         optionStorage[optionHash] = OptionStorage({
             writeAsset: assetInfo.writeAsset,
             writeAmount: assetInfo.writeAmount,
-            writeDecimals: assetInfo.writeDecimals,
+            // writeDecimals: assetInfo.writeDecimals,
             optionType: _optionType,
             exerciseStyle: exStyle,
             exerciseAsset: assetInfo.exerciseAsset,
             exerciseAmount: assetInfo.exerciseAmount,
-            exerciseDecimals: assetInfo.exerciseDecimals,
+            // exerciseDecimals: assetInfo.exerciseDecimals,
             optionState: OptionState({
                 amountWritten: optionAmount,
                 amountNettedOff: 0,
@@ -539,8 +596,8 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             exerciseWindow: exerciseWindow.toExerciseWindow()
         });
 
-        // Store the option name/symbol
-        names[_optionTokenId] = "clr-stETH-aUSDC-20OCT23-1750-C"; // TEMP
+        // Store the option ticker
+        tickers[_optionTokenId] = "clr-stETH-sFRAX-20OCT23-170050-C"; // TODO
 
         // Log event (ideally this would be emitted in the Interactions section,
         // but emitting here affords DRYer business logic for write)
