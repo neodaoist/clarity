@@ -620,17 +620,17 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(
             clarity.totalSupply(optionTokenId),
             expectedLongTotalSupply,
-            string(abi.encodePacked("long total supply ", message))
+            string.concat("long total supply ", message)
         );
         assertEq(
             clarity.totalSupply(optionTokenId.longToShort()),
             expectedShortTotalSupply,
-            string(abi.encodePacked("short total supply ", message))
+            string.concat("short total supply ", message)
         );
         assertEq(
             clarity.totalSupply(optionTokenId.longToAssignedShort()),
             expectedAssignedShortTotalSupply,
-            string(abi.encodePacked("assigned short total supply ", message))
+            string.concat("assigned short total supply ", message)
         );
     }
 
@@ -645,17 +645,17 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(
             clarity.balanceOf(addr, optionTokenId),
             expectedLongBalance,
-            string(abi.encodePacked("long balance ", message))
+            string.concat("long balance ", message)
         );
         assertEq(
             clarity.balanceOf(addr, optionTokenId.longToShort()),
             expectedShortBalance,
-            string(abi.encodePacked("short balance ", message))
+            string.concat("short balance ", message)
         );
         assertEq(
             clarity.balanceOf(addr, optionTokenId.longToAssignedShort()),
             expectedAssignedShortBalance,
-            string(abi.encodePacked("assigned short balance ", message))
+            string.concat("assigned short balance ", message)
         );
     }
 
@@ -668,7 +668,7 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(
             asset.balanceOf(addr),
             expectedBalance,
-            string(abi.encodePacked(asset.symbol(), " balance ", message))
+            string.concat(asset.symbol(), " balance ", message)
         );
     }
 

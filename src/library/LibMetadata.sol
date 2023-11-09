@@ -24,22 +24,18 @@ library LibMetadata {
         pure
         returns (string memory uri)
     {
-        uri = string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                base64Encode(
-                    bytes(
-                        string(
-                            abi.encodePacked(
-                                '{"name": "Clarity - ',
-                                parameters.ticker,
-                                '","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,',
-                                base64Encode(bytes(svg(parameters))),
-                                jsonGeneralAttributes(parameters),
-                                jsonInstrumentAttributes(parameters),
-                                '"}}'
-                            )
-                        )
+        uri = string.concat(
+            "data:application/json;base64,",
+            base64Encode(
+                bytes(
+                    string.concat(
+                        '{"name": "Clarity - ',
+                        parameters.ticker,
+                        '","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,',
+                        base64Encode(bytes(svg(parameters))),
+                        jsonGeneralAttributes(parameters),
+                        jsonInstrumentAttributes(parameters),
+                        '"}}'
                     )
                 )
             )
@@ -51,16 +47,14 @@ library LibMetadata {
         pure
         returns (string memory attributes)
     {
-        attributes = string(
-            abi.encodePacked(
-                '", "attributes": {"instrument_type": "',
-                parameters.instrumentType,
-                '", "instrument_subtype": "',
-                parameters.instrumentSubtype,
-                '", "token_type": "',
-                parameters.tokenType,
-                '", "base_asset": "'
-            )
+        attributes = string.concat(
+            '", "attributes": {"instrument_type": "',
+            parameters.instrumentType,
+            '", "instrument_subtype": "',
+            parameters.instrumentSubtype,
+            '", "token_type": "',
+            parameters.tokenType,
+            '", "base_asset": "'
         );
     }
 
@@ -69,18 +63,16 @@ library LibMetadata {
         pure
         returns (string memory attributes)
     {
-        attributes = string(
-            abi.encodePacked(
-                parameters.baseAssetSymbol,
-                '", "quote_asset": "',
-                parameters.quoteAssetSymbol,
-                '", "expiry": "',
-                uint256ToString(parameters.expiry), // TODO
-                '", "exercise_style": "',
-                parameters.exerciseStyle,
-                '", "strike_price": "',
-                uint256ToString(parameters.strikePrice)
-            )
+        attributes = string.concat(
+            parameters.baseAssetSymbol,
+            '", "quote_asset": "',
+            parameters.quoteAssetSymbol,
+            '", "expiry": "',
+            uint256ToString(parameters.expiry), // TODO
+            '", "exercise_style": "',
+            parameters.exerciseStyle,
+            '", "strike_price": "',
+            uint256ToString(parameters.strikePrice)
         );
     }
 
@@ -89,15 +81,13 @@ library LibMetadata {
         pure
         returns (string memory _svg)
     {
-        _svg = string(
-            abi.encodePacked(
-                '<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g>',
-                unicode'<text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">',
-                svgCompoundInstrumentName(parameters),
-                svgAsset(parameters),
-                svgExercise(parameters),
-                "</text></g></svg>"
-            )
+        _svg = string.concat(
+            '<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g>',
+            unicode'<text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">',
+            svgCompoundInstrumentName(parameters),
+            svgAsset(parameters),
+            svgExercise(parameters),
+            "</text></g></svg>"
         );
     }
 
@@ -106,15 +96,13 @@ library LibMetadata {
         pure
         returns (string memory name)
     {
-        name = string(
-            abi.encodePacked(
-                parameters.tokenType,
-                " ",
-                parameters.instrumentSubtype,
-                " ",
-                parameters.instrumentType,
-                " "
-            )
+        name = string.concat(
+            parameters.tokenType,
+            " ",
+            parameters.instrumentSubtype,
+            " ",
+            parameters.instrumentType,
+            " "
         );
     }
 
@@ -123,14 +111,12 @@ library LibMetadata {
         pure
         returns (string memory _svg)
     {
-        _svg = string(
-            abi.encodePacked(
-                '</text><text x="50" y="164" class="secondary">Base asset: ',
-                parameters.baseAssetSymbol,
-                '</text><text x="50" y="200" class="secondary">Quote asset: ',
-                parameters.quoteAssetSymbol,
-                '</text><text x="50" y="236" class="secondary">Expiry: '
-            )
+        _svg = string.concat(
+            '</text><text x="50" y="164" class="secondary">Base asset: ',
+            parameters.baseAssetSymbol,
+            '</text><text x="50" y="200" class="secondary">Quote asset: ',
+            parameters.quoteAssetSymbol,
+            '</text><text x="50" y="236" class="secondary">Expiry: '
         );
     }
 
@@ -139,14 +125,12 @@ library LibMetadata {
         pure
         returns (string memory _svg)
     {
-        _svg = string(
-            abi.encodePacked(
-                uint256ToString(parameters.expiry), // TODO
-                '</text><text x="50" y="272" class="secondary">Exercise style: ',
-                parameters.exerciseStyle,
-                '</text><text x="50" y="308" class="secondary">Strike price: ',
-                uint256ToString(parameters.strikePrice)
-            )
+        _svg = string.concat(
+            uint256ToString(parameters.expiry), // TODO
+            '</text><text x="50" y="272" class="secondary">Exercise style: ',
+            parameters.exerciseStyle,
+            '</text><text x="50" y="308" class="secondary">Strike price: ',
+            uint256ToString(parameters.strikePrice)
         );
     }
 

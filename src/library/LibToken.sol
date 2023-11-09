@@ -99,11 +99,11 @@ library LibToken {
         IOptionToken.TokenType _tokenType = tokenType(tokenId);
 
         if (_tokenType == IOptionToken.TokenType.LONG) {
-            symbol = string(abi.encodePacked(ticker, "L"));
+            symbol = string.concat(ticker, "L");
         } else if (_tokenType == IOptionToken.TokenType.SHORT) {
-            symbol = string(abi.encodePacked(ticker, "S"));
+            symbol = string.concat(ticker, "S");
         } else if (_tokenType == IOptionToken.TokenType.ASSIGNED_SHORT) {
-            symbol = string(abi.encodePacked(ticker, "A"));
+            symbol = string.concat(ticker, "A");
         } else {
             revert OptionErrors.InvalidTokenType(tokenId); // unreachable
         }

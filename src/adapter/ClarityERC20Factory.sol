@@ -52,8 +52,7 @@ contract ClarityERC20Factory is IClarityERC20Factory {
 
         ///////// Interactions
         // Deploy a new ClarityWrappedLong contract
-        string memory wrappedName =
-            string(abi.encodePacked("w", clarity.names(optionTokenId)));
+        string memory wrappedName = string.concat("w", clarity.names(optionTokenId));
         ClarityWrappedLong wrapper =
             new ClarityWrappedLong(clarity, optionTokenId, wrappedName);
         wrapperAddress = address(wrapper);

@@ -45,7 +45,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     using LibTime for ExerciseStyle;
     using LibToken for uint248;
     using LibToken for uint256;
-    using LibToken for string;
+    using LibToken for string; // TODO move to LibMetadata
     using SafeCastLib for uint256;
 
     ///////// Private Structs
@@ -368,12 +368,12 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// ERC6909MetadataModified
 
-    /// @notice The symbol for each id
+    /// @notice The name/symbol for each id
     function names(uint256 id) public view returns (string memory name) {
         name = tickers[id].tickerToSymbol(id);
     }
 
-    /// @notice The symbol for each id
+    /// @notice The name/symbol for each id
     function symbols(uint256 id) public view returns (string memory symbol) {
         symbol = tickers[id].tickerToSymbol(id);
     }
@@ -392,7 +392,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             revert OptionErrors.OptionDoesNotExist(tokenId);
         }
 
-        // Build token URI parameters from option
+        // Build token URI parameters from option and assets
         AssetStorage storage writeAssetStored = assetStorage[optionStored.writeAsset];
         AssetStorage storage exerciseAssetStored =
             assetStorage[optionStored.exerciseAsset];

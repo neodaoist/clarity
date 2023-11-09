@@ -58,8 +58,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         // check deployed wrapped long
         wrappedLong = ClarityWrappedLong(wrappedLongAddress);
 
-        string memory expectedName =
-            string(abi.encodePacked("w", clarity.names(optionTokenId)));
+        string memory expectedName = string.concat("w", clarity.names(optionTokenId));
         assertEq(wrappedLong.name(), expectedName, "wrapper name");
         assertEq(wrappedLong.symbol(), expectedName, "wrapper symbol");
         assertEq(
@@ -121,7 +120,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         for (uint256 i = 0; i < numOptions; i++) {
             // check deployed wrapper
             string memory expectedName =
-                string(abi.encodePacked("w", clarity.names(optionTokenIds[i])));
+                string.concat("w", clarity.names(optionTokenIds[i]));
             assertEq(wrappedLongs[i].name(), expectedName, "wrapper name");
             assertEq(wrappedLongs[i].symbol(), expectedName, "wrapper symbol");
             assertEq(
