@@ -87,25 +87,4 @@ library LibToken {
             revert OptionErrors.InvalidTokenType(tokenId); // unreachable
         }
     }
-
-    ///////// Ticker
-
-    // TODO write unit test
-    function tickerToSymbol(string memory ticker, uint256 tokenId)
-        internal
-        pure
-        returns (string memory symbol)
-    {
-        IOptionToken.TokenType _tokenType = tokenType(tokenId);
-
-        if (_tokenType == IOptionToken.TokenType.LONG) {
-            symbol = string.concat(ticker, "L");
-        } else if (_tokenType == IOptionToken.TokenType.SHORT) {
-            symbol = string.concat(ticker, "S");
-        } else if (_tokenType == IOptionToken.TokenType.ASSIGNED_SHORT) {
-            symbol = string.concat(ticker, "A");
-        } else {
-            revert OptionErrors.InvalidTokenType(tokenId); // unreachable
-        }
-    }
 }

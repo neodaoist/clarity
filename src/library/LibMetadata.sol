@@ -4,6 +4,9 @@ pragma solidity 0.8.22;
 // Interfaces
 import {IOptionToken} from "../interface/option/IOptionToken.sol";
 
+// Libraries
+import {OptionErrors} from "../library/OptionErrors.sol";
+
 library LibMetadata {
     /////////
 
@@ -19,6 +22,52 @@ library LibMetadata {
         uint256 strikePrice;
     }
 
+    ///////// Ticker
+
+    // TODO once we implement dMMyy date format, we can fit a nice ticker in one word
+    // eg, sfrxETH-sFRAX-10OCT23-A-170050-C
+
+    function paramsToTicker(
+        string memory baseAssetSymbol,
+        string memory quoteAssetSymbol,
+        uint32 expiry,
+        IOptionToken.ExerciseStyle exerciseStyle,
+        uint256 strikePrice,
+        IOptionToken.OptionType optionType
+    ) internal pure returns (string memory ticker) {
+        ticker = string.concat(
+            baseAssetSymbol,
+            "-",
+            quoteAssetSymbol,
+            "-",
+            uint256ToString(expiry),
+            "-",
+            (exerciseStyle == IOptionToken.ExerciseStyle.AMERICAN) ? "A" : "E",
+            "-",
+            uint256ToString(strikePrice),
+            "-",
+            (optionType == IOptionToken.OptionType.CALL ? "C" : "P")
+        );
+    }
+
+    function tickerToSymbol(string memory ticker, IOptionToken.TokenType _tokenType)
+        internal
+        pure
+        returns (string memory symbol)
+    {
+        if (_tokenType == IOptionToken.TokenType.LONG) {
+            symbol = string.concat("clr-", ticker, "-Long");
+        } else if (_tokenType == IOptionToken.TokenType.SHORT) {
+            symbol = string.concat("clr-", ticker, "-Short");
+        } else if (_tokenType == IOptionToken.TokenType.ASSIGNED_SHORT) {
+            symbol = string.concat("clr-", ticker, "-AssignedShort");
+        } else {
+            revert OptionErrors.InvalidTokenType(0); // TODO unreachable
+        }
+    }
+
+    ///////// Token URI
+
     function tokenURI(TokenUriParameters memory parameters)
         internal
         pure
@@ -32,9 +81,9 @@ library LibMetadata {
                         '{"name": "Clarity - ',
                         parameters.ticker,
                         '","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,',
-                        base64Encode(bytes(svg(parameters))),
-                        jsonGeneralAttributes(parameters),
-                        jsonInstrumentAttributes(parameters),
+                        base64Encode(bytes(_svg(parameters))),
+                        _jsonGeneralAttributes(parameters),
+                        _jsonInstrumentAttributes(parameters),
                         '"}}'
                     )
                 )
@@ -42,8 +91,8 @@ library LibMetadata {
         );
     }
 
-    function jsonGeneralAttributes(TokenUriParameters memory parameters)
-        internal
+    function _jsonGeneralAttributes(TokenUriParameters memory parameters)
+        private
         pure
         returns (string memory attributes)
     {
@@ -58,8 +107,8 @@ library LibMetadata {
         );
     }
 
-    function jsonInstrumentAttributes(TokenUriParameters memory parameters)
-        internal
+    function _jsonInstrumentAttributes(TokenUriParameters memory parameters)
+        private
         pure
         returns (string memory attributes)
     {
@@ -76,23 +125,23 @@ library LibMetadata {
         );
     }
 
-    function svg(TokenUriParameters memory parameters)
-        internal
+    function _svg(TokenUriParameters memory parameters)
+        private
         pure
-        returns (string memory _svg)
+        returns (string memory svg)
     {
-        _svg = string.concat(
+        svg = string.concat(
             '<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g>',
             unicode'<text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">',
-            svgCompoundInstrumentName(parameters),
-            svgAsset(parameters),
-            svgExercise(parameters),
+            _svgCompoundInstrumentName(parameters),
+            _svgAssetInformation(parameters),
+            _svgExerciseInformation(parameters),
             "</text></g></svg>"
         );
     }
 
-    function svgCompoundInstrumentName(TokenUriParameters memory parameters)
-        internal
+    function _svgCompoundInstrumentName(TokenUriParameters memory parameters)
+        private
         pure
         returns (string memory name)
     {
@@ -106,12 +155,12 @@ library LibMetadata {
         );
     }
 
-    function svgAsset(TokenUriParameters memory parameters)
-        internal
+    function _svgAssetInformation(TokenUriParameters memory parameters)
+        private
         pure
-        returns (string memory _svg)
+        returns (string memory svg)
     {
-        _svg = string.concat(
+        svg = string.concat(
             '</text><text x="50" y="164" class="secondary">Base asset: ',
             parameters.baseAssetSymbol,
             '</text><text x="50" y="200" class="secondary">Quote asset: ',
@@ -120,12 +169,12 @@ library LibMetadata {
         );
     }
 
-    function svgExercise(TokenUriParameters memory parameters)
-        internal
+    function _svgExerciseInformation(TokenUriParameters memory parameters)
+        private
         pure
-        returns (string memory _svg)
+        returns (string memory svg)
     {
-        _svg = string.concat(
+        svg = string.concat(
             uint256ToString(parameters.expiry), // TODO
             '</text><text x="50" y="272" class="secondary">Exercise style: ',
             parameters.exerciseStyle,
@@ -134,9 +183,9 @@ library LibMetadata {
         );
     }
 
-    ///////// External
+    ///////// String Manipulation
 
-    bytes internal constant TABLE =
+    bytes private constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     bytes16 private constant _SYMBOLS = "0123456789abcdef";
 
@@ -190,7 +239,11 @@ library LibMetadata {
         return string(result);
     }
 
-    function bytes31ToString(bytes31 _bytes31) public pure returns (string memory) {
+    function toBytes31(string memory str) internal pure returns (bytes31 _bytes31) {
+        _bytes31 = bytes31(bytes(str));
+    }
+
+    function toString(bytes31 _bytes31) internal pure returns (string memory) {
         uint8 i = 0;
         while (i < 31 && _bytes31[i] != 0) {
             i++;
@@ -224,7 +277,7 @@ library LibMetadata {
         }
     }
 
-    function log10(uint256 value) internal pure returns (uint256) {
+    function log10(uint256 value) private pure returns (uint256) {
         uint256 result = 0;
         unchecked {
             if (value >= 10 ** 64) {

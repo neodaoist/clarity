@@ -9,6 +9,179 @@ contract MetadataTest is BaseClarityMarketsTest {
 
     using LibToken for uint256;
 
+    /////////
+    // function paramsToTicker(
+    //     string memory baseAssetSymbol,
+    //     string memory quoteAssetSymbol,
+    //     uint32 expiry,
+    //     IOptionToken.ExerciseStyle exerciseStyle,
+    //     uint256 strikePrice,
+    //     IOptionToken.OptionType optionType;
+
+    function test_paramsToTicker_whenAmerican() public {
+        string memory baseSymbol = "WETH";
+        string memory quoteSymbol = "FRAX";
+        uint32 expiry = FRI3;
+        IOptionToken.ExerciseStyle exerciseStyle = IOptionToken.ExerciseStyle.AMERICAN;
+        uint256 scaledDownStrikeForHumanReadable = 2050;
+
+        assertEq(
+            LibMetadata.paramsToTicker(
+                baseSymbol,
+                quoteSymbol,
+                expiry,
+                exerciseStyle,
+                scaledDownStrikeForHumanReadable,
+                IOptionToken.OptionType.CALL
+            ),
+            "WETH-FRAX-1699606800-A-2050-C",
+            "ticker when american call"
+        );
+        assertEq(
+            LibMetadata.paramsToTicker(
+                baseSymbol,
+                quoteSymbol,
+                expiry,
+                exerciseStyle,
+                scaledDownStrikeForHumanReadable,
+                IOptionToken.OptionType.PUT
+            ),
+            "WETH-FRAX-1699606800-A-2050-P",
+            "ticker when american put"
+        );
+    }
+
+    function test_paramsToTicker_whenEuropean() public {
+        string memory baseSymbol = "WETH";
+        string memory quoteSymbol = "FRAX";
+        uint32 expiry = FRI3;
+        IOptionToken.ExerciseStyle exerciseStyle = IOptionToken.ExerciseStyle.EUROPEAN;
+        uint256 scaledDownStrikeForHumanReadable = 2050;
+
+        assertEq(
+            LibMetadata.paramsToTicker(
+                baseSymbol,
+                quoteSymbol,
+                expiry,
+                exerciseStyle,
+                scaledDownStrikeForHumanReadable,
+                IOptionToken.OptionType.CALL
+            ),
+            "WETH-FRAX-1699606800-E-2050-C",
+            "ticker when european call"
+        );
+        assertEq(
+            LibMetadata.paramsToTicker(
+                baseSymbol,
+                quoteSymbol,
+                expiry,
+                exerciseStyle,
+                scaledDownStrikeForHumanReadable,
+                IOptionToken.OptionType.PUT
+            ),
+            "WETH-FRAX-1699606800-E-2050-P",
+            "ticker when european put"
+        );
+    }
+
+    function test_paramsToTicker_whenDifferentAssetsExpiryAndLargeStrike() public {
+        string memory baseSymbol = "sfrxETH";
+        string memory quoteSymbol = "sFRAX";
+        uint32 expiry = FRI4;
+        IOptionToken.ExerciseStyle exerciseStyle = IOptionToken.ExerciseStyle.AMERICAN;
+        uint256 scaledDownStrikeForHumanReadable = 777_007;
+
+        assertEq(
+            LibMetadata.paramsToTicker(
+                baseSymbol,
+                quoteSymbol,
+                expiry,
+                exerciseStyle,
+                scaledDownStrikeForHumanReadable,
+                IOptionToken.OptionType.CALL
+            ),
+            "sfrxETH-sFRAX-1700211600-A-777007-C",
+            "ticker when different assets, expiry, strike call"
+        );
+        assertEq(
+            LibMetadata.paramsToTicker(
+                baseSymbol,
+                quoteSymbol,
+                expiry,
+                exerciseStyle,
+                scaledDownStrikeForHumanReadable,
+                IOptionToken.OptionType.PUT
+            ),
+            "sfrxETH-sFRAX-1700211600-A-777007-P",
+            "ticker when different assets, expiry, strike put"
+        );
+    }
+
+    /////////
+    // function tickerToSymbol(string memory ticker, IOptionToken.TokenType _tokenType)
+    //     internal
+    //     pure
+    //     returns (string memory symbol);
+
+    function test_ticketToSymbol() public {
+        string memory callTicker = LibMetadata.paramsToTicker(
+            "WETH",
+            "LUSD",
+            FRI4,
+            IOptionToken.ExerciseStyle.AMERICAN,
+            2025,
+            IOptionToken.OptionType.CALL
+        );
+        string memory putTicker = LibMetadata.paramsToTicker(
+            "WETH",
+            "LUSD",
+            FRI4,
+            IOptionToken.ExerciseStyle.AMERICAN,
+            2025,
+            IOptionToken.OptionType.PUT
+        );
+
+        assertEq(
+            LibMetadata.tickerToSymbol(callTicker, IOptionToken.TokenType.LONG),
+            "clr-WETH-LUSD-1700211600-A-2025-C-Long",
+            "ticker to symbol long call"
+        );
+        assertEq(
+            LibMetadata.tickerToSymbol(callTicker, IOptionToken.TokenType.SHORT),
+            "clr-WETH-LUSD-1700211600-A-2025-C-Short",
+            "ticker to symbol short call"
+        );
+        assertEq(
+            LibMetadata.tickerToSymbol(callTicker, IOptionToken.TokenType.ASSIGNED_SHORT),
+            "clr-WETH-LUSD-1700211600-A-2025-C-AssignedShort",
+            "ticker to symbol assigned short call"
+        );
+
+        assertEq(
+            LibMetadata.tickerToSymbol(putTicker, IOptionToken.TokenType.LONG),
+            "clr-WETH-LUSD-1700211600-A-2025-P-Long",
+            "ticker to symbol long put"
+        );
+        assertEq(
+            LibMetadata.tickerToSymbol(putTicker, IOptionToken.TokenType.SHORT),
+            "clr-WETH-LUSD-1700211600-A-2025-P-Short",
+            "ticker to symbol short put"
+        );
+        assertEq(
+            LibMetadata.tickerToSymbol(putTicker, IOptionToken.TokenType.ASSIGNED_SHORT),
+            "clr-WETH-LUSD-1700211600-A-2025-P-AssignedShort",
+            "ticker to symbol assigned short put"
+        );
+    }
+
+    function test_tickerToSymbol() public {}
+
+    /////////
+    // function tokenURI(TokenUriParameters memory parameters)
+    //     internal
+    //     pure
+    //     returns (string memory uri);
+
     string private constant BASE64 = "data:application/json;base64,";
 
     // Initial - clr_WETH_USDC_27OCT23_1950
@@ -822,19 +995,13 @@ contract MetadataTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         (bytes31 baseSymbol, uint8 baseDecimals) = clarity.assetStorage(address(WETHLIKE));
-        assertEq(
-            LibMetadata.bytes31ToString(baseSymbol),
-            "WETHLIKE",
-            "stored base asset symbol"
-        );
+        assertEq(LibMetadata.toString(baseSymbol), "WETHLIKE", "stored base asset symbol");
         assertEq(baseDecimals, 18, "stored base asset decimals");
 
         (bytes31 quoteSymbol, uint8 quoteDecimals) =
             clarity.assetStorage(address(USDCLIKE));
         assertEq(
-            LibMetadata.bytes31ToString(quoteSymbol),
-            "USDCLIKE",
-            "stored quote asset symbol"
+            LibMetadata.toString(quoteSymbol), "USDCLIKE", "stored quote asset symbol"
         );
         assertEq(quoteDecimals, 6, "stored quote asset decimals");
     }
@@ -852,19 +1019,13 @@ contract MetadataTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         (bytes31 baseSymbol, uint8 baseDecimals) = clarity.assetStorage(address(WETHLIKE));
-        assertEq(
-            LibMetadata.bytes31ToString(baseSymbol),
-            "WETHLIKE",
-            "stored base asset symbol"
-        );
+        assertEq(LibMetadata.toString(baseSymbol), "WETHLIKE", "stored base asset symbol");
         assertEq(baseDecimals, 18, "stored base asset decimals");
 
         (bytes31 quoteSymbol, uint8 quoteDecimals) =
             clarity.assetStorage(address(USDCLIKE));
         assertEq(
-            LibMetadata.bytes31ToString(quoteSymbol),
-            "USDCLIKE",
-            "stored quote asset symbol"
+            LibMetadata.toString(quoteSymbol), "USDCLIKE", "stored quote asset symbol"
         );
         assertEq(quoteDecimals, 6, "stored quote asset decimals");
     }

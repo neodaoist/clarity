@@ -83,12 +83,12 @@ abstract contract BaseClarityMarketsTest is Test {
     uint32 internal constant DAWN = 1_697_788_800; // Fri Oct 20 2023 08:00:00 GMT+0000
     uint32 internal constant FRI1 = DAWN + 7 days;
     uint32 internal constant FRI2 = DAWN + 14 days;
-    uint32 internal constant FRI3 = DAWN + 21 days;
-    uint32 internal constant FRI4 = DAWN + 28 days;
+    uint32 internal constant FRI3 = DAWN + 21 days + 1 hours; // shakes fist, darn you DST
+    uint32 internal constant FRI4 = DAWN + 28 days + 1 hours;
     uint32 internal constant THU1 = DAWN + 6 days;
     uint32 internal constant THU2 = DAWN + 13 days;
-    uint32 internal constant THU3 = DAWN + 20 days;
-    uint32 internal constant THU4 = DAWN + 27 days;
+    uint32 internal constant THU3 = DAWN + 20 days + 1 hours;
+    uint32 internal constant THU4 = DAWN + 27 days + 1 hours;
 
     uint32[][] internal americanExDailies;
     uint32[][] internal americanExWeeklies;
