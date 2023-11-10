@@ -2,13 +2,13 @@
 pragma solidity 0.8.22;
 
 // Interfaces
-import {IOptionToken} from "../interface/option/IOptionToken.sol";
+import {IOption} from "../interface/option/IOption.sol";
 import {IWrappedOption} from "../interface/adapter/IWrappedOption.sol";
 import {IClarityWrappedLong} from "../interface/adapter/IClarityWrappedLong.sol";
 
 // Contracts
 import {ClarityMarkets} from "../ClarityMarkets.sol";
-import {OptionErrors} from "../library/OptionErrors.sol";
+import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 // External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
@@ -35,7 +35,7 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
 
     /////////
 
-    function option() external view returns (IOptionToken.Option memory) {
+    function option() external view returns (IOption.Option memory) {
         return clarity.option(optionTokenId);
     }
 
@@ -45,19 +45,19 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         ///////// Function Requirements
         // Check that the option amount is not zero
         if (optionAmount == 0) {
-            revert OptionErrors.WrapAmountZero();
+            revert IOptionErrors.WrapAmountZero();
         }
 
         // Check that the option is not expired
-        IOptionToken.Option memory _option = clarity.option(optionTokenId);
+        IOption.Option memory _option = clarity.option(optionTokenId);
         if (block.timestamp > _option.exerciseWindow.expiryTimestamp) {
-            revert OptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
+            revert IOptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
         }
 
         // Check that the caller holds sufficient longs of this option
         uint256 optionBalance = clarity.balanceOf(msg.sender, optionTokenId);
         if (optionBalance < optionAmount) {
-            revert OptionErrors.InsufficientLongBalance(optionTokenId, optionBalance);
+            revert IOptionErrors.InsufficientLongBalance(optionTokenId, optionBalance);
         }
 
         ///////// Effects
@@ -76,13 +76,13 @@ contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
         ///////// Function Requirements
         // Check that the option amount is not zero
         if (optionAmount == 0) {
-            revert OptionErrors.UnwrapAmountZero();
+            revert IOptionErrors.UnwrapAmountZero();
         }
 
         // Check that the caller holds sufficient wrapped longs of this option
         uint256 wrappedBalance = balanceOf[msg.sender];
         if (wrappedBalance < optionAmount) {
-            revert OptionErrors.InsufficientWrappedBalance(optionTokenId, wrappedBalance);
+            revert IOptionErrors.InsufficientWrappedBalance(optionTokenId, wrappedBalance);
         }
 
         ///////// Effects

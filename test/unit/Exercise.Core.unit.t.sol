@@ -736,7 +736,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_exercise_whenExerciseAmountZero() public {
-        vm.expectRevert(OptionErrors.ExerciseAmountZero.selector);
+        vm.expectRevert(IOptionErrors.ExerciseAmountZero.selector);
 
         vm.prank(holder);
         clarity.exercise(123, 0);
@@ -744,7 +744,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
     function testRevert_exercise_whenOptionDoesNotExist() public {
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, 123)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 123)
         );
 
         vm.prank(holder);
@@ -759,13 +759,13 @@ contract ExerciseTest is BaseClarityMarketsTest {
     //     vm.stopPrank();
 
     //     uint256 short = Y;
-    //     vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, short));
+    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, short));
 
     //     vm.prank(holder);
     //     clarity.exercise(short, 1e6);
 
     //     uint256 assignedShort = Z;
-    //     vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, assignedShort));
+    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, assignedShort));
 
     //     vm.prank(holder);
     //     clarity.exercise(assignedShort, 1e6);
@@ -784,7 +784,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionNotWithinExerciseWindow.selector,
+                IOptionErrors.OptionNotWithinExerciseWindow.selector,
                 americanExWeeklies[0][0],
                 americanExWeeklies[0][1]
             )
@@ -798,7 +798,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionNotWithinExerciseWindow.selector,
+                IOptionErrors.OptionNotWithinExerciseWindow.selector,
                 americanExWeeklies[0][0],
                 americanExWeeklies[0][1]
             )
@@ -820,7 +820,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseAmountExceedsLongBalance.selector, 1.000001e6, 1e6
+                IOptionErrors.ExerciseAmountExceedsLongBalance.selector, 1.000001e6, 1e6
             )
         );
 

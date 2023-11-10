@@ -2,10 +2,11 @@
 pragma solidity 0.8.22;
 
 // Interfaces
-import {IOptionToken} from "../interface/option/IOptionToken.sol";
+import {IPosition} from "../interface/IPosition.sol";
+import {IOption} from "../interface/option/IOption.sol";
 
 // Libraries
-import {OptionErrors} from "../library/OptionErrors.sol";
+import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 // TODO use named return vars
 library LibToken {
@@ -18,7 +19,7 @@ library LibToken {
         address quoteAsset,
         uint32[] memory exerciseWindow,
         uint256 strikePrice,
-        IOptionToken.OptionType optionType
+        IOption.OptionType optionType
     ) internal pure returns (uint248) {
         return uint248(
             bytes31(
@@ -65,26 +66,7 @@ library LibToken {
 
     ///////// Token Type
 
-    function tokenType(uint256 tokenId) internal pure returns (IOptionToken.TokenType) {
-        return IOptionToken.TokenType(tokenId & 0xFF);
-    }
-
-    // TODO write unit test
-    function toTokenTypeString(uint256 tokenId)
-        internal
-        pure
-        returns (string memory str)
-    {
-        IOptionToken.TokenType _tokenType = tokenType(tokenId);
-
-        if (_tokenType == IOptionToken.TokenType.LONG) {
-            str = "Long";
-        } else if (_tokenType == IOptionToken.TokenType.SHORT) {
-            str = "Short";
-        } else if (_tokenType == IOptionToken.TokenType.ASSIGNED_SHORT) {
-            str = "Assigned Short";
-        } else {
-            revert OptionErrors.InvalidTokenType(tokenId); // unreachable
-        }
+    function tokenType(uint256 tokenId) internal pure returns (IPosition.TokenType) {
+        return IPosition.TokenType(tokenId & 0xFF);
     }
 }

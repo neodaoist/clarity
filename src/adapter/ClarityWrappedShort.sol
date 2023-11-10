@@ -2,13 +2,13 @@
 pragma solidity 0.8.22;
 
 // Interfaces
-import {IOptionToken} from "../interface/option/IOptionToken.sol";
+import {IOption} from "../interface/option/IOption.sol";
 import {IWrappedOption} from "../interface/adapter/IWrappedOption.sol";
 import {IClarityWrappedShort} from "../interface/adapter/IClarityWrappedShort.sol";
 
 // Contracts
 import {ClarityMarkets} from "../ClarityMarkets.sol";
-import {OptionErrors} from "../library/OptionErrors.sol";
+import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 // External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
@@ -35,7 +35,7 @@ contract ClarityWrappedShort is IWrappedOption, IClarityWrappedShort, ERC20 {
 
     /////////
 
-    function option() external view returns (IOptionToken.Option memory) {
+    function option() external view returns (IOption.Option memory) {
         return clarity.option(optionTokenId);
     }
 

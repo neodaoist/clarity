@@ -2,7 +2,7 @@
 pragma solidity 0.8.22;
 
 // Interfaces
-import "./IOptionToken.sol";
+import "./IOption.sol";
 
 interface IOptionEvents {
     /////////
@@ -18,7 +18,7 @@ interface IOptionEvents {
         uint32 exerciseTimestamp,
         uint32 expiryTimestamp,
         uint256 strikePrice,
-        IOptionToken.OptionType optionType
+        IOption.OptionType optionType
     );
 
     event OptionsWritten(

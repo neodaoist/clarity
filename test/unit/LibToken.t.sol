@@ -19,7 +19,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -29,7 +29,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
             address(USDCLIKE),
             americanExWeeklies[0],
             uint256(1750e18),
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
 
         assertEq(actualHash, expectedHash, "paramsToHash");
@@ -60,7 +60,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -71,7 +71,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
             address(USDCLIKE),
             americanExWeeklies[0],
             uint256(1750e18),
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 tokenId = LibToken.hashToId(instrumentHash);
         uint248 actualHash = LibToken.idToHash(tokenId);
@@ -88,7 +88,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -109,7 +109,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -130,7 +130,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -150,7 +150,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -175,7 +175,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -197,7 +197,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -222,7 +222,7 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
@@ -232,16 +232,16 @@ contract LibTokenTest is BaseClarityMarketsTest {
         uint256 assignedShortId = longId | 2;
 
         assertEq(
-            LibToken.tokenType(longId), IOptionToken.TokenType.LONG, "tokenType(longId)"
+            LibToken.tokenType(longId), IPosition.TokenType.LONG, "tokenType(longId)"
         );
         assertEq(
             LibToken.tokenType(shortId),
-            IOptionToken.TokenType.SHORT,
+            IPosition.TokenType.SHORT,
             "tokenType(shortId)"
         );
         assertEq(
             LibToken.tokenType(assignedShortId),
-            IOptionToken.TokenType.ASSIGNED_SHORT,
+            IPosition.TokenType.ASSIGNED_SHORT,
             "tokenType(assignedShortId)"
         );
     }

@@ -2,68 +2,60 @@
 pragma solidity 0.8.22;
 
 // Interfaces
-import {IOptionToken} from "../interface/option/IOptionToken.sol";
+import {IPosition} from "../interface/IPosition.sol";
+import {IOption} from "../interface/option/IOption.sol";
 
 // Libraries
-import {OptionErrors} from "../library/OptionErrors.sol";
+import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 library LibMetadata {
     /////////
 
     struct TokenUriParameters {
         string ticker;
-        string instrumentType;
-        string instrumentSubtype;
-        string tokenType;
+        IOption.OptionType instrumentSubtype;
+        IPosition.TokenType tokenType;
         string baseAssetSymbol;
         string quoteAssetSymbol;
         uint32 expiry;
-        string exerciseStyle;
+        IOption.ExerciseStyle exerciseStyle;
         uint256 strikePrice;
     }
 
     ///////// Ticker
 
-    // TODO once we implement dMMyy date format, we can fit a nice ticker in one word
+    // NOTE once we implement dMMyy date formatting, we can fit a nice ticker inside one word
     // eg, sfrxETH-sFRAX-10OCT23-A-170050-C
 
     function paramsToTicker(
         string memory baseAssetSymbol,
         string memory quoteAssetSymbol,
         uint32 expiry,
-        IOptionToken.ExerciseStyle exerciseStyle,
+        IOption.ExerciseStyle exerciseStyle,
         uint256 strikePrice,
-        IOptionToken.OptionType optionType
+        IOption.OptionType optionType
     ) internal pure returns (string memory ticker) {
         ticker = string.concat(
             baseAssetSymbol,
             "-",
             quoteAssetSymbol,
             "-",
-            uint256ToString(expiry),
+            toString(expiry),
             "-",
-            (exerciseStyle == IOptionToken.ExerciseStyle.AMERICAN) ? "A" : "E",
+            (exerciseStyle == IOption.ExerciseStyle.AMERICAN) ? "A" : "E",
             "-",
-            uint256ToString(strikePrice),
+            toString(strikePrice),
             "-",
-            (optionType == IOptionToken.OptionType.CALL ? "C" : "P")
+            (optionType == IOption.OptionType.CALL ? "C" : "P")
         );
     }
 
-    function tickerToSymbol(string memory ticker, IOptionToken.TokenType _tokenType)
+    function tickerToFullTicker(string memory ticker, IPosition.TokenType tokenType)
         internal
         pure
         returns (string memory symbol)
     {
-        if (_tokenType == IOptionToken.TokenType.LONG) {
-            symbol = string.concat("clr-", ticker, "-Long");
-        } else if (_tokenType == IOptionToken.TokenType.SHORT) {
-            symbol = string.concat("clr-", ticker, "-Short");
-        } else if (_tokenType == IOptionToken.TokenType.ASSIGNED_SHORT) {
-            symbol = string.concat("clr-", ticker, "-AssignedShort");
-        } else {
-            revert OptionErrors.InvalidTokenType(0); // TODO unreachable
-        }
+        symbol = string.concat("clr-", ticker, "-", toString(tokenType));
     }
 
     ///////// Token URI
@@ -79,7 +71,7 @@ library LibMetadata {
                 bytes(
                     string.concat(
                         '{"name": "Clarity - ',
-                        parameters.ticker,
+                        tickerToFullTicker(parameters.ticker, parameters.tokenType),
                         '","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,',
                         base64Encode(bytes(_svg(parameters))),
                         _jsonGeneralAttributes(parameters),
@@ -98,11 +90,11 @@ library LibMetadata {
     {
         attributes = string.concat(
             '", "attributes": {"instrument_type": "',
-            parameters.instrumentType,
+            "Option", // TODO
             '", "instrument_subtype": "',
-            parameters.instrumentSubtype,
+            toString(parameters.instrumentSubtype),
             '", "token_type": "',
-            parameters.tokenType,
+            toString(parameters.tokenType),
             '", "base_asset": "'
         );
     }
@@ -117,11 +109,11 @@ library LibMetadata {
             '", "quote_asset": "',
             parameters.quoteAssetSymbol,
             '", "expiry": "',
-            uint256ToString(parameters.expiry), // TODO
+            toString(parameters.expiry), // TODO
             '", "exercise_style": "',
-            parameters.exerciseStyle,
+            toString(parameters.exerciseStyle),
             '", "strike_price": "',
-            uint256ToString(parameters.strikePrice)
+            toString(parameters.strikePrice)
         );
     }
 
@@ -146,11 +138,11 @@ library LibMetadata {
         returns (string memory name)
     {
         name = string.concat(
-            parameters.tokenType,
+            toString(parameters.tokenType),
             " ",
-            parameters.instrumentSubtype,
+            toString(parameters.instrumentSubtype),
             " ",
-            parameters.instrumentType,
+            "Option", // TODO
             " "
         );
     }
@@ -175,15 +167,102 @@ library LibMetadata {
         returns (string memory svg)
     {
         svg = string.concat(
-            uint256ToString(parameters.expiry), // TODO
+            toString(parameters.expiry), // TODO
             '</text><text x="50" y="272" class="secondary">Exercise style: ',
-            parameters.exerciseStyle,
+            toString(parameters.exerciseStyle),
             '</text><text x="50" y="308" class="secondary">Strike price: ',
-            uint256ToString(parameters.strikePrice)
+            toString(parameters.strikePrice)
         );
     }
 
-    ///////// String Manipulation
+    ///////// String Conversion Functions
+
+    function toBytes31(string memory str) internal pure returns (bytes31 _bytes31) {
+        _bytes31 = bytes31(bytes(str));
+    }
+
+    // TODO write unit test
+    function toString(IOption.OptionType optionType)
+        internal
+        pure
+        returns (string memory str)
+    {
+        if (optionType == IOption.OptionType.CALL) {
+            str = "Call";
+        } else if (optionType == IOption.OptionType.PUT) {
+            str = "Put";
+        } else {
+            revert IOptionErrors.InvalidInstrumentSubtype(); // unreachable
+        }
+    }
+
+    // TODO write unit test
+    function toString(IPosition.TokenType tokenType)
+        internal
+        pure
+        returns (string memory str)
+    {
+        if (tokenType == IPosition.TokenType.LONG) {
+            str = "Long";
+        } else if (tokenType == IPosition.TokenType.SHORT) {
+            str = "Short";
+        } else if (tokenType == IPosition.TokenType.ASSIGNED_SHORT) {
+            str = "Assigned";
+        } else {
+            revert IOptionErrors.TempInvalidTokenType(); // unreachable
+        }
+    }
+
+    // TODO add unit test
+    function toString(IOption.ExerciseStyle exerciseStyle)
+        internal
+        pure
+        returns (string memory str)
+    {
+        if (exerciseStyle == IOption.ExerciseStyle.AMERICAN) {
+            str = "American";
+        } else if (exerciseStyle == IOption.ExerciseStyle.EUROPEAN) {
+            str = "European";
+        } else {
+            revert IOptionErrors.InvalidExerciseStyle(); // unreachable
+        }
+    }
+
+    function toString(bytes31 _bytes31) internal pure returns (string memory) {
+        uint8 i = 0;
+        while (i < 31 && _bytes31[i] != 0) {
+            i++;
+        }
+        bytes memory bytesArray = new bytes(i);
+        for (i = 0; i < 31 && _bytes31[i] != 0; i++) {
+            bytesArray[i] = _bytes31[i];
+        }
+        return string(bytesArray);
+    }
+
+    function toString(uint256 _uint256) internal pure returns (string memory) {
+        unchecked {
+            uint256 length = log10(_uint256) + 1;
+            string memory buffer = new string(length);
+            uint256 ptr;
+            /// @solidity memory-safe-assembly
+            assembly {
+                ptr := add(buffer, add(32, length))
+            }
+            while (true) {
+                ptr--;
+                /// @solidity memory-safe-assembly
+                assembly {
+                    mstore8(ptr, byte(mod(_uint256, 10), _SYMBOLS))
+                }
+                _uint256 /= 10;
+                if (_uint256 == 0) break;
+            }
+            return buffer;
+        }
+    }
+
+    ///////// External String Manipulation Functions
 
     bytes private constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -237,44 +316,6 @@ library LibMetadata {
         }
 
         return string(result);
-    }
-
-    function toBytes31(string memory str) internal pure returns (bytes31 _bytes31) {
-        _bytes31 = bytes31(bytes(str));
-    }
-
-    function toString(bytes31 _bytes31) internal pure returns (string memory) {
-        uint8 i = 0;
-        while (i < 31 && _bytes31[i] != 0) {
-            i++;
-        }
-        bytes memory bytesArray = new bytes(i);
-        for (i = 0; i < 31 && _bytes31[i] != 0; i++) {
-            bytesArray[i] = _bytes31[i];
-        }
-        return string(bytesArray);
-    }
-
-    function uint256ToString(uint256 _uint256) internal pure returns (string memory) {
-        unchecked {
-            uint256 length = log10(_uint256) + 1;
-            string memory buffer = new string(length);
-            uint256 ptr;
-            /// @solidity memory-safe-assembly
-            assembly {
-                ptr := add(buffer, add(32, length))
-            }
-            while (true) {
-                ptr--;
-                /// @solidity memory-safe-assembly
-                assembly {
-                    mstore8(ptr, byte(mod(_uint256, 10), _SYMBOLS))
-                }
-                _uint256 /= 10;
-                if (_uint256 == 0) break;
-            }
-            return buffer;
-        }
     }
 
     function log10(uint256 value) private pure returns (uint256) {

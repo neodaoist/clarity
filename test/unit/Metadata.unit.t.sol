@@ -14,15 +14,15 @@ contract MetadataTest is BaseClarityMarketsTest {
     //     string memory baseAssetSymbol,
     //     string memory quoteAssetSymbol,
     //     uint32 expiry,
-    //     IOptionToken.ExerciseStyle exerciseStyle,
+    //     IOption.ExerciseStyle exerciseStyle,
     //     uint256 strikePrice,
-    //     IOptionToken.OptionType optionType;
+    //     IOption.OptionType optionType;
 
     function test_paramsToTicker_whenAmerican() public {
         string memory baseSymbol = "WETH";
         string memory quoteSymbol = "FRAX";
         uint32 expiry = FRI3;
-        IOptionToken.ExerciseStyle exerciseStyle = IOptionToken.ExerciseStyle.AMERICAN;
+        IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.AMERICAN;
         uint256 scaledDownStrikeForHumanReadable = 2050;
 
         assertEq(
@@ -32,7 +32,7 @@ contract MetadataTest is BaseClarityMarketsTest {
                 expiry,
                 exerciseStyle,
                 scaledDownStrikeForHumanReadable,
-                IOptionToken.OptionType.CALL
+                IOption.OptionType.CALL
             ),
             "WETH-FRAX-1699606800-A-2050-C",
             "ticker when american call"
@@ -44,7 +44,7 @@ contract MetadataTest is BaseClarityMarketsTest {
                 expiry,
                 exerciseStyle,
                 scaledDownStrikeForHumanReadable,
-                IOptionToken.OptionType.PUT
+                IOption.OptionType.PUT
             ),
             "WETH-FRAX-1699606800-A-2050-P",
             "ticker when american put"
@@ -55,7 +55,7 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory baseSymbol = "WETH";
         string memory quoteSymbol = "FRAX";
         uint32 expiry = FRI3;
-        IOptionToken.ExerciseStyle exerciseStyle = IOptionToken.ExerciseStyle.EUROPEAN;
+        IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.EUROPEAN;
         uint256 scaledDownStrikeForHumanReadable = 2050;
 
         assertEq(
@@ -65,7 +65,7 @@ contract MetadataTest is BaseClarityMarketsTest {
                 expiry,
                 exerciseStyle,
                 scaledDownStrikeForHumanReadable,
-                IOptionToken.OptionType.CALL
+                IOption.OptionType.CALL
             ),
             "WETH-FRAX-1699606800-E-2050-C",
             "ticker when european call"
@@ -77,7 +77,7 @@ contract MetadataTest is BaseClarityMarketsTest {
                 expiry,
                 exerciseStyle,
                 scaledDownStrikeForHumanReadable,
-                IOptionToken.OptionType.PUT
+                IOption.OptionType.PUT
             ),
             "WETH-FRAX-1699606800-E-2050-P",
             "ticker when european put"
@@ -88,7 +88,7 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory baseSymbol = "sfrxETH";
         string memory quoteSymbol = "sFRAX";
         uint32 expiry = FRI4;
-        IOptionToken.ExerciseStyle exerciseStyle = IOptionToken.ExerciseStyle.AMERICAN;
+        IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.AMERICAN;
         uint256 scaledDownStrikeForHumanReadable = 777_007;
 
         assertEq(
@@ -98,7 +98,7 @@ contract MetadataTest is BaseClarityMarketsTest {
                 expiry,
                 exerciseStyle,
                 scaledDownStrikeForHumanReadable,
-                IOptionToken.OptionType.CALL
+                IOption.OptionType.CALL
             ),
             "sfrxETH-sFRAX-1700211600-A-777007-C",
             "ticker when different assets, expiry, strike call"
@@ -110,7 +110,7 @@ contract MetadataTest is BaseClarityMarketsTest {
                 expiry,
                 exerciseStyle,
                 scaledDownStrikeForHumanReadable,
-                IOptionToken.OptionType.PUT
+                IOption.OptionType.PUT
             ),
             "sfrxETH-sFRAX-1700211600-A-777007-P",
             "ticker when different assets, expiry, strike put"
@@ -118,63 +118,80 @@ contract MetadataTest is BaseClarityMarketsTest {
     }
 
     /////////
-    // function tickerToSymbol(string memory ticker, IOptionToken.TokenType _tokenType)
+    // function tickerToFullTicker(string memory ticker, IPosition.TokenType _tokenType)
     //     internal
     //     pure
     //     returns (string memory symbol);
 
-    function test_ticketToSymbol() public {
+    function test_tickerToFullTicker() public {
         string memory callTicker = LibMetadata.paramsToTicker(
             "WETH",
             "LUSD",
             FRI4,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             2025,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         string memory putTicker = LibMetadata.paramsToTicker(
             "WETH",
             "LUSD",
             FRI4,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             2025,
-            IOptionToken.OptionType.PUT
+            IOption.OptionType.PUT
         );
 
         assertEq(
-            LibMetadata.tickerToSymbol(callTicker, IOptionToken.TokenType.LONG),
+            LibMetadata.tickerToFullTicker(callTicker, IPosition.TokenType.LONG),
             "clr-WETH-LUSD-1700211600-A-2025-C-Long",
             "ticker to symbol long call"
         );
         assertEq(
-            LibMetadata.tickerToSymbol(callTicker, IOptionToken.TokenType.SHORT),
+            LibMetadata.tickerToFullTicker(callTicker, IPosition.TokenType.SHORT),
             "clr-WETH-LUSD-1700211600-A-2025-C-Short",
             "ticker to symbol short call"
         );
         assertEq(
-            LibMetadata.tickerToSymbol(callTicker, IOptionToken.TokenType.ASSIGNED_SHORT),
-            "clr-WETH-LUSD-1700211600-A-2025-C-AssignedShort",
-            "ticker to symbol assigned short call"
+            LibMetadata.tickerToFullTicker(
+                callTicker, IPosition.TokenType.ASSIGNED_SHORT
+            ),
+            "clr-WETH-LUSD-1700211600-A-2025-C-Assigned",
+            "ticker to symbol Assigned call"
         );
 
         assertEq(
-            LibMetadata.tickerToSymbol(putTicker, IOptionToken.TokenType.LONG),
+            LibMetadata.tickerToFullTicker(putTicker, IPosition.TokenType.LONG),
             "clr-WETH-LUSD-1700211600-A-2025-P-Long",
             "ticker to symbol long put"
         );
         assertEq(
-            LibMetadata.tickerToSymbol(putTicker, IOptionToken.TokenType.SHORT),
+            LibMetadata.tickerToFullTicker(putTicker, IPosition.TokenType.SHORT),
             "clr-WETH-LUSD-1700211600-A-2025-P-Short",
             "ticker to symbol short put"
         );
         assertEq(
-            LibMetadata.tickerToSymbol(putTicker, IOptionToken.TokenType.ASSIGNED_SHORT),
-            "clr-WETH-LUSD-1700211600-A-2025-P-AssignedShort",
-            "ticker to symbol assigned short put"
+            LibMetadata.tickerToFullTicker(
+                putTicker, IPosition.TokenType.ASSIGNED_SHORT
+            ),
+            "clr-WETH-LUSD-1700211600-A-2025-P-Assigned",
+            "ticker to symbol Assigned put"
         );
     }
 
-    function test_tickerToSymbol() public {}
+    /////////
+    // function names(uint256 id) public view returns (string memory name);\
+
+    // TODO
+
+    /////////
+    // function symbols(uint256 id) public view returns (string memory symbol);
+
+    // TODO
+
+    /////////
+    // function decimals(uint256 /*id*/ ) public pure returns (uint8 amount);
+
+    // TODO
 
     /////////
     // function tokenURI(TokenUriParameters memory parameters)
@@ -182,146 +199,148 @@ contract MetadataTest is BaseClarityMarketsTest {
     //     pure
     //     returns (string memory uri);
 
+    // TODO refactor test suite to make less brittle
+
     string private constant BASE64 = "data:application/json;base64,";
 
-    // Initial - clr_WETH_USDC_27OCT23_1950
+    // Initial - clr-WETH-USDC-1698393600-A-1700-C-Long
     // Long Call
     string private constant JSONPRE_clr_WETH_USDC_27OCT23_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-A-1700-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant SVG_clr_WETH_USDC_27OCT23_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant JSONPOST_clr_WETH_USDC_27OCT23_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
     // Long Put
     string private constant JSONPRE_clr_WETH_USDC_27OCT23_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-A-1700-P-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant SVG_clr_WETH_USDC_27OCT23_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant JSONPOST_clr_WETH_USDC_27OCT23_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
 
     /////////
 
-    // Different token types - Shorts and Assigned Shorts
+    // Different token types - Shorts and Assigneds
     // Short Call
     string private constant TOKEN_TYPE_SHORT_JSONPRE_clr_WETH_USDC_27OCT23_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-A-1700-C-Short","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant TOKEN_TYPE_SHORT_SVG_clr_WETH_USDC_27OCT23_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Short Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Short Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant TOKEN_TYPE_SHORT_JSONPOST_clr_WETH_USDC_27OCT23_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Short", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Short", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
     // Short Put
     string private constant TOKEN_TYPE_SHORT_JSONPRE_clr_WETH_USDC_27OCT23_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-A-1700-P-Short","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant TOKEN_TYPE_SHORT_SVG_clr_WETH_USDC_27OCT23_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Short Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Short Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant TOKEN_TYPE_SHORT_JSONPOST_clr_WETH_USDC_27OCT23_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Short", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
-    // Assigned Short Call
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Short", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
+    // Assigned Call
     string private constant TOKEN_TYPE_ASSIGNED_JSONPRE_clr_WETH_USDC_27OCT23_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-A-1700-C-Assigned","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant TOKEN_TYPE_ASSIGNED_SVG_clr_WETH_USDC_27OCT23_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Assigned Short Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Assigned Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant TOKEN_TYPE_ASSIGNED_JSONPOST_clr_WETH_USDC_27OCT23_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Assigned Short", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
-    // Assigned Short Put
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Assigned", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
+    // Assigned Put
     string private constant TOKEN_TYPE_ASSIGNED_JSONPRE_clr_WETH_USDC_27OCT23_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-A-1700-P-Assigned","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant TOKEN_TYPE_ASSIGNED_SVG_clr_WETH_USDC_27OCT23_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Assigned Short Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Assigned Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant TOKEN_TYPE_ASSIGNED_JSONPOST_clr_WETH_USDC_27OCT23_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Assigned Short", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Assigned", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
 
     // Different expiries - 3NOV23 (1698998400), 8NOV23 (1699434000), and 20APR24 (1713600000)
     // Long Call
     string private constant EXPIRY1_JSONPRE_clr_WETH_USDC_3NOV23_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698998400-A-1700-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EXPIRY1_SVG_clr_WETH_USDC_3NOV23_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698998400</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698998400</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EXPIRY1_JSONPOST_clr_WETH_USDC_3NOV23_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698998400", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698998400", "exercise_style": "American", "strike_price": "1700"}}';
     // Long Put
     string private constant EXPIRY1_JSONPRE_clr_WETH_USDC_3NOV23_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698998400-A-1700-P-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EXPIRY1_SVG_clr_WETH_USDC_3NOV23_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698998400</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698998400</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EXPIRY1_JSONPOST_clr_WETH_USDC_3NOV23_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698998400", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698998400", "exercise_style": "American", "strike_price": "1700"}}';
     // Long Call
     string private constant EXPIRY2_JSONPRE_clr_WETH_USDC_8NOV23_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1699434000-A-1700-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EXPIRY2_SVG_clr_WETH_USDC_8NOV23_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1699434000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1699434000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EXPIRY2_JSONPOST_clr_WETH_USDC_8NOV23_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1699434000", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1699434000", "exercise_style": "American", "strike_price": "1700"}}';
     // Long Put
     string private constant EXPIRY2_JSONPRE_clr_WETH_USDC_8NOV23_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1699434000-A-1700-P-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EXPIRY2_SVG_clr_WETH_USDC_8NOV23_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1699434000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1699434000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EXPIRY2_JSONPOST_clr_WETH_USDC_8NOV23_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1699434000", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1699434000", "exercise_style": "American", "strike_price": "1700"}}';
     // Long Call
     string private constant EXPIRY3_JSONPRE_clr_WETH_USDC_20APR24_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1713600000-A-1700-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EXPIRY3_SVG_clr_WETH_USDC_20APR24_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1713600000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1713600000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EXPIRY3_JSONPOST_clr_WETH_USDC_20APR24_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1713600000", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1713600000", "exercise_style": "American", "strike_price": "1700"}}';
     // Long Put
     string private constant EXPIRY3_JSONPRE_clr_WETH_USDC_20APR24_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1713600000-A-1700-P-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EXPIRY3_SVG_clr_WETH_USDC_20APR24_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1713600000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1713600000</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EXPIRY3_JSONPOST_clr_WETH_USDC_20APR24_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1713600000", "exercise_style": "American", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1713600000", "exercise_style": "American", "strike_price": "1700"}}';
 
     // Different exercise style - European
     // Long Call
     string private constant EX_STYLE_EURO_JSONPRE_clr_WETH_USDC_27OCT23_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-E-1700-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EX_STYLE_EURO_SVG_clr_WETH_USDC_27OCT23_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: European</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: European</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EX_STYLE_EURO_JSONPOST_clr_WETH_USDC_27OCT23_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "European", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "European", "strike_price": "1700"}}';
     // Long Put
     string private constant EX_STYLE_EURO_JSONPRE_clr_WETH_USDC_27OCT23_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-USDC-1698393600-E-1700-P-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant EX_STYLE_EURO_SVG_clr_WETH_USDC_27OCT23_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: USDCLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: European</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: USDC</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: European</text><text x="50" y="308" class="secondary">Strike price: 1700</text></g></svg>';
     string private constant EX_STYLE_EURO_JSONPOST_clr_WETH_USDC_27OCT23_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "USDCLIKE", "expiry": "1698393600", "exercise_style": "European", "strike_price": "1700"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "European", "strike_price": "1700"}}';
 
     // Different strike - 2022
     // Long Call
     string private constant STRIKE_JSONPRE_clr_WETH_LUSD_27OCT23_2022_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-LUSD-1698393600-A-2022-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant STRIKE_SVG_clr_WETH_LUSD_27OCT23_2022_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: LUSDLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 2022</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: LUSD</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 2022</text></g></svg>';
     string private constant STRIKE_JSONPOST_clr_WETH_LUSD_27OCT23_2022_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "LUSDLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "2022"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WETH", "quote_asset": "LUSD", "expiry": "1698393600", "exercise_style": "American", "strike_price": "2022"}}';
     // Long Put
     string private constant STRIKE_JSONPRE_clr_WETH_LUSD_27OCT23_2022_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WETH-LUSD-1698393600-A-2022-P-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant STRIKE_SVG_clr_WETH_LUSD_27OCT23_2022_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETHLIKE</text><text x="50" y="200" class="secondary">Quote asset: LUSDLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 2022</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WETH</text><text x="50" y="200" class="secondary">Quote asset: LUSD</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 2022</text></g></svg>';
     string private constant STRIKE_JSONPOST_clr_WETH_LUSD_27OCT23_2022_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETHLIKE", "quote_asset": "LUSDLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "2022"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WETH", "quote_asset": "LUSD", "expiry": "1698393600", "exercise_style": "American", "strike_price": "2022"}}';
 
     // Different assets - WBTC and FRAX
     string private constant ASSETS_JSONPRE_clr_WBTC_FRAX_27OCT23_1950_C =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-C","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WBTC-FRAX-1698393600-A-35000-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant ASSETS_SVG_clr_WBTC_FRAX_27OCT23_1950_C =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WBTCLIKE</text><text x="50" y="200" class="secondary">Quote asset: FRAXLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 35000</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Call Option </text><text x="50" y="164" class="secondary">Base asset: WBTC</text><text x="50" y="200" class="secondary">Quote asset: FRAX</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 35000</text></g></svg>';
     string private constant ASSETS_JSONPOST_clr_WBTC_FRAX_27OCT23_1950_C =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WBTCLIKE", "quote_asset": "FRAXLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "35000"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Call", "token_type": "Long", "base_asset": "WBTC", "quote_asset": "FRAX", "expiry": "1698393600", "exercise_style": "American", "strike_price": "35000"}}';
 
     string private constant ASSETS_JSONPRE_clr_WBTC_FRAX_27OCT23_1950_P =
-        '{"name": "Clarity - clr-WETH-FRAX-20OCT23-1750-P","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
+        '{"name": "Clarity - clr-WBTC-FRAX-1698393600-A-35000-P-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
     string private constant ASSETS_SVG_clr_WBTC_FRAX_27OCT23_1950_P =
-        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WBTCLIKE</text><text x="50" y="200" class="secondary">Quote asset: FRAXLIKE</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 35000</text></g></svg>';
+        unicode'<svg width="350px" height="350px" viewBox="0 0 350 350" xmlns="http://www.w3.org/2000/svg"><style>.primary { fill: #64e380; font-family: sans-serif; font-size: 36px; }.secondary { fill: #64e380; font-family: sans-serif; font-size: 24px;}.tertiary { fill: #64e380; font-family: sans-serif; font-size: 18px; font-style: italic }</style><rect width="100%" height="100%" fill="#2b2b28" /><g><text x="20" y="68" class="primary">Clarity ––––––––––</text><text x="50" y="116" class="tertiary">Long Put Option </text><text x="50" y="164" class="secondary">Base asset: WBTC</text><text x="50" y="200" class="secondary">Quote asset: FRAX</text><text x="50" y="236" class="secondary">Expiry: 1698393600</text><text x="50" y="272" class="secondary">Exercise style: American</text><text x="50" y="308" class="secondary">Strike price: 35000</text></g></svg>';
     string private constant ASSETS_JSONPOST_clr_WBTC_FRAX_27OCT23_1950_P =
-        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WBTCLIKE", "quote_asset": "FRAXLIKE", "expiry": "1698393600", "exercise_style": "American", "strike_price": "35000"}}';
+        '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Long", "base_asset": "WBTC", "quote_asset": "FRAX", "expiry": "1698393600", "exercise_style": "American", "strike_price": "35000"}}';
 
     /////////
 
@@ -469,7 +488,7 @@ contract MetadataTest is BaseClarityMarketsTest {
         assertEq(putTokenURI, expectedPut, "tokenURI initial short put");
     }
 
-    function test_tokenURI_assignedShort() public {
+    function test_tokenURI_assigned() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 callOptionTokenId = clarity.writeCall({
@@ -505,7 +524,7 @@ contract MetadataTest is BaseClarityMarketsTest {
         );
 
         // console2.log("Call tokenURI", callTokenURI);
-        assertEq(callTokenURI, expectedCall, "tokenURI initial assigned short call");
+        assertEq(callTokenURI, expectedCall, "tokenURI initial assigned call");
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
@@ -541,7 +560,7 @@ contract MetadataTest is BaseClarityMarketsTest {
         );
 
         // console2.log("Put tokenURI", putTokenURI);
-        assertEq(putTokenURI, expectedPut, "tokenURI initial assigned short put");
+        assertEq(putTokenURI, expectedPut, "tokenURI initial assigned put");
     }
 
     function test_tokenURI_differentExpiry1() public {
@@ -994,15 +1013,14 @@ contract MetadataTest is BaseClarityMarketsTest {
         });
         vm.stopPrank();
 
-        (bytes31 baseSymbol, uint8 baseDecimals) = clarity.assetStorage(address(WETHLIKE));
-        assertEq(LibMetadata.toString(baseSymbol), "WETHLIKE", "stored base asset symbol");
+        (bytes31 baseSymbol, uint8 baseDecimals) =
+            clarity.assetMetadataStorage(address(WETHLIKE));
+        assertEq(LibMetadata.toString(baseSymbol), "WETH", "stored base asset symbol");
         assertEq(baseDecimals, 18, "stored base asset decimals");
 
         (bytes31 quoteSymbol, uint8 quoteDecimals) =
-            clarity.assetStorage(address(USDCLIKE));
-        assertEq(
-            LibMetadata.toString(quoteSymbol), "USDCLIKE", "stored quote asset symbol"
-        );
+            clarity.assetMetadataStorage(address(USDCLIKE));
+        assertEq(LibMetadata.toString(quoteSymbol), "USDC", "stored quote asset symbol");
         assertEq(quoteDecimals, 6, "stored quote asset decimals");
     }
 
@@ -1018,15 +1036,14 @@ contract MetadataTest is BaseClarityMarketsTest {
         });
         vm.stopPrank();
 
-        (bytes31 baseSymbol, uint8 baseDecimals) = clarity.assetStorage(address(WETHLIKE));
-        assertEq(LibMetadata.toString(baseSymbol), "WETHLIKE", "stored base asset symbol");
+        (bytes31 baseSymbol, uint8 baseDecimals) =
+            clarity.assetMetadataStorage(address(WETHLIKE));
+        assertEq(LibMetadata.toString(baseSymbol), "WETH", "stored base asset symbol");
         assertEq(baseDecimals, 18, "stored base asset decimals");
 
         (bytes31 quoteSymbol, uint8 quoteDecimals) =
-            clarity.assetStorage(address(USDCLIKE));
-        assertEq(
-            LibMetadata.toString(quoteSymbol), "USDCLIKE", "stored quote asset symbol"
-        );
+            clarity.assetMetadataStorage(address(USDCLIKE));
+        assertEq(LibMetadata.toString(quoteSymbol), "USDC", "stored quote asset symbol");
         assertEq(quoteDecimals, 6, "stored quote asset decimals");
     }
 }

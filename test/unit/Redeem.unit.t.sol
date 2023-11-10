@@ -42,7 +42,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         vm.warp(americanExWeeklies[0][1]);
 
         // Then
-        vm.expectRevert(OptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
+        vm.expectRevert(IOptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
 
         // When
         vm.prank(writer);
@@ -114,7 +114,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // Then
-        vm.expectRevert(OptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
+        vm.expectRevert(IOptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
 
         // When
         vm.prank(writer);
@@ -286,7 +286,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         vm.warp(americanExWeeklies[0][1]);
 
         // Then
-        vm.expectRevert(OptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
+        vm.expectRevert(IOptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
 
         // When
         vm.prank(writer);
@@ -360,7 +360,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // Then
-        vm.expectRevert(OptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
+        vm.expectRevert(IOptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
 
         // When
         vm.prank(writer);
@@ -587,7 +587,7 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.CanOnlyRedeemShort.selector, longTokenId)
+            abi.encodeWithSelector(IOptionErrors.CanOnlyRedeemShort.selector, longTokenId)
         );
 
         // When
@@ -613,7 +613,7 @@ contract RedeemTest is BaseClarityMarketsTest {
         // Then
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.CanOnlyRedeemShort.selector, assignedShortTokenId
+                IOptionErrors.CanOnlyRedeemShort.selector, assignedShortTokenId
             )
         );
 
@@ -628,13 +628,13 @@ contract RedeemTest is BaseClarityMarketsTest {
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
             strikePrice: 1700e18,
-            optionType: IOptionToken.OptionType.CALL
+            optionType: IOption.OptionType.CALL
         }).hashToId().longToShort();
 
         // Then
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, nonexistentOptionTokenId
+                IOptionErrors.OptionDoesNotExist.selector, nonexistentOptionTokenId
             )
         );
 
@@ -661,7 +661,7 @@ contract RedeemTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.ShortBalanceZero.selector, shortTokenId)
+            abi.encodeWithSelector(IOptionErrors.ShortBalanceZero.selector, shortTokenId)
         );
 
         // When

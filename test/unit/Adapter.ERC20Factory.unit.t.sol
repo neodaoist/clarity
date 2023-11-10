@@ -67,11 +67,11 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         assertEq(wrappedLong.optionTokenId(), optionTokenId, "wrapper optionTokenId");
         // assertEq(wrapper.option(), clarity.option(optionTokenId)); // TODO consider adding
-        IOptionToken.Option memory option = wrappedLong.option();
-        assertEq(option.optionType, IOptionToken.OptionType.CALL, "wrapper optionType");
+        IOption.Option memory option = wrappedLong.option();
+        assertEq(option.optionType, IOption.OptionType.CALL, "wrapper optionType");
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "wrapper exerciseStyle"
         );
         assertEq(
@@ -134,13 +134,13 @@ contract AdapterTest is BaseClarityMarketsTest {
                 optionTokenIds[i],
                 "wrapper optionTokenId"
             );
-            IOptionToken.Option memory option = wrappedLongs[i].option();
+            IOption.Option memory option = wrappedLongs[i].option();
             assertEq(
-                option.optionType, IOptionToken.OptionType.CALL, "wrapper optionType"
+                option.optionType, IOption.OptionType.CALL, "wrapper optionType"
             );
             assertEq(
                 option.exerciseStyle,
-                IOptionToken.ExerciseStyle.AMERICAN,
+                IOption.ExerciseStyle.AMERICAN,
                 "wrapper exerciseStyle"
             );
             assertEq(
@@ -188,7 +188,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
     function testRevert_deployWrappedLong_whenOptionDoesNotExist() public {
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, 456)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 456)
         );
 
         vm.prank(writer);
@@ -206,7 +206,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.WrappedLongAlreadyDeployed.selector, optionTokenId
+                IOptionErrors.WrappedLongAlreadyDeployed.selector, optionTokenId
             )
         );
 
@@ -226,7 +226,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionExpired.selector,
+                IOptionErrors.OptionExpired.selector,
                 optionTokenId,
                 uint32(block.timestamp)
             )

@@ -2,16 +2,16 @@
 pragma solidity 0.8.22;
 
 // Interfaces
-import {IOptionToken} from "./option/IOptionToken.sol";
-import {IOptionState} from "./option/IOptionState.sol";
+import {IOption} from "./option/IOption.sol";
 import {IOptionActions} from "./option/IOptionActions.sol";
 import {IOptionEvents} from "./option/IOptionEvents.sol";
-import {IOptionPosition} from "./option/IOptionPosition.sol";
+import {IOptionErrors} from "./option/IOptionErrors.sol";
+import {IOptionState} from "./option/IOptionState.sol";
 
 interface IOptionMarkets is
-    IOptionToken,
-    IOptionState,
+    IOption,
     IOptionActions,
     IOptionEvents,
-    IOptionPosition
+    IOptionErrors,
+    IOptionState
 {}

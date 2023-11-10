@@ -154,7 +154,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
-        vm.expectRevert(OptionErrors.WrapAmountZero.selector);
+        vm.expectRevert(IOptionErrors.WrapAmountZero.selector);
 
         vm.prank(writer);
         wrappedLong.wrapLongs(0);
@@ -173,7 +173,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionExpired.selector,
+                IOptionErrors.OptionExpired.selector,
                 optionTokenId,
                 uint32(block.timestamp)
             )
@@ -194,7 +194,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.InsufficientLongBalance.selector, optionTokenId, 10e6
+                IOptionErrors.InsufficientLongBalance.selector, optionTokenId, 10e6
             )
         );
 
@@ -391,7 +391,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // Then
-        vm.expectRevert(OptionErrors.UnwrapAmountZero.selector);
+        vm.expectRevert(IOptionErrors.UnwrapAmountZero.selector);
 
         // When
         vm.prank(writer);
@@ -413,7 +413,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         // Then
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.InsufficientWrappedBalance.selector, optionTokenId, 8e6
+                IOptionErrors.InsufficientWrappedBalance.selector, optionTokenId, 8e6
             )
         );
 

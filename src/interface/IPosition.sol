@@ -1,8 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
-interface IOptionPosition {
+interface IPosition {
     /////////
+
+    enum TokenType {
+        LONG,
+        SHORT,
+        ASSIGNED_SHORT
+    }
 
     /// @notice Explain to an end user what this does
     struct Position {
@@ -13,17 +19,19 @@ interface IOptionPosition {
 
     /////////
 
-    function position(uint256 optionTokenId)
+    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType);
+
+    function position(uint256 tokenId)
         external
         view
         returns (Position memory position, int160 magnitude);
 
-    function positionNettableAmount(uint256 optionTokenId)
+    function positionNettableAmount(uint256 tokenId)
         external
         view
         returns (uint64 amount);
 
-    function positionRedeemableAmount(uint256 _optionTokenId)
+    function positionRedeemableAmount(uint256 tokenId)
         external
         view
         returns (

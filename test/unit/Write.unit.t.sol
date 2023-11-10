@@ -32,12 +32,12 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // check option exists
-        IOptionToken.Option memory option = clarity.option(optionTokenId);
+        IOption.Option memory option = clarity.option(optionTokenId);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -45,11 +45,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.CALL, "option stored optionType"
+            option.optionType, IOption.OptionType.CALL, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -81,12 +81,12 @@ contract WriteTest is BaseClarityMarketsTest {
         );
 
         // check option exists
-        IOptionToken.Option memory option = clarity.option(optionTokenId);
+        IOption.Option memory option = clarity.option(optionTokenId);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -94,11 +94,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.CALL, "option stored optionType"
+            option.optionType, IOption.OptionType.CALL, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -141,12 +141,12 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // check option exists
-        IOptionToken.Option memory option = clarity.option(oti1);
+        IOption.Option memory option = clarity.option(oti1);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -154,11 +154,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.CALL, "option stored optionType"
+            option.optionType, IOption.OptionType.CALL, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -196,7 +196,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -204,11 +204,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1750e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.CALL, "option stored optionType"
+            option.optionType, IOption.OptionType.CALL, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -236,7 +236,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: FRI1 + 1 seconds,
                 expiryTimestamp: FRI2
             }),
@@ -244,11 +244,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.CALL, "option stored optionType"
+            option.optionType, IOption.OptionType.CALL, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -277,7 +277,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -285,11 +285,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 20_000e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.CALL, "option stored optionType"
+            option.optionType, IOption.OptionType.CALL, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -316,7 +316,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(USDCLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -324,11 +324,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1800e6, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.CALL, "option stored optionType"
+            option.optionType, IOption.OptionType.CALL, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -392,7 +392,7 @@ contract WriteTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1700e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
@@ -404,7 +404,7 @@ contract WriteTest is BaseClarityMarketsTest {
             americanExWeeklies[0][0],
             americanExWeeklies[0][1],
             1700e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
 
         clarity.writeCall(
@@ -422,7 +422,7 @@ contract WriteTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1700e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
@@ -440,7 +440,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenAssetsIdentical() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetsIdentical.selector,
+                IOptionErrors.AssetsIdentical.selector,
                 address(WETHLIKE),
                 address(WETHLIKE)
             )
@@ -455,7 +455,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenBaseAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 5
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 5
             )
         );
 
@@ -474,7 +474,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenQuoteAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 5
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 5
             )
         );
 
@@ -493,7 +493,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenBaseAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 19
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 19
             )
         );
 
@@ -512,7 +512,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenQuoteAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 19
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 19
             )
         );
 
@@ -529,7 +529,7 @@ contract WriteTest is BaseClarityMarketsTest {
     }
 
     function testRevert_writeCall_whenExerciseWindowMispaired() public {
-        vm.expectRevert(OptionErrors.ExerciseWindowMispaired.selector);
+        vm.expectRevert(IOptionErrors.ExerciseWindowMispaired.selector);
 
         uint32[] memory mispaired = new uint32[](1);
         mispaired[0] = DAWN;
@@ -541,7 +541,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenExerciseWindowZeroTime() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseWindowZeroTime.selector, DAWN, DAWN
+                IOptionErrors.ExerciseWindowZeroTime.selector, DAWN, DAWN
             )
         );
 
@@ -556,7 +556,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenExerciseWindowMisordered() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseWindowMisordered.selector, DAWN + 1 seconds, DAWN
+                IOptionErrors.ExerciseWindowMisordered.selector, DAWN + 1 seconds, DAWN
             )
         );
 
@@ -571,7 +571,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenExerciseWindowExpiryPast() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
+                IOptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
             )
         );
 
@@ -585,7 +585,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
     function testRevert_writeCall_whenStrikePriceTooSmall() public {
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
+            abi.encodeWithSelector(IOptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
         );
 
         vm.prank(writer);
@@ -597,7 +597,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writeCall_whenStrikePriceTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.StrikePriceTooLarge.selector, ((2 ** 64 - 1) * 1e6) + 1
+                IOptionErrors.StrikePriceTooLarge.selector, ((2 ** 64 - 1) * 1e6) + 1
             )
         );
 
@@ -618,7 +618,7 @@ contract WriteTest is BaseClarityMarketsTest {
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.WriteAmountTooLarge.selector, tooMuch)
+            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
 
         clarity.writeCall(
@@ -652,12 +652,12 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // check option exists
-        IOptionToken.Option memory option = clarity.option(optionTokenId);
+        IOption.Option memory option = clarity.option(optionTokenId);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -665,11 +665,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.PUT, "option stored optionType"
+            option.optionType, IOption.OptionType.PUT, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -701,12 +701,12 @@ contract WriteTest is BaseClarityMarketsTest {
         );
 
         // check option exists
-        IOptionToken.Option memory option = clarity.option(optionTokenId);
+        IOption.Option memory option = clarity.option(optionTokenId);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -714,11 +714,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.PUT, "option stored optionType"
+            option.optionType, IOption.OptionType.PUT, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -761,12 +761,12 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // check option exists
-        IOptionToken.Option memory option = clarity.option(oti1);
+        IOption.Option memory option = clarity.option(oti1);
         assertEq(option.baseAsset, address(WETHLIKE), "option stored baseAsset");
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -774,11 +774,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.PUT, "option stored optionType"
+            option.optionType, IOption.OptionType.PUT, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -816,7 +816,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -824,11 +824,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1750e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.PUT, "option stored optionType"
+            option.optionType, IOption.OptionType.PUT, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -858,7 +858,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: FRI1 + 1 seconds,
                 expiryTimestamp: FRI2
             }),
@@ -866,11 +866,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1700e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.PUT, "option stored optionType"
+            option.optionType, IOption.OptionType.PUT, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -899,7 +899,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(LUSDLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -907,11 +907,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 20_000e18, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.PUT, "option stored optionType"
+            option.optionType, IOption.OptionType.PUT, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -942,7 +942,7 @@ contract WriteTest is BaseClarityMarketsTest {
         assertEq(option.quoteAsset, address(USDCLIKE), "option stored quoteAsset");
         assertEq(
             option.exerciseWindow,
-            IOptionToken.ExerciseWindow({
+            IOption.ExerciseWindow({
                 exerciseTimestamp: DAWN + 1 seconds,
                 expiryTimestamp: FRI1
             }),
@@ -950,11 +950,11 @@ contract WriteTest is BaseClarityMarketsTest {
         );
         assertEq(option.strikePrice, 1800e6, "option stored strikePrice");
         assertEq(
-            option.optionType, IOptionToken.OptionType.PUT, "option stored optionType"
+            option.optionType, IOption.OptionType.PUT, "option stored optionType"
         );
         assertEq(
             option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
+            IOption.ExerciseStyle.AMERICAN,
             "option stored exerciseStyle"
         );
 
@@ -1016,7 +1016,7 @@ contract WriteTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1700e18,
-            IOptionToken.OptionType.PUT
+            IOption.OptionType.PUT
         );
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
@@ -1028,7 +1028,7 @@ contract WriteTest is BaseClarityMarketsTest {
             americanExWeeklies[0][0],
             americanExWeeklies[0][1],
             1700e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
 
         clarity.writePut(
@@ -1046,7 +1046,7 @@ contract WriteTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1700e18,
-            IOptionToken.OptionType.PUT
+            IOption.OptionType.PUT
         );
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
@@ -1064,7 +1064,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenAssetsIdentical() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetsIdentical.selector,
+                IOptionErrors.AssetsIdentical.selector,
                 address(WETHLIKE),
                 address(WETHLIKE)
             )
@@ -1079,7 +1079,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenBaseAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 5
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 5
             )
         );
 
@@ -1098,7 +1098,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenQuoteAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 5
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 5
             )
         );
 
@@ -1117,7 +1117,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenBaseAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 19
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 19
             )
         );
 
@@ -1136,7 +1136,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenQuoteAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 19
+                IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 19
             )
         );
 
@@ -1153,7 +1153,7 @@ contract WriteTest is BaseClarityMarketsTest {
     }
 
     function testRevert_writePut_whenExerciseWindowMispaired() public {
-        vm.expectRevert(OptionErrors.ExerciseWindowMispaired.selector);
+        vm.expectRevert(IOptionErrors.ExerciseWindowMispaired.selector);
 
         uint32[] memory mispaired = new uint32[](1);
         mispaired[0] = DAWN;
@@ -1165,7 +1165,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenExerciseWindowZeroTime() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseWindowZeroTime.selector, DAWN, DAWN
+                IOptionErrors.ExerciseWindowZeroTime.selector, DAWN, DAWN
             )
         );
 
@@ -1180,7 +1180,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenExerciseWindowMisordered() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseWindowMisordered.selector, DAWN + 1 seconds, DAWN
+                IOptionErrors.ExerciseWindowMisordered.selector, DAWN + 1 seconds, DAWN
             )
         );
 
@@ -1195,7 +1195,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenExerciseWindowExpiryPast() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
+                IOptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
             )
         );
 
@@ -1209,7 +1209,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
     function testRevert_writePut_whenStrikePriceTooSmall() public {
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
+            abi.encodeWithSelector(IOptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
         );
 
         vm.prank(writer);
@@ -1221,7 +1221,7 @@ contract WriteTest is BaseClarityMarketsTest {
     function testRevert_writePut_whenStrikePriceTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.StrikePriceTooLarge.selector, ((2 ** 64 - 1) * 1e6) + 1
+                IOptionErrors.StrikePriceTooLarge.selector, ((2 ** 64 - 1) * 1e6) + 1
             )
         );
 
@@ -1242,7 +1242,7 @@ contract WriteTest is BaseClarityMarketsTest {
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.WriteAmountTooLarge.selector, tooMuch)
+            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
 
         clarity.writePut(
@@ -1335,7 +1335,7 @@ contract WriteTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1700e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
@@ -1359,7 +1359,7 @@ contract WriteTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1700e18,
-            IOptionToken.OptionType.PUT
+            IOption.OptionType.PUT
         );
         uint256 expectedOptionTokenId = LibToken.hashToId(instrumentHash);
 
@@ -1378,7 +1378,7 @@ contract WriteTest is BaseClarityMarketsTest {
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
         );
 
-        vm.expectRevert(OptionErrors.WriteAmountZero.selector);
+        vm.expectRevert(IOptionErrors.WriteAmountZero.selector);
 
         clarity.write(optionTokenId, 0);
         vm.stopPrank();
@@ -1394,7 +1394,7 @@ contract WriteTest is BaseClarityMarketsTest {
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.WriteAmountTooLarge.selector, tooMuch)
+            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
 
         clarity.write(optionTokenId, tooMuch);
@@ -1413,7 +1413,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.WriteAmountTooLarge.selector, tooMuch - 10e6
+                IOptionErrors.WriteAmountTooLarge.selector, tooMuch - 10e6
             )
         );
 
@@ -1427,13 +1427,13 @@ contract WriteTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1750e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 optionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, optionTokenId
+                IOptionErrors.OptionDoesNotExist.selector, optionTokenId
             )
         );
 
@@ -1449,7 +1449,7 @@ contract WriteTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionExpired.selector,
+                IOptionErrors.OptionExpired.selector,
                 optionTokenId,
                 americanExWeeklies[0][1]
             )
@@ -1600,7 +1600,7 @@ contract WriteTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_batchWrite_whenArrayLengthZero() public {
-        vm.expectRevert(OptionErrors.BatchWriteArrayLengthZero.selector);
+        vm.expectRevert(IOptionErrors.BatchWriteArrayLengthZero.selector);
 
         uint256[] memory optionTokenIds = new uint256[](0);
         uint64[] memory optionAmounts = new uint64[](1);
@@ -1611,7 +1611,7 @@ contract WriteTest is BaseClarityMarketsTest {
     }
 
     function testRevert_batchWrite_whenArrayLengthMismatch() public {
-        vm.expectRevert(OptionErrors.BatchWriteArrayLengthMismatch.selector);
+        vm.expectRevert(IOptionErrors.BatchWriteArrayLengthMismatch.selector);
 
         uint256[] memory optionTokenIds = new uint256[](1);
         optionTokenIds[0] = 213;

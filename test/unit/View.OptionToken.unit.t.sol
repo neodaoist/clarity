@@ -5,7 +5,7 @@ pragma solidity 0.8.22;
 import "../BaseClarityMarkets.t.sol";
 
 // Views Under Test
-import {IOptionToken} from "../../src/interface/option/IOptionToken.sol";
+import {IOption} from "../../src/interface/option/IOption.sol";
 
 contract OptionTokenViewsTest is BaseClarityMarketsTest {
     /////////
@@ -37,7 +37,7 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
     //     vm.stopPrank();
 
     //     assertEq(
-    //         clarity.optionType(optionTokenId), IOptionToken.OptionType.CALL, "option type"
+    //         clarity.optionType(optionTokenId), IOption.OptionType.CALL, "option type"
     //     );
     // }
 
@@ -50,7 +50,7 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
     //     vm.stopPrank();
 
     //     assertEq(
-    //         clarity.optionType(optionTokenId), IOptionToken.OptionType.PUT, "option type"
+    //         clarity.optionType(optionTokenId), IOption.OptionType.PUT, "option type"
     //     );
     // }
 
@@ -64,7 +64,7 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
 
     //     assertEq(
     //         clarity.exerciseStyle(optionTokenId),
-    //         IOptionToken.ExerciseStyle.AMERICAN,
+    //         IOption.ExerciseStyle.AMERICAN,
     //         "exercise style"
     //     );
     // }
@@ -79,7 +79,7 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
 
     //     assertEq(
     //         clarity.exerciseStyle(optionTokenId),
-    //         IOptionToken.ExerciseStyle.EUROPEAN,
+    //         IOption.ExerciseStyle.EUROPEAN,
     //         "exercise style"
     //     );
     // }
@@ -95,17 +95,17 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
 
     //     assertEq(
     //         X,
-    //         IOptionPosition.PositionTokenType.LONG,
+    //         IPosition.PositionTokenType.LONG,
     //         "positionTokenType when long"
     //     );
     //     assertEq(
     //         Y,
-    //         IOptionPosition.PositionTokenType.SHORT,
+    //         IPosition.PositionTokenType.SHORT,
     //         "positionTokenType when short"
     //     );
     //     assertEq(
     //         Z,
-    //         IOptionPosition.PositionTokenType.ASSIGNED_SHORT,
+    //         IPosition.PositionTokenType.ASSIGNED_SHORT,
     //         "positionTokenType when assigned short"
     //     );
     // }
@@ -116,13 +116,13 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1750e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 notCreatedOptionTokenId = LibToken.hashToId(instrumentHash);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId
+                IOptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId
             )
         );
 

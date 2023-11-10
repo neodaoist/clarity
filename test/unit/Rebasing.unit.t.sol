@@ -510,21 +510,21 @@ contract RebasingTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1750e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 longTokenId = instrumentHash.hashToId();
         uint256 shortTokenId = longTokenId.longToShort();
         uint256 assignedShortTokenId = longTokenId.longToAssignedShort();
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, longTokenId)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, longTokenId)
         );
 
         vm.prank(writer);
         clarity.totalSupply(longTokenId);
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, shortTokenId)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, shortTokenId)
         );
 
         vm.prank(writer);
@@ -532,7 +532,7 @@ contract RebasingTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
+                IOptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
             )
         );
 
@@ -1010,21 +1010,21 @@ contract RebasingTest is BaseClarityMarketsTest {
             address(LUSDLIKE),
             americanExWeeklies[0],
             1750e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 longTokenId = instrumentHash.hashToId();
         uint256 shortTokenId = longTokenId.longToShort();
         uint256 assignedShortTokenId = longTokenId.longToAssignedShort();
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, longTokenId)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, longTokenId)
         );
 
         vm.prank(writer);
         clarity.balanceOf(writer, longTokenId);
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, shortTokenId)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, shortTokenId)
         );
 
         vm.prank(writer);
@@ -1032,7 +1032,7 @@ contract RebasingTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
+                IOptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
             )
         );
 
