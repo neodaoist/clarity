@@ -21,7 +21,7 @@ import "../src/ClarityMarkets.sol";
 abstract contract BaseClarityMarketsTest is Test {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
 
     // DCP
     ClarityMarkets internal clarity;
@@ -686,20 +686,16 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(
-        IOption.OptionType a,
-        IOption.OptionType b,
-        string memory err
-    ) internal {
+    function assertEq(IOption.OptionType a, IOption.OptionType b, string memory err)
+        internal
+    {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
 
-    function assertEq(IOption.ExerciseStyle a, IOption.ExerciseStyle b)
-        internal
-    {
+    function assertEq(IOption.ExerciseStyle a, IOption.ExerciseStyle b) internal {
         if (a != b) {
             emit log("Error: a == b not satisfied [ExerciseStyle]");
             emit log_named_uint("      Left", uint8(a));
@@ -708,21 +704,18 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(
-        IOption.ExerciseStyle a,
-        IOption.ExerciseStyle b,
-        string memory err
-    ) internal {
+    function assertEq(IOption.ExerciseStyle a, IOption.ExerciseStyle b, string memory err)
+        internal
+    {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
 
-    function assertEq(
-        IOption.ExerciseWindow memory a,
-        IOption.ExerciseWindow memory b
-    ) internal {
+    function assertEq(IOption.ExerciseWindow memory a, IOption.ExerciseWindow memory b)
+        internal
+    {
         if (a.exerciseTimestamp != b.exerciseTimestamp) {
             emit log("Error: a == b not satisfied [ExerciseWindow.exerciseTimestamp]");
             emit log_named_uint("      Left", a.exerciseTimestamp);
@@ -760,11 +753,9 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(
-        IPosition.TokenType a,
-        IPosition.TokenType b,
-        string memory err
-    ) internal {
+    function assertEq(IPosition.TokenType a, IPosition.TokenType b, string memory err)
+        internal
+    {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);

@@ -7,8 +7,8 @@ import "../BaseClarityMarkets.t.sol";
 contract RedeemTest is BaseClarityMarketsTest {
     /////////
 
-    using LibToken for uint256;
-    using LibToken for uint248;
+    using LibPosition for uint256;
+    using LibPosition for uint248;
 
     /////////
     // function redeem(uint256 optionTokenId)
@@ -623,7 +623,7 @@ contract RedeemTest is BaseClarityMarketsTest {
     }
 
     function testRevert_redeem_whenOptionDoesNotExist() public {
-        uint256 nonexistentOptionTokenId = LibToken.paramsToHash({
+        uint256 nonexistentOptionTokenId = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],

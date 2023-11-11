@@ -111,14 +111,14 @@ contract OptionTokenViewsTest is BaseClarityMarketsTest {
     // }
 
     function testRevert_position_whenOptionDoesNotExist() public {
-        uint248 instrumentHash = LibToken.paramsToHash(
+        uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
             americanExWeeklies[0],
             1750e18,
             IOption.OptionType.CALL
         );
-        uint256 notCreatedOptionTokenId = LibToken.hashToId(instrumentHash);
+        uint256 notCreatedOptionTokenId = LibPosition.hashToId(instrumentHash);
 
         vm.expectRevert(
             abi.encodeWithSelector(

@@ -24,7 +24,7 @@ import "../../src/ClarityMarkets.sol";
 contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
     using LibAssetSet for AssetSet;
     using LibActorSet for ActorSet;
     using LibOptionSet for OptionSet;

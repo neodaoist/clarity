@@ -7,7 +7,7 @@ import "../BaseClarityMarkets.t.sol";
 contract MetadataTest is BaseClarityMarketsTest {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
 
     /////////
     // function paramsToTicker(
@@ -142,37 +142,33 @@ contract MetadataTest is BaseClarityMarketsTest {
         );
 
         assertEq(
-            LibMetadata.tickerToFullTicker(callTicker, IPosition.TokenType.LONG),
+            LibMetadata.tickerToFullTicker(callTicker, "Long"),
             "clr-WETH-LUSD-1700211600-A-2025-C-Long",
             "ticker to symbol long call"
         );
         assertEq(
-            LibMetadata.tickerToFullTicker(callTicker, IPosition.TokenType.SHORT),
+            LibMetadata.tickerToFullTicker(callTicker, "Short"),
             "clr-WETH-LUSD-1700211600-A-2025-C-Short",
             "ticker to symbol short call"
         );
         assertEq(
-            LibMetadata.tickerToFullTicker(
-                callTicker, IPosition.TokenType.ASSIGNED_SHORT
-            ),
+            LibMetadata.tickerToFullTicker(callTicker, "Assigned"),
             "clr-WETH-LUSD-1700211600-A-2025-C-Assigned",
             "ticker to symbol Assigned call"
         );
 
         assertEq(
-            LibMetadata.tickerToFullTicker(putTicker, IPosition.TokenType.LONG),
+            LibMetadata.tickerToFullTicker(putTicker, "Long"),
             "clr-WETH-LUSD-1700211600-A-2025-P-Long",
             "ticker to symbol long put"
         );
         assertEq(
-            LibMetadata.tickerToFullTicker(putTicker, IPosition.TokenType.SHORT),
+            LibMetadata.tickerToFullTicker(putTicker, "Short"),
             "clr-WETH-LUSD-1700211600-A-2025-P-Short",
             "ticker to symbol short put"
         );
         assertEq(
-            LibMetadata.tickerToFullTicker(
-                putTicker, IPosition.TokenType.ASSIGNED_SHORT
-            ),
+            LibMetadata.tickerToFullTicker(putTicker, "Assigned"),
             "clr-WETH-LUSD-1700211600-A-2025-P-Assigned",
             "ticker to symbol Assigned put"
         );

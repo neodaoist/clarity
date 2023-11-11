@@ -12,10 +12,11 @@ import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
+import {LibMath} from "./library/LibMath.sol";
+import {LibString} from "./library/LibString.sol";
+import {LibOption} from "./library/LibOption.sol";
+import {LibPosition} from "./library/LibPosition.sol";
 import {LibMetadata} from "./library/LibMetadata.sol";
-import {LibPrice} from "./library/LibPrice.sol";
-import {LibTime} from "./library/LibTime.sol";
-import {LibToken} from "./library/LibToken.sol";
 
 // External Libraries
 import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
@@ -38,18 +39,25 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 /// (EVM). The protocol is open source, open state, and open access. It has zero oracles, zero
 /// governance, and zero custody. It is designed to be secure, composable, immutable, ergonomic,
 /// and gas minimal.
-contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909Rebasing {
+contract ClarityMarkets is
+    IPosition,
+    IOptionMarkets,
+    IClarityCallback,
+    ERC6909Rebasing
+{
     /////////
 
+    using LibMath for uint8;
+    using LibMath for uint64;
+    using LibMath for uint256;
+    using LibOption for uint32[];
+    using LibOption for OptionType;
+    using LibOption for ExerciseStyle;
+    using LibPosition for uint248;
+    using LibPosition for uint256;
+    using LibPosition for TokenType;
     using LibMetadata for string;
     using LibMetadata for bytes31;
-    using LibPrice for uint8;
-    using LibPrice for uint64;
-    using LibPrice for uint256;
-    using LibTime for uint32[];
-    using LibTime for ExerciseStyle;
-    using LibToken for uint248;
-    using LibToken for uint256;
     using SafeCastLib for uint256;
 
     ///////// Structs
@@ -139,7 +147,7 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
         // TODO initial checks
 
         // Hash the option
-        uint248 optionHash = LibToken.paramsToHash(
+        uint248 optionHash = LibOption.paramsToHash(
             baseAsset,
             quoteAsset,
             exerciseWindows,
@@ -374,12 +382,14 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
 
     /// @notice The name/symbol for each token id
     function names(uint256 tokenId) public view returns (string memory name) {
-        name = tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType());
+        name =
+            tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
     }
 
     /// @notice The name/symbol for each token id
     function symbols(uint256 tokenId) public view returns (string memory symbol) {
-        symbol = tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType());
+        symbol =
+            tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
     }
 
     /// @notice The number of decimals for each token id (always OPTION_CONTRACT_SCALAR)
@@ -408,12 +418,12 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
             uri = LibMetadata.tokenURI(
                 LibMetadata.TokenUriParameters({
                     ticker: tickers[optionHash],
-                    instrumentSubtype: optionStored.optionType,
-                    tokenType: tokenId.tokenType(),
+                    instrumentSubtype: optionStored.optionType.toString(),
+                    tokenType: tokenId.tokenType().toString(),
                     baseAssetSymbol: writeAssetStored.symbol.toString(),
                     quoteAssetSymbol: exerciseAssetStored.symbol.toString(),
                     expiry: optionStored.exerciseWindow.expiryTimestamp,
-                    exerciseStyle: optionStored.exerciseStyle,
+                    exerciseStyle: optionStored.exerciseStyle.toString(),
                     strikePrice: optionStored.exerciseAmount.fromClearingUnitToHumanReadable(
                         exerciseAssetStored.decimals
                         )
@@ -424,12 +434,12 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
             uri = LibMetadata.tokenURI(
                 LibMetadata.TokenUriParameters({
                     ticker: tickers[optionHash],
-                    instrumentSubtype: optionStored.optionType,
-                    tokenType: tokenId.tokenType(),
+                    instrumentSubtype: optionStored.optionType.toString(),
+                    tokenType: tokenId.tokenType().toString(),
                     baseAssetSymbol: exerciseAssetStored.symbol.toString(),
                     quoteAssetSymbol: writeAssetStored.symbol.toString(),
                     expiry: optionStored.exerciseWindow.expiryTimestamp,
-                    exerciseStyle: optionStored.exerciseStyle,
+                    exerciseStyle: optionStored.exerciseStyle.toString(),
                     strikePrice: optionStored.writeAmount.fromClearingUnitToHumanReadable(
                         writeAssetStored.decimals
                         )
@@ -503,14 +513,10 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
             revert AssetDecimalsOutOfRange(baseAsset, assetInfo.baseDecimals);
         }
         if (assetInfo.quoteDecimals < OPTION_CONTRACT_SCALAR) {
-            revert AssetDecimalsOutOfRange(
-                quoteAsset, assetInfo.quoteDecimals
-            );
+            revert AssetDecimalsOutOfRange(quoteAsset, assetInfo.quoteDecimals);
         }
         if (assetInfo.quoteDecimals > MAXIMUM_ERC20_DECIMALS) {
-            revert AssetDecimalsOutOfRange(
-                quoteAsset, assetInfo.quoteDecimals
-            );
+            revert AssetDecimalsOutOfRange(quoteAsset, assetInfo.quoteDecimals);
         }
 
         // Check that the exercise window is valid
@@ -518,14 +524,10 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
             revert ExerciseWindowMispaired();
         }
         if (exerciseWindow[0] == exerciseWindow[1]) {
-            revert ExerciseWindowZeroTime(
-                exerciseWindow[0], exerciseWindow[1]
-            );
+            revert ExerciseWindowZeroTime(exerciseWindow[0], exerciseWindow[1]);
         }
         if (exerciseWindow[0] > exerciseWindow[1]) {
-            revert ExerciseWindowMisordered(
-                exerciseWindow[0], exerciseWindow[1]
-            );
+            revert ExerciseWindowMisordered(exerciseWindow[0], exerciseWindow[1]);
         }
         if (exerciseWindow[1] <= block.timestamp) {
             revert ExerciseWindowExpiryPast(exerciseWindow[1]);
@@ -555,7 +557,7 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
             clearingInfo = OptionClearingInfo({
                 writeAsset: baseAsset,
                 writeDecimals: assetInfo.baseDecimals,
-                writeAmount: assetInfo.baseDecimals.oneUnit(), // implicit 1 clearing unit
+                writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 clearing unit
                 exerciseAsset: quoteAsset,
                 exerciseDecimals: assetInfo.quoteDecimals,
                 exerciseAmount: scaledStrikePrice
@@ -567,7 +569,7 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
                 writeAmount: scaledStrikePrice,
                 exerciseAsset: baseAsset,
                 exerciseDecimals: assetInfo.baseDecimals,
-                exerciseAmount: assetInfo.baseDecimals.oneUnit() // implicit 1 clearing unit
+                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1 clearing unit
             });
         }
 
@@ -575,7 +577,7 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
         ExerciseStyle exerciseStyle = exerciseWindow.determineExerciseStyle();
 
         // Generate the option hash and option token id
-        uint248 optionHash = LibToken.paramsToHash(
+        uint248 optionHash = LibOption.paramsToHash(
             baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType
         );
         _optionTokenId = optionHash.hashToId();
@@ -816,17 +818,13 @@ contract ClarityMarkets is IPosition, IOptionMarkets, IClarityCallback, ERC6909R
             uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
             if (block.timestamp < exerciseTimestamp || block.timestamp > expiryTimestamp)
             {
-                revert OptionNotWithinExerciseWindow(
-                    exerciseTimestamp, expiryTimestamp
-                );
+                revert OptionNotWithinExerciseWindow(exerciseTimestamp, expiryTimestamp);
             }
 
             // Check that the caller holds sufficient longs to exercise
             uint256 optionBalance = balanceOf(msg.sender, _optionTokenId);
             if (optionAmount > optionBalance) {
-                revert ExerciseAmountExceedsLongBalance(
-                    optionAmount, optionBalance
-                );
+                revert ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
             }
         }
 

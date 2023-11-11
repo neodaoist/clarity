@@ -13,12 +13,12 @@ library LibMetadata {
 
     struct TokenUriParameters {
         string ticker;
-        IOption.OptionType instrumentSubtype;
-        IPosition.TokenType tokenType;
+        string instrumentSubtype;
+        string tokenType;
         string baseAssetSymbol;
         string quoteAssetSymbol;
         uint32 expiry;
-        IOption.ExerciseStyle exerciseStyle;
+        string exerciseStyle;
         uint256 strikePrice;
     }
 
@@ -50,12 +50,12 @@ library LibMetadata {
         );
     }
 
-    function tickerToFullTicker(string memory ticker, IPosition.TokenType tokenType)
+    function tickerToFullTicker(string memory ticker, string memory tokenType)
         internal
         pure
         returns (string memory symbol)
     {
-        symbol = string.concat("clr-", ticker, "-", toString(tokenType));
+        symbol = string.concat("clr-", ticker, "-", tokenType);
     }
 
     ///////// Token URI
@@ -92,9 +92,9 @@ library LibMetadata {
             '", "attributes": {"instrument_type": "',
             "Option", // TODO
             '", "instrument_subtype": "',
-            toString(parameters.instrumentSubtype),
+            parameters.instrumentSubtype,
             '", "token_type": "',
-            toString(parameters.tokenType),
+            parameters.tokenType,
             '", "base_asset": "'
         );
     }
@@ -111,7 +111,7 @@ library LibMetadata {
             '", "expiry": "',
             toString(parameters.expiry), // TODO
             '", "exercise_style": "',
-            toString(parameters.exerciseStyle),
+            parameters.exerciseStyle,
             '", "strike_price": "',
             toString(parameters.strikePrice)
         );
@@ -138,9 +138,9 @@ library LibMetadata {
         returns (string memory name)
     {
         name = string.concat(
-            toString(parameters.tokenType),
+            parameters.tokenType,
             " ",
-            toString(parameters.instrumentSubtype),
+            parameters.instrumentSubtype,
             " ",
             "Option", // TODO
             " "
@@ -169,75 +169,30 @@ library LibMetadata {
         svg = string.concat(
             toString(parameters.expiry), // TODO
             '</text><text x="50" y="272" class="secondary">Exercise style: ',
-            toString(parameters.exerciseStyle),
+            parameters.exerciseStyle,
             '</text><text x="50" y="308" class="secondary">Strike price: ',
             toString(parameters.strikePrice)
         );
     }
 
-    ///////// String Conversion Functions
+    ///////// TODO Potentially Move Out
 
     function toBytes31(string memory str) internal pure returns (bytes31 _bytes31) {
         _bytes31 = bytes31(bytes(str));
     }
 
-    // TODO write unit test
-    function toString(IOption.OptionType optionType)
-        internal
-        pure
-        returns (string memory str)
-    {
-        if (optionType == IOption.OptionType.CALL) {
-            str = "Call";
-        } else if (optionType == IOption.OptionType.PUT) {
-            str = "Put";
-        } else {
-            revert IOptionErrors.InvalidInstrumentSubtype(); // unreachable
-        }
-    }
-
-    // TODO write unit test
-    function toString(IPosition.TokenType tokenType)
-        internal
-        pure
-        returns (string memory str)
-    {
-        if (tokenType == IPosition.TokenType.LONG) {
-            str = "Long";
-        } else if (tokenType == IPosition.TokenType.SHORT) {
-            str = "Short";
-        } else if (tokenType == IPosition.TokenType.ASSIGNED_SHORT) {
-            str = "Assigned";
-        } else {
-            revert IOptionErrors.TempInvalidTokenType(); // unreachable
-        }
-    }
-
-    // TODO add unit test
-    function toString(IOption.ExerciseStyle exerciseStyle)
-        internal
-        pure
-        returns (string memory str)
-    {
-        if (exerciseStyle == IOption.ExerciseStyle.AMERICAN) {
-            str = "American";
-        } else if (exerciseStyle == IOption.ExerciseStyle.EUROPEAN) {
-            str = "European";
-        } else {
-            revert IOptionErrors.InvalidExerciseStyle(); // unreachable
-        }
-    }
-
-    function toString(bytes31 _bytes31) internal pure returns (string memory) {
+    function toString(bytes31 _bytes31) internal pure returns (string memory str) {
         uint8 i = 0;
         while (i < 31 && _bytes31[i] != 0) {
             i++;
         }
+
         bytes memory bytesArray = new bytes(i);
         for (i = 0; i < 31 && _bytes31[i] != 0; i++) {
             bytesArray[i] = _bytes31[i];
         }
-        return string(bytesArray);
+
+        str = string(bytesArray);
     }
 
     function toString(uint256 _uint256) internal pure returns (string memory) {
@@ -245,24 +200,63 @@ library LibMetadata {
             uint256 length = log10(_uint256) + 1;
             string memory buffer = new string(length);
             uint256 ptr;
+
             /// @solidity memory-safe-assembly
             assembly {
                 ptr := add(buffer, add(32, length))
             }
+
             while (true) {
                 ptr--;
+
                 /// @solidity memory-safe-assembly
                 assembly {
                     mstore8(ptr, byte(mod(_uint256, 10), _SYMBOLS))
                 }
+
                 _uint256 /= 10;
                 if (_uint256 == 0) break;
             }
+
             return buffer;
         }
     }
 
-    ///////// External String Manipulation Functions
+    function log10(uint256 value) private pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    ///////// Base 64 Encoding
 
     bytes private constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -316,39 +310,5 @@ library LibMetadata {
         }
 
         return string(result);
-    }
-
-    function log10(uint256 value) private pure returns (uint256) {
-        uint256 result = 0;
-        unchecked {
-            if (value >= 10 ** 64) {
-                value /= 10 ** 64;
-                result += 64;
-            }
-            if (value >= 10 ** 32) {
-                value /= 10 ** 32;
-                result += 32;
-            }
-            if (value >= 10 ** 16) {
-                value /= 10 ** 16;
-                result += 16;
-            }
-            if (value >= 10 ** 8) {
-                value /= 10 ** 8;
-                result += 8;
-            }
-            if (value >= 10 ** 4) {
-                value /= 10 ** 4;
-                result += 4;
-            }
-            if (value >= 10 ** 2) {
-                value /= 10 ** 2;
-                result += 2;
-            }
-            if (value >= 10 ** 1) {
-                result += 1;
-            }
-        }
-        return result;
     }
 }

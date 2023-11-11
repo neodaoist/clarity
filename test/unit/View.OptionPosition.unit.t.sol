@@ -79,8 +79,7 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         // Then
         // check writer1 position
         vm.prank(writer1);
-        (IPosition.Position memory position, int160 magnitude) =
-            clarity.position(oti1);
+        (IPosition.Position memory position, int160 magnitude) = clarity.position(oti1);
 
         assertEq(position.amountLong, 0, "writer1 amount long");
         assertEq(

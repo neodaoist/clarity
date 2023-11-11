@@ -7,8 +7,8 @@ import "../BaseClarityMarkets.t.sol";
 contract RebasingTest is BaseClarityMarketsTest {
     /////////
 
-    using LibToken for uint256;
-    using LibToken for uint248;
+    using LibPosition for uint256;
+    using LibPosition for uint248;
 
     uint64 internal constant SOME_WRITTEN = 10.000001e6;
     uint64 internal constant MANY_WRITTEN = 6_000_000e6;
@@ -505,7 +505,7 @@ contract RebasingTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_totalSupply_whenOptionDoesNotExist() public {
-        uint248 instrumentHash = LibToken.paramsToHash(
+        uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
             americanExWeeklies[0],
@@ -524,7 +524,9 @@ contract RebasingTest is BaseClarityMarketsTest {
         clarity.totalSupply(longTokenId);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, shortTokenId)
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, shortTokenId
+            )
         );
 
         vm.prank(writer);
@@ -1005,7 +1007,7 @@ contract RebasingTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_balanceOf_whenOptionDoesNotExist() public {
-        uint248 instrumentHash = LibToken.paramsToHash(
+        uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
             americanExWeeklies[0],
@@ -1024,7 +1026,9 @@ contract RebasingTest is BaseClarityMarketsTest {
         clarity.balanceOf(writer, longTokenId);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, shortTokenId)
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, shortTokenId
+            )
         );
 
         vm.prank(writer);

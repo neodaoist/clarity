@@ -17,7 +17,7 @@ import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
 contract AdapterTest is BaseClarityMarketsTest {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
 
     ClarityERC20Factory internal factory;
     ClarityWrappedLong internal wrappedLong;
@@ -70,9 +70,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         IOption.Option memory option = wrappedLong.option();
         assertEq(option.optionType, IOption.OptionType.CALL, "wrapper optionType");
         assertEq(
-            option.exerciseStyle,
-            IOption.ExerciseStyle.AMERICAN,
-            "wrapper exerciseStyle"
+            option.exerciseStyle, IOption.ExerciseStyle.AMERICAN, "wrapper exerciseStyle"
         );
         assertEq(
             option.exerciseWindow.exerciseTimestamp,
@@ -135,9 +133,7 @@ contract AdapterTest is BaseClarityMarketsTest {
                 "wrapper optionTokenId"
             );
             IOption.Option memory option = wrappedLongs[i].option();
-            assertEq(
-                option.optionType, IOption.OptionType.CALL, "wrapper optionType"
-            );
+            assertEq(option.optionType, IOption.OptionType.CALL, "wrapper optionType");
             assertEq(
                 option.exerciseStyle,
                 IOption.ExerciseStyle.AMERICAN,

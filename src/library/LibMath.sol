@@ -5,17 +5,17 @@ pragma solidity 0.8.22;
 import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
 
 // TODO add unit tests
-// TODO refactor, clarity names, messy, not DRY
-library LibPrice {
+// TODO refactor to clarify names, messy, not DRY
+library LibMath {
     /////////
 
     using SafeCastLib for uint256;
 
     uint8 public constant OPTION_CONTRACT_SCALAR = 6;
 
-    /////////
+    ///////// Clearing Unit Conversions
 
-    function oneUnit(uint8 baseAssetDecimals) internal pure returns (uint64 unit) {
+    function oneClearingUnit(uint8 baseAssetDecimals) internal pure returns (uint64 unit) {
         unit = (10 ** (baseAssetDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64();
     }
 
@@ -34,6 +34,8 @@ library LibPrice {
     {
         scaled = strikePrice * (10 ** OPTION_CONTRACT_SCALAR);
     }
+
+    ///////// Human Readable Conversions
 
     function scaledDownToHumanReadable(uint256 strikePrice, uint8 quoteAssetDecimals)
         internal
