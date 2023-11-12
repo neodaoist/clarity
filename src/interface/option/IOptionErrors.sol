@@ -65,13 +65,9 @@ interface IOptionErrors {
 
     ///////// Views
 
-    error InvalidInstrumentSubtype();
-
     error InvalidTokenType(uint256 tokenId);
 
     error TempInvalidTokenType();
-
-    error InvalidExerciseStyle();
 
     ///////// Adapter
 

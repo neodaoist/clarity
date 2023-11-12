@@ -3,7 +3,6 @@ pragma solidity 0.8.22;
 
 // Interfaces
 import {IOption} from "../interface/option/IOption.sol";
-import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 library LibOption {
     /////////
@@ -32,7 +31,6 @@ library LibOption {
 
     ///////// Option Type
 
-    // TODO write unit test
     function toString(IOption.OptionType optionType)
         internal
         pure
@@ -43,13 +41,11 @@ library LibOption {
         } else if (optionType == IOption.OptionType.PUT) {
             str = "Put";
         } else {
-            revert IOptionErrors.InvalidInstrumentSubtype(); // unreachable
+            revert(); // theoretically unreachable
         }
     }
 
     ///////// Exercise Style
-
-    // TODO more thinking on European exercise, what this really means -- **no** early assignment risk for writers
 
     function determineExerciseStyle(uint32[] calldata exerciseWindows)
         external
@@ -63,7 +59,6 @@ library LibOption {
         }
     }
 
-    // TODO add unit test
     function toString(IOption.ExerciseStyle exerciseStyle)
         internal
         pure
@@ -74,7 +69,7 @@ library LibOption {
         } else if (exerciseStyle == IOption.ExerciseStyle.EUROPEAN) {
             str = "European";
         } else {
-            revert IOptionErrors.InvalidExerciseStyle(); // unreachable
+            revert(); // theoretically unreachable
         }
     }
 
@@ -88,15 +83,14 @@ library LibOption {
         exerciseWindow = IOption.ExerciseWindow(exerciseWindows[0], exerciseWindows[1]);
     }
 
-    function fromExerciseWindow(IOption.ExerciseWindow calldata exerciseWindow)
-        external
-        pure
-        returns (uint32[] memory exerciseWindows)
-    {}
+    // function fromExerciseWindow(IOption.ExerciseWindow calldata exerciseWindow)
+    //     external
+    //     pure
+    //     returns (uint32[] memory exerciseWindows)
+    // {}
 
-    ///////// String Conversion for Strike Price and Expiry Unix Timestamp
+    ///////// String Conversion for Strike Price and Unix Timestamp
 
-    // TODO add unit test
     // TODO add attribution
 
     function toString(uint256 _uint256) internal pure returns (string memory) {
