@@ -17,9 +17,9 @@ library LibMetadata {
         string tokenType;
         string baseAssetSymbol;
         string quoteAssetSymbol;
-        uint32 expiry;
+        string expiry;
         string exerciseStyle;
-        uint256 strikePrice;
+        string strikePrice;
     }
 
     ///////// Ticker
@@ -30,9 +30,9 @@ library LibMetadata {
     function paramsToTicker(
         string memory baseAssetSymbol,
         string memory quoteAssetSymbol,
-        uint32 expiry,
+        string memory expiry,
         IOption.ExerciseStyle exerciseStyle,
-        uint256 strikePrice,
+        string memory strikePrice,
         IOption.OptionType optionType
     ) internal pure returns (string memory ticker) {
         ticker = string.concat(
@@ -40,11 +40,11 @@ library LibMetadata {
             "-",
             quoteAssetSymbol,
             "-",
-            toString(expiry),
+            expiry,
             "-",
             (exerciseStyle == IOption.ExerciseStyle.AMERICAN) ? "A" : "E",
             "-",
-            toString(strikePrice),
+            strikePrice,
             "-",
             (optionType == IOption.OptionType.CALL ? "C" : "P")
         );
@@ -109,11 +109,11 @@ library LibMetadata {
             '", "quote_asset": "',
             parameters.quoteAssetSymbol,
             '", "expiry": "',
-            toString(parameters.expiry), // TODO
+            parameters.expiry, // TODO
             '", "exercise_style": "',
             parameters.exerciseStyle,
             '", "strike_price": "',
-            toString(parameters.strikePrice)
+            parameters.strikePrice
         );
     }
 
@@ -167,11 +167,11 @@ library LibMetadata {
         returns (string memory svg)
     {
         svg = string.concat(
-            toString(parameters.expiry), // TODO
+            parameters.expiry, // TODO
             '</text><text x="50" y="272" class="secondary">Exercise style: ',
             parameters.exerciseStyle,
             '</text><text x="50" y="308" class="secondary">Strike price: ',
-            toString(parameters.strikePrice)
+            parameters.strikePrice
         );
     }
 
@@ -195,72 +195,10 @@ library LibMetadata {
         str = string(bytesArray);
     }
 
-    function toString(uint256 _uint256) internal pure returns (string memory) {
-        unchecked {
-            uint256 length = log10(_uint256) + 1;
-            string memory buffer = new string(length);
-            uint256 ptr;
-
-            /// @solidity memory-safe-assembly
-            assembly {
-                ptr := add(buffer, add(32, length))
-            }
-
-            while (true) {
-                ptr--;
-
-                /// @solidity memory-safe-assembly
-                assembly {
-                    mstore8(ptr, byte(mod(_uint256, 10), _SYMBOLS))
-                }
-
-                _uint256 /= 10;
-                if (_uint256 == 0) break;
-            }
-
-            return buffer;
-        }
-    }
-
-    function log10(uint256 value) private pure returns (uint256) {
-        uint256 result = 0;
-        unchecked {
-            if (value >= 10 ** 64) {
-                value /= 10 ** 64;
-                result += 64;
-            }
-            if (value >= 10 ** 32) {
-                value /= 10 ** 32;
-                result += 32;
-            }
-            if (value >= 10 ** 16) {
-                value /= 10 ** 16;
-                result += 16;
-            }
-            if (value >= 10 ** 8) {
-                value /= 10 ** 8;
-                result += 8;
-            }
-            if (value >= 10 ** 4) {
-                value /= 10 ** 4;
-                result += 4;
-            }
-            if (value >= 10 ** 2) {
-                value /= 10 ** 2;
-                result += 2;
-            }
-            if (value >= 10 ** 1) {
-                result += 1;
-            }
-        }
-        return result;
-    }
-
     ///////// Base 64 Encoding
 
     bytes private constant TABLE =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    bytes16 private constant _SYMBOLS = "0123456789abcdef";
 
     // TODO fix natspec, add OZ credit, etc.
 

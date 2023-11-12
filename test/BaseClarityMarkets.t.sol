@@ -601,14 +601,15 @@ abstract contract BaseClarityMarketsTest is Test {
     }
 
     function scaleUpOptionAmount(uint256 amount) internal view returns (uint64) {
-        return SafeCastLib.safeCastTo64(amount * (10 ** clarity.OPTION_CONTRACT_SCALAR()));
+        return SafeCastLib.safeCastTo64(amount * (10 ** clarity.CONTRACT_SCALAR()));
     }
 
     function scaleDownOptionAmount(uint256 amount) internal view returns (uint64) {
-        return SafeCastLib.safeCastTo64(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
+        return SafeCastLib.safeCastTo64(amount / (10 ** clarity.CONTRACT_SCALAR()));
     }
 
     ///////// Custom Multi Assertions
+
     // Note be mindful not to add too many multi assertions and/or too much misdirection
 
     function assertTotalSupplies(

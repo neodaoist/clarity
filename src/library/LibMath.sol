@@ -11,46 +11,50 @@ library LibMath {
 
     using SafeCastLib for uint256;
 
-    uint8 public constant OPTION_CONTRACT_SCALAR = 6;
+    /////////
 
-    ///////// Clearing Unit Conversions
+    uint8 internal constant CONTRACT_SCALAR = 6;
 
-    function oneClearingUnit(uint8 baseAssetDecimals) internal pure returns (uint64 unit) {
-        unit = (10 ** (baseAssetDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64();
+    ///////// Clearing Unit Conversion
+
+    function oneClearingUnit(uint8 baseAssetDecimals)
+        internal
+        pure
+        returns (uint64 unit)
+    {
+        unit = (10 ** (baseAssetDecimals - CONTRACT_SCALAR)).safeCastTo64();
     }
 
-    function scaledDownToClearingUnit(uint256 strikePrice)
+    ///////// Strike Price Conversions
+
+    function actualScaledDownToClearingStrikeUnit(uint256 strikePrice)
         internal
         pure
         returns (uint64 scaled)
     {
-        scaled = (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64();
+        scaled = (strikePrice / (10 ** CONTRACT_SCALAR)).safeCastTo64();
     }
 
-    function scaledUpFromClearingUnit(uint64 strikePrice)
+    function clearingScaledUpToActualStrike(uint64 strikePrice)
         internal
         pure
         returns (uint256 scaled)
     {
-        scaled = strikePrice * (10 ** OPTION_CONTRACT_SCALAR);
+        scaled = strikePrice * (10 ** CONTRACT_SCALAR);
     }
 
-    ///////// Human Readable Conversions
-
-    function scaledDownToHumanReadable(uint256 strikePrice, uint8 quoteAssetDecimals)
-        internal
-        pure
-        returns (uint64 scaled)
-    {
+    function actualScaledDownToHumanReadableStrike(
+        uint256 strikePrice,
+        uint8 quoteAssetDecimals
+    ) internal pure returns (uint64 scaled) {
         scaled = (strikePrice / (10 ** quoteAssetDecimals)).safeCastTo64();
     }
 
-    function fromClearingUnitToHumanReadable(uint64 strikePrice, uint8 quoteAssetDecimals)
-        internal
-        pure
-        returns (uint64 scaled)
-    {
-        scaled = (strikePrice / (10 ** (quoteAssetDecimals - OPTION_CONTRACT_SCALAR)))
-            .safeCastTo64();
+    function clearingScaledDownToHumanReadableStrike(
+        uint64 strikePrice,
+        uint8 quoteAssetDecimals
+    ) internal pure returns (uint64 scaled) {
+        scaled =
+            (strikePrice / (10 ** (quoteAssetDecimals - CONTRACT_SCALAR))).safeCastTo64();
     }
 }

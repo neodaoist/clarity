@@ -8,6 +8,8 @@ import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 library LibOption {
     /////////
 
+    bytes16 private constant SYMBOLS = "0123456789abcdef";
+
     ///////// Instrument Hash
 
     function paramsToHash(
@@ -91,4 +93,72 @@ library LibOption {
         pure
         returns (uint32[] memory exerciseWindows)
     {}
+
+    ///////// String Conversion for Strike Price and Expiry Unix Timestamp
+
+    // TODO add unit test
+    // TODO add attribution
+
+    function toString(uint256 _uint256) internal pure returns (string memory) {
+        unchecked {
+            uint256 length = log10(_uint256) + 1;
+            string memory buffer = new string(length);
+            uint256 ptr;
+
+            /// @solidity memory-safe-assembly
+            assembly {
+                ptr := add(buffer, add(32, length))
+            }
+
+            while (true) {
+                ptr--;
+
+                /// @solidity memory-safe-assembly
+                assembly {
+                    mstore8(ptr, byte(mod(_uint256, 10), SYMBOLS))
+                }
+
+                _uint256 /= 10;
+                if (_uint256 == 0) break;
+            }
+
+            return buffer;
+        }
+    }
+
+    function log10(uint256 value) private pure returns (uint256) {
+        uint256 result = 0;
+
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+
+        return result;
+    }
 }

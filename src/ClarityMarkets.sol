@@ -50,14 +50,20 @@ contract ClarityMarkets is
     using LibMath for uint8;
     using LibMath for uint64;
     using LibMath for uint256;
+
+    using LibOption for uint32;
+    using LibOption for uint64;
     using LibOption for uint32[];
     using LibOption for OptionType;
     using LibOption for ExerciseStyle;
+
     using LibPosition for uint248;
     using LibPosition for uint256;
     using LibPosition for TokenType;
+
     using LibMetadata for string;
     using LibMetadata for bytes31;
+
     using SafeCastLib for uint256;
 
     ///////// Structs
@@ -112,7 +118,7 @@ contract ClarityMarkets is
 
     ///////// Public Constant/Immutable
 
-    uint8 public constant OPTION_CONTRACT_SCALAR = 6;
+    uint8 public constant CONTRACT_SCALAR = 6;
 
     uint8 public constant MAXIMUM_ERC20_DECIMALS = 18;
 
@@ -188,12 +194,14 @@ contract ClarityMarkets is
         if (optionStored.optionType == OptionType.CALL) {
             _option.baseAsset = writeAsset;
             _option.quoteAsset = optionStored.exerciseAsset;
-            _option.strikePrice = optionStored.exerciseAmount.scaledUpFromClearingUnit();
+            _option.strikePrice =
+                optionStored.exerciseAmount.clearingScaledUpToActualStrike();
             _option.optionType = OptionType.CALL;
         } else {
             _option.baseAsset = optionStored.exerciseAsset;
             _option.quoteAsset = writeAsset;
-            _option.strikePrice = optionStored.writeAmount.scaledUpFromClearingUnit();
+            _option.strikePrice =
+                optionStored.writeAmount.clearingScaledUpToActualStrike();
             _option.optionType = OptionType.PUT;
         }
         _option.exerciseWindow = optionStored.exerciseWindow;
@@ -392,9 +400,9 @@ contract ClarityMarkets is
             tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
     }
 
-    /// @notice The number of decimals for each token id (always OPTION_CONTRACT_SCALAR)
+    /// @notice The number of decimals for each token id (always CONTRACT_SCALAR)
     function decimals(uint256 /*tokenId*/ ) public pure returns (uint8 amount) {
-        amount = OPTION_CONTRACT_SCALAR;
+        amount = CONTRACT_SCALAR;
     }
 
     ///////// ERC6909MetadataURI
@@ -408,44 +416,37 @@ contract ClarityMarkets is
         }
 
         // Build token URI parameters from option, assets, and ticker
-        AssetMetadataStorage storage writeAssetStored =
-            assetMetadataStorage[optionStored.writeAsset];
-        AssetMetadataStorage storage exerciseAssetStored =
-            assetMetadataStorage[optionStored.exerciseAsset];
+        // (If call, base asset is the write asset and quote asset is the exercise asset;
+        // if put, base asset is the exercise asset and quote asset is the write asset)
+
+        AssetMetadataStorage storage baseAssetStored;
+        AssetMetadataStorage storage quoteAssetStored;
+        uint64 quoteAmount;
 
         if (optionStored.optionType == OptionType.CALL) {
-            // If call, base asset is the write asset and quote asset is the exercise asset
-            uri = LibMetadata.tokenURI(
-                LibMetadata.TokenUriParameters({
-                    ticker: tickers[optionHash],
-                    instrumentSubtype: optionStored.optionType.toString(),
-                    tokenType: tokenId.tokenType().toString(),
-                    baseAssetSymbol: writeAssetStored.symbol.toString(),
-                    quoteAssetSymbol: exerciseAssetStored.symbol.toString(),
-                    expiry: optionStored.exerciseWindow.expiryTimestamp,
-                    exerciseStyle: optionStored.exerciseStyle.toString(),
-                    strikePrice: optionStored.exerciseAmount.fromClearingUnitToHumanReadable(
-                        exerciseAssetStored.decimals
-                        )
-                })
-            );
+            baseAssetStored = assetMetadataStorage[optionStored.writeAsset];
+            quoteAssetStored = assetMetadataStorage[optionStored.exerciseAsset];
+            quoteAmount = optionStored.exerciseAmount;
         } else {
-            // If put, base asset is the exercise asset and quote asset is the write asset
-            uri = LibMetadata.tokenURI(
-                LibMetadata.TokenUriParameters({
-                    ticker: tickers[optionHash],
-                    instrumentSubtype: optionStored.optionType.toString(),
-                    tokenType: tokenId.tokenType().toString(),
-                    baseAssetSymbol: exerciseAssetStored.symbol.toString(),
-                    quoteAssetSymbol: writeAssetStored.symbol.toString(),
-                    expiry: optionStored.exerciseWindow.expiryTimestamp,
-                    exerciseStyle: optionStored.exerciseStyle.toString(),
-                    strikePrice: optionStored.writeAmount.fromClearingUnitToHumanReadable(
-                        writeAssetStored.decimals
-                        )
-                })
-            );
+            baseAssetStored = assetMetadataStorage[optionStored.exerciseAsset];
+            quoteAssetStored = assetMetadataStorage[optionStored.writeAsset];
+            quoteAmount = optionStored.writeAmount;
         }
+
+        uri = LibMetadata.tokenURI(
+            LibMetadata.TokenUriParameters({
+                ticker: tickers[optionHash],
+                instrumentSubtype: optionStored.optionType.toString(),
+                tokenType: tokenId.tokenType().toString(),
+                baseAssetSymbol: baseAssetStored.symbol.toString(),
+                quoteAssetSymbol: quoteAssetStored.symbol.toString(),
+                expiry: optionStored.exerciseWindow.expiryTimestamp.toString(),
+                exerciseStyle: optionStored.exerciseStyle.toString(),
+                strikePrice: quoteAmount.clearingScaledDownToHumanReadableStrike(
+                    quoteAssetStored.decimals
+                    ).toString()
+            })
+        );
     }
 
     ///////// Option Actions
@@ -506,13 +507,13 @@ contract ClarityMarkets is
             quoteSymbol: IERC20Minimal(quoteAsset).symbol(),
             quoteDecimals: IERC20Minimal(quoteAsset).decimals()
         });
-        if (assetInfo.baseDecimals < OPTION_CONTRACT_SCALAR) {
+        if (assetInfo.baseDecimals < CONTRACT_SCALAR) {
             revert AssetDecimalsOutOfRange(baseAsset, assetInfo.baseDecimals);
         }
         if (assetInfo.baseDecimals > MAXIMUM_ERC20_DECIMALS) {
             revert AssetDecimalsOutOfRange(baseAsset, assetInfo.baseDecimals);
         }
-        if (assetInfo.quoteDecimals < OPTION_CONTRACT_SCALAR) {
+        if (assetInfo.quoteDecimals < CONTRACT_SCALAR) {
             revert AssetDecimalsOutOfRange(quoteAsset, assetInfo.quoteDecimals);
         }
         if (assetInfo.quoteDecimals > MAXIMUM_ERC20_DECIMALS) {
@@ -548,9 +549,6 @@ contract ClarityMarkets is
 
         ///////// Effects
 
-        // Scale down the strike price
-        uint64 scaledStrikePrice = strikePrice.scaledDownToClearingUnit();
-
         // Calculate the write and exercise amounts for clearing purposes
         OptionClearingInfo memory clearingInfo; // memory struct to help avoid stack too deep
         if (_optionType == OptionType.CALL) {
@@ -560,13 +558,13 @@ contract ClarityMarkets is
                 writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 clearing unit
                 exerciseAsset: quoteAsset,
                 exerciseDecimals: assetInfo.quoteDecimals,
-                exerciseAmount: scaledStrikePrice
+                exerciseAmount: strikePrice.actualScaledDownToClearingStrikeUnit()
             });
         } else {
             clearingInfo = OptionClearingInfo({
                 writeAsset: quoteAsset,
                 writeDecimals: assetInfo.quoteDecimals,
-                writeAmount: scaledStrikePrice,
+                writeAmount: strikePrice.actualScaledDownToClearingStrikeUnit(),
                 exerciseAsset: baseAsset,
                 exerciseDecimals: assetInfo.baseDecimals,
                 exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1 clearing unit
@@ -602,9 +600,10 @@ contract ClarityMarkets is
         tickers[optionHash] = LibMetadata.paramsToTicker(
             assetInfo.baseSymbol,
             assetInfo.quoteSymbol,
-            exerciseWindow[1],
+            exerciseWindow[1].toString(),
             exerciseStyle,
-            strikePrice.scaledDownToHumanReadable(assetInfo.quoteDecimals),
+            strikePrice.actualScaledDownToHumanReadableStrike(assetInfo.quoteDecimals)
+                .toString(),
             _optionType
         );
 

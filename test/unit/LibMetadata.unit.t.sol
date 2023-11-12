@@ -7,6 +7,8 @@ import "../BaseClarityMarkets.t.sol";
 contract MetadataTest is BaseClarityMarketsTest {
     /////////
 
+    using LibOption for uint32;
+    using LibOption for uint64;
     using LibPosition for uint256;
 
     /////////
@@ -23,15 +25,15 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory quoteSymbol = "FRAX";
         uint32 expiry = FRI3;
         IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.AMERICAN;
-        uint256 scaledDownStrikeForHumanReadable = 2050;
+        uint64 humanReadableStrike = 2050;
 
         assertEq(
             LibMetadata.paramsToTicker(
                 baseSymbol,
                 quoteSymbol,
-                expiry,
+                expiry.toString(),
                 exerciseStyle,
-                scaledDownStrikeForHumanReadable,
+                humanReadableStrike.toString(),
                 IOption.OptionType.CALL
             ),
             "WETH-FRAX-1699606800-A-2050-C",
@@ -41,9 +43,9 @@ contract MetadataTest is BaseClarityMarketsTest {
             LibMetadata.paramsToTicker(
                 baseSymbol,
                 quoteSymbol,
-                expiry,
+                expiry.toString(),
                 exerciseStyle,
-                scaledDownStrikeForHumanReadable,
+                humanReadableStrike.toString(),
                 IOption.OptionType.PUT
             ),
             "WETH-FRAX-1699606800-A-2050-P",
@@ -56,15 +58,15 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory quoteSymbol = "FRAX";
         uint32 expiry = FRI3;
         IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.EUROPEAN;
-        uint256 scaledDownStrikeForHumanReadable = 2050;
+        uint64 humanReadableStrike = 2050;
 
         assertEq(
             LibMetadata.paramsToTicker(
                 baseSymbol,
                 quoteSymbol,
-                expiry,
+                expiry.toString(),
                 exerciseStyle,
-                scaledDownStrikeForHumanReadable,
+                humanReadableStrike.toString(),
                 IOption.OptionType.CALL
             ),
             "WETH-FRAX-1699606800-E-2050-C",
@@ -74,9 +76,9 @@ contract MetadataTest is BaseClarityMarketsTest {
             LibMetadata.paramsToTicker(
                 baseSymbol,
                 quoteSymbol,
-                expiry,
+                expiry.toString(),
                 exerciseStyle,
-                scaledDownStrikeForHumanReadable,
+                humanReadableStrike.toString(),
                 IOption.OptionType.PUT
             ),
             "WETH-FRAX-1699606800-E-2050-P",
@@ -89,15 +91,15 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory quoteSymbol = "sFRAX";
         uint32 expiry = FRI4;
         IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.AMERICAN;
-        uint256 scaledDownStrikeForHumanReadable = 777_007;
+        uint64 humanReadableStrike = 777_007;
 
         assertEq(
             LibMetadata.paramsToTicker(
                 baseSymbol,
                 quoteSymbol,
-                expiry,
+                expiry.toString(),
                 exerciseStyle,
-                scaledDownStrikeForHumanReadable,
+                humanReadableStrike.toString(),
                 IOption.OptionType.CALL
             ),
             "sfrxETH-sFRAX-1700211600-A-777007-C",
@@ -107,9 +109,9 @@ contract MetadataTest is BaseClarityMarketsTest {
             LibMetadata.paramsToTicker(
                 baseSymbol,
                 quoteSymbol,
-                expiry,
+                expiry.toString(),
                 exerciseStyle,
-                scaledDownStrikeForHumanReadable,
+                humanReadableStrike.toString(),
                 IOption.OptionType.PUT
             ),
             "sfrxETH-sFRAX-1700211600-A-777007-P",
@@ -124,20 +126,24 @@ contract MetadataTest is BaseClarityMarketsTest {
     //     returns (string memory symbol);
 
     function test_tickerToFullTicker() public {
+        uint32 expiry = FRI4;
+        IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.AMERICAN;
+        uint64 humanReadableStrike = 2025;
+
         string memory callTicker = LibMetadata.paramsToTicker(
             "WETH",
             "LUSD",
-            FRI4,
+            expiry.toString(),
             IOption.ExerciseStyle.AMERICAN,
-            2025,
+            humanReadableStrike.toString(),
             IOption.OptionType.CALL
         );
         string memory putTicker = LibMetadata.paramsToTicker(
             "WETH",
             "LUSD",
-            FRI4,
+            expiry.toString(),
             IOption.ExerciseStyle.AMERICAN,
-            2025,
+            humanReadableStrike.toString(),
             IOption.OptionType.PUT
         );
 
