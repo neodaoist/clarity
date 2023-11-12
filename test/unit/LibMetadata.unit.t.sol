@@ -4,7 +4,10 @@ pragma solidity 0.8.22;
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
 
-contract MetadataTest is BaseClarityMarketsTest {
+// Libraries
+import {LibBase64} from "../../src/library/LibBase64.sol";
+
+contract LibMetadataTest is BaseClarityMarketsTest {
     /////////
 
     using LibOption for uint32;
@@ -127,7 +130,6 @@ contract MetadataTest is BaseClarityMarketsTest {
 
     function test_tickerToFullTicker() public {
         uint32 expiry = FRI4;
-        IOption.ExerciseStyle exerciseStyle = IOption.ExerciseStyle.AMERICAN;
         uint64 humanReadableStrike = 2025;
 
         string memory callTicker = LibMetadata.paramsToTicker(
@@ -179,6 +181,23 @@ contract MetadataTest is BaseClarityMarketsTest {
             "ticker to symbol Assigned put"
         );
     }
+
+    ///////// String Conversion for Asset Symbol
+
+    function test_toBytes31() public {
+        assertEq(LibMetadata.toBytes31("WETH"), bytes31(bytes("WETH")), "toBytes31(WETH)");
+    }
+
+    function testIntegration_string_toBytes31_toString() public {
+        assertEq(
+            LibMetadata.toString(LibMetadata.toBytes31("WETH")),
+            "WETH",
+            "toString(toBytes31(symbol))"
+        );
+    }
+
+    // TODO consider separating JSON generation from the below tests
+    // and creating a dedicated View.Metadata.unit.t.sol test suite
 
     /////////
     // function names(uint256 id) public view returns (string memory name);\
@@ -362,14 +381,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 JSONPRE_clr_WETH_USDC_27OCT23_1950_C,
-                                LibMetadata.base64Encode(
-                                    bytes(SVG_clr_WETH_USDC_27OCT23_1950_C)
-                                ),
+                                LibBase64.encode(bytes(SVG_clr_WETH_USDC_27OCT23_1950_C)),
                                 JSONPOST_clr_WETH_USDC_27OCT23_1950_C
                             )
                         )
@@ -396,14 +413,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 JSONPRE_clr_WETH_USDC_27OCT23_1950_P,
-                                LibMetadata.base64Encode(
-                                    bytes(SVG_clr_WETH_USDC_27OCT23_1950_P)
-                                ),
+                                LibBase64.encode(bytes(SVG_clr_WETH_USDC_27OCT23_1950_P)),
                                 JSONPOST_clr_WETH_USDC_27OCT23_1950_P
                             )
                         )
@@ -432,12 +447,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 TOKEN_TYPE_SHORT_JSONPRE_clr_WETH_USDC_27OCT23_1950_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(
                                         TOKEN_TYPE_SHORT_SVG_clr_WETH_USDC_27OCT23_1950_C
                                     )
@@ -468,12 +483,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 TOKEN_TYPE_SHORT_JSONPRE_clr_WETH_USDC_27OCT23_1950_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(
                                         TOKEN_TYPE_SHORT_SVG_clr_WETH_USDC_27OCT23_1950_P
                                     )
@@ -507,12 +522,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 TOKEN_TYPE_ASSIGNED_JSONPRE_clr_WETH_USDC_27OCT23_1950_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(
                                         TOKEN_TYPE_ASSIGNED_SVG_clr_WETH_USDC_27OCT23_1950_C
                                     )
@@ -543,12 +558,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 TOKEN_TYPE_ASSIGNED_JSONPRE_clr_WETH_USDC_27OCT23_1950_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(
                                         TOKEN_TYPE_ASSIGNED_SVG_clr_WETH_USDC_27OCT23_1950_P
                                     )
@@ -586,12 +601,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EXPIRY1_JSONPRE_clr_WETH_USDC_3NOV23_1950_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EXPIRY1_SVG_clr_WETH_USDC_3NOV23_1950_C)
                                 ),
                                 EXPIRY1_JSONPOST_clr_WETH_USDC_3NOV23_1950_C
@@ -620,12 +635,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EXPIRY1_JSONPRE_clr_WETH_USDC_3NOV23_1950_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EXPIRY1_SVG_clr_WETH_USDC_3NOV23_1950_P)
                                 ),
                                 EXPIRY1_JSONPOST_clr_WETH_USDC_3NOV23_1950_P
@@ -661,12 +676,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall2 = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EXPIRY2_JSONPRE_clr_WETH_USDC_8NOV23_1950_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EXPIRY2_SVG_clr_WETH_USDC_8NOV23_1950_C)
                                 ),
                                 EXPIRY2_JSONPOST_clr_WETH_USDC_8NOV23_1950_C
@@ -695,12 +710,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut2 = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EXPIRY2_JSONPRE_clr_WETH_USDC_8NOV23_1950_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EXPIRY2_SVG_clr_WETH_USDC_8NOV23_1950_P)
                                 ),
                                 EXPIRY2_JSONPOST_clr_WETH_USDC_8NOV23_1950_P
@@ -736,12 +751,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall3 = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EXPIRY3_JSONPRE_clr_WETH_USDC_20APR24_1950_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EXPIRY3_SVG_clr_WETH_USDC_20APR24_1950_C)
                                 ),
                                 EXPIRY3_JSONPOST_clr_WETH_USDC_20APR24_1950_C
@@ -770,12 +785,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut3 = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EXPIRY3_JSONPRE_clr_WETH_USDC_20APR24_1950_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EXPIRY3_SVG_clr_WETH_USDC_20APR24_1950_P)
                                 ),
                                 EXPIRY3_JSONPOST_clr_WETH_USDC_20APR24_1950_P
@@ -806,12 +821,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EX_STYLE_EURO_JSONPRE_clr_WETH_USDC_27OCT23_1950_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EX_STYLE_EURO_SVG_clr_WETH_USDC_27OCT23_1950_C)
                                 ),
                                 EX_STYLE_EURO_JSONPOST_clr_WETH_USDC_27OCT23_1950_C
@@ -840,12 +855,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 EX_STYLE_EURO_JSONPRE_clr_WETH_USDC_27OCT23_1950_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(EX_STYLE_EURO_SVG_clr_WETH_USDC_27OCT23_1950_P)
                                 ),
                                 EX_STYLE_EURO_JSONPOST_clr_WETH_USDC_27OCT23_1950_P
@@ -876,12 +891,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 STRIKE_JSONPRE_clr_WETH_LUSD_27OCT23_2022_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(STRIKE_SVG_clr_WETH_LUSD_27OCT23_2022_C)
                                 ),
                                 STRIKE_JSONPOST_clr_WETH_LUSD_27OCT23_2022_C
@@ -910,12 +925,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 STRIKE_JSONPRE_clr_WETH_LUSD_27OCT23_2022_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(STRIKE_SVG_clr_WETH_LUSD_27OCT23_2022_P)
                                 ),
                                 STRIKE_JSONPOST_clr_WETH_LUSD_27OCT23_2022_P
@@ -946,12 +961,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedCall = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 ASSETS_JSONPRE_clr_WBTC_FRAX_27OCT23_1950_C,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(ASSETS_SVG_clr_WBTC_FRAX_27OCT23_1950_C)
                                 ),
                                 ASSETS_JSONPOST_clr_WBTC_FRAX_27OCT23_1950_C
@@ -980,12 +995,12 @@ contract MetadataTest is BaseClarityMarketsTest {
         string memory expectedPut = string(
             abi.encodePacked(
                 BASE64,
-                LibMetadata.base64Encode(
+                LibBase64.encode(
                     bytes(
                         string(
                             abi.encodePacked(
                                 ASSETS_JSONPRE_clr_WBTC_FRAX_27OCT23_1950_P,
-                                LibMetadata.base64Encode(
+                                LibBase64.encode(
                                     bytes(ASSETS_SVG_clr_WBTC_FRAX_27OCT23_1950_P)
                                 ),
                                 ASSETS_JSONPOST_clr_WBTC_FRAX_27OCT23_1950_P

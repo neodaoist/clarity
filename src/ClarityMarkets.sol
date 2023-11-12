@@ -13,7 +13,6 @@ import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
 import {LibMath} from "./library/LibMath.sol";
-import {LibString} from "./library/LibString.sol";
 import {LibOption} from "./library/LibOption.sol";
 import {LibPosition} from "./library/LibPosition.sol";
 import {LibMetadata} from "./library/LibMetadata.sol";
@@ -415,7 +414,7 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(tokenId);
         }
 
-        // Build token URI parameters from option, assets, and ticker
+        // Build the token URI parameters from option, assets, and ticker
         // (If call, base asset is the write asset and quote asset is the exercise asset;
         // if put, base asset is the exercise asset and quote asset is the write asset)
 

@@ -6,6 +6,7 @@ import {IPosition} from "../interface/IPosition.sol";
 import {IOption} from "../interface/option/IOption.sol";
 
 // Libraries
+import {LibBase64} from "./LibBase64.sol";
 import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 library LibMetadata {
@@ -67,13 +68,13 @@ library LibMetadata {
     {
         uri = string.concat(
             "data:application/json;base64,",
-            base64Encode(
+            LibBase64.encode(
                 bytes(
                     string.concat(
                         '{"name": "Clarity - ',
                         tickerToFullTicker(parameters.ticker, parameters.tokenType),
                         '","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,',
-                        base64Encode(bytes(_svg(parameters))),
+                        LibBase64.encode(bytes(_svg(parameters))),
                         _jsonGeneralAttributes(parameters),
                         _jsonInstrumentAttributes(parameters),
                         '"}}'
@@ -175,7 +176,7 @@ library LibMetadata {
         );
     }
 
-    ///////// TODO Potentially Move Out
+    ///////// String Conversion for Asset Symbol
 
     function toBytes31(string memory str) internal pure returns (bytes31 _bytes31) {
         _bytes31 = bytes31(bytes(str));
@@ -193,60 +194,5 @@ library LibMetadata {
         }
 
         str = string(bytesArray);
-    }
-
-    ///////// Base 64 Encoding
-
-    bytes private constant TABLE =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-    // TODO fix natspec, add OZ credit, etc.
-
-    // [MIT License]
-    // @author Brecht Devos <brecht@loopring.org>
-    // @notice Encodes some bytes to the base64 representation
-    function base64Encode(bytes memory data) internal pure returns (string memory) {
-        uint256 len = data.length;
-        if (len == 0) return "";
-
-        // multiply by 4/3 rounded up
-        uint256 encodedLen = 4 * ((len + 2) / 3);
-
-        // Add some extra buffer at the end
-        bytes memory result = new bytes(encodedLen + 32);
-
-        bytes memory table = TABLE;
-
-        assembly {
-            let tablePtr := add(table, 1)
-            let resultPtr := add(result, 32)
-
-            for { let i := 0 } lt(i, len) {} {
-                i := add(i, 3)
-                let input := and(mload(add(data, i)), 0xffffff)
-
-                let out := mload(add(tablePtr, and(shr(18, input), 0x3F)))
-                out := shl(8, out)
-                out :=
-                    add(out, and(mload(add(tablePtr, and(shr(12, input), 0x3F))), 0xFF))
-                out := shl(8, out)
-                out := add(out, and(mload(add(tablePtr, and(shr(6, input), 0x3F))), 0xFF))
-                out := shl(8, out)
-                out := add(out, and(mload(add(tablePtr, and(input, 0x3F))), 0xFF))
-                out := shl(224, out)
-
-                mstore(resultPtr, out)
-
-                resultPtr := add(resultPtr, 4)
-            }
-
-            switch mod(len, 3)
-            case 1 { mstore(sub(resultPtr, 2), shl(240, 0x3d3d)) }
-            case 2 { mstore(sub(resultPtr, 1), shl(248, 0x3d)) }
-
-            mstore(result, encodedLen)
-        }
-
-        return string(result);
     }
 }

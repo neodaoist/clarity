@@ -236,9 +236,7 @@ contract LibPositionTest is BaseClarityMarketsTest {
     }
 
     function test_tokenType_toString() public {
-        assertEq(
-            LibPosition.toString(IPosition.TokenType.LONG), "Long", "toString(LONG)"
-        );
+        assertEq(LibPosition.toString(IPosition.TokenType.LONG), "Long", "toString(LONG)");
         assertEq(
             LibPosition.toString(IPosition.TokenType.SHORT), "Short", "toString(SHORT)"
         );

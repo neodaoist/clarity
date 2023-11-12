@@ -83,13 +83,10 @@ contract LibOptionTest is BaseClarityMarketsTest {
     ///////// Exercise Window
 
     function test_toExerciseWindow() public {
-        IOption.ExerciseWindow memory expectedExerciseWindow = IOption.ExerciseWindow(
-            americanExWeeklies[0][0],
-            americanExWeeklies[0][1]
-        );
-        IOption.ExerciseWindow memory actualExerciseWindow = LibOption.toExerciseWindow(
-            americanExWeeklies[0]
-        );
+        IOption.ExerciseWindow memory expectedExerciseWindow =
+            IOption.ExerciseWindow(americanExWeeklies[0][0], americanExWeeklies[0][1]);
+        IOption.ExerciseWindow memory actualExerciseWindow =
+            LibOption.toExerciseWindow(americanExWeeklies[0]);
 
         assertEq(
             actualExerciseWindow,
@@ -101,11 +98,7 @@ contract LibOptionTest is BaseClarityMarketsTest {
     ///////// String Conversion for Strike Price and Unix Timestamp
 
     function test_strikePrice_toString() public {
-        assertEq(
-            LibOption.toString(1750),
-            "1750",
-            "toString(1750) should return '1750'"
-        );
+        assertEq(LibOption.toString(1750), "1750", "toString(1750) should return '1750'");
     }
 
     function test_unixTimestamp_toString() public {
