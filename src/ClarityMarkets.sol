@@ -5,14 +5,17 @@ pragma solidity 0.8.22;
 import {console2} from "forge-std/console2.sol";
 
 // Interfaces
+import {IPosition} from "./interface/IPosition.sol";
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
 import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
-import {LibToken} from "./library/LibToken.sol";
-import {OptionErrors} from "./library/OptionErrors.sol";
+import {LibMath} from "./library/LibMath.sol";
+import {LibOption} from "./library/LibOption.sol";
+import {LibPosition} from "./library/LibPosition.sol";
+import {LibMetadata} from "./library/LibMetadata.sol";
 
 // External Libraries
 import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
@@ -35,27 +38,45 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 /// (EVM). The protocol is open source, open state, and open access. It has zero oracles, zero
 /// governance, and zero custody. It is designed to be secure, composable, immutable, ergonomic,
 /// and gas minimal.
-contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
+contract ClarityMarkets is
+    IPosition,
+    IOptionMarkets,
+    IClarityCallback,
+    ERC6909Rebasing
+{
     /////////
 
-    using LibToken for uint256;
-    using LibToken for uint248;
+    using LibMath for uint8;
+    using LibMath for uint64;
+    using LibMath for uint256;
+
+    using LibOption for uint32;
+    using LibOption for uint64;
+    using LibOption for uint32[];
+    using LibOption for OptionType;
+    using LibOption for ExerciseStyle;
+
+    using LibPosition for uint248;
+    using LibPosition for uint256;
+    using LibPosition for TokenType;
+
+    using LibMetadata for string;
+    using LibMetadata for bytes31;
+
     using SafeCastLib for uint256;
 
-    ///////// Private Structs
+    ///////// Structs
 
     // storage struct
     struct OptionStorage {
         // slot 0
         address writeAsset;
         uint64 writeAmount;
-        uint8 writeDecimals;
         OptionType optionType;
         ExerciseStyle exerciseStyle;
         // slot 1
         address exerciseAsset;
         uint64 exerciseAmount;
-        uint8 exerciseDecimals;
         // slot 2
         OptionState optionState;
         ExerciseWindow exerciseWindow;
@@ -65,12 +86,19 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     struct OptionState {
         // slot 0
         uint64 amountWritten;
-        uint64 amountExercised;
         uint64 amountNettedOff;
+        uint64 amountExercised;
+    }
+
+    // storage struct
+    struct AssetMetadataStorage {
+        // slot 0
+        bytes31 symbol;
+        uint8 decimals;
     }
 
     // memory struct
-    struct AssetClearingInfo {
+    struct OptionClearingInfo {
         address writeAsset;
         uint8 writeDecimals;
         uint64 writeAmount;
@@ -79,9 +107,17 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint64 exerciseAmount;
     }
 
+    // memory struct
+    struct AssetMetadataInfo {
+        string baseSymbol;
+        uint8 baseDecimals;
+        string quoteSymbol;
+        uint8 quoteDecimals;
+    }
+
     ///////// Public Constant/Immutable
 
-    uint8 public constant OPTION_CONTRACT_SCALAR = 6;
+    uint8 public constant CONTRACT_SCALAR = 6;
 
     uint8 public constant MAXIMUM_ERC20_DECIMALS = 18;
 
@@ -95,11 +131,16 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Private State
 
+    /// @notice The ticker name for each instrument
+    mapping(uint248 => string) private tickers;
+
     mapping(uint248 => OptionStorage) private optionStorage;
+
+    mapping(address => AssetMetadataStorage) public assetMetadataStorage;
 
     mapping(address => uint256) private clearingLiabilities;
 
-    ///////// Option Token Views
+    ///////// Option Views
 
     function optionTokenId(
         address baseAsset,
@@ -111,7 +152,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // TODO initial checks
 
         // Hash the option
-        uint248 optionHash = LibToken.paramsToHash(
+        uint248 optionHash = LibOption.paramsToHash(
             baseAsset,
             quoteAsset,
             exerciseWindows,
@@ -153,33 +194,17 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             _option.baseAsset = writeAsset;
             _option.quoteAsset = optionStored.exerciseAsset;
             _option.strikePrice =
-                (optionStored.exerciseAmount * (10 ** OPTION_CONTRACT_SCALAR));
+                optionStored.exerciseAmount.clearingScaledUpToActualStrike();
             _option.optionType = OptionType.CALL;
         } else {
             _option.baseAsset = optionStored.exerciseAsset;
             _option.quoteAsset = writeAsset;
             _option.strikePrice =
-                (optionStored.writeAmount * (10 ** OPTION_CONTRACT_SCALAR));
+                optionStored.writeAmount.clearingScaledUpToActualStrike();
             _option.optionType = OptionType.PUT;
         }
         _option.exerciseWindow = optionStored.exerciseWindow;
         _option.exerciseStyle = optionStored.exerciseStyle;
-    }
-
-    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
-        // Implicitly check that it is a valid position token type --
-        // discard the upper 31B (the option hash) to get the lowest
-        // 1B, then unsafely cast to PositionTokenType enum type
-        _tokenType = TokenType(tokenId & 0xFF);
-
-        // TODO DRY up via refactoring into internal check function
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
-
-        // Check that the option has been created
-        if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(tokenId);
-        }
     }
 
     ///////// Option State Views
@@ -188,7 +213,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+            revert OptionDoesNotExist(_optionTokenId);
         }
 
         // Check that it is a long
@@ -207,7 +232,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+            revert OptionDoesNotExist(_optionTokenId);
         }
 
         // Check that it is a long
@@ -218,14 +243,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
     ///////// Rebasing Token Views
 
-    // TODO consider
-    // if (block.timestamp > optionStored.exerciseWindow.expiryTimestamp) long/short amount = 0;
-
     function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(tokenId);
+            revert OptionDoesNotExist(tokenId);
         }
 
         // Calculate the balance
@@ -247,7 +269,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                 // If assigned short, total supply is amount exercised
                 amount = amountExercised;
             } else {
-                revert OptionErrors.InvalidTokenType(tokenId); // should be unreachable
+                revert InvalidTokenType(tokenId); // should be unreachable
             }
         }
     }
@@ -260,7 +282,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(tokenId);
+            revert OptionDoesNotExist(tokenId);
         }
 
         // Calculate the balance
@@ -291,28 +313,42 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
                         * amountExercised
                 ) / (amountWritten - amountNettedOff);
             } else {
-                revert OptionErrors.InvalidTokenType(tokenId); // should be unreachable
+                revert InvalidTokenType(tokenId); // should be unreachable
             }
         }
     }
 
-    ///////// Option Position Views
+    ///////// Position Views
+
+    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
+        // Implicitly check that it is a valid position token type --
+        // discard the upper 31B (the option hash) to get the lowest
+        // 1B, then unsafely cast to PositionTokenType enum type
+        _tokenType = TokenType(tokenId & 0xFF); // TODO replace with LibToken
+
+        // TODO DRY up via refactoring into internal check function
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+
+        // Check that the option has been created
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionDoesNotExist(tokenId);
+        }
+    }
 
     function position(uint256 _optionTokenId)
         external
         view
         returns (Position memory _position, int160 magnitude)
     {
-        // Check that it is a long
-        // TODO
-
-        // Get the option from storage
+        // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-
-        // Check that the option has been created
         if (optionStored.writeAsset == address(0)) {
             // TODO revert
         }
+
+        // Check that it is a long
+        // TODO
 
         // Get the position
         uint256 longBalance = balanceOf(msg.sender, _optionTokenId);
@@ -335,38 +371,81 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
     function positionNettableAmount(uint256 _optionTokenId)
         external
         view
-        returns (uint64 amount)
+        returns (uint64 optionAmount)
     {}
 
     function positionRedeemableAmount(uint256 _optionTokenId)
         external
         view
-        returns (uint64 amount, uint32 when)
+        returns (
+            uint64 writeAssetAmount,
+            uint32 writeAssetWhen,
+            uint64 exerciseAssetAmount,
+            uint32 exerciseAssetWhen
+        )
     {}
 
     ///////// ERC6909MetadataModified
 
-    /// @notice The name for each id
-    mapping(uint256 id => string name) public names;
+    /// @notice The name/symbol for each token id
+    function names(uint256 tokenId) public view returns (string memory name) {
+        name =
+            tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
+    }
 
-    /// @notice The symbol for each id
-    mapping(uint256 id => string symbol) public symbols;
+    /// @notice The name/symbol for each token id
+    function symbols(uint256 tokenId) public view returns (string memory symbol) {
+        symbol =
+            tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
+    }
 
-    /// @notice The number of decimals for each id (always OPTION_CONTRACT_SCALAR)
-    function decimals(uint256 /*id*/ ) public pure returns (uint8) {
-        return OPTION_CONTRACT_SCALAR;
+    /// @notice The number of decimals for each token id (always CONTRACT_SCALAR)
+    function decimals(uint256 /*tokenId*/ ) public pure returns (uint8 amount) {
+        amount = CONTRACT_SCALAR;
     }
 
     ///////// ERC6909MetadataURI
 
-    /// @dev Thrown when the id does not exist
-    /// @param id The id of the token
-    error InvalidId(uint256 id);
+    function tokenURI(uint256 tokenId) public view returns (string memory uri) {
+        // Check that the option exists
+        uint248 optionHash = tokenId.idToHash();
+        OptionStorage storage optionStored = optionStorage[optionHash];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionDoesNotExist(tokenId);
+        }
 
-    /// @notice The URI for each id
-    /// @return The URI of the token
-    function tokenURI(uint256) public pure returns (string memory) {
-        return "setec astronomy";
+        // Build the token URI parameters from option, assets, and ticker
+        // (If call, base asset is the write asset and quote asset is the exercise asset;
+        // if put, base asset is the exercise asset and quote asset is the write asset)
+
+        AssetMetadataStorage storage baseAssetStored;
+        AssetMetadataStorage storage quoteAssetStored;
+        uint64 quoteAmount;
+
+        if (optionStored.optionType == OptionType.CALL) {
+            baseAssetStored = assetMetadataStorage[optionStored.writeAsset];
+            quoteAssetStored = assetMetadataStorage[optionStored.exerciseAsset];
+            quoteAmount = optionStored.exerciseAmount;
+        } else {
+            baseAssetStored = assetMetadataStorage[optionStored.exerciseAsset];
+            quoteAssetStored = assetMetadataStorage[optionStored.writeAsset];
+            quoteAmount = optionStored.writeAmount;
+        }
+
+        uri = LibMetadata.tokenURI(
+            LibMetadata.TokenUriParameters({
+                ticker: tickers[optionHash],
+                instrumentSubtype: optionStored.optionType.toString(),
+                tokenType: tokenId.tokenType().toString(),
+                baseAssetSymbol: baseAssetStored.symbol.toString(),
+                quoteAssetSymbol: quoteAssetStored.symbol.toString(),
+                expiry: optionStored.exerciseWindow.expiryTimestamp.toString(),
+                exerciseStyle: optionStored.exerciseStyle.toString(),
+                strikePrice: quoteAmount.clearingScaledDownToHumanReadableStrike(
+                    quoteAssetStored.decimals
+                    ).toString()
+            })
+        );
     }
 
     ///////// Option Actions
@@ -418,108 +497,130 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         ///////// Function Requirements
         // Check that assets are valid
         if (baseAsset == quoteAsset) {
-            revert OptionErrors.AssetsIdentical(baseAsset, quoteAsset);
+            revert AssetsIdentical(baseAsset, quoteAsset);
         }
-        // TODO address the danger of external call
-        // TODO decide how to combine/remove IERC20Minimal and ERC20 type cast
-        uint8 baseDecimals = IERC20Minimal(baseAsset).decimals();
-        uint8 quoteDecimals = IERC20Minimal(quoteAsset).decimals();
-        if (baseDecimals < OPTION_CONTRACT_SCALAR) {
-            revert OptionErrors.AssetDecimalsOutOfRange(baseAsset, baseDecimals);
+        // TODO address the potential danger of unsafe external calls
+        AssetMetadataInfo memory assetInfo = AssetMetadataInfo({
+            baseSymbol: IERC20Minimal(baseAsset).symbol(),
+            baseDecimals: IERC20Minimal(baseAsset).decimals(),
+            quoteSymbol: IERC20Minimal(quoteAsset).symbol(),
+            quoteDecimals: IERC20Minimal(quoteAsset).decimals()
+        });
+        if (assetInfo.baseDecimals < CONTRACT_SCALAR) {
+            revert AssetDecimalsOutOfRange(baseAsset, assetInfo.baseDecimals);
         }
-        if (baseDecimals > MAXIMUM_ERC20_DECIMALS) {
-            revert OptionErrors.AssetDecimalsOutOfRange(baseAsset, baseDecimals);
+        if (assetInfo.baseDecimals > MAXIMUM_ERC20_DECIMALS) {
+            revert AssetDecimalsOutOfRange(baseAsset, assetInfo.baseDecimals);
         }
-        if (quoteDecimals < OPTION_CONTRACT_SCALAR) {
-            revert OptionErrors.AssetDecimalsOutOfRange(quoteAsset, quoteDecimals);
+        if (assetInfo.quoteDecimals < CONTRACT_SCALAR) {
+            revert AssetDecimalsOutOfRange(quoteAsset, assetInfo.quoteDecimals);
         }
-        if (quoteDecimals > MAXIMUM_ERC20_DECIMALS) {
-            revert OptionErrors.AssetDecimalsOutOfRange(quoteAsset, quoteDecimals);
+        if (assetInfo.quoteDecimals > MAXIMUM_ERC20_DECIMALS) {
+            revert AssetDecimalsOutOfRange(quoteAsset, assetInfo.quoteDecimals);
         }
 
         // Check that the exercise window is valid
         if (exerciseWindow.length != 2) {
-            revert OptionErrors.ExerciseWindowMispaired();
+            revert ExerciseWindowMispaired();
         }
         if (exerciseWindow[0] == exerciseWindow[1]) {
-            revert OptionErrors.ExerciseWindowZeroTime(
-                exerciseWindow[0], exerciseWindow[1]
-            );
+            revert ExerciseWindowZeroTime(exerciseWindow[0], exerciseWindow[1]);
         }
         if (exerciseWindow[0] > exerciseWindow[1]) {
-            revert OptionErrors.ExerciseWindowMisordered(
-                exerciseWindow[0], exerciseWindow[1]
-            );
+            revert ExerciseWindowMisordered(exerciseWindow[0], exerciseWindow[1]);
         }
         if (exerciseWindow[1] <= block.timestamp) {
-            revert OptionErrors.ExerciseWindowExpiryPast(exerciseWindow[1]);
+            revert ExerciseWindowExpiryPast(exerciseWindow[1]);
         }
 
         // Check that strike price is valid
         if (strikePrice < MINIMUM_STRIKE_PRICE) {
-            revert OptionErrors.StrikePriceTooSmall(strikePrice);
+            revert StrikePriceTooSmall(strikePrice);
         }
         if (strikePrice > MAXIMUM_STRIKE_PRICE) {
-            revert OptionErrors.StrikePriceTooLarge(strikePrice);
+            revert StrikePriceTooLarge(strikePrice);
         }
 
         // Check that option amount does not exceed max writable
         if (optionAmount > MAXIMUM_WRITABLE) {
-            revert OptionErrors.WriteAmountTooLarge(optionAmount);
+            revert WriteAmountTooLarge(optionAmount);
         }
 
         ///////// Effects
+
         // Calculate the write and exercise amounts for clearing purposes
-        AssetClearingInfo memory assetInfo; // memory struct to avoid stack too deep
+        OptionClearingInfo memory clearingInfo; // memory struct to help avoid stack too deep
         if (_optionType == OptionType.CALL) {
-            assetInfo = AssetClearingInfo({
+            clearingInfo = OptionClearingInfo({
                 writeAsset: baseAsset,
-                writeDecimals: baseDecimals,
-                writeAmount: (10 ** (baseDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
+                writeDecimals: assetInfo.baseDecimals,
+                writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 clearing unit
                 exerciseAsset: quoteAsset,
-                exerciseDecimals: quoteDecimals,
-                exerciseAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64()
+                exerciseDecimals: assetInfo.quoteDecimals,
+                exerciseAmount: strikePrice.actualScaledDownToClearingStrikeUnit()
             });
         } else {
-            assetInfo = AssetClearingInfo({
+            clearingInfo = OptionClearingInfo({
                 writeAsset: quoteAsset,
-                writeDecimals: quoteDecimals,
-                writeAmount: (strikePrice / (10 ** OPTION_CONTRACT_SCALAR)).safeCastTo64(), // implicit 1 unit
+                writeDecimals: assetInfo.quoteDecimals,
+                writeAmount: strikePrice.actualScaledDownToClearingStrikeUnit(),
                 exerciseAsset: baseAsset,
-                exerciseDecimals: baseDecimals,
-                exerciseAmount: (10 ** (baseDecimals - OPTION_CONTRACT_SCALAR)).safeCastTo64()
+                exerciseDecimals: assetInfo.baseDecimals,
+                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1 clearing unit
             });
         }
 
         // Determine the exercise style
-        ExerciseStyle exStyle = LibToken.determineExerciseStyle(exerciseWindow);
+        ExerciseStyle exerciseStyle = exerciseWindow.determineExerciseStyle();
 
         // Generate the option hash and option token id
-        uint248 optionHash = LibToken.paramsToHash(
+        uint248 optionHash = LibOption.paramsToHash(
             baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType
         );
         _optionTokenId = optionHash.hashToId();
 
-        // Store the option information
-        optionStorage[_optionTokenId.idToHash()] = OptionStorage({
-            writeAsset: assetInfo.writeAsset,
-            writeAmount: assetInfo.writeAmount,
-            writeDecimals: assetInfo.writeDecimals,
+        // Store the option
+        optionStorage[optionHash] = OptionStorage({
+            writeAsset: clearingInfo.writeAsset,
+            writeAmount: clearingInfo.writeAmount,
             optionType: _optionType,
-            exerciseStyle: exStyle,
-            exerciseAsset: assetInfo.exerciseAsset,
-            exerciseAmount: assetInfo.exerciseAmount,
-            exerciseDecimals: assetInfo.exerciseDecimals,
+            exerciseStyle: exerciseStyle,
+            exerciseAsset: clearingInfo.exerciseAsset,
+            exerciseAmount: clearingInfo.exerciseAmount,
             optionState: OptionState({
                 amountWritten: optionAmount,
-                amountExercised: 0,
-                amountNettedOff: 0
+                amountNettedOff: 0,
+                amountExercised: 0
             }),
-            exerciseWindow: LibToken.toExerciseWindow(exerciseWindow)
+            exerciseWindow: exerciseWindow.toExerciseWindow()
         });
 
-        // Store the option name/symbol
-        names[_optionTokenId] = "clr-stETH-aUSDC-20OCT23-1750-C"; // TEMP
+        // Store the base ticker
+        tickers[optionHash] = LibMetadata.paramsToTicker(
+            assetInfo.baseSymbol,
+            assetInfo.quoteSymbol,
+            exerciseWindow[1].toString(),
+            exerciseStyle,
+            strikePrice.actualScaledDownToHumanReadableStrike(assetInfo.quoteDecimals)
+                .toString(),
+            _optionType
+        );
+
+        // Scope to avoid stack too deep
+        {
+            // Store the asset information, if not already stored
+            AssetMetadataStorage storage baseAssetStored = assetMetadataStorage[baseAsset];
+            if (baseAssetStored.decimals == 0) {
+                baseAssetStored.symbol = assetInfo.baseSymbol.toBytes31();
+                baseAssetStored.decimals = assetInfo.baseDecimals;
+            }
+            AssetMetadataStorage storage quoteAssetStored =
+                assetMetadataStorage[quoteAsset];
+            if (quoteAssetStored.decimals == 0) {
+                quoteAssetStored.symbol = assetInfo.quoteSymbol.toBytes31();
+                quoteAssetStored.decimals = assetInfo.quoteDecimals;
+            }
+        }
 
         // Log event (ideally this would be emitted in the Interactions section,
         // but emitting here affords DRYer business logic for write)
@@ -536,7 +637,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         // If the option amount is non-zero, actually write some options
         if (optionAmount > 0) {
             _writeOptions(
-                _optionTokenId, optionAmount, assetInfo.writeAsset, assetInfo.writeAmount
+                _optionTokenId,
+                optionAmount,
+                clearingInfo.writeAsset,
+                clearingInfo.writeAmount
             );
         }
         // Else the option is just created, with no options actually written and
@@ -544,7 +648,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         ///////// Protocol Invariant
         // Check that the clearing liabilities can be met
-        _verifyAfter(assetInfo.writeAsset, assetInfo.exerciseAsset);
+        _verifyAfter(clearingInfo.writeAsset, clearingInfo.exerciseAsset);
     }
 
     function _writeOptions(
@@ -575,25 +679,25 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         ///////// Function Requirements
         // Check that the option amount is not zero
         if (optionAmount == 0) {
-            revert OptionErrors.WriteAmountZero();
+            revert WriteAmountZero();
         }
 
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+            revert OptionDoesNotExist(_optionTokenId);
         }
 
         // Check that the option is not expired
         uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
         if (expiryTimestamp < block.timestamp) {
-            revert OptionErrors.OptionExpired(_optionTokenId, expiryTimestamp);
+            revert OptionExpired(_optionTokenId, expiryTimestamp);
         }
 
         // Check that amount is not greater than the remaining writable amount
         // (not DRY with remainingWritableAmount() but is more gas efficient)
         if (optionAmount > (MAXIMUM_WRITABLE - optionStored.optionState.amountWritten)) {
-            revert OptionErrors.WriteAmountTooLarge(optionAmount);
+            revert WriteAmountTooLarge(optionAmount);
         }
 
         ///////// Effects
@@ -618,11 +722,11 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         uint256 idsLength = optionTokenIds.length;
         // Check that the arrays are not empty
         if (idsLength == 0) {
-            revert OptionErrors.BatchWriteArrayLengthZero();
+            revert BatchWriteArrayLengthZero();
         }
         // Check that the arrays are the same length
         if (idsLength != optionAmounts.length) {
-            revert OptionErrors.BatchWriteArrayLengthMismatch();
+            revert BatchWriteArrayLengthMismatch();
         }
 
         ///////// Effects, Interactions, Protocol Invariant
@@ -642,14 +746,14 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
         if (optionAmount == 0) {
-            revert OptionErrors.ExerciseAmountZero();
+            revert ExerciseAmountZero();
         }
 
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
         address writeAsset = optionStored.writeAsset;
         if (writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+            revert OptionDoesNotExist(_optionTokenId);
         }
 
         // Check that the position token type is a long
@@ -657,10 +761,10 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
 
         // Check that the caller holds sufficient longs and shorts to net off
         if (optionAmount > balanceOf(msg.sender, _optionTokenId)) {
-            revert OptionErrors.InsufficientLongBalance(_optionTokenId, optionAmount);
+            revert InsufficientLongBalance(_optionTokenId, optionAmount);
         }
         if (optionAmount > balanceOf(msg.sender, _optionTokenId.longToShort())) {
-            revert OptionErrors.InsufficientShortBalance(_optionTokenId, optionAmount);
+            revert InsufficientShortBalance(_optionTokenId, optionAmount);
         }
 
         ///////// Effects
@@ -693,13 +797,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
         if (optionAmount == 0) {
-            revert OptionErrors.ExerciseAmountZero();
+            revert ExerciseAmountZero();
         }
 
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(_optionTokenId);
+            revert OptionDoesNotExist(_optionTokenId);
         }
 
         //  Check that the position token type is a long
@@ -712,17 +816,13 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
             uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
             if (block.timestamp < exerciseTimestamp || block.timestamp > expiryTimestamp)
             {
-                revert OptionErrors.OptionNotWithinExerciseWindow(
-                    exerciseTimestamp, expiryTimestamp
-                );
+                revert OptionNotWithinExerciseWindow(exerciseTimestamp, expiryTimestamp);
             }
 
             // Check that the caller holds sufficient longs to exercise
             uint256 optionBalance = balanceOf(msg.sender, _optionTokenId);
             if (optionAmount > optionBalance) {
-                revert OptionErrors.ExerciseAmountExceedsLongBalance(
-                    optionAmount, optionBalance
-                );
+                revert ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
             }
         }
 
@@ -770,20 +870,20 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         ///////// Function Requirements
         // Check that the token type is a short
         if (shortTokenId.tokenType() != TokenType.SHORT) {
-            revert OptionErrors.CanOnlyRedeemShort(shortTokenId);
+            revert CanOnlyRedeemShort(shortTokenId);
         }
 
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[shortTokenId.idToHash()];
         address writeAsset = optionStored.writeAsset;
         if (writeAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(shortTokenId);
+            revert OptionDoesNotExist(shortTokenId);
         }
 
         // Check that the caller holds shorts for this option
         uint256 nonVirtualShortBalance = internalBalanceOf[msg.sender][shortTokenId];
         if (nonVirtualShortBalance == 0) {
-            revert OptionErrors.ShortBalanceZero(shortTokenId);
+            revert ShortBalanceZero(shortTokenId);
         }
 
         ///////// Effects
@@ -799,7 +899,7 @@ contract ClarityMarkets is IOptionMarkets, IClarityCallback, ERC6909Rebasing {
         } else {
             // Perform additional check that the option is expired
             if (block.timestamp <= optionStored.exerciseWindow.expiryTimestamp) {
-                revert OptionErrors.EarlyRedemptionOnlyIfFullyAssigned();
+                revert EarlyRedemptionOnlyIfFullyAssigned();
             }
 
             // Calculate the asset redemption amounts, based on assignment status

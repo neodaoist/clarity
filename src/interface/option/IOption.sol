@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
-interface IOptionToken {
+interface IOption {
     /////////
 
     // TODO double check combinatorics of packing OTTs into uint248
     // TODO double check entropy of uint32 assignmentSeed
     // TODO analyze and reconsider dependency graph
-    // IDEA move tokenType to IOptionPosition
+    // IDEA move tokenType to IPosition
     // IDEA add isWithinExerciseWindow() and  whenLastExpiry()
 
     // max option token types                       = 2^248  = 4.5e74 = 2^256 / 2^8
@@ -44,12 +44,6 @@ interface IOptionToken {
         uint32 expiryTimestamp; // ditto
     }
 
-    enum TokenType {
-        LONG,
-        SHORT,
-        ASSIGNED_SHORT
-    }
-
     /////////
 
     function optionTokenId(
@@ -61,6 +55,4 @@ interface IOptionToken {
     ) external view returns (uint256 optionTokenId);
 
     function option(uint256 optionTokenId) external view returns (Option memory option);
-
-    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType);
 }

@@ -5,40 +5,17 @@ pragma solidity 0.8.22;
 import "../BaseClarityMarkets.t.sol";
 
 // Library Under test
-import {LibToken} from "../../src/library/LibToken.sol";
+import {LibPosition} from "../../src/library/LibPosition.sol";
 
-contract LibTokenTest is BaseClarityMarketsTest {
+contract LibPositionTest is BaseClarityMarketsTest {
     /////////
 
-    function test_paramsToHash() public {
-        uint248 expectedHash = uint248(
-            bytes31(
-                keccak256(
-                    abi.encode(
-                        address(WETHLIKE),
-                        address(USDCLIKE),
-                        americanExWeeklies[0],
-                        uint256(1750e18),
-                        IOptionToken.OptionType.CALL
-                    )
-                )
-            )
-        );
-        uint248 actualHash = LibToken.paramsToHash(
-            address(WETHLIKE),
-            address(USDCLIKE),
-            americanExWeeklies[0],
-            uint256(1750e18),
-            IOptionToken.OptionType.CALL
-        );
-
-        assertEq(actualHash, expectedHash, "paramsToHash");
-    }
+    ///////// Token ID Encoding
 
     function test_hashToId() public {
         uint248 instrumentHash = uint248(bytes31(keccak256("setec astronomy")));
         uint256 expectedId = uint256(instrumentHash) << 8;
-        uint256 actualId = LibToken.hashToId(instrumentHash);
+        uint256 actualId = LibPosition.hashToId(instrumentHash);
 
         assertEq(actualId, expectedId, "hashToId");
     }
@@ -46,12 +23,12 @@ contract LibTokenTest is BaseClarityMarketsTest {
     function test_idToHash() public {
         uint256 tokenId = type(uint256).max / 2;
         uint248 expectedHash = uint248(tokenId >> 8);
-        uint248 actualHash = LibToken.idToHash(tokenId);
+        uint248 actualHash = LibPosition.idToHash(tokenId);
 
         assertEq(actualHash, expectedHash, "idToHash");
     }
 
-    function test_paramsToHash_hashToId_idToHash() public {
+    function testIntegration_paramsToHash_hashToId_idToHash() public {
         uint248 expectedHash = uint248(
             bytes31(
                 keccak256(
@@ -60,21 +37,21 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
 
-        uint248 instrumentHash = LibToken.paramsToHash(
+        uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
             americanExWeeklies[0],
             uint256(1750e18),
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
-        uint256 tokenId = LibToken.hashToId(instrumentHash);
-        uint248 actualHash = LibToken.idToHash(tokenId);
+        uint256 tokenId = LibPosition.hashToId(instrumentHash);
+        uint248 actualHash = LibPosition.idToHash(tokenId);
 
         assertEq(actualHash, expectedHash, "paramsToHash_hashToId_idToHash");
     }
@@ -88,14 +65,14 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
-        uint256 longId = LibToken.hashToId(instrumentHash);
+        uint256 longId = LibPosition.hashToId(instrumentHash);
         uint256 expectedShortId = longId | 1;
-        uint256 actualShortId = LibToken.longToShort(longId);
+        uint256 actualShortId = LibPosition.longToShort(longId);
 
         assertEq(actualShortId, expectedShortId, "longToShort");
     }
@@ -109,14 +86,14 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
-        uint256 longId = LibToken.hashToId(instrumentHash);
+        uint256 longId = LibPosition.hashToId(instrumentHash);
         uint256 expectedAssignedShortId = longId | 2;
-        uint256 actualAssignedShortId = LibToken.longToAssignedShort(longId);
+        uint256 actualAssignedShortId = LibPosition.longToAssignedShort(longId);
 
         assertEq(actualAssignedShortId, expectedAssignedShortId, "longToAssignedShort");
     }
@@ -130,15 +107,15 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
-        uint256 longId = LibToken.hashToId(instrumentHash);
-        uint256 shortId = LibToken.longToShort(longId);
+        uint256 longId = LibPosition.hashToId(instrumentHash);
+        uint256 shortId = LibPosition.longToShort(longId);
 
-        assertEq(LibToken.shortToLong(shortId), longId, "shortToLong");
+        assertEq(LibPosition.shortToLong(shortId), longId, "shortToLong");
     }
 
     function test_shortToAssignedShort() public {
@@ -150,17 +127,17 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
-        uint256 longId = LibToken.hashToId(instrumentHash);
-        uint256 shortId = LibToken.longToShort(longId);
-        uint256 assignedShortId = LibToken.longToAssignedShort(longId);
+        uint256 longId = LibPosition.hashToId(instrumentHash);
+        uint256 shortId = LibPosition.longToShort(longId);
+        uint256 assignedShortId = LibPosition.longToAssignedShort(longId);
 
         assertEq(
-            LibToken.shortToAssignedShort(shortId),
+            LibPosition.shortToAssignedShort(shortId),
             assignedShortId,
             "shortToAssignedShort"
         );
@@ -175,16 +152,18 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
-        uint256 longId = LibToken.hashToId(instrumentHash);
-        uint256 assignedShortId = LibToken.longToAssignedShort(longId);
+        uint256 longId = LibPosition.hashToId(instrumentHash);
+        uint256 assignedShortId = LibPosition.longToAssignedShort(longId);
 
         assertEq(
-            LibToken.assignedShortToLong(assignedShortId), longId, "assignedShortToLong"
+            LibPosition.assignedShortToLong(assignedShortId),
+            longId,
+            "assignedShortToLong"
         );
     }
 
@@ -197,21 +176,23 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
-        uint256 longId = LibToken.hashToId(instrumentHash);
-        uint256 shortId = LibToken.longToShort(longId);
-        uint256 assignedShortId = LibToken.longToAssignedShort(longId);
+        uint256 longId = LibPosition.hashToId(instrumentHash);
+        uint256 shortId = LibPosition.longToShort(longId);
+        uint256 assignedShortId = LibPosition.longToAssignedShort(longId);
 
         assertEq(
-            LibToken.assignedShortToShort(assignedShortId),
+            LibPosition.assignedShortToShort(assignedShortId),
             shortId,
             "assignedShortToShort"
         );
     }
+
+    ///////// Token Type
 
     function test_tokenType() public {
         uint248 instrumentHash = uint248(
@@ -222,26 +203,26 @@ contract LibTokenTest is BaseClarityMarketsTest {
                         address(USDCLIKE),
                         americanExWeeklies[0],
                         uint256(1750e18),
-                        IOptionToken.OptionType.CALL
+                        IOption.OptionType.CALL
                     )
                 )
             )
         );
-        uint256 longId = LibToken.hashToId(instrumentHash);
+        uint256 longId = LibPosition.hashToId(instrumentHash);
         uint256 shortId = longId | 1;
         uint256 assignedShortId = longId | 2;
 
         assertEq(
-            LibToken.tokenType(longId), IOptionToken.TokenType.LONG, "tokenType(longId)"
+            LibPosition.tokenType(longId), IPosition.TokenType.LONG, "tokenType(longId)"
         );
         assertEq(
-            LibToken.tokenType(shortId),
-            IOptionToken.TokenType.SHORT,
+            LibPosition.tokenType(shortId),
+            IPosition.TokenType.SHORT,
             "tokenType(shortId)"
         );
         assertEq(
-            LibToken.tokenType(assignedShortId),
-            IOptionToken.TokenType.ASSIGNED_SHORT,
+            LibPosition.tokenType(assignedShortId),
+            IPosition.TokenType.ASSIGNED_SHORT,
             "tokenType(assignedShortId)"
         );
     }
@@ -251,6 +232,18 @@ contract LibTokenTest is BaseClarityMarketsTest {
 
         vm.expectRevert(stdError.enumConversionError);
 
-        LibToken.tokenType(malformedTokenId);
+        LibPosition.tokenType(malformedTokenId);
+    }
+
+    function test_tokenType_toString() public {
+        assertEq(LibPosition.toString(IPosition.TokenType.LONG), "Long", "toString(LONG)");
+        assertEq(
+            LibPosition.toString(IPosition.TokenType.SHORT), "Short", "toString(SHORT)"
+        );
+        assertEq(
+            LibPosition.toString(IPosition.TokenType.ASSIGNED_SHORT),
+            "Assigned",
+            "toString(ASSIGNED_SHORT)"
+        );
     }
 }

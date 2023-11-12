@@ -16,7 +16,7 @@ import "../../src/ClarityMarkets.sol";
 contract ClarityMarketsInvariantTest is Test {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
 
     ClarityMarkets private clarity;
     OptionsHandler private handler;

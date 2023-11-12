@@ -2,11 +2,11 @@
 pragma solidity 0.8.22;
 
 // Interfaces
-import {IOptionToken} from "../interface/option/IOptionToken.sol";
+import {IOption} from "../interface/option/IOption.sol";
 import {IClarityERC20Factory} from "../interface/adapter/IClarityERC20Factory.sol";
 
 // Libraries
-import {OptionErrors} from "../library/OptionErrors.sol";
+import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 // Contracts
 import {ClarityMarkets} from "../ClarityMarkets.sol";
@@ -32,19 +32,19 @@ contract ClarityERC20Factory is IClarityERC20Factory {
     {
         ///////// Function Requirements
         // Check that the option exists
-        IOptionToken.Option memory option = clarity.option(optionTokenId);
+        IOption.Option memory option = clarity.option(optionTokenId);
         if (option.baseAsset == address(0)) {
-            revert OptionErrors.OptionDoesNotExist(optionTokenId);
+            revert IOptionErrors.OptionDoesNotExist(optionTokenId);
         }
 
         // Check that the option is not already wrapped
         if (wrapperFor[optionTokenId] != address(0)) {
-            revert OptionErrors.WrappedLongAlreadyDeployed(optionTokenId);
+            revert IOptionErrors.WrappedLongAlreadyDeployed(optionTokenId);
         }
 
         // Check that the option is not expired
         if (block.timestamp > option.exerciseWindow.expiryTimestamp) {
-            revert OptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
+            revert IOptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
         }
 
         ///////// Effects
@@ -52,8 +52,7 @@ contract ClarityERC20Factory is IClarityERC20Factory {
 
         ///////// Interactions
         // Deploy a new ClarityWrappedLong contract
-        string memory wrappedName =
-            string(abi.encodePacked("w", clarity.names(optionTokenId)));
+        string memory wrappedName = string.concat("w", clarity.names(optionTokenId));
         ClarityWrappedLong wrapper =
             new ClarityWrappedLong(clarity, optionTokenId, wrappedName);
         wrapperAddress = address(wrapper);

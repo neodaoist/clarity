@@ -32,12 +32,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "writer long balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(writer, LibPosition.longToShort(optionTokenId)),
             2.25e6,
             "writer short balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenId)),
             0,
             "writer assigned balance before exercise"
         );
@@ -47,12 +47,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "holder long balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(holder, LibPosition.longToShort(optionTokenId)),
             0,
             "holder short balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(holder, LibPosition.longToAssignedShort(optionTokenId)),
             0,
             "holder assigned balance before exercise"
         );
@@ -93,12 +93,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(writer1, LibPosition.longToShort(optionTokenId)),
             (2.25e6 * (2.25e6 - 0.8e6)) / 2.25e6,
             "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(writer1, LibPosition.longToAssignedShort(optionTokenId)),
             (2.25e6 * 0.8e6) / 2.25e6,
             "oti1 writer1 assigned balance after exercise"
         );
@@ -108,12 +108,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 holder1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(holder1, LibPosition.longToShort(optionTokenId)),
             0,
             "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(holder1, LibPosition.longToAssignedShort(optionTokenId)),
             0,
             "oti1 holder1 assigned balance after exercise"
         );
@@ -161,12 +161,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToShort(oti1)),
             (2.15e6 * (2.5e6 - 0.1e6)) / 2.5e6,
             "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)),
             (2.15e6 * 0.1e6) / 2.5e6,
             "oti1 writer1 assigned balance after exercise"
         );
@@ -176,12 +176,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer2 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToShort(oti1)),
             (0.35e6 * (2.5e6 - 0.1e6)) / 2.5e6,
             "oti1 writer2 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)),
             (0.35e6 * 0.1e6) / 2.5e6,
             "oti1 writer2 assigned balance after exercise"
         );
@@ -192,12 +192,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 holder1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToShort(oti1)),
             0,
             "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)),
             0,
             "oti1 holder1 assigned balance after exercise"
         );
@@ -233,12 +233,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToShort(oti1)),
             (2.15e6 * (2.5e6 - 0.15e6)) / 2.5e6,
             "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)),
             (2.15e6 * 0.15e6) / 2.5e6,
             "oti1 writer1 assigned balance after exercise"
         );
@@ -248,12 +248,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer2 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToShort(oti1)),
             (0.35e6 * (2.5e6 - 0.15e6)) / 2.5e6,
             "oti1 writer2 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)),
             (0.35e6 * 0.15e6) / 2.5e6,
             "oti1 writer2 assigned balance after exercise"
         );
@@ -264,12 +264,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 holder1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToShort(oti1)),
             0,
             "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)),
             0,
             "oti1 holder1 assigned balance after exercise"
         );
@@ -305,12 +305,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToShort(oti1)),
             (2.15e6 * (2.5e6 - 0.2e6)) / 2.5e6,
             "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)),
             (2.15e6 * 0.2e6) / 2.5e6,
             "oti1 writer1 assigned balance after exercise"
         );
@@ -320,12 +320,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer2 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToShort(oti1)),
             (0.35e6 * (2.5e6 - 0.2e6)) / 2.5e6,
             "oti1 writer2 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)),
             (0.35e6 * 0.2e6) / 2.5e6,
             "oti1 writer2 assigned balance after exercise"
         );
@@ -336,12 +336,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 holder1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToShort(oti1)),
             0,
             "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)),
             0,
             "oti1 holder1 assigned balance after exercise"
         );
@@ -377,12 +377,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToShort(oti1)),
             (2.15e6 * (2.5e6 - 0.5e6)) / 2.5e6,
             "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)),
             (2.15e6 * 0.5e6) / 2.5e6,
             "oti1 writer1 assigned balance after exercise"
         );
@@ -392,12 +392,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer2 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToShort(oti1)),
             (0.35e6 * (2.5e6 - 0.5e6)) / 2.5e6,
             "oti1 writer2 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)),
             (0.35e6 * 0.5e6) / 2.5e6,
             "oti1 writer2 assigned balance after exercise"
         );
@@ -408,12 +408,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 holder1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToShort(oti1)),
             0,
             "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)),
             0,
             "oti1 holder1 assigned balance after exercise"
         );
@@ -449,12 +449,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToShort(oti1)),
             (2.15e6 * (2.5e6 - 1e6)) / 2.5e6,
             "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)),
             (2.15e6 * 1e6) / 2.5e6,
             "oti1 writer1 assigned balance after exercise"
         );
@@ -464,12 +464,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer2 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToShort(oti1)),
             (0.35e6 * (2.5e6 - 1e6)) / 2.5e6,
             "oti1 writer2 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)),
             (0.35e6 * 1e6) / 2.5e6,
             "oti1 writer2 assigned balance after exercise"
         );
@@ -480,12 +480,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 holder1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToShort(oti1)),
             0,
             "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)),
             0,
             "oti1 holder1 assigned balance after exercise"
         );
@@ -521,12 +521,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToShort(oti1)),
             0,
             "oti1 writer1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)),
             2.15e6,
             "oti1 writer1 assigned balance after exercise"
         );
@@ -536,12 +536,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 writer2 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToShort(oti1)),
             0,
             "oti1 writer2 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)),
             0.35e6,
             "oti1 writer2 assigned balance after exercise"
         );
@@ -552,12 +552,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "oti1 holder1 long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToShort(oti1)),
             0,
             "oti1 holder1 short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)),
+            clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)),
             0,
             "oti1 holder1 assigned balance after exercise"
         );
@@ -585,17 +585,17 @@ contract ExerciseTest is BaseClarityMarketsTest {
     //     // Then
     //     // check option balances
     //     assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
-    //     assertEq(clarity.balanceOf(writer1, LibToken.longToShort(oti1)), 777, "oti1 writer1 short balance after exercise");
-    //     assertEq(clarity.balanceOf(writer1, LibToken.longToAssignedShort(oti1)), 0, "oti1 writer1 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer1, LibPosition.longToShort(oti1)), 777, "oti1 writer1 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)), 0, "oti1 writer1 assigned balance after exercise");
     //     assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
-    //     assertEq(clarity.balanceOf(writer2, LibToken.longToShort(oti1)), 888, "oti1 writer2 short balance after exercise");
-    //     assertEq(clarity.balanceOf(writer2, LibToken.longToAssignedShort(oti1)), 0, "oti1 writer2 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer2, LibPosition.longToShort(oti1)), 888, "oti1 writer2 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)), 0, "oti1 writer2 assigned balance after exercise");
     //     assertEq(clarity.balanceOf(writer3, oti1), 0, "oti1 writer3 long balance after exercise");
-    //     assertEq(clarity.balanceOf(writer3, LibToken.longToShort(oti1)), 999, "oti1 writer3 short balance after exercise");
-    //     assertEq(clarity.balanceOf(writer3, LibToken.longToAssignedShort(oti1)), 0, "oti1 writer3 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer3, LibPosition.longToShort(oti1)), 999, "oti1 writer3 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer3, LibPosition.longToAssignedShort(oti1)), 0, "oti1 writer3 assigned balance after exercise");
     //     assertEq(clarity.balanceOf(holder1, oti1), 0, "oti1 holder1 long balance after exercise");
-    //     assertEq(clarity.balanceOf(holder1, LibToken.longToShort(oti1)), 0, "oti1 holder1 short balance after exercise");
-    //     assertEq(clarity.balanceOf(holder1, LibToken.longToAssignedShort(oti1)), 0, "oti1 holder1 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(holder1, LibPosition.longToShort(oti1)), 0, "oti1 holder1 short balance after exercise");
+    //     assertEq(clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)), 0, "oti1 holder1 assigned balance after exercise");
 
     //     // check asset balances
     //     assertEq(WETHLIKE.balanceOf(holder1), holder1WethBalance, "holder1 WETH balance after exercise");
@@ -642,12 +642,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "writer long balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(writer, LibPosition.longToShort(optionTokenId)),
             optionAmountWritten,
             "writer short balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenId)),
             0,
             "writer assigned balance before exercise"
         );
@@ -657,12 +657,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "holder long balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(holder, LibPosition.longToShort(optionTokenId)),
             0,
             "holder short balance before exercise"
         );
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(holder, LibPosition.longToAssignedShort(optionTokenId)),
             0,
             "holder assigned balance before exercise"
         );
@@ -682,12 +682,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "writer long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(writer, LibPosition.longToShort(optionTokenId)),
             0,
             "writer short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(writer, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenId)),
             optionAmountWritten,
             "writer assigned balance after exercise"
         );
@@ -697,12 +697,12 @@ contract ExerciseTest is BaseClarityMarketsTest {
             "holder long balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToShort(optionTokenId)),
+            clarity.balanceOf(holder, LibPosition.longToShort(optionTokenId)),
             0,
             "holder short balance after exercise"
         );
         assertEq(
-            clarity.balanceOf(holder, LibToken.longToAssignedShort(optionTokenId)),
+            clarity.balanceOf(holder, LibPosition.longToAssignedShort(optionTokenId)),
             0,
             "holder assigned balance after exercise"
         );
@@ -736,7 +736,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_exercise_whenExerciseAmountZero() public {
-        vm.expectRevert(OptionErrors.ExerciseAmountZero.selector);
+        vm.expectRevert(IOptionErrors.ExerciseAmountZero.selector);
 
         vm.prank(holder);
         clarity.exercise(123, 0);
@@ -744,7 +744,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
     function testRevert_exercise_whenOptionDoesNotExist() public {
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, 123)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 123)
         );
 
         vm.prank(holder);
@@ -759,13 +759,13 @@ contract ExerciseTest is BaseClarityMarketsTest {
     //     vm.stopPrank();
 
     //     uint256 short = Y;
-    //     vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, short));
+    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, short));
 
     //     vm.prank(holder);
     //     clarity.exercise(short, 1e6);
 
     //     uint256 assignedShort = Z;
-    //     vm.expectRevert(abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, assignedShort));
+    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, assignedShort));
 
     //     vm.prank(holder);
     //     clarity.exercise(assignedShort, 1e6);
@@ -784,7 +784,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionNotWithinExerciseWindow.selector,
+                IOptionErrors.OptionNotWithinExerciseWindow.selector,
                 americanExWeeklies[0][0],
                 americanExWeeklies[0][1]
             )
@@ -798,7 +798,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionNotWithinExerciseWindow.selector,
+                IOptionErrors.OptionNotWithinExerciseWindow.selector,
                 americanExWeeklies[0][0],
                 americanExWeeklies[0][1]
             )
@@ -820,7 +820,7 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.ExerciseAmountExceedsLongBalance.selector, 1.000001e6, 1e6
+                IOptionErrors.ExerciseAmountExceedsLongBalance.selector, 1.000001e6, 1e6
             )
         );
 

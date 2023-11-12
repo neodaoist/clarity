@@ -11,7 +11,7 @@ import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
 contract AdapterTest is BaseClarityMarketsTest {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
 
     ClarityERC20Factory internal factory;
     ClarityWrappedShort internal wrappedShort;

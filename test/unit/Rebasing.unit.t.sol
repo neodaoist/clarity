@@ -7,8 +7,8 @@ import "../BaseClarityMarkets.t.sol";
 contract RebasingTest is BaseClarityMarketsTest {
     /////////
 
-    using LibToken for uint256;
-    using LibToken for uint248;
+    using LibPosition for uint256;
+    using LibPosition for uint248;
 
     uint64 internal constant SOME_WRITTEN = 10.000001e6;
     uint64 internal constant MANY_WRITTEN = 6_000_000e6;
@@ -505,26 +505,28 @@ contract RebasingTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_totalSupply_whenOptionDoesNotExist() public {
-        uint248 instrumentHash = LibToken.paramsToHash(
+        uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
             americanExWeeklies[0],
             1750e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 longTokenId = instrumentHash.hashToId();
         uint256 shortTokenId = longTokenId.longToShort();
         uint256 assignedShortTokenId = longTokenId.longToAssignedShort();
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, longTokenId)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, longTokenId)
         );
 
         vm.prank(writer);
         clarity.totalSupply(longTokenId);
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, shortTokenId)
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, shortTokenId
+            )
         );
 
         vm.prank(writer);
@@ -532,7 +534,7 @@ contract RebasingTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
+                IOptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
             )
         );
 
@@ -1005,26 +1007,28 @@ contract RebasingTest is BaseClarityMarketsTest {
     // Sad Paths
 
     function testRevert_balanceOf_whenOptionDoesNotExist() public {
-        uint248 instrumentHash = LibToken.paramsToHash(
+        uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
             americanExWeeklies[0],
             1750e18,
-            IOptionToken.OptionType.CALL
+            IOption.OptionType.CALL
         );
         uint256 longTokenId = instrumentHash.hashToId();
         uint256 shortTokenId = longTokenId.longToShort();
         uint256 assignedShortTokenId = longTokenId.longToAssignedShort();
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, longTokenId)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, longTokenId)
         );
 
         vm.prank(writer);
         clarity.balanceOf(writer, longTokenId);
 
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, shortTokenId)
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, shortTokenId
+            )
         );
 
         vm.prank(writer);
@@ -1032,7 +1036,7 @@ contract RebasingTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
+                IOptionErrors.OptionDoesNotExist.selector, assignedShortTokenId
             )
         );
 

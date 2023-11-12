@@ -63,7 +63,7 @@ contract NetOffTest is BaseClarityMarketsTest {
         vm.prank(writer);
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionDoesNotExist.selector, nonExistentOptionTokenId
+                IOptionErrors.OptionDoesNotExist.selector, nonExistentOptionTokenId
             )
         );
 
@@ -80,7 +80,7 @@ contract NetOffTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.InsufficientLongBalance.selector, optionTokenId, 1e6
+                IOptionErrors.InsufficientLongBalance.selector, optionTokenId, 1e6
             )
         );
 
@@ -94,11 +94,11 @@ contract NetOffTest is BaseClarityMarketsTest {
         uint256 optionTokenId = clarity.writeCall(
             address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
         );
-        clarity.transfer(holder, LibToken.longToShort(optionTokenId), 0.1e6);
+        clarity.transfer(holder, LibPosition.longToShort(optionTokenId), 0.1e6);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.InsufficientShortBalance.selector, optionTokenId, 1e6
+                IOptionErrors.InsufficientShortBalance.selector, optionTokenId, 1e6
             )
         );
 

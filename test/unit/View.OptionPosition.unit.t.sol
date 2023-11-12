@@ -5,7 +5,7 @@ pragma solidity 0.8.22;
 import "../BaseClarityMarkets.t.sol";
 
 // Views Under Test
-import {IOptionPosition} from "../../src/interface/option/IOptionPosition.sol";
+import {IPosition} from "../../src/interface//IPosition.sol";
 
 contract OptionPositionViewsTest is BaseClarityMarketsTest {
     /////////
@@ -42,7 +42,7 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         // Then
         // check writer1 position
         vm.prank(writer1);
-        (IOptionPosition.Position memory position, int160 magnitude) =
+        (IPosition.Position memory position, int160 magnitude) =
             clarity.position(optionTokenId);
 
         assertEq(position.amountLong, 2.5e6, "writer1 amount long");
@@ -79,8 +79,7 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         // Then
         // check writer1 position
         vm.prank(writer1);
-        (IOptionPosition.Position memory position, int160 magnitude) =
-            clarity.position(oti1);
+        (IPosition.Position memory position, int160 magnitude) = clarity.position(oti1);
 
         assertEq(position.amountLong, 0, "writer1 amount long");
         assertEq(

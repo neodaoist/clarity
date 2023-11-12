@@ -11,8 +11,9 @@ import {Test, console2, stdError} from "forge-std/Test.sol";
 import {MockERC20} from "./util/MockERC20.sol";
 
 // Interfaces
-import {IOptionToken} from "../src/interface/option/IOptionToken.sol";
+import {IOption} from "../src/interface/option/IOption.sol";
 import {IOptionEvents} from "../src/interface/option/IOptionEvents.sol";
+import {IOptionErrors} from "../src/interface/option/IOptionErrors.sol";
 
 // Contract Under Test
 import "../src/ClarityMarkets.sol";
@@ -20,7 +21,7 @@ import "../src/ClarityMarkets.sol";
 abstract contract BaseClarityMarketsTest is Test {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
 
     // DCP
     ClarityMarkets internal clarity;
@@ -83,12 +84,12 @@ abstract contract BaseClarityMarketsTest is Test {
     uint32 internal constant DAWN = 1_697_788_800; // Fri Oct 20 2023 08:00:00 GMT+0000
     uint32 internal constant FRI1 = DAWN + 7 days;
     uint32 internal constant FRI2 = DAWN + 14 days;
-    uint32 internal constant FRI3 = DAWN + 21 days;
-    uint32 internal constant FRI4 = DAWN + 28 days;
+    uint32 internal constant FRI3 = DAWN + 21 days + 1 hours; // shakes fist, darn you DST
+    uint32 internal constant FRI4 = DAWN + 28 days + 1 hours;
     uint32 internal constant THU1 = DAWN + 6 days;
     uint32 internal constant THU2 = DAWN + 13 days;
-    uint32 internal constant THU3 = DAWN + 20 days;
-    uint32 internal constant THU4 = DAWN + 27 days;
+    uint32 internal constant THU3 = DAWN + 20 days + 1 hours;
+    uint32 internal constant THU4 = DAWN + 27 days + 1 hours;
 
     uint32[][] internal americanExDailies;
     uint32[][] internal americanExWeeklies;
@@ -120,14 +121,14 @@ abstract contract BaseClarityMarketsTest is Test {
         clarity = new ClarityMarkets();
 
         // deploy test assets
-        WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETHLIKE", 18)));
-        WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTCLIKE", 8)));
-        LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINKLIKE", 18)));
-        PEPELIKE = IERC20(address(new MockERC20("PEPE Like", "PEPELIKE", 18)));
-        FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
-        LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
-        USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
-        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18)));
+        WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETH", 18)));
+        WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTC", 8)));
+        LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINK", 18)));
+        PEPELIKE = IERC20(address(new MockERC20("PEPE Like", "PEPE", 18)));
+        FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAX", 18)));
+        LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSD", 18)));
+        USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDC", 6)));
+        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDT", 18)));
 
         // make test actors and mint assets
         address[] memory writers = new address[](NUM_TEST_ACTORS);
@@ -600,14 +601,15 @@ abstract contract BaseClarityMarketsTest is Test {
     }
 
     function scaleUpOptionAmount(uint256 amount) internal view returns (uint64) {
-        return SafeCastLib.safeCastTo64(amount * (10 ** clarity.OPTION_CONTRACT_SCALAR()));
+        return SafeCastLib.safeCastTo64(amount * (10 ** clarity.CONTRACT_SCALAR()));
     }
 
     function scaleDownOptionAmount(uint256 amount) internal view returns (uint64) {
-        return SafeCastLib.safeCastTo64(amount / (10 ** clarity.OPTION_CONTRACT_SCALAR()));
+        return SafeCastLib.safeCastTo64(amount / (10 ** clarity.CONTRACT_SCALAR()));
     }
 
     ///////// Custom Multi Assertions
+
     // Note be mindful not to add too many multi assertions and/or too much misdirection
 
     function assertTotalSupplies(
@@ -620,17 +622,17 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(
             clarity.totalSupply(optionTokenId),
             expectedLongTotalSupply,
-            string(abi.encodePacked("long total supply ", message))
+            string.concat("long total supply ", message)
         );
         assertEq(
             clarity.totalSupply(optionTokenId.longToShort()),
             expectedShortTotalSupply,
-            string(abi.encodePacked("short total supply ", message))
+            string.concat("short total supply ", message)
         );
         assertEq(
             clarity.totalSupply(optionTokenId.longToAssignedShort()),
             expectedAssignedShortTotalSupply,
-            string(abi.encodePacked("assigned short total supply ", message))
+            string.concat("assigned short total supply ", message)
         );
     }
 
@@ -645,17 +647,17 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(
             clarity.balanceOf(addr, optionTokenId),
             expectedLongBalance,
-            string(abi.encodePacked("long balance ", message))
+            string.concat("long balance ", message)
         );
         assertEq(
             clarity.balanceOf(addr, optionTokenId.longToShort()),
             expectedShortBalance,
-            string(abi.encodePacked("short balance ", message))
+            string.concat("short balance ", message)
         );
         assertEq(
             clarity.balanceOf(addr, optionTokenId.longToAssignedShort()),
             expectedAssignedShortBalance,
-            string(abi.encodePacked("assigned short balance ", message))
+            string.concat("assigned short balance ", message)
         );
     }
 
@@ -668,7 +670,7 @@ abstract contract BaseClarityMarketsTest is Test {
         assertEq(
             asset.balanceOf(addr),
             expectedBalance,
-            string(abi.encodePacked(asset.symbol(), " balance ", message))
+            string.concat(asset.symbol(), " balance ", message)
         );
     }
 
@@ -676,7 +678,7 @@ abstract contract BaseClarityMarketsTest is Test {
 
     // TODO add assertion for Option itself
 
-    function assertEq(IOptionToken.OptionType a, IOptionToken.OptionType b) internal {
+    function assertEq(IOption.OptionType a, IOption.OptionType b) internal {
         if (a != b) {
             emit log("Error: a == b not satisfied [OptionType]");
             emit log_named_uint("      Left", uint8(a));
@@ -685,20 +687,16 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(
-        IOptionToken.OptionType a,
-        IOptionToken.OptionType b,
-        string memory err
-    ) internal {
+    function assertEq(IOption.OptionType a, IOption.OptionType b, string memory err)
+        internal
+    {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
 
-    function assertEq(IOptionToken.ExerciseStyle a, IOptionToken.ExerciseStyle b)
-        internal
-    {
+    function assertEq(IOption.ExerciseStyle a, IOption.ExerciseStyle b) internal {
         if (a != b) {
             emit log("Error: a == b not satisfied [ExerciseStyle]");
             emit log_named_uint("      Left", uint8(a));
@@ -707,21 +705,18 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(
-        IOptionToken.ExerciseStyle a,
-        IOptionToken.ExerciseStyle b,
-        string memory err
-    ) internal {
+    function assertEq(IOption.ExerciseStyle a, IOption.ExerciseStyle b, string memory err)
+        internal
+    {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
 
-    function assertEq(
-        IOptionToken.ExerciseWindow memory a,
-        IOptionToken.ExerciseWindow memory b
-    ) internal {
+    function assertEq(IOption.ExerciseWindow memory a, IOption.ExerciseWindow memory b)
+        internal
+    {
         if (a.exerciseTimestamp != b.exerciseTimestamp) {
             emit log("Error: a == b not satisfied [ExerciseWindow.exerciseTimestamp]");
             emit log_named_uint("      Left", a.exerciseTimestamp);
@@ -737,8 +732,8 @@ abstract contract BaseClarityMarketsTest is Test {
     }
 
     function assertEq(
-        IOptionToken.ExerciseWindow memory a,
-        IOptionToken.ExerciseWindow memory b,
+        IOption.ExerciseWindow memory a,
+        IOption.ExerciseWindow memory b,
         string memory err
     ) internal {
         if (
@@ -750,7 +745,7 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(IOptionToken.TokenType a, IOptionToken.TokenType b) internal {
+    function assertEq(IPosition.TokenType a, IPosition.TokenType b) internal {
         if (a != b) {
             emit log("Error: a == b not satisfied [TokenType]");
             emit log_named_uint("      Left", uint8(a));
@@ -759,11 +754,9 @@ abstract contract BaseClarityMarketsTest is Test {
         }
     }
 
-    function assertEq(
-        IOptionToken.TokenType a,
-        IOptionToken.TokenType b,
-        string memory err
-    ) internal {
+    function assertEq(IPosition.TokenType a, IPosition.TokenType b, string memory err)
+        internal
+    {
         if (a != b) {
             emit log_named_string("Error", err);
             assertEq(a, b);

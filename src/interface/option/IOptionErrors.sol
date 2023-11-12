@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.22;
 
-library OptionErrors {
+interface IOptionErrors {
     /////////
 
     ///////// Write
@@ -66,6 +66,8 @@ library OptionErrors {
     ///////// Views
 
     error InvalidTokenType(uint256 tokenId);
+
+    error TempInvalidTokenType();
 
     ///////// Adapter
 

@@ -17,7 +17,7 @@ import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
 contract AdapterTest is BaseClarityMarketsTest {
     /////////
 
-    using LibToken for uint256;
+    using LibPosition for uint256;
 
     ClarityERC20Factory internal factory;
     ClarityWrappedLong internal wrappedLong;
@@ -58,8 +58,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         // check deployed wrapped long
         wrappedLong = ClarityWrappedLong(wrappedLongAddress);
 
-        string memory expectedName =
-            string(abi.encodePacked("w", clarity.names(optionTokenId)));
+        string memory expectedName = string.concat("w", clarity.names(optionTokenId));
         assertEq(wrappedLong.name(), expectedName, "wrapper name");
         assertEq(wrappedLong.symbol(), expectedName, "wrapper symbol");
         assertEq(
@@ -68,12 +67,10 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         assertEq(wrappedLong.optionTokenId(), optionTokenId, "wrapper optionTokenId");
         // assertEq(wrapper.option(), clarity.option(optionTokenId)); // TODO consider adding
-        IOptionToken.Option memory option = wrappedLong.option();
-        assertEq(option.optionType, IOptionToken.OptionType.CALL, "wrapper optionType");
+        IOption.Option memory option = wrappedLong.option();
+        assertEq(option.optionType, IOption.OptionType.CALL, "wrapper optionType");
         assertEq(
-            option.exerciseStyle,
-            IOptionToken.ExerciseStyle.AMERICAN,
-            "wrapper exerciseStyle"
+            option.exerciseStyle, IOption.ExerciseStyle.AMERICAN, "wrapper exerciseStyle"
         );
         assertEq(
             option.exerciseWindow.exerciseTimestamp,
@@ -121,7 +118,7 @@ contract AdapterTest is BaseClarityMarketsTest {
         for (uint256 i = 0; i < numOptions; i++) {
             // check deployed wrapper
             string memory expectedName =
-                string(abi.encodePacked("w", clarity.names(optionTokenIds[i])));
+                string.concat("w", clarity.names(optionTokenIds[i]));
             assertEq(wrappedLongs[i].name(), expectedName, "wrapper name");
             assertEq(wrappedLongs[i].symbol(), expectedName, "wrapper symbol");
             assertEq(
@@ -135,13 +132,11 @@ contract AdapterTest is BaseClarityMarketsTest {
                 optionTokenIds[i],
                 "wrapper optionTokenId"
             );
-            IOptionToken.Option memory option = wrappedLongs[i].option();
-            assertEq(
-                option.optionType, IOptionToken.OptionType.CALL, "wrapper optionType"
-            );
+            IOption.Option memory option = wrappedLongs[i].option();
+            assertEq(option.optionType, IOption.OptionType.CALL, "wrapper optionType");
             assertEq(
                 option.exerciseStyle,
-                IOptionToken.ExerciseStyle.AMERICAN,
+                IOption.ExerciseStyle.AMERICAN,
                 "wrapper exerciseStyle"
             );
             assertEq(
@@ -189,7 +184,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
     function testRevert_deployWrappedLong_whenOptionDoesNotExist() public {
         vm.expectRevert(
-            abi.encodeWithSelector(OptionErrors.OptionDoesNotExist.selector, 456)
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 456)
         );
 
         vm.prank(writer);
@@ -207,7 +202,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.WrappedLongAlreadyDeployed.selector, optionTokenId
+                IOptionErrors.WrappedLongAlreadyDeployed.selector, optionTokenId
             )
         );
 
@@ -227,7 +222,7 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                OptionErrors.OptionExpired.selector,
+                IOptionErrors.OptionExpired.selector,
                 optionTokenId,
                 uint32(block.timestamp)
             )
