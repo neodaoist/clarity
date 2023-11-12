@@ -234,4 +234,18 @@ contract LibPositionTest is BaseClarityMarketsTest {
 
         LibPosition.tokenType(malformedTokenId);
     }
+
+    function test_tokenType_toString() public {
+        assertEq(
+            LibPosition.toString(IPosition.TokenType.LONG), "Long", "toString(LONG)"
+        );
+        assertEq(
+            LibPosition.toString(IPosition.TokenType.SHORT), "Short", "toString(SHORT)"
+        );
+        assertEq(
+            LibPosition.toString(IPosition.TokenType.ASSIGNED_SHORT),
+            "Assigned",
+            "toString(ASSIGNED_SHORT)"
+        );
+    }
 }

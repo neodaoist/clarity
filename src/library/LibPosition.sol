@@ -51,7 +51,6 @@ library LibPosition {
         _tokenType = IPosition.TokenType(tokenId & 0xFF);
     }
 
-    // TODO write unit test
     function toString(IPosition.TokenType _tokenType)
         internal
         pure
@@ -64,7 +63,7 @@ library LibPosition {
         } else if (_tokenType == IPosition.TokenType.ASSIGNED_SHORT) {
             str = "Assigned";
         } else {
-            revert("todo"); // unreachable
+            revert(); // theoretically unreachable
         }
     }
 }
