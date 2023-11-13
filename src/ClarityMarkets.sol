@@ -448,6 +448,56 @@ contract ClarityMarkets is
         );
     }
 
+    ///////// ERC6909 Transfer
+
+    function transfer(address receiver, uint256 tokenId, uint256 amount)
+        public
+        override
+        returns (bool)
+    {
+        ///////// Function Requirements
+
+        _checkTransferFunctionRequirements(tokenId);
+
+        ///////// Continue to Effects and Interactions
+
+        return super.transfer(receiver, tokenId, amount);
+    }
+
+    function transferFrom(address sender, address receiver, uint256 tokenId, uint256 amount)
+        public
+        override
+        returns (bool)
+    {
+        ///////// Function Requirements
+        
+        _checkTransferFunctionRequirements(tokenId);
+
+        ///////// Continue to Effects and Interactions
+
+        return super.transferFrom(sender, receiver, tokenId, amount);
+    }
+
+    function _checkTransferFunctionRequirements(uint256 tokenId) private view {
+        // Check that the option exists
+        uint248 optionHash = tokenId.idToHash();
+        OptionStorage storage optionStored = optionStorage[optionHash];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionDoesNotExist(tokenId);
+        }
+
+        // Check that token is long or short
+        TokenType _tokenType = tokenId.tokenType();
+        if (_tokenType != TokenType.LONG && _tokenType != TokenType.SHORT) {
+            revert CanOnlyTransferLongOrShort();
+        }
+
+        // If short, check that the option has been not assigned at all
+        if (_tokenType == TokenType.SHORT && optionStored.optionState.amountExercised > 0) {
+            revert CanOnlyTransferShortIfUnassigned();
+        }        
+    }
+
     ///////// Option Actions
 
     // Write

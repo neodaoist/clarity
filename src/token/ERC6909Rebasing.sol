@@ -7,7 +7,8 @@ import {IERC6909MetadataModified} from "../interface/token/IERC6909MetadataModif
 import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
-/// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol)
+/// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol) and 
+/// jtriley's reference implementation (https://github.com/jtriley-eth/ERC-6909)
 abstract contract ERC6909Rebasing is
     IERC6909,
     IERC6909MetadataModified,
@@ -16,14 +17,35 @@ abstract contract ERC6909Rebasing is
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
+    
+    /// @notice The event emitted when a transfer occurs.
+    /// @param caller The caller of the transfer.
+    /// @param sender The address of the sender.
+    /// @param receiver The address of the receiver.
+    /// @param id The id of the token.
+    /// @param amount The amount of the token.
+    event Transfer(
+        address caller,
+        address indexed sender,
+        address indexed receiver,
+        uint256 indexed id,
+        uint256 amount
+    );
 
-    // event OperatorSet(address indexed owner, address indexed operator, bool approved);
+    /// @notice The event emitted when an operator is set.
+    /// @param owner The address of the owner.
+    /// @param spender The address of the spender.
+    /// @param approved The approval status.
+    event OperatorSet(address indexed owner, address indexed spender, bool approved);
 
-    // event Approval(address indexed owner, address indexed spender, uint256 indexed id, uint256 amount);
-
-    // event Transfer(
-    //     address caller, address indexed from, address indexed to, uint256 indexed id, uint256 amount
-    // );
+    /// @notice The event emitted when an approval occurs.
+    /// @param owner The address of the owner.
+    /// @param spender The address of the spender.
+    /// @param id The id of the token.
+    /// @param amount The amount of the token.
+    event Approval(
+        address indexed owner, address indexed spender, uint256 indexed id, uint256 amount
+    );
 
     /*//////////////////////////////////////////////////////////////
                              ERC6909 STORAGE

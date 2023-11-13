@@ -37,6 +37,20 @@ interface IOptionErrors {
 
     error BatchWriteArrayLengthMismatch();
 
+    ///////// Transfer
+
+    error CanOnlyTransferLongOrShort();
+
+    error CanOnlyTransferShortIfUnassigned();
+
+    ///////// Net Off
+
+    /// @dev Also used in ERC20Factory and ClarityWrappedLong
+    error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
+
+    /// @dev Also used in ERC20Factory and ClarityWrappedShort
+    error InsufficientShortBalance(uint256 shortTokenId, uint256 shortBalance);
+
     ///////// Exercise
 
     error ExerciseAmountZero();
@@ -46,14 +60,6 @@ interface IOptionErrors {
     error OptionNotWithinExerciseWindow(uint32 exerciseTimestamp, uint32 expiryTimestamp);
 
     error ExerciseAmountExceedsLongBalance(uint256 optionAmount, uint256 optionBalance);
-
-    ///////// Net Off
-
-    /// @dev Also used in ERC20Factory and ClarityWrappedLong
-    error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
-
-    /// @dev Also used in ERC20Factory and ClarityWrappedShort
-    error InsufficientShortBalance(uint256 shortTokenId, uint256 shortBalance);
 
     ///////// Redeem
 
