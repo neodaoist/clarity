@@ -79,6 +79,12 @@ interface IOptionErrors {
 
     error WrappedLongAlreadyDeployed(uint256 optionTokenId);
 
+    error WrappedShortAlreadyDeployed(uint256 shortTokenId);
+
+    error TokenIdNotShort(uint tokenId); // TODO consider using elsewhere, do one for other types also
+
+    error ShortAlreadyAssigned(uint shortTokenId);
+
     error WrapAmountZero();
 
     error UnwrapAmountZero();

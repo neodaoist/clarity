@@ -3,12 +3,15 @@ pragma solidity 0.8.22;
 
 // Interfaces
 import {IOption} from "../interface/option/IOption.sol";
+import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 import {IWrappedOption} from "../interface/adapter/IWrappedOption.sol";
 import {IClarityWrappedShort} from "../interface/adapter/IClarityWrappedShort.sol";
 
+// Libraries
+import {LibPosition} from "../library/LibPosition.sol";
+
 // Contracts
 import {ClarityMarkets} from "../ClarityMarkets.sol";
-import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 // External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
@@ -16,21 +19,30 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 contract ClarityWrappedShort is IWrappedOption, IClarityWrappedShort, ERC20 {
     /////////
 
+    using LibPosition for uint256;
+
+    /////////
+
     ClarityMarkets public immutable clarity;
 
     uint256 public immutable optionTokenId;
 
+    uint256 public immutable shortTokenId;
+
+    /////////
+
     uint8 private constant DECIMALS = 6;
 
-    constructor(ClarityMarkets _clarity, uint256 _optionTokenId, string memory _name)
+    constructor(ClarityMarkets _clarity, uint256 _shortTokenId, string memory _name)
         ERC20(_name, _name, DECIMALS)
     {
         // Set state
         clarity = _clarity;
-        optionTokenId = _optionTokenId;
+        optionTokenId = _shortTokenId.shortToLong();
+        shortTokenId = _shortTokenId;
 
         // Log event
-        emit ClarityWrappedShortDeployed(_optionTokenId, address(this));
+        emit ClarityWrappedShortDeployed(_shortTokenId, address(this));
     }
 
     /////////

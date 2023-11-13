@@ -456,11 +456,9 @@ contract ClarityMarkets is
         returns (bool)
     {
         ///////// Function Requirements
-
         _checkTransferFunctionRequirements(tokenId);
 
         ///////// Continue to Effects and Interactions
-
         return super.transfer(receiver, tokenId, amount);
     }
 
@@ -470,11 +468,9 @@ contract ClarityMarkets is
         returns (bool)
     {
         ///////// Function Requirements
-        
         _checkTransferFunctionRequirements(tokenId);
 
-        ///////// Continue to Effects and Interactions
-
+        ///////// Continue to Effects and Interactions        
         return super.transferFrom(sender, receiver, tokenId, amount);
     }
 

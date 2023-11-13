@@ -11,7 +11,7 @@ import {IClarityWrappedLong} from "../../src/interface/adapter/IClarityWrappedLo
 import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 import {ClarityWrappedLong} from "../../src/adapter/ClarityWrappedLong.sol";
 
-contract AdapterTest is BaseClarityMarketsTest {
+contract WrappedLongTest is BaseClarityMarketsTest {
     /////////
 
     using LibPosition for uint256;
