@@ -29,17 +29,25 @@ contract TransferTest is BaseClarityMarketsTest {
 
         // pre checks
         assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
-        assertOptionBalances(writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer");
-        assertOptionBalances(holder, optionTokenId, 0, 0, 0, "holder option balances before transfer");
-        
+        assertOptionBalances(
+            writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
+        );
+        assertOptionBalances(
+            holder, optionTokenId, 0, 0, 0, "holder option balances before transfer"
+        );
+
         // When
         vm.prank(writer);
         clarity.transfer(holder, optionTokenId, 0.75e6);
 
         // Then
         assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
-        assertOptionBalances(writer, optionTokenId, 0.25e6, 1e6, 0, "writer option balances after transfer");
-        assertOptionBalances(holder, optionTokenId, 0.75e6, 0, 0, "holder option balances after transfer");
+        assertOptionBalances(
+            writer, optionTokenId, 0.25e6, 1e6, 0, "writer option balances after transfer"
+        );
+        assertOptionBalances(
+            holder, optionTokenId, 0.75e6, 0, 0, "holder option balances after transfer"
+        );
     }
 
     function test_transfer_whenShort() public {
@@ -57,24 +65,34 @@ contract TransferTest is BaseClarityMarketsTest {
 
         // pre checks
         assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
-        assertOptionBalances(writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer");
-        assertOptionBalances(holder, optionTokenId, 0, 0, 0, "holder option balances before transfer");
-        
+        assertOptionBalances(
+            writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
+        );
+        assertOptionBalances(
+            holder, optionTokenId, 0, 0, 0, "holder option balances before transfer"
+        );
+
         // When
         vm.prank(writer);
         clarity.transfer(holder, optionTokenId.longToShort(), 0.75e6);
 
         // Then
         assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
-        assertOptionBalances(writer, optionTokenId, 1e6, 0.25e6, 0, "writer option balances after transfer");
-        assertOptionBalances(holder, optionTokenId, 0, 0.75e6, 0, "holder option balances after transfer");
+        assertOptionBalances(
+            writer, optionTokenId, 1e6, 0.25e6, 0, "writer option balances after transfer"
+        );
+        assertOptionBalances(
+            holder, optionTokenId, 0, 0.75e6, 0, "holder option balances after transfer"
+        );
     }
 
     // Sad Paths
 
     function testRevert_transfer_whenOptionDoesNotExist() public {
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 456));
+        vm.expectRevert(
+            abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 456)
+        );
 
         // When
         vm.prank(writer);
@@ -93,7 +111,7 @@ contract TransferTest is BaseClarityMarketsTest {
             optionAmount: 1e6
         });
         vm.stopPrank();
-        
+
         // Then
         vm.expectRevert(IOptionErrors.CanOnlyTransferLongOrShort.selector);
 
@@ -127,12 +145,11 @@ contract TransferTest is BaseClarityMarketsTest {
 
         // When
         vm.prank(writer);
-        clarity.transfer(holder, optionTokenId.longToShort(), 0.5e6);        
+        clarity.transfer(holder, optionTokenId.longToShort(), 0.5e6);
     }
 
     /////////
     // function transferFrom(address sender, address receiver, uint256 id, uint256 amount)
     //     external
     //     returns (bool);
-
 }

@@ -20,7 +20,11 @@ contract ClarityERC20Factory is IClarityERC20Factory {
 
     using LibPosition for uint256;
 
+    /////////
+
     mapping(uint256 => address) public wrapperFor;
+
+    /////////
 
     ClarityMarkets public immutable clarity;
 

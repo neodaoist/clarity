@@ -7,7 +7,7 @@ import {IERC6909MetadataModified} from "../interface/token/IERC6909MetadataModif
 import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
-/// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol) and 
+/// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol) and
 /// jtriley's reference implementation (https://github.com/jtriley-eth/ERC-6909)
 abstract contract ERC6909Rebasing is
     IERC6909,
@@ -17,7 +17,7 @@ abstract contract ERC6909Rebasing is
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
-    
+
     /// @notice The event emitted when a transfer occurs.
     /// @param caller The caller of the transfer.
     /// @param sender The address of the sender.

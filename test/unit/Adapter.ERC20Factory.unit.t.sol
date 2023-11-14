@@ -20,9 +20,9 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
     using LibPosition for uint248;
     using LibPosition for uint256;
 
-    ClarityERC20Factory internal factory;
-    ClarityWrappedLong internal wrappedLong;
-    ClarityWrappedShort internal wrappedShort;
+    ClarityERC20Factory private factory;
+    ClarityWrappedLong private wrappedLong;
+    ClarityWrappedShort private wrappedShort;
 
     function setUp() public override {
         super.setUp();
@@ -191,7 +191,11 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
         }).hashToId();
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, optionTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, optionTokenId
+            )
+        );
 
         // When
         vm.prank(writer);
@@ -395,11 +399,13 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
         );
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.TokenIdNotShort.selector, optionTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(IOptionErrors.TokenIdNotShort.selector, optionTokenId)
+        );
 
         // When
         factory.deployWrappedShort(optionTokenId);
-        vm.stopPrank();        
+        vm.stopPrank();
     }
 
     function testRevert_deployWrappedShort_whenTokenTypeIsAssignedShort() public {
@@ -412,11 +418,15 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
         uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.TokenIdNotShort.selector, assignedShortTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.TokenIdNotShort.selector, assignedShortTokenId
+            )
+        );
 
         // When
         factory.deployWrappedShort(assignedShortTokenId);
-        vm.stopPrank();        
+        vm.stopPrank();
     }
 
     function testRevert_deployWrappedShort_whenOptionDoesNotExist() public {
@@ -429,7 +439,11 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
         }).hashToId();
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, optionTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, optionTokenId
+            )
+        );
 
         // When
         vm.prank(writer);
@@ -501,7 +515,11 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.ShortAlreadyAssigned.selector, shortTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.ShortAlreadyAssigned.selector, shortTokenId
+            )
+        );
 
         // When
         vm.prank(writer);

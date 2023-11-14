@@ -45,14 +45,43 @@ contract ClarityWrappedShort is IWrappedOption, IClarityWrappedShort, ERC20 {
         emit ClarityWrappedShortDeployed(_shortTokenId, address(this));
     }
 
-    /////////
+    ///////// Views
 
     function option() external view returns (IOption.Option memory) {
         return clarity.option(optionTokenId);
     }
 
-    function wrapShorts(uint64 /*shortAmount*/ ) external pure {
-        revert("not yet impl");
+    ///////// Functions
+
+    function wrapShorts(uint64 shortAmount) external {
+        ///////// Function Requirements
+        // Check that the short amount is not zero
+        if (shortAmount == 0) {
+            revert IOptionErrors.WrapAmountZero();
+        }
+
+        // Check that the option is not expired
+        IOption.Option memory _option = clarity.option(optionTokenId);
+        if (block.timestamp > _option.exerciseWindow.expiryTimestamp) {
+            revert IOptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
+        }
+
+        // Check that the caller holds sufficient shorts of this option
+        uint256 shortBalance = clarity.balanceOf(msg.sender, shortTokenId);
+        if (shortBalance < shortAmount) {
+            revert IOptionErrors.InsufficientShortBalance(shortTokenId, shortBalance);
+        }
+
+        ///////// Effects
+        // Mint the wrapped longs to the caller
+        _mint(msg.sender, shortAmount);
+
+        ///////// Interactions
+        // Transfer the longs from the caller to the wrapper
+        clarity.transferFrom(msg.sender, address(this), shortTokenId, shortAmount);
+
+        // Log event
+        emit ClarityShortsWrapped(msg.sender, shortTokenId, shortAmount);
     }
 
     function unwrapShorts(uint64 /*shortAmount*/ ) external pure {

@@ -462,15 +462,16 @@ contract ClarityMarkets is
         return super.transfer(receiver, tokenId, amount);
     }
 
-    function transferFrom(address sender, address receiver, uint256 tokenId, uint256 amount)
-        public
-        override
-        returns (bool)
-    {
+    function transferFrom(
+        address sender,
+        address receiver,
+        uint256 tokenId,
+        uint256 amount
+    ) public override returns (bool) {
         ///////// Function Requirements
         _checkTransferFunctionRequirements(tokenId);
 
-        ///////// Continue to Effects and Interactions        
+        ///////// Continue to Effects and Interactions
         return super.transferFrom(sender, receiver, tokenId, amount);
     }
 
@@ -489,9 +490,10 @@ contract ClarityMarkets is
         }
 
         // If short, check that the option has been not assigned at all
-        if (_tokenType == TokenType.SHORT && optionStored.optionState.amountExercised > 0) {
+        if (_tokenType == TokenType.SHORT && optionStored.optionState.amountExercised > 0)
+        {
             revert CanOnlyTransferShortIfUnassigned();
-        }        
+        }
     }
 
     ///////// Option Actions
