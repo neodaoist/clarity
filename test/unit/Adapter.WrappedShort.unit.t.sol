@@ -273,203 +273,209 @@ contract WrappedShortTest is BaseClarityMarketsTest {
     /////////
     // function unwrapShorts(uint256 amount) external;
 
-    // function test_unwrapShorts() public {
-    //     // Given
-    //     vm.startPrank(writer);
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-    //     uint256 optionTokenId = clarity.writeCall(
-    //         address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
-    //     );
-    //     wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(optionTokenId));
-    //     clarity.approve(address(wrappedShort), optionTokenId, type(uint256).max);
-    //     wrappedShort.wrapShorts(8e6);
-    //     vm.stopPrank();
+    function test_unwrapShorts() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
+        );
+        uint256 shortTokenId = optionTokenId.longToShort();
+        wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
+        clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
+        wrappedShort.wrapShorts(8e6);
+        vm.stopPrank();
 
-    //     // pre checks
-    //     // check option balances
-    //     assertOptionBalances(writer, optionTokenId, 2e6, 10e6, 0, "writer before unwrap");
-    //     assertOptionBalances(
-    //         address(wrappedShort), optionTokenId, 8e6, 0, 0, "wrapper before unwrap"
-    //     );
+        // pre checks
+        // check option balances
+        assertOptionBalances(writer, optionTokenId, 10e6, 2e6, 0, "writer before unwrap");
+        assertOptionBalances(
+            address(wrappedShort), optionTokenId, 0, 8e6, 0, "wrapper before unwrap"
+        );
 
-    //     // check wrapper balance
-    //     assertEq(wrappedShort.totalSupply(), 8e6);
-    //     assertEq(wrappedShort.balanceOf(writer), 8e6, "wrapper balance before unwrap");
+        // check wrapper balance
+        assertEq(wrappedShort.totalSupply(), 8e6);
+        assertEq(wrappedShort.balanceOf(writer), 8e6, "wrapper balance before unwrap");
 
-    //     // When writer unwraps 5 options
-    //     vm.prank(writer);
-    //     wrappedShort.unwrapShorts(5e6);
+        // When writer unwraps 5 options
+        vm.prank(writer);
+        wrappedShort.unwrapShorts(5e6);
 
-    //     // Then
-    //     // check option balances
-    //     assertOptionBalances(writer, optionTokenId, 7e6, 10e6, 0, "writer after unwrap");
-    //     assertOptionBalances(
-    //         address(wrappedShort), optionTokenId, 3e6, 0, 0, "wrapper after unwrap"
-    //     );
+        // Then
+        // check option balances
+        assertOptionBalances(writer, optionTokenId, 10e6, 7e6, 0, "writer after unwrap");
+        assertOptionBalances(
+            address(wrappedShort), optionTokenId, 0, 3e6, 0, "wrapper after unwrap"
+        );
 
-    //     // check wrapper balance
-    //     assertEq(wrappedShort.totalSupply(), 3e6, "wrapper totalSupply after unwrap");
-    //     assertEq(wrappedShort.balanceOf(writer), 3e6, "wrapper balance after unwrap");
-    // }
+        // check wrapper balance
+        assertEq(wrappedShort.totalSupply(), 3e6, "wrapper totalSupply after unwrap");
+        assertEq(wrappedShort.balanceOf(writer), 3e6, "wrapper balance after unwrap");
+    }
 
-    // function test_unwrapShorts_many() public {
-    //     uint256 numOptions = 10;
-    //     uint256[] memory optionTokenIds = new uint256[](numOptions);
-    //     ClarityWrappedShort[] memory wrappedShorts = new ClarityWrappedShort[](numOptions);
+    function test_unwrapShorts_many() public {
+        uint256 numOptions = 10;
+        uint256[] memory optionTokenIds = new uint256[](numOptions);
+        uint256[] memory shortTokenIds = new uint256[](numOptions);
+        ClarityWrappedShort[] memory wrappedShorts = new ClarityWrappedShort[](numOptions);
 
-    //     // Given
-    //     vm.startPrank(writer);
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-    //     for (uint256 i = 0; i < numOptions; i++) {
-    //         optionTokenIds[i] = clarity.writeCall(
-    //             address(WETHLIKE),
-    //             address(FRAXLIKE),
-    //             americanExWeeklies[0],
-    //             (1750 + i) * 10 ** 18,
-    //             10e6
-    //         );
-    //         wrappedShorts[i] =
-    //             ClarityWrappedShort(factory.deployWrappedShort(optionTokenIds[i]));
-    //         clarity.approve(
-    //             address(wrappedShorts[i]), optionTokenIds[i], type(uint256).max
-    //         );
-    //         wrappedShorts[i].wrapShorts(uint64((10 - i) * 10 ** 6));
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        for (uint256 i = 0; i < numOptions; i++) {
+            optionTokenIds[i] = clarity.writeCall(
+                address(WETHLIKE),
+                address(FRAXLIKE),
+                americanExWeeklies[0],
+                (1750 + i) * 10 ** 18,
+                10e6
+            );
+            shortTokenIds[i] = optionTokenIds[i].longToShort();
+            wrappedShorts[i] =
+                ClarityWrappedShort(factory.deployWrappedShort(shortTokenIds[i]));
+            clarity.approve(
+                address(wrappedShorts[i]), shortTokenIds[i], type(uint256).max
+            );
+            wrappedShorts[i].wrapShorts(uint64((10 - i) * 10 ** 6));
 
-    //         // pre checks
-    //         // check option balances
-    //         assertOptionBalances(
-    //             writer, optionTokenIds[i], i * 10 ** 6, 10e6, 0, "writer before unwrap"
-    //         );
-    //         assertOptionBalances(
-    //             address(wrappedShorts[i]),
-    //             optionTokenIds[i],
-    //             (10 - i) * 10 ** 6,
-    //             0,
-    //             0,
-    //             "wrapper before unwrap"
-    //         );
+            // pre checks
+            // check option balances
+            assertOptionBalances(
+                writer, optionTokenIds[i], 10e6, i * 10 ** 6, 0, "writer before unwrap"
+            );
+            assertOptionBalances(
+                address(wrappedShorts[i]),
+                optionTokenIds[i],
+                0,
+                (10 - i) * 10 ** 6,
+                0,
+                "wrapper before unwrap"
+            );
 
-    //         // check wrapper balance
-    //         assertEq(
-    //             wrappedShorts[i].totalSupply(),
-    //             (10 - i) * 10 ** 6,
-    //             "wrapper totalSupply before unwrap"
-    //         );
-    //         assertEq(
-    //             wrappedShorts[i].balanceOf(writer),
-    //             (10 - i) * 10 ** 6,
-    //             "wrapper balance before unwrap"
-    //         );
+            // check wrapper balance
+            assertEq(
+                wrappedShorts[i].totalSupply(),
+                (10 - i) * 10 ** 6,
+                "wrapper totalSupply before unwrap"
+            );
+            assertEq(
+                wrappedShorts[i].balanceOf(writer),
+                (10 - i) * 10 ** 6,
+                "wrapper balance before unwrap"
+            );
 
-    //         // When
-    //         wrappedShorts[i].unwrapShorts(uint64(((10 - i) * 10 ** 6) - (i * 10 ** 5)));
-    //     }
-    //     vm.stopPrank();
+            // When
+            wrappedShorts[i].unwrapShorts(uint64(((10 - i) * 10 ** 6) - (i * 10 ** 5)));
+        }
+        vm.stopPrank();
 
-    //     // Then
-    //     for (uint256 i = 0; i < numOptions; i++) {
-    //         // check option balances
-    //         assertOptionBalances(
-    //             writer,
-    //             optionTokenIds[i],
-    //             10e6 - (i * 10 ** 5),
-    //             10e6,
-    //             0,
-    //             "writer after unwrap"
-    //         );
-    //         assertOptionBalances(
-    //             address(wrappedShorts[i]),
-    //             optionTokenIds[i],
-    //             i * 10 ** 5,
-    //             0,
-    //             0,
-    //             "wrapper after unwrap"
-    //         );
+        // Then
+        for (uint256 i = 0; i < numOptions; i++) {
+            // check option balances
+            assertOptionBalances(
+                writer,
+                optionTokenIds[i],
+                10e6,
+                10e6 - (i * 10 ** 5),
+                0,
+                "writer after unwrap"
+            );
+            assertOptionBalances(
+                address(wrappedShorts[i]),
+                optionTokenIds[i],
+                0,
+                i * 10 ** 5,
+                0,
+                "wrapper after unwrap"
+            );
 
-    //         // check wrapper balance
-    //         assertEq(
-    //             wrappedShorts[i].totalSupply(),
-    //             i * 10 ** 5,
-    //             "wrapper totalSupply after unwrap"
-    //         );
-    //         assertEq(
-    //             wrappedShorts[i].balanceOf(writer),
-    //             i * 10 ** 5,
-    //             "wrapper balance after unwrap"
-    //         );
-    //     }
-    // }
+            // check wrapper balance
+            assertEq(
+                wrappedShorts[i].totalSupply(),
+                i * 10 ** 5,
+                "wrapper totalSupply after unwrap"
+            );
+            assertEq(
+                wrappedShorts[i].balanceOf(writer),
+                i * 10 ** 5,
+                "wrapper balance after unwrap"
+            );
+        }
+    }
 
-    // // Events
+    // Events
 
-    // function testEvent_unwrapShorts() public {
-    //     // Given
-    //     vm.startPrank(writer);
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-    //     uint256 optionTokenId = clarity.writeCall(
-    //         address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
-    //     );
-    //     wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(optionTokenId));
-    //     clarity.approve(address(wrappedShort), optionTokenId, type(uint256).max);
-    //     wrappedShort.wrapShorts(8e6);
+    function testEvent_unwrapShorts() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
+        );
+        uint256 shortTokenId = optionTokenId.longToShort();
+        wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
+        clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
+        wrappedShort.wrapShorts(8e6);
 
-    //     // Then
-    //     vm.expectEmit(true, true, true, true);
-    //     emit IClarityWrappedShort.ClarityShortsUnwrapped(writer, optionTokenId, 5.000001e6);
+        // Then
+        vm.expectEmit(true, true, true, true);
+        emit IClarityWrappedShort.ClarityShortsUnwrapped(writer, shortTokenId, 5.000001e6);
 
-    //     // When
-    //     wrappedShort.unwrapShorts(5.000001e6);
-    //     vm.stopPrank();
-    // }
+        // When
+        wrappedShort.unwrapShorts(5.000001e6);
+        vm.stopPrank();
+    }
 
-    // // Sad Paths
+    // Sad Paths
 
-    // function testRevert_unwrapShorts_whenAmountZero() public {
-    //     // Given
-    //     vm.startPrank(writer);
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-    //     uint256 optionTokenId = clarity.writeCall(
-    //         address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
-    //     );
-    //     wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(optionTokenId));
-    //     clarity.approve(address(wrappedShort), optionTokenId, type(uint256).max);
-    //     wrappedShort.wrapShorts(8e6);
-    //     vm.stopPrank();
+    function testRevert_unwrapShorts_whenAmountZero() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
+        );
+        uint256 shortTokenId = optionTokenId.longToShort();
+        wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
+        clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
+        wrappedShort.wrapShorts(8e6);
+        vm.stopPrank();
 
-    //     // Then
-    //     vm.expectRevert(IOptionErrors.UnwrapAmountZero.selector);
+        // Then
+        vm.expectRevert(IOptionErrors.UnwrapAmountZero.selector);
 
-    //     // When
-    //     vm.prank(writer);
-    //     wrappedShort.unwrapShorts(0);
-    // }
+        // When
+        vm.prank(writer);
+        wrappedShort.unwrapShorts(0);
+    }
 
-    // function testRevert_unwrapShorts_whenCallerHoldsInsufficientWrappedShorts() public {
-    //     // Given
-    //     vm.startPrank(writer);
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-    //     uint256 optionTokenId = clarity.writeCall(
-    //         address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
-    //     );
-    //     wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(optionTokenId));
-    //     clarity.approve(address(wrappedShort), optionTokenId, type(uint256).max);
-    //     wrappedShort.wrapShorts(8e6);
-    //     vm.stopPrank();
+    function testRevert_unwrapShorts_whenCallerHoldsInsufficientWrappedShorts() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
+        );
+        uint256 shortTokenId = optionTokenId.longToShort();
+        wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
+        clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
+        wrappedShort.wrapShorts(8e6);
+        vm.stopPrank();
 
-    //     // Then
-    //     vm.expectRevert(
-    //         abi.encodeWithSelector(
-    //             IOptionErrors.InsufficientWrappedBalance.selector, optionTokenId, 8e6
-    //         )
-    //     );
+        // Then
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.InsufficientWrappedBalance.selector, shortTokenId, 8e6
+            )
+        );
 
-    //     // When
-    //     vm.prank(writer);
-    //     wrappedShort.unwrapShorts(8.000001e6);
-    // }
+        // When
+        vm.prank(writer);
+        wrappedShort.unwrapShorts(8.000001e6);
+    }
 
     /////////
-    // function exerciseShorts(uint256 amount) external;
+    // function redeemShorts(uint256 amount) external;
 
     // TODO
 }

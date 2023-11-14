@@ -63,8 +63,6 @@ abstract contract ERC6909Rebasing is
                               ERC6909 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    // TODO handle assigned shorts
-
     function transfer(address receiver, uint256 id, uint256 amount)
         public
         virtual

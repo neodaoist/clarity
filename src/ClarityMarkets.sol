@@ -115,7 +115,7 @@ contract ClarityMarkets is
         uint8 quoteDecimals;
     }
 
-    ///////// Public Constant/Immutable
+    ///////// Public Constant
 
     uint8 public constant CONTRACT_SCALAR = 6;
 
@@ -136,7 +136,7 @@ contract ClarityMarkets is
 
     mapping(uint248 => OptionStorage) private optionStorage;
 
-    mapping(address => AssetMetadataStorage) public assetMetadataStorage;
+    mapping(address => AssetMetadataStorage) public assetMetadataStorage; // TODO
 
     mapping(address => uint256) private clearingLiabilities;
 
@@ -597,7 +597,7 @@ contract ClarityMarkets is
         ///////// Effects
 
         // Calculate the write and exercise amounts for clearing purposes
-        OptionClearingInfo memory clearingInfo; // memory struct to help avoid stack too deep
+        OptionClearingInfo memory clearingInfo; // memory struct to avoid stack too deep
         if (_optionType == OptionType.CALL) {
             clearingInfo = OptionClearingInfo({
                 writeAsset: baseAsset,

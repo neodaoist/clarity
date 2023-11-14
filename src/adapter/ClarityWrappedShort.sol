@@ -73,19 +73,40 @@ contract ClarityWrappedShort is IWrappedOption, IClarityWrappedShort, ERC20 {
         }
 
         ///////// Effects
-        // Mint the wrapped longs to the caller
+        // Mint the wrapped shorts to the caller
         _mint(msg.sender, shortAmount);
 
         ///////// Interactions
-        // Transfer the longs from the caller to the wrapper
+        // Transfer the shorts from the caller to the wrapper
         clarity.transferFrom(msg.sender, address(this), shortTokenId, shortAmount);
 
         // Log event
         emit ClarityShortsWrapped(msg.sender, shortTokenId, shortAmount);
     }
 
-    function unwrapShorts(uint64 /*shortAmount*/ ) external pure {
-        revert("not yet impl");
+    function unwrapShorts(uint64 shortAmount) external {
+        ///////// Function Requirements
+        // Check that the option amount is not zero
+        if (shortAmount == 0) {
+            revert IOptionErrors.UnwrapAmountZero();
+        }
+
+        // Check that the caller holds sufficient wrapped shorts of this option
+        uint256 wrappedBalance = balanceOf[msg.sender];
+        if (wrappedBalance < shortAmount) {
+            revert IOptionErrors.InsufficientWrappedBalance(shortTokenId, wrappedBalance);
+        }
+
+        ///////// Effects
+        // Burn the wrapped shorts from the caller
+        _burn(msg.sender, shortAmount);
+
+        ///////// Interactions
+        // Transfer the shorts from the wrapper to the caller
+        clarity.transfer(msg.sender, shortTokenId, shortAmount);
+
+        // Log event
+        emit ClarityShortsUnwrapped(msg.sender, shortTokenId, shortAmount);
     }
 
     function redeemShorts(uint64 /*shortAmount*/ ) external pure {
