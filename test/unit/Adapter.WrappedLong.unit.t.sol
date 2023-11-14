@@ -11,13 +11,13 @@ import {IClarityWrappedLong} from "../../src/interface/adapter/IClarityWrappedLo
 import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 import {ClarityWrappedLong} from "../../src/adapter/ClarityWrappedLong.sol";
 
-contract AdapterTest is BaseClarityMarketsTest {
+contract WrappedLongTest is BaseClarityMarketsTest {
     /////////
 
     using LibPosition for uint256;
 
-    ClarityERC20Factory internal factory;
-    ClarityWrappedLong internal wrappedLong;
+    ClarityERC20Factory private factory;
+    ClarityWrappedLong private wrappedLong;
 
     function setUp() public override {
         super.setUp();
@@ -40,7 +40,10 @@ contract AdapterTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 10e6, 10e6, 0, "before wrap");
+        assertOptionBalances(writer, optionTokenId, 10e6, 10e6, 0, "writer before wrap");
+        assertOptionBalances(
+            address(wrappedLong), optionTokenId, 0, 0, 0, "wrapper before wrap"
+        );
 
         // When writer wraps 8 options
         vm.startPrank(writer);
@@ -50,8 +53,10 @@ contract AdapterTest is BaseClarityMarketsTest {
 
         // Then
         // check option balances
-        assertOptionBalances(writer, optionTokenId, 2e6, 10e6, 0, "after wrap");
-        assertOptionBalances(address(wrappedLong), optionTokenId, 8e6, 0, 0, "after wrap");
+        assertOptionBalances(writer, optionTokenId, 2e6, 10e6, 0, "writer after wrap");
+        assertOptionBalances(
+            address(wrappedLong), optionTokenId, 8e6, 0, 0, "wrapper after wrap"
+        );
 
         // check wrapper balance
         assertEq(wrappedLong.totalSupply(), 8e6, "wrapper totalSupply after wrap");
@@ -81,6 +86,14 @@ contract AdapterTest is BaseClarityMarketsTest {
             // check option balances
             assertOptionBalances(
                 writer, optionTokenIds[i], 10e6, 10e6, 0, "writer before wrap"
+            );
+            assertOptionBalances(
+                address(wrappedLongs[i]),
+                optionTokenIds[i],
+                0,
+                0,
+                0,
+                "wrapper before wrap"
             );
 
             // When writer wraps options

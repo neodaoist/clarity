@@ -4,37 +4,7 @@ pragma solidity 0.8.22;
 // Interfaces
 import {IERC165} from "./IERC165.sol";
 
-// Forked from ERC-6909 (https://github.com/jtriley-eth/ERC-6909)
 interface IERC6909 is IERC165 {
-    /// @notice The event emitted when a transfer occurs.
-    /// @param caller The caller of the transfer.
-    /// @param sender The address of the sender.
-    /// @param receiver The address of the receiver.
-    /// @param id The id of the token.
-    /// @param amount The amount of the token.
-    event Transfer(
-        address caller,
-        address indexed sender,
-        address indexed receiver,
-        uint256 indexed id,
-        uint256 amount
-    );
-
-    /// @notice The event emitted when an operator is set.
-    /// @param owner The address of the owner.
-    /// @param spender The address of the spender.
-    /// @param approved The approval status.
-    event OperatorSet(address indexed owner, address indexed spender, bool approved);
-
-    /// @notice The event emitted when an approval occurs.
-    /// @param owner The address of the owner.
-    /// @param spender The address of the spender.
-    /// @param id The id of the token.
-    /// @param amount The amount of the token.
-    event Approval(
-        address indexed owner, address indexed spender, uint256 indexed id, uint256 amount
-    );
-
     /// @notice The total supply of each id.
     /// @param id The id of the token.
     /// @return amount The total supply of the token.

@@ -115,7 +115,7 @@ contract ClarityMarkets is
         uint8 quoteDecimals;
     }
 
-    ///////// Public Constant/Immutable
+    ///////// Public Constant
 
     uint8 public constant CONTRACT_SCALAR = 6;
 
@@ -136,7 +136,7 @@ contract ClarityMarkets is
 
     mapping(uint248 => OptionStorage) private optionStorage;
 
-    mapping(address => AssetMetadataStorage) public assetMetadataStorage;
+    mapping(address => AssetMetadataStorage) public assetMetadataStorage; // TODO
 
     mapping(address => uint256) private clearingLiabilities;
 
@@ -448,6 +448,54 @@ contract ClarityMarkets is
         );
     }
 
+    ///////// ERC6909 Transfer
+
+    function transfer(address receiver, uint256 tokenId, uint256 amount)
+        public
+        override
+        returns (bool)
+    {
+        ///////// Function Requirements
+        _checkTransferFunctionRequirements(tokenId);
+
+        ///////// Continue to Effects and Interactions
+        return super.transfer(receiver, tokenId, amount);
+    }
+
+    function transferFrom(
+        address sender,
+        address receiver,
+        uint256 tokenId,
+        uint256 amount
+    ) public override returns (bool) {
+        ///////// Function Requirements
+        _checkTransferFunctionRequirements(tokenId);
+
+        ///////// Continue to Effects and Interactions
+        return super.transferFrom(sender, receiver, tokenId, amount);
+    }
+
+    function _checkTransferFunctionRequirements(uint256 tokenId) private view {
+        // Check that the option exists
+        uint248 optionHash = tokenId.idToHash();
+        OptionStorage storage optionStored = optionStorage[optionHash];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionDoesNotExist(tokenId);
+        }
+
+        // Check that token is long or short
+        TokenType _tokenType = tokenId.tokenType();
+        if (_tokenType != TokenType.LONG && _tokenType != TokenType.SHORT) {
+            revert CanOnlyTransferLongOrShort();
+        }
+
+        // If short, check that the option has been not assigned at all
+        if (_tokenType == TokenType.SHORT && optionStored.optionState.amountExercised > 0)
+        {
+            revert CanOnlyTransferShortIfUnassigned();
+        }
+    }
+
     ///////// Option Actions
 
     // Write
@@ -549,7 +597,7 @@ contract ClarityMarkets is
         ///////// Effects
 
         // Calculate the write and exercise amounts for clearing purposes
-        OptionClearingInfo memory clearingInfo; // memory struct to help avoid stack too deep
+        OptionClearingInfo memory clearingInfo; // memory struct to avoid stack too deep
         if (_optionType == OptionType.CALL) {
             clearingInfo = OptionClearingInfo({
                 writeAsset: baseAsset,

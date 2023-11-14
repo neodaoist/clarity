@@ -51,6 +51,8 @@ library LibPosition {
         _tokenType = IPosition.TokenType(tokenId & 0xFF);
     }
 
+    // TODO consider isLong, isShort, isAssignedShort
+
     function toString(IPosition.TokenType _tokenType)
         internal
         pure
