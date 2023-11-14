@@ -23,6 +23,8 @@ abstract contract BaseClarityMarketsTest is Test {
 
     using LibPosition for uint256;
 
+    /////////
+
     // DCP
     ClarityMarkets internal clarity;
 

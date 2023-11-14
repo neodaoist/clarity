@@ -5,7 +5,7 @@ pragma solidity 0.8.22;
 import {IPosition} from "../interface/IPosition.sol";
 import {IOption} from "../interface/option/IOption.sol";
 import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
-import {IClarityERC20Factory} from "../interface/adapter/IClarityERC20Factory.sol";
+import {IERC20Factory} from "../interface/adapter/IERC20Factory.sol";
 
 // Libraries
 import {LibPosition} from "../library/LibPosition.sol";
@@ -15,7 +15,7 @@ import {ClarityMarkets} from "../ClarityMarkets.sol";
 import {ClarityWrappedLong} from "./ClarityWrappedLong.sol";
 import {ClarityWrappedShort} from "./ClarityWrappedShort.sol";
 
-contract ClarityERC20Factory is IClarityERC20Factory {
+contract ClarityERC20Factory is IERC20Factory {
     /////////
 
     using LibPosition for uint256;

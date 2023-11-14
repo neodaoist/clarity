@@ -5,7 +5,8 @@ pragma solidity 0.8.22;
 import {IOption} from "../interface/option/IOption.sol";
 import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 import {IWrappedOption} from "../interface/adapter/IWrappedOption.sol";
-import {IClarityWrappedShort} from "../interface/adapter/IClarityWrappedShort.sol";
+import {IWrappedShortActions} from "../interface/adapter/IWrappedShortActions.sol";
+import {IWrappedShortEvents} from "../interface/adapter/IWrappedShortEvents.sol";
 
 // Libraries
 import {LibPosition} from "../library/LibPosition.sol";
@@ -16,7 +17,12 @@ import {ClarityMarkets} from "../ClarityMarkets.sol";
 // External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
-contract ClarityWrappedShort is IWrappedOption, IClarityWrappedShort, ERC20 {
+contract ClarityWrappedShort is
+    IWrappedOption,
+    IWrappedShortActions,
+    IWrappedShortEvents,
+    ERC20
+{
     /////////
 
     using LibPosition for uint256;

@@ -5,10 +5,12 @@ pragma solidity 0.8.22;
 import "../BaseClarityMarkets.t.sol";
 
 // Interfaces
-import {IClarityWrappedLong} from "../../src/interface/adapter/IClarityWrappedLong.sol";
+import {IWrappedLongEvents} from "../../src/interface/adapter/IWrappedLongEvents.sol";
 
-// Contracts Under Test
+// Contracts
 import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
+
+// Contract Under Test
 import {ClarityWrappedLong} from "../../src/adapter/ClarityWrappedLong.sol";
 
 contract WrappedLongTest is BaseClarityMarketsTest {
@@ -149,7 +151,7 @@ contract WrappedLongTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, true, true, true);
-        emit IClarityWrappedLong.ClarityLongsWrapped(writer, optionTokenId, 8e6);
+        emit IWrappedLongEvents.ClarityLongsWrapped(writer, optionTokenId, 8e6);
 
         // When
         wrappedLong.wrapLongs(8e6);
@@ -382,7 +384,7 @@ contract WrappedLongTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, true, true, true);
-        emit IClarityWrappedLong.ClarityLongsUnwrapped(writer, optionTokenId, 5.000001e6);
+        emit IWrappedLongEvents.ClarityLongsUnwrapped(writer, optionTokenId, 5.000001e6);
 
         // When
         wrappedLong.unwrapLongs(5.000001e6);
