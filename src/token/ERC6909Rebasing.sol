@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Interfaces
 import {IERC6909} from "../interface/token/IERC6909.sol";
@@ -7,7 +7,8 @@ import {IERC6909MetadataModified} from "../interface/token/IERC6909MetadataModif
 import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
-/// Forked from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol) and
+/// Forked from Solmate
+/// (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol) and
 /// jtriley's reference implementation (https://github.com/jtriley-eth/ERC-6909)
 abstract contract ERC6909Rebasing is
     IERC6909,
@@ -51,7 +52,8 @@ abstract contract ERC6909Rebasing is
                              ERC6909 STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    // NOTE typically totalSupply storage is here, but Clarity implements a fully virtual totalSupply()
+    // NOTE typically totalSupply storage is here, but Clarity implements a fully virtual
+    // totalSupply()
 
     mapping(address => mapping(address => bool)) public isOperator;
 
@@ -140,7 +142,8 @@ abstract contract ERC6909Rebasing is
     //////////////////////////////////////////////////////////////*/
 
     function _mint(address receiver, uint256 id, uint256 amount) internal virtual {
-        // NOTE typically totalSupply accounting is here, but Clarity implements a fully virtual totalSupply()
+        // NOTE typically totalSupply accounting is here, but Clarity implements a fully
+        // virtual totalSupply()
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
@@ -154,7 +157,8 @@ abstract contract ERC6909Rebasing is
     function _burn(address sender, uint256 id, uint256 amount) internal virtual {
         internalBalanceOf[sender][id] -= amount;
 
-        // NOTE typically totalSupply accounting is here, but Clarity implements a fully virtual totalSupply()
+        // NOTE typically totalSupply accounting is here, but Clarity implements a fully
+        // virtual totalSupply()
 
         emit Transfer(msg.sender, sender, address(0), id, amount);
     }

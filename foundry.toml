@@ -1,14 +1,42 @@
 [profile.default]
 src = "src"
+test = "test"
 out = "out"
 libs = ["lib"]
+gas_reports = [
+    "ClarityMarkets",
+    "ClarityERC20Factory",
+    "ClarityWrappedLong",
+    "ClarityWrappedShort",
+]
+optimizer = true
+optimizer_runs = 1000
+solc = "0.8.23"
 
-[fmt]
-line_length = 90
+[profile.lite]
+optimizer = false
 
 [fuzz]
+max_test_rejects = 1_000_000
+runs = 100
 
 [invariant]
 runs = 10
 depth = 10
+call_override = false
 fail_on_revert = false
+
+[fmt]
+bracket_spacing = false
+int_types = "long"
+line_length = 90
+multiline_func_header = "attributes_first"
+number_underscore = "thousands"
+quote_style = "preserve"
+tab_width = 4
+wrap_comments = true
+
+[doc]
+ignore = ["**/*.t.sol"]
+out = "docs"
+repository = "https://github.com/neodaoist/clarity"

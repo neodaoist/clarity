@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -43,7 +43,8 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
     }
 
     /////////
-    // function deployWrappedLong(uint256 optionTokenId) external returns (address wrapperAddress);
+    // function deployWrappedLong(uint256 optionTokenId) external returns (address
+    // wrapperAddress);
 
     function test_deployWrappedLong() public {
         // Given
@@ -69,7 +70,8 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
         );
 
         assertEq(wrappedLong.optionTokenId(), optionTokenId, "wrapper optionTokenId");
-        // assertEq(wrapper.option(), clarity.option(optionTokenId)); // TODO consider adding
+        // assertEq(wrapper.option(), clarity.option(optionTokenId)); // TODO consider
+        // adding
         IOption.Option memory option = wrappedLong.option();
         assertEq(option.optionType, IOption.OptionType.CALL, "wrapper optionType");
         assertEq(
@@ -246,7 +248,8 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
     }
 
     /////////
-    // function deployWrappedShort(uint256 shortTokenId) external returns (address wrapperAddress);
+    // function deployWrappedShort(uint256 shortTokenId) external returns (address
+    // wrapperAddress);
 
     //
     function test_deployWrappedShort() public {
@@ -529,7 +532,8 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
     }
 
     /////////
-    // function wrapperFor(uint256 tokenId) external view returns (address wrapperAddress);
+    // function wrapperFor(uint256 tokenId) external view returns (address
+    // wrapperAddress);
 
     // TODO
 }

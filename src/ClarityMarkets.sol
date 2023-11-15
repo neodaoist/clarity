@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // TEMP
 import {console2} from "forge-std/console2.sol";
@@ -37,10 +37,10 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 /// @author ?????????
 ///
 /// @notice Clarity is a decentralized counterparty clearinghouse (DCP), for the writing,
-/// transfer, and settlement of options and futures contracts on the Ethereum Virtual Machine
-/// (EVM). The protocol is open source, open state, and open access. It has zero oracles, zero
-/// governance, and zero custody. It is designed to be secure, composable, immutable, ergonomic,
-/// and gas minimal.
+/// transfer, and settlement of options and futures contracts on the Ethereum Virtual
+/// Machine (EVM). The protocol is open source, open state, and open access. It has zero
+/// oracles, zero governance, and zero custody. It is designed to be secure, composable,
+/// immutable, ergonomic, and gas minimal.
 contract ClarityMarkets is
     IPosition,
     IClearingPool,
@@ -327,15 +327,16 @@ contract ClarityMarkets is
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
 
-        // If never any open interest for this created option, or everything written has been
-        // netted off, the total supply will be zero
+        // If never any open interest for this created option, or everything written has
+        // been netted off, the total supply will be zero
         if (amountWritten == 0 || amountWritten == amountNettedOff) {
             amount = 0;
         } else {
             TokenType _tokenType = tokenId.tokenType();
             uint256 amountExercised = optionStored.optionState.amountExercised;
 
-            // If long or short, total supply is amount written minus amount netted off minus amount exercised
+            // If long or short, total supply is amount written minus amount netted off
+            // minus amount exercised
             if (_tokenType == TokenType.LONG || _tokenType == TokenType.SHORT) {
                 amount = amountWritten - amountNettedOff - amountExercised;
             } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
@@ -362,8 +363,8 @@ contract ClarityMarkets is
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
 
-        // If never any open interest for this created option, or everything written has been
-        // netted off, all balances will be zero
+        // If never any open interest for this created option, or everything written has
+        // been netted off, all balances will be zero
         if (amountWritten == 0 || amountWritten == amountNettedOff) {
             amount = 0;
         } else {
@@ -374,13 +375,15 @@ contract ClarityMarkets is
             if (_tokenType == TokenType.LONG) {
                 amount = internalBalanceOf[owner][tokenId];
             } else if (_tokenType == TokenType.SHORT) {
-                // If short, the balance is their proportional share of the unassigned shorts
+                // If short, the balance is their proportional share of the unassigned
+                // shorts
                 amount = (
                     internalBalanceOf[owner][tokenId]
                         * (amountWritten - amountNettedOff - amountExercised)
                 ) / (amountWritten - amountNettedOff);
             } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-                // If assigned short, the balance is their proportional share of the assigned shorts
+                // If assigned short, the balance is their proportional share of the
+                // assigned shorts
                 amount = (
                     internalBalanceOf[owner][tokenId.assignedShortToShort()]
                         * amountExercised
@@ -610,7 +613,7 @@ contract ClarityMarkets is
             clearingInfo = OptionClearingInfo({
                 writeAsset: baseAsset,
                 writeDecimals: assetInfo.baseDecimals,
-                writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 clearing unit
+                writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 unit
                 exerciseAsset: quoteAsset,
                 exerciseDecimals: assetInfo.quoteDecimals,
                 exerciseAmount: strikePrice.actualScaledDownToClearingStrikeUnit()
@@ -622,7 +625,8 @@ contract ClarityMarkets is
                 writeAmount: strikePrice.actualScaledDownToClearingStrikeUnit(),
                 exerciseAsset: baseAsset,
                 exerciseDecimals: assetInfo.baseDecimals,
-                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1 clearing unit
+                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1
+                    // unit
             });
         }
 
@@ -826,7 +830,7 @@ contract ClarityMarkets is
 
         ///////// Effects
         // Update option state
-        uint64 amountNettedOff = optionStored.optionState.amountNettedOff; // gas optimization
+        uint64 amountNettedOff = optionStored.optionState.amountNettedOff;
         optionStored.optionState.amountNettedOff = amountNettedOff + optionAmount;
 
         // Burn the caller's longs and shorts
@@ -838,7 +842,7 @@ contract ClarityMarkets is
         _decrementClearingLiability(writeAsset, writeAssetNettedOff);
 
         ///////// Interactions
-        // Transfer out the write asset // TODO add 1 wei gas optimization
+        // Transfer out the write asset
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
 
         // Log net off event
@@ -863,7 +867,7 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(_optionTokenId);
         }
 
-        //  Check that the position token type is a long
+        // Check that the position token type is a long
         // TODO
 
         // Scope to avoid stack too deep
@@ -885,7 +889,7 @@ contract ClarityMarkets is
 
         ///////// Effects
         // Update the option state
-        uint64 amountExercised = optionStored.optionState.amountExercised; // gas optimization
+        uint64 amountExercised = optionStored.optionState.amountExercised;
         optionStored.optionState.amountExercised = amountExercised + optionAmount;
 
         // Burn the holder's longs
@@ -906,7 +910,7 @@ contract ClarityMarkets is
             ERC20(exerciseAsset), msg.sender, address(this), fullAmountForExercise
         );
 
-        // Transfer out the write asset // TODO add 1 wei gas optimization
+        // Transfer out the write asset
         SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, fullAmountForWrite);
 
         // Log exercise event
@@ -979,7 +983,7 @@ contract ClarityMarkets is
         }
 
         ///////// Interactions
-        // Transfer out the write asset and exercise, as needed // TODO add 1 wei gas optimization
+        // Transfer out the write asset and exercise, as needed
         if (writeAssetRedeemed > 0) {
             SafeTransferLib.safeTransfer(
                 ERC20(writeAsset), msg.sender, writeAssetRedeemed

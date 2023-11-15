@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // External Test Helpers
 import {Test, console2, stdError} from "forge-std/Test.sol";

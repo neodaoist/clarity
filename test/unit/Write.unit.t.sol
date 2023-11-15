@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -613,7 +613,8 @@ contract WriteTest is BaseClarityMarketsTest {
         vm.stopPrank();
     }
 
-    // TODO double check all relevant reverts covered for writePut(), write(), and batchWrite()
+    // TODO double check all relevant reverts covered for writePut(), write(), and
+    // batchWrite()
     // TODO insufficient asset balance
     // TODO insufficient asset approval
 
@@ -964,7 +965,8 @@ contract WriteTest is BaseClarityMarketsTest {
 
     function test_writePut_whenLargeButValidStrikePrice() public {
         // no revert
-        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000)); // need moar LUSD to write put with massive strike
+        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000)); // need
+            // moar LUSD to write put with massive strike
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000));
         clarity.writePut(
@@ -1434,7 +1436,8 @@ contract WriteTest is BaseClarityMarketsTest {
     }
 
     /////////
-    // function batchWrite(uint256[] calldata optionTokenIds, uint64[] calldata optionAmounts) external
+    // function batchWrite(uint256[] calldata optionTokenIds, uint64[] calldata
+    // optionAmounts) external
 
     function test_batchWrite() public {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
@@ -1478,21 +1481,29 @@ contract WriteTest is BaseClarityMarketsTest {
     //     vm.startPrank(writer);
     //     uint256[] memory optionTokenIds = new uint256[](8);
     //     optionTokenIds[0] =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    // americanExWeeklies[0], 1700e18, 0);
     //     optionTokenIds[1] =
-    //         clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0);
+    //         clarity.writePut(address(WETHLIKE), address(LUSDLIKE),
+    // americanExWeeklies[0], 1700e18, 0);
     //     optionTokenIds[2] =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1725e18, 0);
+    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    // americanExWeeklies[0], 1725e18, 0);
     //     optionTokenIds[3] =
-    //         clarity.writePut(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1725e18, 0);
+    //         clarity.writePut(address(WETHLIKE), address(LUSDLIKE),
+    // americanExWeeklies[0], 1725e18, 0);
     //     optionTokenIds[4] =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[3], 1700e18, 0);
+    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    // americanExWeeklies[3], 1700e18, 0);
     //     optionTokenIds[5] =
-    //         clarity.writeCall(address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1675e6, 0);
+    //         clarity.writeCall(address(WETHLIKE), address(USDCLIKE),
+    // americanExWeeklies[0], 1675e6, 0);
     //     optionTokenIds[6] =
-    //         clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE), americanExWeeklies[1], 21_001e18, 0);
+    //         clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE),
+    // americanExWeeklies[1], 21_001e18, 0);
     //     optionTokenIds[7] =
-    //         clarity.writePut(address(WBTCLIKE), address(USDCLIKE), americanExWeeklies[1], 21_001e6, 0);
+    //         clarity.writePut(address(WBTCLIKE), address(USDCLIKE),
+    // americanExWeeklies[1], 21_001e6, 0);
     //     uint64[] memory optionAmounts = new uint64[](8);
     //     optionAmounts[0] = 1.25e6;
     //     optionAmounts[1] = 0.000001e6;
@@ -1503,39 +1514,67 @@ contract WriteTest is BaseClarityMarketsTest {
     //     optionAmounts[6] = 1.222222e6;
     //     optionAmounts[7] = 0.999999e6;
 
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-    //     WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-    //     LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-    //     USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE,
+    // STARTING_BALANCE));
+    //     WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE,
+    // STARTING_BALANCE));
+    //     LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE,
+    // STARTING_BALANCE));
+    //     USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE,
+    // STARTING_BALANCE));
 
     //     clarity.batchWrite(optionTokenIds, optionAmounts);
     //     vm.stopPrank();
 
     //     // check Clarity balances
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[0]), optionAmounts[0], "long balance 1");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[0])), optionAmounts[0], "short balance 1");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[0])), 0, "assigned balance 1");
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[1]), optionAmounts[1], "long balance 2");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[1])), optionAmounts[1], "short balance 2");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[1])), 0, "assigned balance 2");
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[2]), optionAmounts[2], "long balance 3");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[2])), optionAmounts[2], "short balance 3");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[2])), 0, "assigned balance 3");
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[3]), optionAmounts[3], "long balance 4");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[3])), optionAmounts[3], "short balance 4");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[3])), 0, "assigned balance 4");
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[4]), optionAmounts[4], "long balance 5");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[4])), optionAmounts[4], "short balance 5");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[4])), 0, "assigned balance 5");
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[5]), optionAmounts[5], "long balance 6");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[5])), optionAmounts[5], "short balance 6");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[5])), 0, "assigned balance 6");
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[6]), optionAmounts[6], "long balance 7");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[6])), optionAmounts[6], "short balance 7");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[6])), 0, "assigned balance 7");
-    //     assertEq(clarity.balanceOf(writer, optionTokenIds[7]), optionAmounts[7], "long balance 8");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[7])), optionAmounts[7], "short balance 8");
-    //     assertEq(clarity.balanceOf(writer, LibPosition.longToAssignedShort(optionTokenIds[7])), 0, "assigned balance 8");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[0]), optionAmounts[0], "long
+    // balance 1");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[0])),
+    // optionAmounts[0], "short balance 1");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[0])), 0, "assigned balance 1");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[1]), optionAmounts[1], "long
+    // balance 2");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[1])),
+    // optionAmounts[1], "short balance 2");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[1])), 0, "assigned balance 2");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[2]), optionAmounts[2], "long
+    // balance 3");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[2])),
+    // optionAmounts[2], "short balance 3");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[2])), 0, "assigned balance 3");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[3]), optionAmounts[3], "long
+    // balance 4");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[3])),
+    // optionAmounts[3], "short balance 4");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[3])), 0, "assigned balance 4");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[4]), optionAmounts[4], "long
+    // balance 5");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[4])),
+    // optionAmounts[4], "short balance 5");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[4])), 0, "assigned balance 5");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[5]), optionAmounts[5], "long
+    // balance 6");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[5])),
+    // optionAmounts[5], "short balance 6");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[5])), 0, "assigned balance 6");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[6]), optionAmounts[6], "long
+    // balance 7");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[6])),
+    // optionAmounts[6], "short balance 7");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[6])), 0, "assigned balance 7");
+    //     assertEq(clarity.balanceOf(writer, optionTokenIds[7]), optionAmounts[7], "long
+    // balance 8");
+    //     assertEq(clarity.balanceOf(writer, LibPosition.longToShort(optionTokenIds[7])),
+    // optionAmounts[7], "short balance 8");
+    //     assertEq(clarity.balanceOf(writer,
+    // LibPosition.longToAssignedShort(optionTokenIds[7])), 0, "assigned balance 8");
 
     //     // check ERC20 balances
     //     // console2.log("--- WETH");
@@ -1554,17 +1593,26 @@ contract WriteTest is BaseClarityMarketsTest {
     //     // console2.log("--- USDC");
     //     // console2.log(usdcBalance);
     //     // console2.log(scaleDownOptionAmount(21_001e6) * optionAmounts[7]);
-    //     uint256 expectedWethBalance = wethBalance - (scaleDownOptionAmount(1e18) * optionAmounts[0])
-    //         - (scaleDownOptionAmount(1e18) * optionAmounts[2]) - (scaleDownOptionAmount(1e18) * optionAmounts[4])
+    //     uint256 expectedWethBalance = wethBalance - (scaleDownOptionAmount(1e18) *
+    // optionAmounts[0])
+    //         - (scaleDownOptionAmount(1e18) * optionAmounts[2]) -
+    // (scaleDownOptionAmount(1e18) * optionAmounts[4])
     //         - (scaleDownOptionAmount(1e18) * optionAmounts[5]);
-    //     uint256 expectedWbtcBalance = wbtcBalance - (scaleDownOptionAmount(1e8) * optionAmounts[6]);
-    //     uint256 expectedLusdBalance = lusdBalance - (scaleDownOptionAmount(1700e18) * optionAmounts[1])
+    //     uint256 expectedWbtcBalance = wbtcBalance - (scaleDownOptionAmount(1e8) *
+    // optionAmounts[6]);
+    //     uint256 expectedLusdBalance = lusdBalance - (scaleDownOptionAmount(1700e18) *
+    // optionAmounts[1])
     //         - (scaleDownOptionAmount(1725e18) * optionAmounts[3]);
-    //     uint256 expectedUsdcBalance = usdcBalance - (scaleDownOptionAmount(21_001e6) * optionAmounts[7]);
-    //     assertEq(WETHLIKE.balanceOf(writer), expectedWethBalance, "WETH balance after write");
-    //     assertEq(WBTCLIKE.balanceOf(writer), expectedWbtcBalance, "WBTC balance after write");
-    //     assertEq(LUSDLIKE.balanceOf(writer), expectedLusdBalance, "LUSD balance after write");
-    //     assertEq(USDCLIKE.balanceOf(writer), expectedUsdcBalance, "USDC balance after write");
+    //     uint256 expectedUsdcBalance = usdcBalance - (scaleDownOptionAmount(21_001e6) *
+    // optionAmounts[7]);
+    //     assertEq(WETHLIKE.balanceOf(writer), expectedWethBalance, "WETH balance after
+    // write");
+    //     assertEq(WBTCLIKE.balanceOf(writer), expectedWbtcBalance, "WBTC balance after
+    // write");
+    //     assertEq(LUSDLIKE.balanceOf(writer), expectedLusdBalance, "LUSD balance after
+    // write");
+    //     assertEq(USDCLIKE.balanceOf(writer), expectedUsdcBalance, "USDC balance after
+    // write");
     // }
 
     // TODO check events in above test
@@ -1595,5 +1643,6 @@ contract WriteTest is BaseClarityMarketsTest {
         clarity.batchWrite(optionTokenIds, optionAmounts);
     }
 
-    // TODO add more batchWrite() tests for write() sad paths (eg, option expired, write amount zero)
+    // TODO add more batchWrite() tests for write() sad paths (eg, option expired, write
+    // amount zero)
 }

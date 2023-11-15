@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 interface IOptionErrors {
     /////////
@@ -67,7 +67,8 @@ interface IOptionErrors {
 
     error EarlyRedemptionOnlyIfFullyAssigned();
 
-    error CanOnlyRedeemShort(uint256 tokenId); // TODO reframe to standardize with other errors
+    error CanOnlyRedeemShort(uint256 tokenId); // TODO reframe to standardize with other
+        // errors
 
     ///////// Views
 
@@ -81,7 +82,8 @@ interface IOptionErrors {
 
     error WrappedShortAlreadyDeployed(uint256 shortTokenId);
 
-    error TokenIdNotShort(uint256 tokenId); // TODO consider using elsewhere, do one for other types also
+    error TokenIdNotShort(uint256 tokenId); // TODO consider using elsewhere, do one for
+        // other types also
 
     error ShortAlreadyAssigned(uint256 shortTokenId);
 
