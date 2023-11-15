@@ -178,8 +178,6 @@ contract ClarityMarkets is
         uint256 strikePrice,
         bool isCall
     ) external view returns (uint256 _optionTokenId) {
-        // TODO initial checks
-
         // Hash the option
         uint248 optionHash = LibOption.paramsToHash(
             baseAsset,
@@ -189,13 +187,10 @@ contract ClarityMarkets is
             isCall ? OptionType.CALL : OptionType.PUT
         );
 
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[optionHash];
-        address writeAsset = optionStored.writeAsset;
-
         // Check that the option has been created
-        if (writeAsset == address(0)) {
-            // TODO revert
+        OptionStorage storage optionStored = optionStorage[optionHash];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionDoesNotExist(optionHash.hashToId());
         }
 
         _optionTokenId = optionHash.hashToId();
@@ -203,23 +198,14 @@ contract ClarityMarkets is
 
     /// @notice Returns the core information of a given option, if it has been written,
     /// otherwise reverts
-    /// @param _optionTokenId The token id of the option
+    /// @param tokenId The token id of the option (accepts long, short, or assigned short)
     /// @return _option The core option information
-    function option(uint256 _optionTokenId)
-        external
-        view
-        returns (Option memory _option)
-    {
-        // Check that it is a long
-        // TODO
-
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-        address writeAsset = optionStored.writeAsset;
-
+    function option(uint256 tokenId) external view returns (Option memory _option) {
         // Check that the option has been created
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+        address writeAsset = optionStored.writeAsset;
         if (writeAsset == address(0)) {
-            // TODO revert
+            revert OptionDoesNotExist(tokenId);
         }
 
         // Build the user-friendly Option struct
@@ -244,17 +230,14 @@ contract ClarityMarkets is
 
     /// @notice Returns the open interest of a given option (equal to the total support of
     /// both the long and short tokens for this option)
-    /// @param _optionTokenId The token id of the option
+    /// @param tokenId The token id of the option (accepts long, short, or assigned short)
     /// @return amount The open interest of the option
-    function openInterest(uint256 _optionTokenId) external view returns (uint64 amount) {
+    function openInterest(uint256 tokenId) external view returns (uint64 amount) {
         // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionDoesNotExist(_optionTokenId);
+            revert OptionDoesNotExist(tokenId);
         }
-
-        // Check that it is a long
-        // TODO
 
         amount = optionStored.optionState.amountWritten
             - optionStored.optionState.amountNettedOff
@@ -262,29 +245,26 @@ contract ClarityMarkets is
     }
 
     /// @notice Returns the amount of options that can still be written for a given option
-    /// @param _optionTokenId The token id of the option
+    /// @param tokenId The token id of the option (accepts long, short, or assigned short)
     /// @return amount The amount of options that can still be written
-    function remainingWriteableAmount(uint256 _optionTokenId)
+    function remainingWriteableAmount(uint256 tokenId)
         external
         view
         returns (uint64 amount)
     {
         // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            revert OptionDoesNotExist(_optionTokenId);
+            revert OptionDoesNotExist(tokenId);
         }
-
-        // Check that it is a long
-        // TODO
 
         amount = MAXIMUM_WRITABLE - optionStored.optionState.amountWritten;
     }
 
     ///////// Position
 
-    /// @notice Returns the token type for a given token (either LONG, SHORT, or
-    /// ASSIGNED_SHORT)
+    /// @notice Returns the token type for a given token (either long, short, or assigned
+    /// short)
     /// @param tokenId The token id of the token
     /// @return _tokenType The token type of the token
     function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
@@ -293,11 +273,8 @@ contract ClarityMarkets is
         // 1B, then unsafely cast to PositionTokenType enum type
         _tokenType = TokenType(tokenId & 0xFF); // TODO replace with LibToken
 
-        // TODO DRY up via refactoring into internal check function
-        // Get the option from storage
+        // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
-
-        // Check that the option has been created
         if (optionStored.writeAsset == address(0)) {
             revert OptionDoesNotExist(tokenId);
         }
@@ -305,29 +282,49 @@ contract ClarityMarkets is
 
     /// @notice Returns the position of a given token holder for a given option (current
     /// balance of long, short, and assigned short, along with the overall magnitude of
-    /// the open longs and shorts)
-    /// @param _optionTokenId The token id of the option
+    /// the position based on amount of open longs and open shorts)
+    /// @param tokenId The token id of the option (accepts long, short, or assigned short)
     /// @return _position The position of the token holder (long, short, assigned short)
     /// @return magnitude The magnitude of the open longs and shorts
-    function position(uint256 _optionTokenId)
+    function position(uint256 tokenId)
         external
         view
         returns (Position memory _position, int160 magnitude)
     {
         // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
         if (optionStored.writeAsset == address(0)) {
-            // TODO revert
+            revert OptionDoesNotExist(tokenId);
         }
 
-        // Check that it is a long
-        // TODO
+        // Generate the token ids for the option, short, and assigned short
+        uint256 _optionTokenId;
+        uint256 shortTokenId;
+        uint256 assignedShortTokenId;
 
-        // Get the position
-        uint256 longBalance = balanceOf(msg.sender, _optionTokenId);
-        uint256 shortBalance = balanceOf(msg.sender, _optionTokenId.longToShort());
+        if (tokenId.tokenType() == TokenType.LONG) {
+            _optionTokenId = tokenId;
+            shortTokenId = tokenId.longToShort();
+            assignedShortTokenId = tokenId.longToAssignedShort();
+        } else if (tokenId.tokenType() == TokenType.SHORT) {
+            _optionTokenId = tokenId.shortToLong();
+            shortTokenId = tokenId;
+            assignedShortTokenId = tokenId.shortToAssignedShort();
+        } else if (tokenId.tokenType() == TokenType.ASSIGNED_SHORT) {
+            _optionTokenId = tokenId.assignedShortToLong();
+            shortTokenId = tokenId.assignedShortToShort();
+            assignedShortTokenId = tokenId;
+        } else {
+            revert(); // should be unreachable
+        }
+
+        // Determine the position
+        OptionState storage optionState = optionStored.optionState;
+        uint256 longBalance = _balanceOf(msg.sender, _optionTokenId, optionState);
+        uint256 shortBalance =
+            _balanceOf(msg.sender, _optionTokenId.longToShort(), optionState);
         uint256 assignedShortBalance =
-            balanceOf(msg.sender, _optionTokenId.longToAssignedShort());
+            _balanceOf(msg.sender, _optionTokenId.longToAssignedShort(), optionState);
 
         _position = Position({
             amountLong: longBalance.safeCastTo64(),
@@ -355,14 +352,14 @@ contract ClarityMarkets is
 
     /// @notice Returns the amount of underlying asset that can be redeemed for a given
     /// token holder and option
-    /// @param _optionTokenId The token id of the option
+    /// @param shortTokenId The token id of the short
     /// @return writeAssetAmount The amount of write asset that can be redeemed
     /// @return writeAssetWhen The timestamp on or after which the write asset can be
     /// redeemed
     /// @return exerciseAssetAmount The amount of exercise asset that can be redeemed
     /// @return exerciseAssetWhen The timestamp on or after which the exercise asset can
     /// be redeemed
-    function positionRedeemableAmount(uint256 _optionTokenId)
+    function positionRedeemableAmount(uint256 shortTokenId)
         external
         view
         returns (
@@ -430,9 +427,25 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(tokenId);
         }
 
+        amount = _balanceOf(owner, tokenId, optionStored.optionState);
+    }
+
+    /// @dev Returns the balance of a given token id for a given owner, called by
+    /// balanceOf(), position(), netOff(), exercise(), and redeem() -- being
+    /// separate from balanceOf() allows gas savings by not repeatedly checking
+    /// that the option exists
+    /// @param owner The owner of the token
+    /// @param tokenId The token id of the token
+    /// @param optionState The state of the option
+    /// @return amount The balance of the token for the owner
+    function _balanceOf(address owner, uint256 tokenId, OptionState storage optionState)
+        private
+        view
+        returns (uint256 amount)
+    {
         // Calculate the balance
-        uint256 amountWritten = optionStored.optionState.amountWritten;
-        uint256 amountNettedOff = optionStored.optionState.amountNettedOff;
+        uint256 amountWritten = optionState.amountWritten;
+        uint256 amountNettedOff = optionState.amountNettedOff;
 
         // If never any open interest for this created option, or everything written has
         // been netted off, all balances will be zero
@@ -440,7 +453,7 @@ contract ClarityMarkets is
             amount = 0;
         } else {
             TokenType _tokenType = tokenId.tokenType();
-            uint256 amountExercised = optionStored.optionState.amountExercised;
+            uint256 amountExercised = optionState.amountExercised;
 
             // If long, the balance is the actual amount held by owner
             if (_tokenType == TokenType.LONG) {
@@ -460,7 +473,7 @@ contract ClarityMarkets is
                         * amountExercised
                 ) / (amountWritten - amountNettedOff);
             } else {
-                revert InvalidTokenType(tokenId); // should be unreachable
+                revert(); // should be unreachable
             }
         }
     }
@@ -950,10 +963,14 @@ contract ClarityMarkets is
         // TODO
 
         // Check that the caller holds sufficient longs and shorts to net off
-        if (optionAmount > balanceOf(msg.sender, _optionTokenId)) {
+        OptionState storage optionState = optionStored.optionState;
+        if (optionAmount > _balanceOf(msg.sender, _optionTokenId, optionState)) {
             revert InsufficientLongBalance(_optionTokenId, optionAmount);
         }
-        if (optionAmount > balanceOf(msg.sender, _optionTokenId.longToShort())) {
+        if (
+            optionAmount
+                > _balanceOf(msg.sender, _optionTokenId.longToShort(), optionState)
+        ) {
             revert InsufficientShortBalance(_optionTokenId, optionAmount);
         }
 
@@ -1015,7 +1032,9 @@ contract ClarityMarkets is
             }
 
             // Check that the caller holds sufficient longs to exercise
-            uint256 optionBalance = balanceOf(msg.sender, _optionTokenId);
+            // TODO improve gas efficiency
+            uint256 optionBalance =
+                _balanceOf(msg.sender, _optionTokenId, optionStored.optionState);
             if (optionAmount > optionBalance) {
                 revert ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
             }
@@ -1088,9 +1107,10 @@ contract ClarityMarkets is
 
         ///////// Effects
         // Determine the assignment status
-        uint256 unassignedShortAmount = balanceOf(msg.sender, shortTokenId);
+        OptionState storage optionState = optionStored.optionState;
+        uint256 unassignedShortAmount = _balanceOf(msg.sender, shortTokenId, optionState);
         uint256 assignedShortAmount =
-            balanceOf(msg.sender, shortTokenId.shortToAssignedShort());
+            _balanceOf(msg.sender, shortTokenId.shortToAssignedShort(), optionState);
 
         // If fully assigned, redeem exercise asset and skip option expiry check
         if (unassignedShortAmount == 0) {
