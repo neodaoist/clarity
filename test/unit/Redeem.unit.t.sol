@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -19,7 +19,8 @@ contract RedeemTest is BaseClarityMarketsTest {
     // - Given unassigned, When redeem short call before or on expiry (reverts)
     // - Given unassigned, When redeem short call after expiry (only write asset)
     // - Given partially assigned, When redeem short call before or on expiry (reverts)
-    // - Given partially assigned, When redeem short call after expiry (both write and ex asset)
+    // - Given partially assigned, When redeem short call after expiry (both write and ex
+    // asset)
     // - Given fully assigned, When redeem short call before or on expiry (only ex asset)
     // - Given fully assigned, When redeem short call after expiry (only ex asset)
     // (ditto for short put)

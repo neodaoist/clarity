@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -575,30 +575,45 @@ contract ExerciseTest is BaseClarityMarketsTest {
         );
     }
 
-    // function test_exercise_many_whenComplex_AndOneHolderExercisesAllOnce() public withComplexBackground {
+    // function test_exercise_many_whenComplex_AndOneHolderExercisesAllOnce() public
+    // withComplexBackground {
     //     // When holder1 exercises 2.45 options of oti1
     //     vm.startPrank(holder1);
-    //     LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+    //     LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE,
+    // STARTING_BALANCE));
     //     clarity.exercise(oti1, 2.45e6);
     //     vm.stopPrank();
 
     //     // Then
     //     // check option balances
-    //     assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after exercise");
-    //     assertEq(clarity.balanceOf(writer1, LibPosition.longToShort(oti1)), 777, "oti1 writer1 short balance after exercise");
-    //     assertEq(clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)), 0, "oti1 writer1 assigned balance after exercise");
-    //     assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after exercise");
-    //     assertEq(clarity.balanceOf(writer2, LibPosition.longToShort(oti1)), 888, "oti1 writer2 short balance after exercise");
-    //     assertEq(clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)), 0, "oti1 writer2 assigned balance after exercise");
-    //     assertEq(clarity.balanceOf(writer3, oti1), 0, "oti1 writer3 long balance after exercise");
-    //     assertEq(clarity.balanceOf(writer3, LibPosition.longToShort(oti1)), 999, "oti1 writer3 short balance after exercise");
-    //     assertEq(clarity.balanceOf(writer3, LibPosition.longToAssignedShort(oti1)), 0, "oti1 writer3 assigned balance after exercise");
-    //     assertEq(clarity.balanceOf(holder1, oti1), 0, "oti1 holder1 long balance after exercise");
-    //     assertEq(clarity.balanceOf(holder1, LibPosition.longToShort(oti1)), 0, "oti1 holder1 short balance after exercise");
-    //     assertEq(clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)), 0, "oti1 holder1 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer1, oti1), 0, "oti1 writer1 long balance after
+    // exercise");
+    //     assertEq(clarity.balanceOf(writer1, LibPosition.longToShort(oti1)), 777, "oti1
+    // writer1 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer1, LibPosition.longToAssignedShort(oti1)), 0,
+    // "oti1 writer1 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer2, oti1), 0, "oti1 writer2 long balance after
+    // exercise");
+    //     assertEq(clarity.balanceOf(writer2, LibPosition.longToShort(oti1)), 888, "oti1
+    // writer2 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer2, LibPosition.longToAssignedShort(oti1)), 0,
+    // "oti1 writer2 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(writer3, oti1), 0, "oti1 writer3 long balance after
+    // exercise");
+    //     assertEq(clarity.balanceOf(writer3, LibPosition.longToShort(oti1)), 999, "oti1
+    // writer3 short balance after exercise");
+    //     assertEq(clarity.balanceOf(writer3, LibPosition.longToAssignedShort(oti1)), 0,
+    // "oti1 writer3 assigned balance after exercise");
+    //     assertEq(clarity.balanceOf(holder1, oti1), 0, "oti1 holder1 long balance after
+    // exercise");
+    //     assertEq(clarity.balanceOf(holder1, LibPosition.longToShort(oti1)), 0, "oti1
+    // holder1 short balance after exercise");
+    //     assertEq(clarity.balanceOf(holder1, LibPosition.longToAssignedShort(oti1)), 0,
+    // "oti1 holder1 assigned balance after exercise");
 
     //     // check asset balances
-    //     assertEq(WETHLIKE.balanceOf(holder1), holder1WethBalance, "holder1 WETH balance after exercise");
+    //     assertEq(WETHLIKE.balanceOf(holder1), holder1WethBalance, "holder1 WETH balance
+    // after exercise");
     //     assertEq(
     //         LUSDLIKE.balanceOf(holder1),
     //         holder1LusdBalance - (1700e6 * 2.25),
@@ -753,19 +768,23 @@ contract ExerciseTest is BaseClarityMarketsTest {
 
     // function testRevert_exercise_whenOptionTokenIdNotLong() public {
     //     vm.startPrank(writer);
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE,
+    // STARTING_BALANCE));
     //     uint256 optionTokenId =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6);
+    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    // americanExWeeklies[0], 1700e18, 1e6);
     //     vm.stopPrank();
 
     //     uint256 short = Y;
-    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, short));
+    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector,
+    // short));
 
     //     vm.prank(holder);
     //     clarity.exercise(short, 1e6);
 
     //     uint256 assignedShort = Z;
-    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, assignedShort));
+    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector,
+    // assignedShort));
 
     //     vm.prank(holder);
     //     clarity.exercise(assignedShort, 1e6);

@@ -1,8 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 interface IOptionErrors {
     /////////
+
+    ///////// Views
+
+    /// @dev Also used in Net Off, Exercise, and Redeem
+    error OptionDoesNotExist(uint256 optionTokenId);
+
+    error InvalidTokenType(uint256 tokenId);
+
+    error TempInvalidTokenType();
 
     ///////// Write
 
@@ -21,9 +30,6 @@ interface IOptionErrors {
     error StrikePriceTooSmall(uint256 strikePrice);
 
     error StrikePriceTooLarge(uint256 strikePrice);
-
-    /// @dev Also used in Exercise, Net Off, Redeem, and views
-    error OptionDoesNotExist(uint256 optionTokenId);
 
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
 
@@ -67,13 +73,8 @@ interface IOptionErrors {
 
     error EarlyRedemptionOnlyIfFullyAssigned();
 
-    error CanOnlyRedeemShort(uint256 tokenId); // TODO reframe to standardize with other errors
-
-    ///////// Views
-
-    error InvalidTokenType(uint256 tokenId);
-
-    error TempInvalidTokenType();
+    error CanOnlyRedeemShort(uint256 tokenId); // TODO reframe to standardize with other
+        // errors
 
     ///////// Adapter
 
@@ -81,7 +82,8 @@ interface IOptionErrors {
 
     error WrappedShortAlreadyDeployed(uint256 shortTokenId);
 
-    error TokenIdNotShort(uint256 tokenId); // TODO consider using elsewhere, do one for other types also
+    error TokenIdNotShort(uint256 tokenId); // TODO consider using elsewhere, do one for
+        // other types also
 
     error ShortAlreadyAssigned(uint256 shortTokenId);
 

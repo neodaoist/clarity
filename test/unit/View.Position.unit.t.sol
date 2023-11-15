@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -7,8 +7,74 @@ import "../BaseClarityMarkets.t.sol";
 // Views Under Test
 import {IPosition} from "../../src/interface//IPosition.sol";
 
-contract OptionPositionViewsTest is BaseClarityMarketsTest {
+contract PositionViewsTest is BaseClarityMarketsTest {
     /////////
+
+    /////////
+    // function tokenType(uint256 tokenId) external view returns (TokenType _tokenType);
+
+    // function test_tokenType() public {
+    //     vm.startPrank(writer);
+    //     uint256 optionTokenId =
+    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    // americanExWeeklies[0], 1750e18, 0);
+    //     vm.stopPrank();
+
+    //     assertEq(
+    //         X,
+    //         IPosition.PositionTokenType.LONG,
+    //         "positionTokenType when long"
+    //     );
+    //     assertEq(
+    //         Y,
+    //         IPosition.PositionTokenType.SHORT,
+    //         "positionTokenType when short"
+    //     );
+    //     assertEq(
+    //         Z,
+    //         IPosition.PositionTokenType.ASSIGNED_SHORT,
+    //         "positionTokenType when assigned short"
+    //     );
+    // }
+
+    // TODO
+
+    // Sad Path
+
+    function testRevert_tokenType_whenOptionDoesNotExist() public {
+        uint248 instrumentHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(LUSDLIKE),
+            americanExWeeklies[0],
+            1750e18,
+            IOption.OptionType.CALL
+        );
+        uint256 notCreatedOptionTokenId = LibPosition.hashToId(instrumentHash);
+
+        // Then
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId
+            )
+        );
+
+        // When
+        clarity.tokenType(notCreatedOptionTokenId);
+    }
+
+    function testRevert_tokenType_whenOptionExistsButInvalidTokenType() public {
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
+        );
+        vm.stopPrank();
+
+        // Then
+        vm.expectRevert(stdError.enumConversionError);
+
+        // When
+        clarity.tokenType(optionTokenId | 3);
+    }
 
     /////////
     // function position(uint256 optionTokenId)
@@ -67,6 +133,44 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
         assertEq(position.amountShort, 0, "holder1 amount short");
         assertEq(position.amountAssignedShort, 0, "holder1 amount assigned short");
         assertEq(magnitude, 0.5e6, "holder1 magnitude");
+    }
+
+    function test_position_whenTokenTypeIsShort() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
+        );
+
+        // When
+        (IPosition.Position memory position, int160 magnitude) =
+            clarity.position(LibPosition.longToShort(optionTokenId));
+        vm.stopPrank();
+
+        // Then
+        assertEq(position.amountLong, 17e6, "amount long");
+        assertEq(position.amountShort, 17e6, "amount short");
+        assertEq(position.amountAssignedShort, 0, "amount assigned short");
+        assertEq(magnitude, 0, "magnitude");
+    }
+
+    function test_position_whenTokenTypeIsAssignedShort() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
+        );
+
+        // When
+        (IPosition.Position memory position, int160 magnitude) =
+            clarity.position(LibPosition.longToAssignedShort(optionTokenId));
+        vm.stopPrank();
+
+        // Then
+        assertEq(position.amountLong, 17e6, "amount long");
+        assertEq(position.amountShort, 17e6, "amount short");
+        assertEq(position.amountAssignedShort, 0, "amount assigned short");
+        assertEq(magnitude, 0, "magnitude");
     }
 
     function test_position_writer_whenAssigned() public withSimpleBackground {
@@ -129,7 +233,40 @@ contract OptionPositionViewsTest is BaseClarityMarketsTest {
 
     // Sad Paths
 
-    // TODO
+    function testRevert_position_whenOptionDoesNotExist() public {
+        uint248 instrumentHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(LUSDLIKE),
+            americanExWeeklies[0],
+            1750e18,
+            IOption.OptionType.CALL
+        );
+        uint256 notCreatedOptionTokenId = LibPosition.hashToId(instrumentHash);
+
+        // Then
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionDoesNotExist.selector, notCreatedOptionTokenId
+            )
+        );
+
+        // When
+        clarity.position(notCreatedOptionTokenId);
+    }
+
+    function testRevert_position_whenOptionExistsButInvalidTokenType() public {
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
+        );
+        vm.stopPrank();
+
+        // Then
+        vm.expectRevert(stdError.enumConversionError);
+
+        // When
+        clarity.position(optionTokenId | 3);
+    }
 
     /////////
     // function positionNettableAmount(uint256 optionTokenId)

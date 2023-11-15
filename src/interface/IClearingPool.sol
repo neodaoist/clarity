@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 interface IClearingPool {
     function skimmable(address asset) external view returns (uint256 amount);

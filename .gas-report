@@ -6,352 +6,337 @@ Running 5 tests for test/unit/LibMath.unit.t.sol:LibMathTest
 [32m[PASS][0m test_clearingScaledDownToHumanReadableStrike() (gas: 911)
 [32m[PASS][0m test_clearingScaledUpToActualStrike() (gas: 803)
 [32m[PASS][0m test_oneClearingUnit() (gas: 814)
-Test result: [32mok[0m. [32m5[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 264.21µs
+Test result: [32mok[0m. [32m5[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 221.04µs
 
-Running 7 tests for test/unit/LibOption.t.sol:LibOptionTest
-[32m[PASS][0m test_determineExerciseStyle() (gas: 19586)
-[32m[PASS][0m test_exerciseStyle_toString() (gas: 2143)
-[32m[PASS][0m test_optionType_toString() (gas: 2189)
-[32m[PASS][0m test_paramsToHash() (gas: 13982)
-[32m[PASS][0m test_strikePrice_toString() (gas: 1822)
-[32m[PASS][0m test_toExerciseWindow() (gas: 12508)
-[32m[PASS][0m test_unixTimestamp_toString() (gas: 2226)
-Test result: [32mok[0m. [32m7[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 26.11ms
-
-Running 5 tests for test/unit/Transfer.unit.t.sol:TransferTest
-[32m[PASS][0m testRevert_transfer_whenAssignedShortToken() (gas: 354816)
-[32m[PASS][0m testRevert_transfer_whenOptionDoesNotExist() (gas: 16142)
-[32m[PASS][0m testRevert_transfer_whenShort_givenOptionIsAssigned() (gas: 446017)
-[32m[PASS][0m test_transfer_whenLong() (gas: 428383)
-[32m[PASS][0m test_transfer_whenShort() (gas: 428537)
-Test result: [32mok[0m. [32m5[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 32.44ms
+Running 8 tests for test/unit/View.Position.unit.t.sol:PositionViewsTest
+[32m[PASS][0m testRevert_position_whenOptionDoesNotExist() (gas: 24637)
+[32m[PASS][0m testRevert_position_whenOptionExistsButInvalidTokenType() (gas: 206391)
+[32m[PASS][0m testRevert_tokenType_whenOptionDoesNotExist() (gas: 23418)
+[32m[PASS][0m testRevert_tokenType_whenOptionExistsButInvalidTokenType() (gas: 204840)
+[32m[PASS][0m test_position() (gas: 513511)
+[32m[PASS][0m test_position_whenTokenTypeIsAssignedShort() (gas: 356371)
+[32m[PASS][0m test_position_whenTokenTypeIsShort() (gas: 356292)
+[32m[PASS][0m test_position_writer_whenAssigned() (gas: 767658)
+Test result: [32mok[0m. [32m8[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 33.70ms
 
 Running 12 tests for test/unit/LibPosition.t.sol:LibPositionTest
-[32m[PASS][0m testIntegration_paramsToHash_hashToId_idToHash() (gas: 14030)
-[32m[PASS][0m testRevert_tokenType_whenNotValid() (gas: 3793)
-[32m[PASS][0m test_assignedShortToLong() (gas: 11915)
-[32m[PASS][0m test_assignedShortToShort() (gas: 11983)
-[32m[PASS][0m test_hashToId() (gas: 379)
-[32m[PASS][0m test_idToHash() (gas: 515)
-[32m[PASS][0m test_longToAssignedShort() (gas: 11979)
-[32m[PASS][0m test_longToShort() (gas: 11978)
-[32m[PASS][0m test_shortToAssignedShort() (gas: 11939)
-[32m[PASS][0m test_shortToLong() (gas: 11869)
-[32m[PASS][0m test_tokenType() (gas: 12518)
-[32m[PASS][0m test_tokenType_toString() (gas: 3253)
-Test result: [32mok[0m. [32m12[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 33.78ms
-
-Running 2 tests for test/unit/View.OptionPosition.unit.t.sol:OptionPositionViewsTest
-[32m[PASS][0m test_position() (gas: 516316)
-[32m[PASS][0m test_position_writer_whenAssigned() (gas: 770947)
-Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 38.60ms
+[32m[PASS][0m testIntegration_paramsToHash_hashToId_idToHash() (gas: 14012)
+[32m[PASS][0m testRevert_tokenType_whenNotValid() (gas: 3749)
+[32m[PASS][0m test_assignedShortToLong() (gas: 11902)
+[32m[PASS][0m test_assignedShortToShort() (gas: 11901)
+[32m[PASS][0m test_hashToId() (gas: 354)
+[32m[PASS][0m test_idToHash() (gas: 465)
+[32m[PASS][0m test_longToAssignedShort() (gas: 11902)
+[32m[PASS][0m test_longToShort() (gas: 11901)
+[32m[PASS][0m test_shortToAssignedShort() (gas: 11930)
+[32m[PASS][0m test_shortToLong() (gas: 11856)
+[32m[PASS][0m test_tokenType() (gas: 12500)
+[32m[PASS][0m test_tokenType_toString() (gas: 3197)
+Test result: [32mok[0m. [32m12[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 31.13ms
 
 Running 6 tests for test/unit/View.OptionState.unit.t.sol:OptionStateViewsTest
-[32m[PASS][0m test_openInterest_whenExercised() (gas: 752345)
-[32m[PASS][0m test_openInterest_whenWritten() (gas: 658725)
-[32m[PASS][0m test_remainingWritableAmount_whenAllWritten() (gas: 534772)
-[32m[PASS][0m test_remainingWritableAmount_whenMostWritten() (gas: 384910)
-[32m[PASS][0m test_remainingWritableAmount_whenNoneWritten() (gas: 205659)
-[32m[PASS][0m test_remainingWritableAmount_whenSomeWritten() (gas: 352818)
-Test result: [32mok[0m. [32m6[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 42.64ms
+[32m[PASS][0m test_openInterest_whenExercised() (gas: 750974)
+[32m[PASS][0m test_openInterest_whenWritten() (gas: 657833)
+[32m[PASS][0m test_remainingWritableAmount_whenAllWritten() (gas: 532530)
+[32m[PASS][0m test_remainingWritableAmount_whenMostWritten() (gas: 383842)
+[32m[PASS][0m test_remainingWritableAmount_whenNoneWritten() (gas: 205385)
+[32m[PASS][0m test_remainingWritableAmount_whenSomeWritten() (gas: 352406)
+Test result: [32mok[0m. [32m6[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 37.17ms
 
-Running 18 tests for test/unit/Redeem.unit.t.sol:RedeemTest
-[32m[PASS][0m testEvent_redeem_call() (gas: 307248)
-[32m[PASS][0m testEvent_redeem_put() (gas: 307272)
-[32m[PASS][0m testRevert_redeem_shortCall_beforeOrOnExpiry_givenPartiallyAssigned() (gas: 461711)
-[32m[PASS][0m testRevert_redeem_shortCall_beforeOrOnExpiry_givenUnassigned() (gas: 356955)
-[32m[PASS][0m testRevert_redeem_shortPut_beforeOrOnExpiry_givenPartiallyAssigned() (gas: 461799)
-[32m[PASS][0m testRevert_redeem_shortPut_beforeOrOnExpiry_givenUnassigned() (gas: 357066)
-[32m[PASS][0m testRevert_redeem_whenAssignedShortToken() (gas: 352803)
-[32m[PASS][0m testRevert_redeem_whenLongToken() (gas: 352855)
-[32m[PASS][0m testRevert_redeem_whenOptionDoesNotExist() (gas: 26249)
-[32m[PASS][0m testRevert_redeem_whenShortBalanceZero() (gas: 363837)
-[32m[PASS][0m test_redeem_shortCall_afterExpiry_givenFullyAssigned() (gas: 423681)
-[32m[PASS][0m test_redeem_shortCall_afterExpiry_givenPartiallyAssigned() (gas: 427100)
-[32m[PASS][0m test_redeem_shortCall_afterExpiry_givenUnassigned() (gas: 344359)
-[32m[PASS][0m test_redeem_shortCall_beforeOrOnExpiry_givenFullyAssigned() (gas: 422804)
-[32m[PASS][0m test_redeem_shortPut_afterExpiry_givenFullyAssigned() (gas: 423744)
-[32m[PASS][0m test_redeem_shortPut_afterExpiry_givenPartiallyAssigned() (gas: 427136)
-[32m[PASS][0m test_redeem_shortPut_afterExpiry_givenUnassigned() (gas: 344381)
-[32m[PASS][0m test_redeem_shortPut_beforeOrOnExpiry_givenFullyAssigned() (gas: 422848)
-Test result: [32mok[0m. [32m18[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 48.48ms
+Running 7 tests for test/unit/LibOption.t.sol:LibOptionTest
+[32m[PASS][0m test_determineExerciseStyle() (gas: 19564)
+[32m[PASS][0m test_exerciseStyle_toString() (gas: 2166)
+[32m[PASS][0m test_optionType_toString() (gas: 2189)
+[32m[PASS][0m test_paramsToHash() (gas: 13942)
+[32m[PASS][0m test_strikePrice_toString() (gas: 1764)
+[32m[PASS][0m test_toExerciseWindow() (gas: 12531)
+[32m[PASS][0m test_unixTimestamp_toString() (gas: 2132)
+Test result: [32mok[0m. [32m7[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 44.49ms
 
-Running 16 tests for test/unit/Adapter.ERC20Factory.unit.t.sol:ERC20FactoryTest
-[32m[PASS][0m testEvent_deployWrappedLong() (gas: 1643944)
-[32m[PASS][0m testEvent_deployWrappedShort() (gas: 1655827)
-[32m[PASS][0m testRevert_deployWrappedLong_whenOptionDoesNotExist() (gas: 35941)
-[32m[PASS][0m testRevert_deployWrappedLong_whenOptionExpired() (gas: 364327)
-[32m[PASS][0m testRevert_deployWrappedLong_whenWrapperAlreadyDeployed() (gas: 1648212)
-[32m[PASS][0m testRevert_deployWrappedShort_whenOptionDoesNotExist() (gas: 36006)
-[32m[PASS][0m testRevert_deployWrappedShort_whenOptionExpired() (gas: 364450)
-[32m[PASS][0m testRevert_deployWrappedShort_whenShortHasBeenAssigned() (gas: 455725)
-[32m[PASS][0m testRevert_deployWrappedShort_whenTokenTypeIsAssignedShort() (gas: 357507)
-[32m[PASS][0m testRevert_deployWrappedShort_whenTokenTypeIsLong() (gas: 357519)
-[32m[PASS][0m testRevert_deployWrappedShort_whenWrapperAlreadyDeployed() (gas: 1660166)
-[32m[PASS][0m test_deployWrappedLong() (gas: 1686413)
-[32m[PASS][0m test_deployWrappedLong_many() (gas: 15212108)
-[32m[PASS][0m test_deployWrappedShort() (gas: 1698270)
-[32m[PASS][0m test_deployWrappedShort_many() (gas: 15332536)
-[32m[PASS][0m test_initial() (gas: 7675)
-Test result: [32mok[0m. [32m16[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 51.93ms
-
-Running 2 tests for test/unit/View.OptionToken.unit.t.sol:OptionTokenViewsTest
-[32m[PASS][0m testRevert_position_whenOptionDoesNotExist() (gas: 23374)
-[32m[PASS][0m testRevert_position_whenOptionExistsButInvalidTokenType() (gas: 204999)
-Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 26.71ms
-
-Running 30 tests for test/unit/Rebasing.unit.t.sol:RebasingTest
-[32m[PASS][0m testRevert_balanceOf_whenOptionDoesNotExist() (gas: 37718)
-[32m[PASS][0m testRevert_totalSupply_whenOptionDoesNotExist() (gas: 37029)
-[32m[PASS][0m test_balanceOf_A_givenAnyWritten_andNoneNettedOff_andNoneExercised() (gas: 778494)
-[32m[PASS][0m test_balanceOf_B_givenAnyWritten_andSomeNettedOff_andNoneExercised() (gas: 836000)
-[32m[PASS][0m test_balanceOf_C_givenAnyWritten_andMostNettedOff_andNoneExercised() (gas: 836451)
-[32m[PASS][0m test_balanceOf_D_givenAnyWritten_andAllNettedOff_andNoneExercised() (gas: 726167)
-[32m[PASS][0m test_balanceOf_E_givenAnyWritten_andNoneNettedOff_andSomeExercised() (gas: 914637)
-[32m[PASS][0m test_balanceOf_F_givenAnyWritten_andSomeNettedOff_andSomeExercised() (gas: 972316)
-[32m[PASS][0m test_balanceOf_G_givenAnyWritten_andMostNettedOff_andSomeExercised() (gas: 932900)
-[32m[PASS][0m test_balanceOf_H_givenAnyWritten_andNoneNettedOff_andMostExercised() (gas: 915042)
-[32m[PASS][0m test_balanceOf_I_givenAnyWritten_andSomeNettedOff_andMostExercised() (gas: 932864)
-[32m[PASS][0m test_balanceOf_J_givenAnyWritten_andNoneNettedOff_andAllExercised() (gas: 811382)
-[32m[PASS][0m test_balanceOf_whenManyWritten() (gas: 357074)
-[32m[PASS][0m test_balanceOf_whenMaxWritten() (gas: 357051)
-[32m[PASS][0m test_balanceOf_whenNoneWritten() (gas: 208631)
-[32m[PASS][0m test_balanceOf_whenSomeWritten() (gas: 357075)
-[32m[PASS][0m test_totalSupply_A_givenAnyWritten_andNoneNettedOff_andNoneExercised() (gas: 773577)
-[32m[PASS][0m test_totalSupply_B_givenAnyWritten_andSomeNettedOff_andNoneExercised() (gas: 831150)
-[32m[PASS][0m test_totalSupply_C_givenAnyWritten_andMostNettedOff_andNoneExercised() (gas: 831493)
-[32m[PASS][0m test_totalSupply_D_givenAnyWritten_andAllNettedOff_andNoneExercised() (gas: 724840)
-[32m[PASS][0m test_totalSupply_E_givenAnyWritten_andNoneNettedOff_andSomeExercised() (gas: 909700)
-[32m[PASS][0m test_totalSupply_F_givenAnyWritten_andSomeNettedOff_andSomeExercised() (gas: 967316)
-[32m[PASS][0m test_totalSupply_G_givenAnyWritten_andMostNettedOff_andSomeExercised() (gas: 927967)
-[32m[PASS][0m test_totalSupply_H_givenAnyWritten_andNoneNettedOff_andMostExercised() (gas: 910173)
-[32m[PASS][0m test_totalSupply_I_givenAnyWritten_andSomeNettedOff_andMostExercised() (gas: 927972)
-[32m[PASS][0m test_totalSupply_J_givenAnyWritten_andNoneNettedOff_andAllExercised() (gas: 806358)
-[32m[PASS][0m test_totalSupply_whenManyWritten() (gas: 355425)
-[32m[PASS][0m test_totalSupply_whenMaxWritten() (gas: 355379)
-[32m[PASS][0m test_totalSupply_whenNoneWritten() (gas: 208083)
-[32m[PASS][0m test_totalSupply_whenSomeWritten() (gas: 355403)
-Test result: [32mok[0m. [32m30[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 53.21ms
-
-Running 13 tests for test/unit/Adapter.WrappedShort.unit.t.sol:WrappedShortTest
-[32m[PASS][0m testEvent_unwrapShorts() (gas: 1799452)
-[32m[PASS][0m testEvent_wrapShorts() (gas: 1788928)
-[32m[PASS][0m testRevert_unwrapShorts_whenAmountZero() (gas: 1788335)
-[32m[PASS][0m testRevert_unwrapShorts_whenCallerHoldsInsufficientWrappedShorts() (gas: 1789222)
-[32m[PASS][0m testRevert_wrapShorts_whenAmountZero() (gas: 1677739)
-[32m[PASS][0m testRevert_wrapShorts_whenCallerHasGrantedInsufficientClearinghouseApproval() (gas: 1760175)
-[32m[PASS][0m testRevert_wrapShorts_whenCallerHoldsInsufficientShorts() (gas: 1684482)
-[32m[PASS][0m testRevert_wrapShorts_whenOptionExpired() (gas: 1683354)
-[32m[PASS][0m testRevert_wrapShorts_whenShortHasBeenAssigned() (gas: 1848243)
-[32m[PASS][0m test_unwrapShorts() (gas: 1836533)
-[32m[PASS][0m test_unwrapShorts_many() (gas: 16665368)
-[32m[PASS][0m test_wrapShorts() (gas: 1824446)
-[32m[PASS][0m test_wrapShorts_manyOptions() (gas: 16571576)
-Test result: [32mok[0m. [32m13[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 56.58ms
-
-Running 17 tests for test/unit/LibMetadata.unit.t.sol:LibMetadataTest
-[32m[PASS][0m testIntegration_string_toBytes31_toString() (gas: 4052)
-[32m[PASS][0m test_assetStorage_whenCall() (gas: 360549)
-[32m[PASS][0m test_assetStorage_whenPut() (gas: 360637)
-[32m[PASS][0m test_paramsToTicker_whenAmerican() (gas: 9234)
-[32m[PASS][0m test_paramsToTicker_whenDifferentAssetsExpiryAndLargeStrike() (gas: 9873)
-[32m[PASS][0m test_paramsToTicker_whenEuropean() (gas: 9254)
-[32m[PASS][0m test_tickerToFullTicker() (gas: 17142)
-[32m[PASS][0m test_toBytes31() (gas: 780)
-[32m[PASS][0m test_tokenURI_assigned() (gas: 1627288)
-[32m[PASS][0m test_tokenURI_differentAssets() (gas: 1622519)
-[32m[PASS][0m test_tokenURI_differentExerciseStyle() (gas: 1621468)
-[32m[PASS][0m test_tokenURI_differentExpiry1() (gas: 1614558)
-[32m[PASS][0m test_tokenURI_differentExpiry2() (gas: 1614493)
-[32m[PASS][0m test_tokenURI_differentExpiry3() (gas: 1614559)
-[32m[PASS][0m test_tokenURI_differentStrike() (gas: 1621747)
-[32m[PASS][0m test_tokenURI_long() (gas: 1621343)
-[32m[PASS][0m test_tokenURI_short() (gas: 1622019)
-Test result: [32mok[0m. [32m17[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 56.51ms
-
-Running 4 tests for test/unit/NetOff.unit.t.sol:NetOffTest
-[32m[PASS][0m testRevert_netOff_whenDontHoldSufficientLongs() (gas: 429015)
-[32m[PASS][0m testRevert_netOff_whenDontHoldSufficientShorts() (gas: 430744)
-[32m[PASS][0m testRevert_netOff_whenOptionDoesNotExist() (gas: 13936)
-[32m[PASS][0m test_netOff() (gas: 323266)
-Test result: [32mok[0m. [32m4[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 35.64ms
-
-Running 48 tests for test/unit/Write.unit.t.sol:WriteTest
-[32m[PASS][0m testEvent_writeCall_OptionCreated() (gas: 357376)
-[32m[PASS][0m testEvent_writeCall_OptionsWritten() (gas: 354880)
-[32m[PASS][0m testEvent_writePut_OptionCreated() (gas: 357422)
-[32m[PASS][0m testEvent_writePut_OptionsWritten() (gas: 354947)
-[32m[PASS][0m testEvent_write_whenCall_OptionsWritten() (gas: 359637)
-[32m[PASS][0m testEvent_write_whenPut_OptionsWritten() (gas: 359670)
-[32m[PASS][0m testRevert_batchWrite_whenArrayLengthMismatch() (gas: 12664)
-[32m[PASS][0m testRevert_batchWrite_whenArrayLengthZero() (gas: 12281)
-[32m[PASS][0m testRevert_writeCall_whenAmountGreaterThanMaximumWritable() (gas: 67845)
-[32m[PASS][0m testRevert_writeCall_whenAssetsIdentical() (gas: 21580)
-[32m[PASS][0m testRevert_writeCall_whenBaseAssetDecimalsTooLarge() (gas: 36937)
-[32m[PASS][0m testRevert_writeCall_whenBaseAssetDecimalsTooSmall() (gas: 36814)
-[32m[PASS][0m testRevert_writeCall_whenExerciseWindowExpiryPast() (gas: 33478)
-[32m[PASS][0m testRevert_writeCall_whenExerciseWindowMisordered() (gas: 33444)
-[32m[PASS][0m testRevert_writeCall_whenExerciseWindowMispaired() (gas: 31231)
-[32m[PASS][0m testRevert_writeCall_whenExerciseWindowZeroTime() (gas: 32849)
-[32m[PASS][0m testRevert_writeCall_whenQuoteAssetDecimalsTooLarge() (gas: 37029)
-[32m[PASS][0m testRevert_writeCall_whenQuoteAssetDecimalsTooSmall() (gas: 36961)
-[32m[PASS][0m testRevert_writeCall_whenStrikePriceTooLarge() (gas: 39256)
-[32m[PASS][0m testRevert_writeCall_whenStrikePriceTooSmall() (gas: 39187)
-[32m[PASS][0m testRevert_writePut_whenAmountGreaterThanMaximumWritable() (gas: 67889)
-[32m[PASS][0m testRevert_writePut_whenAssetsIdentical() (gas: 21647)
-[32m[PASS][0m testRevert_writePut_whenBaseAssetDecimalsTooLarge() (gas: 36914)
-[32m[PASS][0m testRevert_writePut_whenBaseAssetDecimalsTooSmall() (gas: 36880)
-[32m[PASS][0m testRevert_writePut_whenExerciseWindowExpiryPast() (gas: 33480)
-[32m[PASS][0m testRevert_writePut_whenExerciseWindowMisordered() (gas: 33513)
-[32m[PASS][0m testRevert_writePut_whenExerciseWindowMispaired() (gas: 31233)
-[32m[PASS][0m testRevert_writePut_whenExerciseWindowZeroTime() (gas: 32829)
-[32m[PASS][0m testRevert_writePut_whenQuoteAssetDecimalsTooLarge() (gas: 37008)
-[32m[PASS][0m testRevert_writePut_whenQuoteAssetDecimalsTooSmall() (gas: 37028)
-[32m[PASS][0m testRevert_writePut_whenStrikePriceTooLarge() (gas: 39257)
-[32m[PASS][0m testRevert_writePut_whenStrikePriceTooSmall() (gas: 39298)
-[32m[PASS][0m testRevert_write_whenInitialAmountGreaterThanMaximumWritable() (gas: 233268)
-[32m[PASS][0m testRevert_write_whenOptionDoesNotExist() (gas: 26143)
-[32m[PASS][0m testRevert_write_whenOptionExpired() (gas: 207470)
-[32m[PASS][0m testRevert_write_whenSubsequentAmountGreaterThanMaximumWritable() (gas: 358876)
-[32m[PASS][0m testRevert_write_whenWriteAmountZero() (gas: 204776)
-[32m[PASS][0m test_batchWrite() (gas: 371382)
-[32m[PASS][0m test_writeCall() (gas: 370315)
-[32m[PASS][0m test_writeCall_many() (gas: 1512977)
-[32m[PASS][0m test_writeCall_whenLargeButValidStrikePrice() (gas: 394987)
-[32m[PASS][0m test_writeCall_zero() (gas: 222409)
-[32m[PASS][0m test_writePut() (gas: 370459)
-[32m[PASS][0m test_writePut_many() (gas: 1540473)
-[32m[PASS][0m test_writePut_whenLargeButValidStrikePrice() (gas: 426146)
-[32m[PASS][0m test_writePut_zero() (gas: 222523)
-[32m[PASS][0m test_write_whenCall() (gas: 369444)
-[32m[PASS][0m test_write_whenPut() (gas: 369498)
-Test result: [32mok[0m. [32m48[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 34.64ms
+Running 5 tests for test/unit/Transfer.unit.t.sol:TransferTest
+[32m[PASS][0m testRevert_transfer_whenAssignedShortToken() (gas: 354291)
+[32m[PASS][0m testRevert_transfer_whenOptionDoesNotExist() (gas: 15986)
+[32m[PASS][0m testRevert_transfer_whenShort_givenOptionIsAssigned() (gas: 445051)
+[32m[PASS][0m test_transfer_whenLong() (gas: 427846)
+[32m[PASS][0m test_transfer_whenShort() (gas: 428042)
+Test result: [32mok[0m. [32m5[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 52.31ms
 
 Running 12 tests for test/unit/Adapter.WrappedLong.unit.t.sol:WrappedLongTest
-[32m[PASS][0m testEvent_unwrapLongs() (gas: 1832216)
-[32m[PASS][0m testEvent_wrapLongs() (gas: 1821906)
-[32m[PASS][0m testRevert_unwrapLongs_whenAmountZero() (gas: 1821413)
-[32m[PASS][0m testRevert_unwrapLongs_whenCallerHoldsInsufficientWrappedLongs() (gas: 1822190)
-[32m[PASS][0m testRevert_wrapLongs_whenAmountZero() (gas: 1711404)
-[32m[PASS][0m testRevert_wrapLongs_whenCallerHasGrantedInsufficientClearinghouseApproval() (gas: 1793154)
-[32m[PASS][0m testRevert_wrapLongs_whenCallerHoldsInsufficientLongs() (gas: 1717685)
-[32m[PASS][0m testRevert_wrapLongs_whenOptionExpired() (gas: 1716907)
-[32m[PASS][0m test_unwrapLongs() (gas: 1869342)
-[32m[PASS][0m test_unwrapLongs_many() (gas: 16991201)
-[32m[PASS][0m test_wrapLongs() (gas: 1857379)
-[32m[PASS][0m test_wrapLongs_manyOptions() (gas: 16899644)
-Test result: [32mok[0m. [32m12[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 75.88ms
+[32m[PASS][0m testEvent_unwrapLongs() (gas: 1900815)
+[32m[PASS][0m testEvent_wrapLongs() (gas: 1890649)
+[32m[PASS][0m testRevert_unwrapLongs_whenAmountZero() (gas: 1890053)
+[32m[PASS][0m testRevert_unwrapLongs_whenCallerHoldsInsufficientWrappedLongs() (gas: 1890885)
+[32m[PASS][0m testRevert_wrapLongs_whenAmountZero() (gas: 1780255)
+[32m[PASS][0m testRevert_wrapLongs_whenCallerHasGrantedInsufficientClearinghouseApproval() (gas: 1861942)
+[32m[PASS][0m testRevert_wrapLongs_whenCallerHoldsInsufficientLongs() (gas: 1786603)
+[32m[PASS][0m testRevert_wrapLongs_whenOptionExpired() (gas: 1785796)
+[32m[PASS][0m test_unwrapLongs() (gas: 1938004)
+[32m[PASS][0m test_unwrapLongs_many() (gas: 17678766)
+[32m[PASS][0m test_wrapLongs() (gas: 1926211)
+[32m[PASS][0m test_wrapLongs_manyOptions() (gas: 17588419)
+Test result: [32mok[0m. [32m12[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 65.04ms
+
+Running 30 tests for test/unit/Rebasing.unit.t.sol:RebasingTest
+[32m[PASS][0m testRevert_balanceOf_whenOptionDoesNotExist() (gas: 37502)
+[32m[PASS][0m testRevert_totalSupply_whenOptionDoesNotExist() (gas: 36913)
+[32m[PASS][0m test_balanceOf_A_givenAnyWritten_andNoneNettedOff_andNoneExercised() (gas: 777557)
+[32m[PASS][0m test_balanceOf_B_givenAnyWritten_andSomeNettedOff_andNoneExercised() (gas: 833104)
+[32m[PASS][0m test_balanceOf_C_givenAnyWritten_andMostNettedOff_andNoneExercised() (gas: 833510)
+[32m[PASS][0m test_balanceOf_D_givenAnyWritten_andAllNettedOff_andNoneExercised() (gas: 723893)
+[32m[PASS][0m test_balanceOf_E_givenAnyWritten_andNoneNettedOff_andSomeExercised() (gas: 912281)
+[32m[PASS][0m test_balanceOf_F_givenAnyWritten_andSomeNettedOff_andSomeExercised() (gas: 968001)
+[32m[PASS][0m test_balanceOf_G_givenAnyWritten_andMostNettedOff_andSomeExercised() (gas: 928630)
+[32m[PASS][0m test_balanceOf_H_givenAnyWritten_andNoneNettedOff_andMostExercised() (gas: 912731)
+[32m[PASS][0m test_balanceOf_I_givenAnyWritten_andSomeNettedOff_andMostExercised() (gas: 928549)
+[32m[PASS][0m test_balanceOf_J_givenAnyWritten_andNoneNettedOff_andAllExercised() (gas: 809071)
+[32m[PASS][0m test_balanceOf_whenManyWritten() (gas: 356726)
+[32m[PASS][0m test_balanceOf_whenMaxWritten() (gas: 356703)
+[32m[PASS][0m test_balanceOf_whenNoneWritten() (gas: 208517)
+[32m[PASS][0m test_balanceOf_whenSomeWritten() (gas: 356727)
+[32m[PASS][0m test_totalSupply_A_givenAnyWritten_andNoneNettedOff_andNoneExercised() (gas: 772273)
+[32m[PASS][0m test_totalSupply_B_givenAnyWritten_andSomeNettedOff_andNoneExercised() (gas: 827887)
+[32m[PASS][0m test_totalSupply_C_givenAnyWritten_andMostNettedOff_andNoneExercised() (gas: 828297)
+[32m[PASS][0m test_totalSupply_D_givenAnyWritten_andAllNettedOff_andNoneExercised() (gas: 722220)
+[32m[PASS][0m test_totalSupply_E_givenAnyWritten_andNoneNettedOff_andSomeExercised() (gas: 907089)
+[32m[PASS][0m test_totalSupply_F_givenAnyWritten_andSomeNettedOff_andSomeExercised() (gas: 962746)
+[32m[PASS][0m test_totalSupply_G_givenAnyWritten_andMostNettedOff_andSomeExercised() (gas: 923397)
+[32m[PASS][0m test_totalSupply_H_givenAnyWritten_andNoneNettedOff_andMostExercised() (gas: 907495)
+[32m[PASS][0m test_totalSupply_I_givenAnyWritten_andSomeNettedOff_andMostExercised() (gas: 923357)
+[32m[PASS][0m test_totalSupply_J_givenAnyWritten_andNoneNettedOff_andAllExercised() (gas: 803747)
+[32m[PASS][0m test_totalSupply_whenManyWritten() (gas: 354977)
+[32m[PASS][0m test_totalSupply_whenMaxWritten() (gas: 354976)
+[32m[PASS][0m test_totalSupply_whenNoneWritten() (gas: 207795)
+[32m[PASS][0m test_totalSupply_whenSomeWritten() (gas: 354955)
+Test result: [32mok[0m. [32m30[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 69.95ms
+
+Running 13 tests for test/unit/Adapter.WrappedShort.unit.t.sol:WrappedShortTest
+[32m[PASS][0m testEvent_unwrapShorts() (gas: 1871238)
+[32m[PASS][0m testEvent_wrapShorts() (gas: 1860880)
+[32m[PASS][0m testRevert_unwrapShorts_whenAmountZero() (gas: 1860185)
+[32m[PASS][0m testRevert_unwrapShorts_whenCallerHoldsInsufficientWrappedShorts() (gas: 1861060)
+[32m[PASS][0m testRevert_wrapShorts_whenAmountZero() (gas: 1749866)
+[32m[PASS][0m testRevert_wrapShorts_whenCallerHasGrantedInsufficientClearinghouseApproval() (gas: 1832195)
+[32m[PASS][0m testRevert_wrapShorts_whenCallerHoldsInsufficientShorts() (gas: 1756632)
+[32m[PASS][0m testRevert_wrapShorts_whenOptionExpired() (gas: 1755408)
+[32m[PASS][0m testRevert_wrapShorts_whenShortHasBeenAssigned() (gas: 1919832)
+[32m[PASS][0m test_unwrapShorts() (gas: 1908428)
+[32m[PASS][0m test_unwrapShorts_many() (gas: 17384396)
+[32m[PASS][0m test_wrapShorts() (gas: 1896488)
+[32m[PASS][0m test_wrapShorts_manyOptions() (gas: 17292351)
+Test result: [32mok[0m. [32m13[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 73.25ms
+
+Running 4 tests for test/unit/NetOff.unit.t.sol:NetOffTest
+[32m[PASS][0m testRevert_netOff_whenDontHoldSufficientLongs() (gas: 428136)
+[32m[PASS][0m testRevert_netOff_whenDontHoldSufficientShorts() (gas: 429638)
+[32m[PASS][0m testRevert_netOff_whenOptionDoesNotExist() (gas: 13846)
+[32m[PASS][0m test_netOff() (gas: 322198)
+Test result: [32mok[0m. [32m4[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 44.75ms
+
+Running 17 tests for test/unit/LibMetadata.unit.t.sol:LibMetadataTest
+[32m[PASS][0m testIntegration_string_toBytes31_toString() (gas: 3992)
+[32m[PASS][0m test_assetStorage_whenCall() (gas: 360076)
+[32m[PASS][0m test_assetStorage_whenPut() (gas: 360121)
+[32m[PASS][0m test_paramsToTicker_whenAmerican() (gas: 8946)
+[32m[PASS][0m test_paramsToTicker_whenDifferentAssetsExpiryAndLargeStrike() (gas: 9549)
+[32m[PASS][0m test_paramsToTicker_whenEuropean() (gas: 8966)
+[32m[PASS][0m test_tickerToFullTicker() (gas: 16818)
+[32m[PASS][0m test_toBytes31() (gas: 774)
+[32m[PASS][0m test_tokenURI_assigned() (gas: 1625361)
+[32m[PASS][0m test_tokenURI_differentAssets() (gas: 1620568)
+[32m[PASS][0m test_tokenURI_differentExerciseStyle() (gas: 1619529)
+[32m[PASS][0m test_tokenURI_differentExpiry1() (gas: 1612615)
+[32m[PASS][0m test_tokenURI_differentExpiry2() (gas: 1612550)
+[32m[PASS][0m test_tokenURI_differentExpiry3() (gas: 1612616)
+[32m[PASS][0m test_tokenURI_differentStrike() (gas: 1619808)
+[32m[PASS][0m test_tokenURI_long() (gas: 1619404)
+[32m[PASS][0m test_tokenURI_short() (gas: 1620092)
+Test result: [32mok[0m. [32m17[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 84.24ms
+
+Running 16 tests for test/unit/Adapter.ERC20Factory.unit.t.sol:ERC20FactoryTest
+[32m[PASS][0m testEvent_deployWrappedLong() (gas: 1712939)
+[32m[PASS][0m testEvent_deployWrappedShort() (gas: 1728012)
+[32m[PASS][0m testRevert_deployWrappedLong_whenOptionDoesNotExist() (gas: 29230)
+[32m[PASS][0m testRevert_deployWrappedLong_whenOptionExpired() (gas: 364002)
+[32m[PASS][0m testRevert_deployWrappedLong_whenWrapperAlreadyDeployed() (gas: 1717190)
+[32m[PASS][0m testRevert_deployWrappedShort_whenOptionDoesNotExist() (gas: 29295)
+[32m[PASS][0m testRevert_deployWrappedShort_whenOptionExpired() (gas: 364125)
+[32m[PASS][0m testRevert_deployWrappedShort_whenShortHasBeenAssigned() (gas: 454952)
+[32m[PASS][0m testRevert_deployWrappedShort_whenTokenTypeIsAssignedShort() (gas: 357181)
+[32m[PASS][0m testRevert_deployWrappedShort_whenTokenTypeIsLong() (gas: 357193)
+[32m[PASS][0m testRevert_deployWrappedShort_whenWrapperAlreadyDeployed() (gas: 1732334)
+[32m[PASS][0m test_deployWrappedLong() (gas: 1755197)
+[32m[PASS][0m test_deployWrappedLong_many() (gas: 15900125)
+[32m[PASS][0m test_deployWrappedShort() (gas: 1770267)
+[32m[PASS][0m test_deployWrappedShort_many() (gas: 16052671)
+[32m[PASS][0m test_initial() (gas: 7669)
+Test result: [32mok[0m. [32m16[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 84.46ms
+
+Running 2 tests for test/unit/View.Option.unit.t.sol:OptionViewsTest
+[32m[PASS][0m testRevert_optionTokenId_whenOptionDoesNotExist() (gas: 26005)
+[32m[PASS][0m testRevert_option_whenOptionDoesNotExist() (gas: 25191)
+Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 49.47ms
+
+Running 48 tests for test/unit/Write.unit.t.sol:WriteTest
+[32m[PASS][0m testEvent_writeCall_OptionCreated() (gas: 357028)
+[32m[PASS][0m testEvent_writeCall_OptionsWritten() (gas: 354499)
+[32m[PASS][0m testEvent_writePut_OptionCreated() (gas: 357031)
+[32m[PASS][0m testEvent_writePut_OptionsWritten() (gas: 354523)
+[32m[PASS][0m testEvent_write_whenCall_OptionsWritten() (gas: 359234)
+[32m[PASS][0m testEvent_write_whenPut_OptionsWritten() (gas: 359224)
+[32m[PASS][0m testRevert_batchWrite_whenArrayLengthMismatch() (gas: 12507)
+[32m[PASS][0m testRevert_batchWrite_whenArrayLengthZero() (gas: 12160)
+[32m[PASS][0m testRevert_writeCall_whenAmountGreaterThanMaximumWritable() (gas: 67773)
+[32m[PASS][0m testRevert_writeCall_whenAssetsIdentical() (gas: 21536)
+[32m[PASS][0m testRevert_writeCall_whenBaseAssetDecimalsTooLarge() (gas: 36797)
+[32m[PASS][0m testRevert_writeCall_whenBaseAssetDecimalsTooSmall() (gas: 36674)
+[32m[PASS][0m testRevert_writeCall_whenExerciseWindowExpiryPast() (gas: 33428)
+[32m[PASS][0m testRevert_writeCall_whenExerciseWindowMisordered() (gas: 33394)
+[32m[PASS][0m testRevert_writeCall_whenExerciseWindowMispaired() (gas: 31118)
+[32m[PASS][0m testRevert_writeCall_whenExerciseWindowZeroTime() (gas: 32799)
+[32m[PASS][0m testRevert_writeCall_whenQuoteAssetDecimalsTooLarge() (gas: 36889)
+[32m[PASS][0m testRevert_writeCall_whenQuoteAssetDecimalsTooSmall() (gas: 36821)
+[32m[PASS][0m testRevert_writeCall_whenStrikePriceTooLarge() (gas: 39212)
+[32m[PASS][0m testRevert_writeCall_whenStrikePriceTooSmall() (gas: 39143)
+[32m[PASS][0m testRevert_writePut_whenAmountGreaterThanMaximumWritable() (gas: 67774)
+[32m[PASS][0m testRevert_writePut_whenAssetsIdentical() (gas: 21560)
+[32m[PASS][0m testRevert_writePut_whenBaseAssetDecimalsTooLarge() (gas: 36731)
+[32m[PASS][0m testRevert_writePut_whenBaseAssetDecimalsTooSmall() (gas: 36697)
+[32m[PASS][0m testRevert_writePut_whenExerciseWindowExpiryPast() (gas: 33387)
+[32m[PASS][0m testRevert_writePut_whenExerciseWindowMisordered() (gas: 33420)
+[32m[PASS][0m testRevert_writePut_whenExerciseWindowMispaired() (gas: 31077)
+[32m[PASS][0m testRevert_writePut_whenExerciseWindowZeroTime() (gas: 32736)
+[32m[PASS][0m testRevert_writePut_whenQuoteAssetDecimalsTooLarge() (gas: 36825)
+[32m[PASS][0m testRevert_writePut_whenQuoteAssetDecimalsTooSmall() (gas: 36845)
+[32m[PASS][0m testRevert_writePut_whenStrikePriceTooLarge() (gas: 39170)
+[32m[PASS][0m testRevert_writePut_whenStrikePriceTooSmall() (gas: 39211)
+[32m[PASS][0m testRevert_write_whenInitialAmountGreaterThanMaximumWritable() (gas: 233006)
+[32m[PASS][0m testRevert_write_whenOptionDoesNotExist() (gas: 26088)
+[32m[PASS][0m testRevert_write_whenOptionExpired() (gas: 207248)
+[32m[PASS][0m testRevert_write_whenSubsequentAmountGreaterThanMaximumWritable() (gas: 358463)
+[32m[PASS][0m testRevert_write_whenWriteAmountZero() (gas: 204485)
+[32m[PASS][0m test_batchWrite() (gas: 371058)
+[32m[PASS][0m test_writeCall() (gas: 369975)
+[32m[PASS][0m test_writeCall_many() (gas: 1511469)
+[32m[PASS][0m test_writeCall_whenLargeButValidStrikePrice() (gas: 394643)
+[32m[PASS][0m test_writeCall_zero() (gas: 222213)
+[32m[PASS][0m test_writePut() (gas: 370076)
+[32m[PASS][0m test_writePut_many() (gas: 1538784)
+[32m[PASS][0m test_writePut_whenLargeButValidStrikePrice() (gas: 425159)
+[32m[PASS][0m test_writePut_zero() (gas: 222273)
+[32m[PASS][0m test_write_whenCall() (gas: 369111)
+[32m[PASS][0m test_write_whenPut() (gas: 369110)
+Test result: [32mok[0m. [32m48[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 56.92ms
+
+Running 18 tests for test/unit/Redeem.unit.t.sol:RedeemTest
+[32m[PASS][0m testEvent_redeem_call() (gas: 306345)
+[32m[PASS][0m testEvent_redeem_put() (gas: 306326)
+[32m[PASS][0m testRevert_redeem_shortCall_beforeOrOnExpiry_givenPartiallyAssigned() (gas: 460348)
+[32m[PASS][0m testRevert_redeem_shortCall_beforeOrOnExpiry_givenUnassigned() (gas: 356110)
+[32m[PASS][0m testRevert_redeem_shortPut_beforeOrOnExpiry_givenPartiallyAssigned() (gas: 460393)
+[32m[PASS][0m testRevert_redeem_shortPut_beforeOrOnExpiry_givenUnassigned() (gas: 356178)
+[32m[PASS][0m testRevert_redeem_whenAssignedShortToken() (gas: 352510)
+[32m[PASS][0m testRevert_redeem_whenLongToken() (gas: 352568)
+[32m[PASS][0m testRevert_redeem_whenOptionDoesNotExist() (gas: 26260)
+[32m[PASS][0m testRevert_redeem_whenShortBalanceZero() (gas: 363439)
+[32m[PASS][0m test_redeem_shortCall_afterExpiry_givenFullyAssigned() (gas: 422573)
+[32m[PASS][0m test_redeem_shortCall_afterExpiry_givenPartiallyAssigned() (gas: 425961)
+[32m[PASS][0m test_redeem_shortCall_afterExpiry_givenUnassigned() (gas: 343492)
+[32m[PASS][0m test_redeem_shortCall_beforeOrOnExpiry_givenFullyAssigned() (gas: 421696)
+[32m[PASS][0m test_redeem_shortPut_afterExpiry_givenFullyAssigned() (gas: 422602)
+[32m[PASS][0m test_redeem_shortPut_afterExpiry_givenPartiallyAssigned() (gas: 425963)
+[32m[PASS][0m test_redeem_shortPut_afterExpiry_givenUnassigned() (gas: 343471)
+[32m[PASS][0m test_redeem_shortPut_beforeOrOnExpiry_givenFullyAssigned() (gas: 421706)
+Test result: [32mok[0m. [32m18[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 229.75ms
 
 Running 13 tests for test/unit/Exercise.Core.unit.t.sol:ExerciseTest
-[32m[PASS][0m testEvent_exercise_OptionsExercised() (gas: 753115)
-[32m[PASS][0m testRevert_exercise_whenExerciseAmountExceedsLongBalance() (gas: 355260)
-[32m[PASS][0m testRevert_exercise_whenExerciseAmountZero() (gas: 11086)
-[32m[PASS][0m testRevert_exercise_whenOptionDoesNotExist() (gas: 13885)
-[32m[PASS][0m testRevert_exercise_whenOptionNotWithinExerciseWindow() (gas: 360612)
-[32m[PASS][0m test_exercise() (gas: 529096)
-[32m[PASS][0m test_exercise_upperBounds() (gas: 60588054)
-[32m[PASS][0m test_exercise_whenSimpleA_andOneHolderExercisesLessThanWrite1() (gas: 775144)
-[32m[PASS][0m test_exercise_whenSimpleB_andOneHolderExercisesEqualToWrite1() (gas: 775079)
-[32m[PASS][0m test_exercise_whenSimpleC_andOneHolderExercisesLessThanWrite2() (gas: 775168)
-[32m[PASS][0m test_exercise_whenSimpleD_andOneHolderExercisesEqualToWrite2() (gas: 775014)
-[32m[PASS][0m test_exercise_whenSimpleE_andOneHolderExercisesLessThanWrite3() (gas: 775122)
-[32m[PASS][0m test_exercise_whenSimpleF_andOneHolderExercisesEqualToWrite3() (gas: 715400)
-Test result: [32mok[0m. [32m13[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 179.59ms
+[32m[PASS][0m testEvent_exercise_OptionsExercised() (gas: 752049)
+[32m[PASS][0m testRevert_exercise_whenExerciseAmountExceedsLongBalance() (gas: 354691)
+[32m[PASS][0m testRevert_exercise_whenExerciseAmountZero() (gas: 11030)
+[32m[PASS][0m testRevert_exercise_whenOptionDoesNotExist() (gas: 13902)
+[32m[PASS][0m testRevert_exercise_whenOptionNotWithinExerciseWindow() (gas: 360292)
+[32m[PASS][0m test_exercise() (gas: 528394)
+[32m[PASS][0m test_exercise_upperBounds() (gas: 60151872)
+[32m[PASS][0m test_exercise_whenSimpleA_andOneHolderExercisesLessThanWrite1() (gas: 774284)
+[32m[PASS][0m test_exercise_whenSimpleB_andOneHolderExercisesEqualToWrite1() (gas: 774242)
+[32m[PASS][0m test_exercise_whenSimpleC_andOneHolderExercisesLessThanWrite2() (gas: 774264)
+[32m[PASS][0m test_exercise_whenSimpleD_andOneHolderExercisesEqualToWrite2() (gas: 774122)
+[32m[PASS][0m test_exercise_whenSimpleE_andOneHolderExercisesLessThanWrite3() (gas: 774262)
+[32m[PASS][0m test_exercise_whenSimpleF_andOneHolderExercisesEqualToWrite3() (gas: 714540)
+Test result: [32mok[0m. [32m13[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 230.11ms
 | src/ClarityMarkets.sol:ClarityMarkets contract |                 |        |        |        |         |
 |------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                | Deployment Size |        |        |        |         |
-| 4069657                                        | 20357           |        |        |        |         |
+| 4471190                                        | 22363           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
 | CONTRACT_SCALAR                                | 316             | 316    | 316    | 316    | 2       |
-| MAXIMUM_WRITABLE                               | 260             | 260    | 260    | 260    | 9       |
+| MAXIMUM_WRITABLE                               | 283             | 283    | 283    | 283    | 9       |
 | approve                                        | 25055           | 25055  | 25055  | 25055  | 55      |
 | assetMetadataStorage                           | 686             | 686    | 686    | 686    | 4       |
-| balanceOf                                      | 922             | 1886   | 1842   | 3904   | 1011    |
-| batchWrite                                     | 926             | 41866  | 949    | 123723 | 3       |
+| balanceOf                                      | 975             | 1933   | 1889   | 3951   | 1011    |
+| batchWrite                                     | 898             | 41805  | 921    | 123596 | 3       |
 | decimals                                       | 351             | 351    | 351    | 351    | 22      |
-| exercise                                       | 478             | 39691  | 50678  | 67915  | 64      |
-| names                                          | 2388            | 2491   | 2437   | 2673   | 109     |
-| netOff                                         | 2000            | 16582  | 18347  | 18347  | 41      |
+| exercise                                       | 478             | 39349  | 50364  | 67523  | 64      |
+| names                                          | 2376            | 2479   | 2425   | 2661   | 109     |
+| netOff                                         | 1725            | 15979  | 17694  | 17694  | 41      |
 | openInterest                                   | 1066            | 1066   | 1066   | 1066   | 2       |
-| option                                         | 2536            | 2602   | 2536   | 8536   | 189     |
-| position                                       | 5320            | 5653   | 5320   | 7320   | 6       |
-| redeem                                         | 489             | 9129   | 12477  | 17704  | 18      |
-| remainingWriteableAmount                       | 930             | 930    | 930    | 930    | 4       |
-| tokenType                                      | 427             | 1585   | 1585   | 2743   | 2       |
-| tokenURI                                       | 252775          | 253156 | 253019 | 254496 | 18      |
-| totalSupply                                    | 860             | 1287   | 1250   | 2659   | 162     |
-| transfer                                       | 957             | 11976  | 4616   | 26516  | 63      |
-| transferFrom                                   | 1318            | 26623  | 29165  | 29357  | 55      |
-| write                                          | 521             | 16932  | 16575  | 124875 | 3032    |
-| writeCall                                      | 1091            | 242130 | 238773 | 344854 | 236     |
-| writePut                                       | 1136            | 186135 | 238137 | 339509 | 41      |
+| option                                         | 2531            | 2539   | 2531   | 2878   | 190     |
+| optionTokenId                                  | 4110            | 4110   | 4110   | 4110   | 1       |
+| position                                       | 696             | 4416   | 4806   | 6806   | 10      |
+| redeem                                         | 506             | 8749   | 12003  | 17198  | 18      |
+| remainingWriteableAmount                       | 908             | 908    | 908    | 908    | 4       |
+| tokenType                                      | 405             | 1563   | 1563   | 2721   | 2       |
+| tokenURI                                       | 252240          | 252618 | 252478 | 253961 | 18      |
+| totalSupply                                    | 838             | 1270   | 1239   | 2637   | 162     |
+| transfer                                       | 951             | 11948  | 4583   | 26483  | 63      |
+| transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
+| write                                          | 493             | 16805  | 16448  | 124748 | 3032    |
+| writeCall                                      | 1063            | 242083 | 238418 | 344499 | 239     |
+| writePut                                       | 1065            | 185891 | 237811 | 339159 | 41      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |
 |------------------------------------------------------------------|-----------------|---------|---------|---------|---------|
 | Deployment Cost                                                  | Deployment Size |         |         |         |         |
-| 3232906                                                          | 16364           |         |         |         |         |
+| 3410730                                                          | 17252           |         |         |         |         |
 | Function Name                                                    | min             | avg     | median  | max     | # calls |
 | clarity                                                          | 182             | 182     | 182     | 182     | 1       |
-| deployWrappedLong                                                | 4327            | 1203391 | 1286894 | 1286894 | 46      |
-| deployWrappedShort                                               | 408             | 1143294 | 1298458 | 1298458 | 50      |
+| deployWrappedLong                                                | 4316            | 1268037 | 1356205 | 1356205 | 46      |
+| deployWrappedShort                                               | 402             | 1206963 | 1370963 | 1370963 | 50      |
 | wrapperFor                                                       | 490             | 490     | 490     | 490     | 22      |
 
 
 | src/adapter/ClarityWrappedLong.sol:ClarityWrappedLong contract |                 |       |        |       |         |
 |----------------------------------------------------------------|-----------------|-------|--------|-------|---------|
 | Deployment Cost                                                | Deployment Size |       |        |       |         |
-| 1222454                                                        | 6880            |       |        |       |         |
+| 1291727                                                        | 7226            |       |        |       |         |
 | Function Name                                                  | min             | avg   | median | max   | # calls |
 | balanceOf                                                      | 558             | 558   | 558    | 558   | 33      |
-| decimals                                                       | 271             | 271   | 271    | 271   | 11      |
+| decimals                                                       | 249             | 249   | 249    | 249   | 11      |
 | name                                                           | 1512            | 1512  | 1512   | 1512  | 11      |
-| option                                                         | 4527            | 4527  | 4527   | 4527  | 11      |
-| optionTokenId                                                  | 305             | 305   | 305    | 305   | 11      |
+| option                                                         | 4498            | 4498  | 4498   | 4498  | 11      |
+| optionTokenId                                                  | 283             | 283   | 283    | 283   | 11      |
 | symbol                                                         | 1555            | 1555  | 1555   | 1555  | 11      |
-| totalSupply                                                    | 318             | 318   | 318    | 318   | 33      |
-| unwrapLongs                                                    | 439             | 9534  | 9867   | 23814 | 14      |
-| wrapLongs                                                      | 372             | 73040 | 81811  | 83811 | 30      |
+| totalSupply                                                    | 341             | 341   | 341    | 341   | 33      |
+| unwrapLongs                                                    | 409             | 9408  | 9723   | 23699 | 14      |
+| wrapLongs                                                      | 342             | 72901 | 81657  | 83657 | 30      |
 
 
 | src/adapter/ClarityWrappedShort.sol:ClarityWrappedShort contract |                 |       |        |       |         |
 |------------------------------------------------------------------|-----------------|-------|--------|-------|---------|
 | Deployment Cost                                                  | Deployment Size |       |        |       |         |
-| 1232494                                                          | 6949            |       |        |       |         |
+| 1304974                                                          | 7311            |       |        |       |         |
 | Function Name                                                    | min             | avg   | median | max   | # calls |
-| balanceOf                                                        | 602             | 602   | 602    | 602   | 33      |
-| decimals                                                         | 315             | 315   | 315    | 315   | 11      |
+| balanceOf                                                        | 580             | 580   | 580    | 580   | 33      |
+| decimals                                                         | 293             | 293   | 293    | 293   | 11      |
 | name                                                             | 1512            | 1512  | 1512   | 1512  | 11      |
-| option                                                           | 4527            | 4527  | 4527   | 4527  | 11      |
-| optionTokenId                                                    | 305             | 305   | 305    | 305   | 11      |
-| symbol                                                           | 1488            | 1488  | 1488   | 1488  | 11      |
-| totalSupply                                                      | 318             | 318   | 318    | 318   | 33      |
-| unwrapShorts                                                     | 416             | 9674  | 10036  | 23949 | 14      |
-| wrapShorts                                                       | 438             | 73050 | 82497  | 84497 | 31      |
-
-
-| src/library/LibOption.sol:LibOption contract |                 |     |        |     |         |
-|----------------------------------------------|-----------------|-----|--------|-----|---------|
-| Deployment Cost                              | Deployment Size |     |        |     |         |
-| 150221                                       | 808             |     |        |     |         |
-| Function Name                                | min             | avg | median | max | # calls |
-| determineExerciseStyle                       | 977             | 977 | 977    | 987 | 255     |
-| toExerciseWindow                             | 943             | 943 | 943    | 943 | 254     |
-
-
-| test/util/MockERC20.sol:MockERC20 contract |                 |       |        |       |         |
-|--------------------------------------------|-----------------|-------|--------|-------|---------|
-| Deployment Cost                            | Deployment Size |       |        |       |         |
-| 649604                                     | 4368            |       |        |       |         |
-| Function Name                              | min             | avg   | median | max   | # calls |
-| approve                                    | 2546            | 19088 | 24546  | 24546 | 258     |
-| balanceOf                                  | 542             | 1168  | 542    | 2542  | 105594  |
-| decimals                                   | 0               | 248   | 249    | 249   | 33511   |
-| symbol                                     | 1236            | 2369  | 3236   | 3236  | 586     |
-| transfer                                   | 2388            | 3527  | 2985   | 7785  | 109     |
-| transferFrom                               | 3381            | 5147  | 3717   | 30417 | 3324    |
+| option                                                           | 4498            | 4498  | 4498   | 4498  | 11      |
+| optionTokenId                                                    | 283             | 283   | 283    | 283   | 11      |
+| symbol                                                           | 1511            | 1511  | 1511   | 1511  | 11      |
+| totalSupply                                                      | 341             | 341   | 341    | 341   | 33      |
+| unwrapShorts                                                     | 364             | 9526  | 9870   | 23816 | 14      |
+| wrapShorts                                                       | 386             | 72890 | 82321  | 84321 | 31      |
 
 
 
  
-Ran 16 test suites: [32m210[0m tests passed, [31m0[0m failed, [33m0[0m skipped (210 total tests)
+Ran 16 test suites: [32m216[0m tests passed, [31m0[0m failed, [33m0[0m skipped (216 total tests)

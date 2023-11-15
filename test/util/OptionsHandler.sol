@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // External Test Interfaces
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
@@ -72,7 +72,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
         FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
         USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
-        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18))); // TODO add Tether idiosyncrasies
+        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18))); // TODO
+            // add Tether idiosyncrasies
 
         // setup possible assets
         possibleAssets.push(WETHLIKE);

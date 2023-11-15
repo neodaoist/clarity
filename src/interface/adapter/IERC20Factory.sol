@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 interface IERC20Factory {
     function wrapperFor(uint256 tokenId) external view returns (address wrapperAddress);

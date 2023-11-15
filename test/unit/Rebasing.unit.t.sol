@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -12,7 +12,8 @@ contract RebasingTest is BaseClarityMarketsTest {
 
     uint64 internal constant SOME_WRITTEN = 10.000001e6;
     uint64 internal constant MANY_WRITTEN = 6_000_000e6;
-    uint64 internal constant MAX_WRITTEN = 1_800_000_000_000e6; // max writable on any option contract
+    uint64 internal constant MAX_WRITTEN = 1_800_000_000_000e6; // max writable on any
+        // option contract
 
     uint64[] internal writeGivens;
 
@@ -543,7 +544,8 @@ contract RebasingTest is BaseClarityMarketsTest {
     }
 
     /////////
-    // function balanceOf(address owner, uint256 tokenId) public view returns (uint256 amount);
+    // function balanceOf(address owner, uint256 tokenId) public view returns (uint256
+    // amount);
 
     function test_balanceOf_whenNoneWritten() public {
         // Given

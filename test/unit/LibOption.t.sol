@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -103,7 +103,7 @@ contract LibOptionTest is BaseClarityMarketsTest {
 
     function test_unixTimestamp_toString() public {
         assertEq(
-            LibOption.toString(1699825363),
+            LibOption.toString(1_699_825_363),
             "1699825363",
             "toString(1625097600) should return '1699825363'"
         );

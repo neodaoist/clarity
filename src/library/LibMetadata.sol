@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Interfaces
 import {IPosition} from "../interface/IPosition.sol";
@@ -25,7 +25,8 @@ library LibMetadata {
 
     ///////// Ticker
 
-    // NOTE once we implement dMMyy date formatting, we can fit a nice ticker inside one word
+    // NOTE once we implement dMMyy date formatting, we can fit a nice ticker inside one
+    // word
     // eg, sfrxETH-sFRAX-10OCT23-A-170050-C
 
     function paramsToTicker(

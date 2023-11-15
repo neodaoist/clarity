@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.22;
+pragma solidity 0.8.23;
 
 // Test Harness
 import "../BaseClarityMarkets.t.sol";
@@ -272,7 +272,8 @@ contract LibMetadataTest is BaseClarityMarketsTest {
     string private constant TOKEN_TYPE_ASSIGNED_JSONPOST_clr_WETH_USDC_27OCT23_1950_P =
         '", "attributes": {"instrument_type": "Option", "instrument_subtype": "Put", "token_type": "Assigned", "base_asset": "WETH", "quote_asset": "USDC", "expiry": "1698393600", "exercise_style": "American", "strike_price": "1700"}}';
 
-    // Different expiries - 3NOV23 (1698998400), 8NOV23 (1699434000), and 20APR24 (1713600000)
+    // Different expiries - 3NOV23 (1698998400), 8NOV23 (1699434000), and 20APR24
+    // (1713600000)
     // Long Call
     string private constant EXPIRY1_JSONPRE_clr_WETH_USDC_3NOV23_1950_C =
         '{"name": "Clarity - clr-WETH-USDC-1698998400-A-1700-C-Long","description": "Clarity is a decentralized counterparty clearinghouse (DCP), for the writing, transfer, and settlement of options and futures contracts on the EVM.", "image": "data:image/svg+xml;base64,';
@@ -584,7 +585,7 @@ contract LibMetadataTest is BaseClarityMarketsTest {
         // 3NOV23 (1698998400)
         uint32[] memory exWindow1 = new uint32[](2);
         exWindow1[0] = FRI1;
-        exWindow1[1] = 1698998400;
+        exWindow1[1] = 1_698_998_400;
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -659,7 +660,7 @@ contract LibMetadataTest is BaseClarityMarketsTest {
         // 8NOV23 (1699434000)
         uint32[] memory exWindow2 = new uint32[](2);
         exWindow2[0] = FRI1;
-        exWindow2[1] = 1699434000;
+        exWindow2[1] = 1_699_434_000;
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -734,7 +735,7 @@ contract LibMetadataTest is BaseClarityMarketsTest {
         // 20APR24 (1713600000)
         uint32[] memory exWindow3 = new uint32[](2);
         exWindow3[0] = FRI1;
-        exWindow3[1] = 1713600000;
+        exWindow3[1] = 1_713_600_000;
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
