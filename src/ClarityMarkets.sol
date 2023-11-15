@@ -6,9 +6,12 @@ import {console2} from "forge-std/console2.sol";
 
 // Interfaces
 import {IPosition} from "./interface/IPosition.sol";
+import {IClearingPool} from "./interface/IClearingPool.sol";
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
 import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
+
+// External Interfaces
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
@@ -27,7 +30,7 @@ import {ERC6909Rebasing} from "./token/ERC6909Rebasing.sol";
 // External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
-/// @title clarity.markets
+/// @title Clarity.markets
 ///
 /// @author me.eth
 /// @author you.eth
@@ -40,6 +43,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 /// and gas minimal.
 contract ClarityMarkets is
     IPosition,
+    IClearingPool,
     IOptionMarkets,
     IClarityCallback,
     ERC6909Rebasing
@@ -115,7 +119,7 @@ contract ClarityMarkets is
         uint8 quoteDecimals;
     }
 
-    ///////// Public Constant
+    ///////// Public Constants
 
     uint8 public constant CONTRACT_SCALAR = 6;
 
@@ -140,7 +144,9 @@ contract ClarityMarkets is
 
     mapping(address => uint256) private clearingLiabilities;
 
-    ///////// Option Views
+    ///////// Views
+
+    // Option Views
 
     function optionTokenId(
         address baseAsset,
@@ -207,7 +213,7 @@ contract ClarityMarkets is
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
-    ///////// Option State Views
+    // Option State
 
     function openInterest(uint256 _optionTokenId) external view returns (uint64 amount) {
         // Check that the option exists
@@ -241,7 +247,74 @@ contract ClarityMarkets is
         amount = MAXIMUM_WRITABLE - optionStored.optionState.amountWritten;
     }
 
-    ///////// Rebasing Token Views
+    ///////// Position
+
+    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
+        // Implicitly check that it is a valid position token type --
+        // discard the upper 31B (the option hash) to get the lowest
+        // 1B, then unsafely cast to PositionTokenType enum type
+        _tokenType = TokenType(tokenId & 0xFF); // TODO replace with LibToken
+
+        // TODO DRY up via refactoring into internal check function
+        // Get the option from storage
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+
+        // Check that the option has been created
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionDoesNotExist(tokenId);
+        }
+    }
+
+    function position(uint256 _optionTokenId)
+        external
+        view
+        returns (Position memory _position, int160 magnitude)
+    {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            // TODO revert
+        }
+
+        // Check that it is a long
+        // TODO
+
+        // Get the position
+        uint256 longBalance = balanceOf(msg.sender, _optionTokenId);
+        uint256 shortBalance = balanceOf(msg.sender, _optionTokenId.longToShort());
+        uint256 assignedShortBalance =
+            balanceOf(msg.sender, _optionTokenId.longToAssignedShort());
+
+        _position = Position({
+            amountLong: longBalance.safeCastTo64(),
+            amountShort: shortBalance.safeCastTo64(),
+            amountAssignedShort: assignedShortBalance.safeCastTo64()
+        });
+
+        // Calculate the magnitude
+        magnitude = int160(
+            int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance)
+        );
+    }
+
+    function positionNettableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (uint64 optionAmount)
+    {}
+
+    function positionRedeemableAmount(uint256 _optionTokenId)
+        external
+        view
+        returns (
+            uint64 writeAssetAmount,
+            uint32 writeAssetWhen,
+            uint64 exerciseAssetAmount,
+            uint32 exerciseAssetWhen
+        )
+    {}
+
+    // ERC6909 Rebasing
 
     function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
         // Check that the option exists
@@ -318,74 +391,7 @@ contract ClarityMarkets is
         }
     }
 
-    ///////// Position Views
-
-    function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
-        // Implicitly check that it is a valid position token type --
-        // discard the upper 31B (the option hash) to get the lowest
-        // 1B, then unsafely cast to PositionTokenType enum type
-        _tokenType = TokenType(tokenId & 0xFF); // TODO replace with LibToken
-
-        // TODO DRY up via refactoring into internal check function
-        // Get the option from storage
-        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
-
-        // Check that the option has been created
-        if (optionStored.writeAsset == address(0)) {
-            revert OptionDoesNotExist(tokenId);
-        }
-    }
-
-    function position(uint256 _optionTokenId)
-        external
-        view
-        returns (Position memory _position, int160 magnitude)
-    {
-        // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
-        if (optionStored.writeAsset == address(0)) {
-            // TODO revert
-        }
-
-        // Check that it is a long
-        // TODO
-
-        // Get the position
-        uint256 longBalance = balanceOf(msg.sender, _optionTokenId);
-        uint256 shortBalance = balanceOf(msg.sender, _optionTokenId.longToShort());
-        uint256 assignedShortBalance =
-            balanceOf(msg.sender, _optionTokenId.longToAssignedShort());
-
-        _position = Position({
-            amountLong: longBalance.safeCastTo64(),
-            amountShort: shortBalance.safeCastTo64(),
-            amountAssignedShort: assignedShortBalance.safeCastTo64()
-        });
-
-        // Calculate the magnitude
-        magnitude = int160(
-            int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance)
-        );
-    }
-
-    function positionNettableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (uint64 optionAmount)
-    {}
-
-    function positionRedeemableAmount(uint256 _optionTokenId)
-        external
-        view
-        returns (
-            uint64 writeAssetAmount,
-            uint32 writeAssetWhen,
-            uint64 exerciseAssetAmount,
-            uint32 exerciseAssetWhen
-        )
-    {}
-
-    ///////// ERC6909MetadataModified
+    // ERC6909MetadataModified
 
     /// @notice The name/symbol for each token id
     function names(uint256 tokenId) public view returns (string memory name) {
@@ -404,7 +410,7 @@ contract ClarityMarkets is
         amount = CONTRACT_SCALAR;
     }
 
-    ///////// ERC6909MetadataURI
+    // ERC6909MetadataURI
 
     function tokenURI(uint256 tokenId) public view returns (string memory uri) {
         // Check that the option exists
@@ -448,7 +454,9 @@ contract ClarityMarkets is
         );
     }
 
-    ///////// ERC6909 Transfer
+    ///////// Functions
+
+    // ERC6909 Transfer
 
     function transfer(address receiver, uint256 tokenId, uint256 amount)
         public
@@ -705,6 +713,7 @@ contract ClarityMarkets is
         address writeAsset,
         uint64 writeAmount
     ) private {
+        ///////// Effects (continued)
         // Mint the longs and shorts
         _mint(msg.sender, _optionTokenId, optionAmount);
         _mint(msg.sender, _optionTokenId.longToShort(), optionAmount);
@@ -767,8 +776,8 @@ contract ClarityMarkets is
         uint64[] calldata optionAmounts
     ) external {
         ///////// Function Requirements
-        uint256 idsLength = optionTokenIds.length;
         // Check that the arrays are not empty
+        uint256 idsLength = optionTokenIds.length;
         if (idsLength == 0) {
             revert BatchWriteArrayLengthZero();
         }
@@ -989,13 +998,21 @@ contract ClarityMarkets is
         _verifyAfter(writeAsset, exerciseAsset);
     }
 
-    /////////
+    ///////// Clearing Pool
 
-    // TODO add skim() as a Pool action, maybe not an Option action
+    function skimmable(address /*asset*/ ) external pure returns (uint256 /*amount*/ ) {
+        revert("not yet impl");
+    }
 
-    ///////// Callback
+    function skim(address /*asset*/ ) external pure returns (uint256 /*amount*/ ) {
+        revert("not yet impl");
+    }
 
-    function clarityCallback(Callback calldata _callback) external {}
+    ///////// Clarity Callback
+
+    function clarityCallback(Callback calldata /*_callback*/ ) external pure {
+        revert("not yet impl");
+    }
 
     ///////// FREI-PI
 

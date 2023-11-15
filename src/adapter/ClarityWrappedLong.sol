@@ -3,17 +3,23 @@ pragma solidity 0.8.22;
 
 // Interfaces
 import {IOption} from "../interface/option/IOption.sol";
+import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 import {IWrappedOption} from "../interface/adapter/IWrappedOption.sol";
-import {IClarityWrappedLong} from "../interface/adapter/IClarityWrappedLong.sol";
+import {IWrappedLongActions} from "../interface/adapter/IWrappedLongActions.sol";
+import {IWrappedLongEvents} from "../interface/adapter/IWrappedLongEvents.sol";
 
 // Contracts
 import {ClarityMarkets} from "../ClarityMarkets.sol";
-import {IOptionErrors} from "../interface/option/IOptionErrors.sol";
 
 // External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
 
-contract ClarityWrappedLong is IWrappedOption, IClarityWrappedLong, ERC20 {
+contract ClarityWrappedLong is
+    IWrappedOption,
+    IWrappedLongActions,
+    IWrappedLongEvents,
+    ERC20
+{
     /////////
 
     ClarityMarkets public immutable clarity;

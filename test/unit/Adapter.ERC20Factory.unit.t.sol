@@ -5,14 +5,18 @@ pragma solidity 0.8.22;
 import "../BaseClarityMarkets.t.sol";
 
 // Interfaces
-import {IClarityERC20Factory} from "../../src/interface/adapter/IClarityERC20Factory.sol";
-import {IClarityWrappedLong} from "../../src/interface/adapter/IClarityWrappedLong.sol";
-import {IClarityWrappedShort} from "../../src/interface/adapter/IClarityWrappedShort.sol";
+import {IERC20Factory} from "../../src/interface/adapter/IERC20Factory.sol";
+import {IWrappedLongActions} from "../../src/interface/adapter/IWrappedLongActions.sol";
+import {IWrappedLongEvents} from "../../src/interface/adapter/IWrappedLongEvents.sol";
+import {IWrappedShortActions} from "../../src/interface/adapter/IWrappedShortActions.sol";
+import {IWrappedShortEvents} from "../../src/interface/adapter/IWrappedShortEvents.sol";
 
-// Contracts Under Test
-import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
+// Contracts
 import {ClarityWrappedLong} from "../../src/adapter/ClarityWrappedLong.sol";
 import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
+
+// Contract Under Test
+import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 
 contract ERC20FactoryTest is BaseClarityMarketsTest {
     /////////
@@ -170,9 +174,7 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, false, true, true); // TODO fix once deterministic deploys
-        emit IClarityWrappedLong.ClarityWrappedLongDeployed(
-            optionTokenId, address(0x1234)
-        );
+        emit IWrappedLongEvents.ClarityWrappedLongDeployed(optionTokenId, address(0x1234));
 
         // When
         factory.deployWrappedLong(optionTokenId);
@@ -379,7 +381,7 @@ contract ERC20FactoryTest is BaseClarityMarketsTest {
 
         // Then
         vm.expectEmit(true, false, true, true); // TODO fix once deterministic deploys
-        emit IClarityWrappedShort.ClarityWrappedShortDeployed(
+        emit IWrappedShortEvents.ClarityWrappedShortDeployed(
             shortTokenId, address(0x1234)
         );
 
