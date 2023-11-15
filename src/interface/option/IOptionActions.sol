@@ -6,7 +6,8 @@ interface IOptionActions {
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
-        uint256 strikePrice, // max value of 18446744073709551615000000 = ((2**64-1) *
+        uint256 strikePrice, // max value of 18446744073709551615000000 =
+            // ((2**64-1) *
             // 10**6
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
@@ -14,7 +15,8 @@ interface IOptionActions {
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
-        uint256 strikePrice, // max value of 18446744073709551615000000 = ((2**64-1) *
+        uint256 strikePrice, // max value of 18446744073709551615000000 =
+            // ((2**64-1) *
             // 10**6
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
@@ -26,7 +28,7 @@ interface IOptionActions {
     function exercise(uint256 optionTokenId, uint64 optionAmount) external;
     function netOff(uint256 optionTokenId, uint64 optionAmount)
         external
-        returns (uint128 writeAssetNettedOff);
+        returns (uint128 writeAssetReturned);
     function redeem(uint256 optionTokenId)
         external
         returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed);

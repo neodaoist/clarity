@@ -71,7 +71,7 @@ contract ClarityMarkets is
 
     ///////// Structs
 
-    // storage struct
+    /// @dev Storage struct for the core information of an option
     struct OptionStorage {
         // slot 0
         address writeAsset;
@@ -86,7 +86,7 @@ contract ClarityMarkets is
         ExerciseWindow exerciseWindow;
     }
 
-    // storage struct
+    /// @dev Storage struct for the state of an option
     struct OptionState {
         // slot 0
         uint64 amountWritten;
@@ -94,14 +94,14 @@ contract ClarityMarkets is
         uint64 amountExercised;
     }
 
-    // storage struct
+    /// @dev Storage struct for the symbol and decimals of an ERC20 asset
     struct AssetMetadataStorage {
         // slot 0
         bytes31 symbol;
         uint8 decimals;
     }
 
-    // memory struct
+    /// @dev Memory struct to avoid stack too deep, when writing a new option
     struct OptionClearingInfo {
         address writeAsset;
         uint8 writeDecimals;
@@ -111,7 +111,8 @@ contract ClarityMarkets is
         uint64 exerciseAmount;
     }
 
-    // memory struct
+    /// @dev Memory struct to avoid stack too deep, when writing a derivative on a new
+    /// ERC20 asset
     struct AssetMetadataInfo {
         string baseSymbol;
         uint8 baseDecimals;
@@ -121,33 +122,55 @@ contract ClarityMarkets is
 
     ///////// Public Constants
 
+    /// @notice The number of decimals for all Clarity derivatives tokens
     uint8 public constant CONTRACT_SCALAR = 6;
 
+    /// @notice The minimum supported number of decimals for ERC20 assets
+    uint8 public constant MINIMUM_ERC20_DECIMALS = 6;
+
+    /// @notice The maximum supported number of decimals for ERC20 assets
     uint8 public constant MAXIMUM_ERC20_DECIMALS = 18;
 
+    /// @notice The minimum strike price for a Clarity derivative
     uint24 public constant MINIMUM_STRIKE_PRICE = 1e6;
 
-    // max strike price = ((2**64 - 1) * 10**6
+    /// @notice The maximum strike price for a Clarity derivative
     uint104 public constant MAXIMUM_STRIKE_PRICE = 18_446_744_073_709_551_615e6;
 
-    // max writable on any option contract ≈ 2**64 / 10**6 ≈ 1.8 trillion contracts
+    /// @notice The maximum amount of options that can be written for a Clarity derivative
     uint64 public constant MAXIMUM_WRITABLE = 1_800_000_000_000e6;
 
     ///////// Private State
 
-    /// @notice The ticker name for each instrument
+    /// @dev The shortened ticker name for each instrument
     mapping(uint248 => string) private tickers;
 
+    /// @dev The information and state for each option
     mapping(uint248 => OptionStorage) private optionStorage;
 
-    mapping(address => AssetMetadataStorage) public assetMetadataStorage; // TODO
+    /// @dev The symbol and decimals of each ERC20 asset for which a derivative has been
+    /// written
+    mapping(address => AssetMetadataStorage) public assetMetadataStorage; // TODO private
 
+    /// @dev The clearing liabilities of each ERC20 asset for which a derivative has been
+    /// written
     mapping(address => uint256) private clearingLiabilities;
 
     ///////// Views
 
     // Option Views
 
+    /// @notice Returns the token id for a given option, if it has been written already,
+    /// otherwise reverts
+    /// @param baseAsset The base asset of the option (typically the volatile asset in a
+    /// pair)
+    /// @param quoteAsset The quote asset of the option (the asset in which the strike
+    /// price is denominated)
+    /// @param exerciseWindows The timeframe(s) during which this option can be exercised,
+    /// inclusive
+    /// @param strikePrice The strike price of the option, denominated in the quote asset
+    /// @param isCall Whether the option is a call or a put
+    /// @return _optionTokenId The token id of the option
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
@@ -178,6 +201,10 @@ contract ClarityMarkets is
         _optionTokenId = optionHash.hashToId();
     }
 
+    /// @notice Returns the core information of a given option, if it has been written,
+    /// otherwise reverts
+    /// @param _optionTokenId The token id of the option
+    /// @return _option The core option information
     function option(uint256 _optionTokenId)
         external
         view
@@ -215,6 +242,10 @@ contract ClarityMarkets is
 
     // Option State
 
+    /// @notice Returns the open interest of a given option (equal to the total support of
+    /// both the long and short tokens for this option)
+    /// @param _optionTokenId The token id of the option
+    /// @return amount The open interest of the option
     function openInterest(uint256 _optionTokenId) external view returns (uint64 amount) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[_optionTokenId.idToHash()];
@@ -230,6 +261,9 @@ contract ClarityMarkets is
             - optionStored.optionState.amountExercised;
     }
 
+    /// @notice Returns the amount of options that can still be written for a given option
+    /// @param _optionTokenId The token id of the option
+    /// @return amount The amount of options that can still be written
     function remainingWriteableAmount(uint256 _optionTokenId)
         external
         view
@@ -249,6 +283,10 @@ contract ClarityMarkets is
 
     ///////// Position
 
+    /// @notice Returns the token type for a given token (either LONG, SHORT, or
+    /// ASSIGNED_SHORT)
+    /// @param tokenId The token id of the token
+    /// @return _tokenType The token type of the token
     function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
         // Implicitly check that it is a valid position token type --
         // discard the upper 31B (the option hash) to get the lowest
@@ -265,6 +303,12 @@ contract ClarityMarkets is
         }
     }
 
+    /// @notice Returns the position of a given token holder for a given option (current
+    /// balance of long, short, and assigned short, along with the overall magnitude of
+    /// the open longs and shorts)
+    /// @param _optionTokenId The token id of the option
+    /// @return _position The position of the token holder (long, short, assigned short)
+    /// @return magnitude The magnitude of the open longs and shorts
     function position(uint256 _optionTokenId)
         external
         view
@@ -297,12 +341,27 @@ contract ClarityMarkets is
         );
     }
 
+    /// @notice Returns the amount of options that can be netted off for a given token
+    /// holder and option
+    /// @param _optionTokenId The token id of the option
+    /// @return optionAmount The amount of options that can be netted off
     function positionNettableAmount(uint256 _optionTokenId)
         external
-        view
+        pure
         returns (uint64 optionAmount)
-    {}
+    {
+        revert("not yet impl");
+    }
 
+    /// @notice Returns the amount of underlying asset that can be redeemed for a given
+    /// token holder and option
+    /// @param _optionTokenId The token id of the option
+    /// @return writeAssetAmount The amount of write asset that can be redeemed
+    /// @return writeAssetWhen The timestamp on or after which the write asset can be
+    /// redeemed
+    /// @return exerciseAssetAmount The amount of exercise asset that can be redeemed
+    /// @return exerciseAssetWhen The timestamp on or after which the exercise asset can
+    /// be redeemed
     function positionRedeemableAmount(uint256 _optionTokenId)
         external
         view
@@ -312,10 +371,17 @@ contract ClarityMarkets is
             uint64 exerciseAssetAmount,
             uint32 exerciseAssetWhen
         )
-    {}
+    {
+        revert("not yet impl");
+    }
 
     // ERC6909 Rebasing
 
+    /// @notice Returns the total supply of a given token id
+    /// TODO explain token encoding
+    /// TODO explain rebasing
+    /// @param tokenId The token id of the token
+    /// @return amount The total supply of the token
     function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
@@ -348,6 +414,11 @@ contract ClarityMarkets is
         }
     }
 
+    /// @notice Returns the balance of a given token id for a given owner
+    /// TODO explain rebasing
+    /// @param owner The owner of the token
+    /// @param tokenId The token id of the token
+    /// @return amount The balance of the token for the owner
     function balanceOf(address owner, uint256 tokenId)
         public
         view
@@ -397,6 +468,7 @@ contract ClarityMarkets is
     // ERC6909MetadataModified
 
     /// @notice The name/symbol for each token id
+    /// TODO explain ticker scheme
     function names(uint256 tokenId) public view returns (string memory name) {
         name =
             tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
@@ -408,13 +480,17 @@ contract ClarityMarkets is
             tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
     }
 
-    /// @notice The number of decimals for each token id (always CONTRACT_SCALAR)
+    /// @notice The number of decimals for each token id (always equal to CONTRACT_SCALAR)
     function decimals(uint256 /*tokenId*/ ) public pure returns (uint8 amount) {
         amount = CONTRACT_SCALAR;
     }
 
     // ERC6909MetadataURI
 
+    /// @notice The URI for each token id
+    /// TODO explain JSON and SVG generation
+    /// @param tokenId The token id of the token
+    /// @return uri The URI for the token
     function tokenURI(uint256 tokenId) public view returns (string memory uri) {
         // Check that the option exists
         uint248 optionHash = tokenId.idToHash();
@@ -461,6 +537,12 @@ contract ClarityMarkets is
 
     // ERC6909 Transfer
 
+    /// @notice Transfers a given amount of a given token from the caller to the receiver
+    /// TODO explain restrictions
+    /// @param receiver The receiver of the token
+    /// @param tokenId The token id of the token
+    /// @param amount The amount of the token to transfer
+    /// @return Whether the transfer succeeded
     function transfer(address receiver, uint256 tokenId, uint256 amount)
         public
         override
@@ -473,6 +555,13 @@ contract ClarityMarkets is
         return super.transfer(receiver, tokenId, amount);
     }
 
+    /// @notice Transfers a given amount of a given token from the sender to the receiver
+    /// TODO explain restrictions
+    /// @param sender The sender of the token
+    /// @param receiver The receiver of the token
+    /// @param tokenId The token id of the token
+    /// @param amount The amount of the token to transfer
+    /// @return Whether the transfer succeeded
     function transferFrom(
         address sender,
         address receiver,
@@ -486,6 +575,8 @@ contract ClarityMarkets is
         return super.transferFrom(sender, receiver, tokenId, amount);
     }
 
+    /// @dev Function requirements for transferring tokens, called by transfer() and
+    /// transferFrom()
     function _checkTransferFunctionRequirements(uint256 tokenId) private view {
         // Check that the option exists
         uint248 optionHash = tokenId.idToHash();
@@ -511,6 +602,17 @@ contract ClarityMarkets is
 
     // Write
 
+    /// @notice Writes a new call option, minting long and short tokens for the writer
+    /// TODO explain reverts and how to write for an option that already exists
+    /// @param baseAsset The base asset of the option (typically the volatile asset in a
+    /// pair)
+    /// @param quoteAsset The quote asset of the option (the asset in which the strike is
+    /// denominated)
+    /// @param exerciseWindow The timeframe(s) during which this option can be exercised,
+    /// inclusive
+    /// @param strikePrice The strike price of the option, denominated in the quote asset
+    /// @param optionAmount The amount of options to write
+    /// @return _optionTokenId The token id of the option
     function writeCall(
         address baseAsset,
         address quoteAsset,
@@ -528,6 +630,17 @@ contract ClarityMarkets is
         );
     }
 
+    /// @notice Writes a new put option, minting long and short tokens for the writer
+    /// TODO explain reverts and how to write for an option that already exists
+    /// @param baseAsset The base asset of the option (typically the volatile asset in a
+    /// pair)
+    /// @param quoteAsset The quote asset of the option (the asset in which the strike is
+    /// denominated)
+    /// @param exerciseWindow The timeframe(s) during which this option can be exercised,
+    /// inclusive
+    /// @param strikePrice The strike price of the option, denominated in the quote asset
+    /// @param optionAmount The amount of options to write
+    /// @return _optionTokenId The token id of the option
     function writePut(
         address baseAsset,
         address quoteAsset,
@@ -545,6 +658,8 @@ contract ClarityMarkets is
         );
     }
 
+    /// @dev Function requirements, effects, interactions, and protocol invariant for
+    /// writing a new option, called by writeCall() and writePut()
     function _writeNew(
         address baseAsset,
         address quoteAsset,
@@ -565,13 +680,13 @@ contract ClarityMarkets is
             quoteSymbol: IERC20Minimal(quoteAsset).symbol(),
             quoteDecimals: IERC20Minimal(quoteAsset).decimals()
         });
-        if (assetInfo.baseDecimals < CONTRACT_SCALAR) {
+        if (assetInfo.baseDecimals < MINIMUM_ERC20_DECIMALS) {
             revert AssetDecimalsOutOfRange(baseAsset, assetInfo.baseDecimals);
         }
         if (assetInfo.baseDecimals > MAXIMUM_ERC20_DECIMALS) {
             revert AssetDecimalsOutOfRange(baseAsset, assetInfo.baseDecimals);
         }
-        if (assetInfo.quoteDecimals < CONTRACT_SCALAR) {
+        if (assetInfo.quoteDecimals < MINIMUM_ERC20_DECIMALS) {
             revert AssetDecimalsOutOfRange(quoteAsset, assetInfo.quoteDecimals);
         }
         if (assetInfo.quoteDecimals > MAXIMUM_ERC20_DECIMALS) {
@@ -711,6 +826,8 @@ contract ClarityMarkets is
         _verifyAfter(clearingInfo.writeAsset, clearingInfo.exerciseAsset);
     }
 
+    /// @dev Some Effects and all Interations for writing a given amount of options,
+    /// called by _writeNew() and write()
     function _writeOptions(
         uint256 _optionTokenId,
         uint64 optionAmount,
@@ -736,6 +853,9 @@ contract ClarityMarkets is
         emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
     }
 
+    /// @notice Writes a given amount for an already existing option
+    /// @param _optionTokenId The token id of the option
+    /// @param optionAmount The amount of options to write
     function write(uint256 _optionTokenId, uint64 optionAmount) public override {
         ///////// Function Requirements
         // Check that the option amount is not zero
@@ -775,6 +895,9 @@ contract ClarityMarkets is
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
+    /// @notice Writes given amounts for multiple already existing options
+    /// @param optionTokenIds The token ids of the options
+    /// @param optionAmounts The amounts of options to write
     function batchWrite(
         uint256[] calldata optionTokenIds,
         uint64[] calldata optionAmounts
@@ -799,10 +922,16 @@ contract ClarityMarkets is
 
     // Net Off
 
+    /// @notice Nets off the caller's position for a given option, burning the specified
+    /// held amount of long and short tokens and returning the concomitant amount of the
+    /// write asset (which for calls, is the base asset, and for puts, is the quote asset)
+    /// @param _optionTokenId The token id of the option
+    /// @param optionAmount The amount of options to net off
+    /// @return writeAssetReturned The amount of write asset returned to the caller
     function netOff(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
-        returns (uint128 writeAssetNettedOff)
+        returns (uint128 writeAssetReturned)
     {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -838,12 +967,12 @@ contract ClarityMarkets is
         _burn(msg.sender, _optionTokenId.longToShort(), optionAmount);
 
         // Track the clearing liabilities
-        writeAssetNettedOff = uint128(optionStored.writeAmount) * uint128(optionAmount);
-        _decrementClearingLiability(writeAsset, writeAssetNettedOff);
+        writeAssetReturned = uint128(optionStored.writeAmount) * uint128(optionAmount);
+        _decrementClearingLiability(writeAsset, writeAssetReturned);
 
         ///////// Interactions
         // Transfer out the write asset
-        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetNettedOff);
+        SafeTransferLib.safeTransfer(ERC20(writeAsset), msg.sender, writeAssetReturned);
 
         // Log net off event
         emit OptionsNettedOff(msg.sender, _optionTokenId, optionAmount);
@@ -854,6 +983,11 @@ contract ClarityMarkets is
 
     // Exercise
 
+    /// @notice Exercises the specificied amount of a given option, burning the long
+    /// tokens, transferring in the required amount of the exercise asset, and
+    /// transferring out the concomitant amount of the write asset
+    /// @param _optionTokenId The token id of the option
+    /// @param optionAmount The amount of options to exercise
     function exercise(uint256 _optionTokenId, uint64 optionAmount) external override {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
@@ -923,6 +1057,11 @@ contract ClarityMarkets is
 
     // Redeem
 
+    /// @notice Redeems the caller's shorts for a given option, burning the shorts and
+    /// transferring out the write asset for unassigned options and the exercise asset for
+    /// assigned options
+    /// TODO add info about timing and restrictions
+    /// @param shortTokenId The token id of the short token
     function redeem(uint256 shortTokenId)
         external
         override
@@ -1004,30 +1143,50 @@ contract ClarityMarkets is
 
     ///////// Clearing Pool
 
-    function skimmable(address /*asset*/ ) external pure returns (uint256 /*amount*/ ) {
+    /// @notice Returns the amount of a given asset that the clearinghouse holds which can
+    /// be skimmed by a caller, above and beyond the current clearing liabilities
+    /// @param asset The ERC20 asset to check
+    /// @return amount The amount of the asset that can be skimmed
+    function skimmable(address asset) external view returns (uint256 amount) {
         revert("not yet impl");
     }
 
-    function skim(address /*asset*/ ) external pure returns (uint256 /*amount*/ ) {
+    /// @notice Skims a given amount of a given asset from the clearinghouse, above and
+    /// beyond the current clearing liabilities, transferring this amount to the caller
+    /// @param asset The ERC20 asset to skim
+    /// @return amount The amount of the asset that was skimmed
+    function skim(address asset) external returns (uint256 amount) {
         revert("not yet impl");
     }
 
     ///////// Clarity Callback
 
+    /// TODO
     function clarityCallback(Callback calldata /*_callback*/ ) external pure {
         revert("not yet impl");
     }
 
     ///////// FREI-PI
 
+    /// @dev Increments the clearing liability for a ERC20 given asset, called by
+    /// _writeOptions() and exercise()
+    /// @param asset The asset to increment the clearing liability for
+    /// @param amount The amount to increment the clearing liability by
     function _incrementClearingLiability(address asset, uint256 amount) internal {
         clearingLiabilities[asset] += amount;
     }
 
+    /// @dev Decrements the clearing liability for a given ERC20 asset, called by
+    /// netOff(), exercise() and redeem()
+    /// @param asset The asset to decrement the clearing liability for
+    /// @param amount The amount to decrement the clearing liability by
     function _decrementClearingLiability(address asset, uint256 amount) internal {
         clearingLiabilities[asset] -= amount;
     }
 
+    /// @dev Verifies that the clearing liabilities can be met for a given ERC20 asset
+    /// pair, called by all functions which transfer in or out ERC20 assets --
+    /// _writeNew(), write(), netOff(), exercise(), and redeem()
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
         assert(
             IERC20Minimal(writeAsset).balanceOf(address(this))

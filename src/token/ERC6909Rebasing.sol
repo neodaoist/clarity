@@ -8,7 +8,8 @@ import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
 /// Forked from Solmate
-/// (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol) and
+/// (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol)
+/// and
 /// jtriley's reference implementation (https://github.com/jtriley-eth/ERC-6909)
 abstract contract ERC6909Rebasing is
     IERC6909,
@@ -52,7 +53,8 @@ abstract contract ERC6909Rebasing is
                              ERC6909 STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    // NOTE typically totalSupply storage is here, but Clarity implements a fully virtual
+    // NOTE typically totalSupply storage is here, but Clarity implements a
+    // fully virtual
     // totalSupply()
 
     mapping(address => mapping(address => bool)) public isOperator;
@@ -142,7 +144,8 @@ abstract contract ERC6909Rebasing is
     //////////////////////////////////////////////////////////////*/
 
     function _mint(address receiver, uint256 id, uint256 amount) internal virtual {
-        // NOTE typically totalSupply accounting is here, but Clarity implements a fully
+        // NOTE typically totalSupply accounting is here, but Clarity implements
+        // a fully
         // virtual totalSupply()
 
         // Cannot overflow because the sum of all user
@@ -157,7 +160,8 @@ abstract contract ERC6909Rebasing is
     function _burn(address sender, uint256 id, uint256 amount) internal virtual {
         internalBalanceOf[sender][id] -= amount;
 
-        // NOTE typically totalSupply accounting is here, but Clarity implements a fully
+        // NOTE typically totalSupply accounting is here, but Clarity implements
+        // a fully
         // virtual totalSupply()
 
         emit Transfer(msg.sender, sender, address(0), id, amount);
