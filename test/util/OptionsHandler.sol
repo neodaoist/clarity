@@ -5,9 +5,9 @@ pragma solidity 0.8.23;
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 // Test Helpers
-import {ActorSet, LibActorSet} from "./ActorSet.sol";
-import {AssetSet, LibAssetSet} from "./AssetSet.sol";
-import {OptionSet, LibOptionSet} from "./OptionSet.sol";
+import {ActorSet, Actors} from "./Actors.sol";
+import {AssetSet, Assets} from "./Assets.sol";
+import {OptionSet, Options} from "./Options.sol";
 
 // External Test Helpers
 import {CommonBase} from "forge-std/Base.sol";
@@ -24,12 +24,13 @@ import "../../src/ClarityMarkets.sol";
 contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     /////////
 
-    using LibPosition for uint256;
-    using LibAssetSet for AssetSet;
-    using LibActorSet for ActorSet;
-    using LibOptionSet for OptionSet;
+    using Assets for AssetSet;
+    using Actors for ActorSet;
+    using Options for OptionSet;
 
-    ClarityMarkets private clarity; // Contract Under Test
+    using LibPosition for uint256;
+
+    ClarityMarkets private clarity;
 
     // Collection Helpers
     AssetSet private _assets;

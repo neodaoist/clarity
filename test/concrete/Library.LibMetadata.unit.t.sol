@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
 // Libraries
 import {LibBase64} from "../../src/library/LibBase64.sol";
 
-contract LibMetadataTest is BaseClarityMarketsTest {
+contract LibMetadataTest is BaseUnitTestSuite {
     /////////
 
     using LibOption for uint32;

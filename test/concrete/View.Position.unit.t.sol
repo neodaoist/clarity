@@ -2,42 +2,43 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
 // Views Under Test
 import {IPosition} from "../../src/interface//IPosition.sol";
 
-contract PositionViewsTest is BaseClarityMarketsTest {
+contract PositionViewTest is BaseUnitTestSuite {
     /////////
+
+    using LibPosition for uint256;
 
     /////////
     // function tokenType(uint256 tokenId) external view returns (TokenType _tokenType);
 
-    // function test_tokenType() public {
-    //     vm.startPrank(writer);
-    //     uint256 optionTokenId =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
-    // americanExWeeklies[0], 1750e18, 0);
-    //     vm.stopPrank();
+    function test_tokenType() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
+        );
+        vm.stopPrank();
 
-    //     assertEq(
-    //         X,
-    //         IPosition.PositionTokenType.LONG,
-    //         "positionTokenType when long"
-    //     );
-    //     assertEq(
-    //         Y,
-    //         IPosition.PositionTokenType.SHORT,
-    //         "positionTokenType when short"
-    //     );
-    //     assertEq(
-    //         Z,
-    //         IPosition.PositionTokenType.ASSIGNED_SHORT,
-    //         "positionTokenType when assigned short"
-    //     );
-    // }
-
-    // TODO
+        assertEq(
+            clarity.tokenType(optionTokenId),
+            IPosition.TokenType.LONG,
+            "positionTokenType when long"
+        );
+        assertEq(
+            clarity.tokenType(optionTokenId.longToShort()),
+            IPosition.TokenType.SHORT,
+            "positionTokenType when short"
+        );
+        assertEq(
+            clarity.tokenType(optionTokenId.longToAssignedShort()),
+            IPosition.TokenType.ASSIGNED_SHORT,
+            "positionTokenType when assigned short"
+        );
+    }
 
     // Sad Path
 
@@ -173,8 +174,36 @@ contract PositionViewsTest is BaseClarityMarketsTest {
         assertEq(magnitude, 0, "magnitude");
     }
 
-    function test_position_writer_whenAssigned() public withSimpleBackground {
-        // When holder1 exercises 0.2 options of oti1
+    function test_position_writer_whenAssigned() public {
+        // Given writer1 writes 0.15 options of oti1
+        vm.startPrank(writer1);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        oti1 = clarity.writeCall(
+            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0.15e6
+        );
+        vm.stopPrank();
+
+        // And writer2 writes 0.35 options of oti1
+        vm.startPrank(writer2);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        clarity.write(oti1, 0.35e6);
+        vm.stopPrank();
+
+        // And writer1 writes 2 options of oti1
+        vm.prank(writer1);
+        clarity.write(oti1, 2e6);
+
+        // And writer1 transfers 2.15 longs of oti1 to holder1
+        vm.prank(writer1);
+        clarity.transfer(holder1, oti1, 2.15e6);
+
+        // And writer2 transfers 0.35 longs of oti1 to holder1
+        vm.prank(writer2);
+        clarity.transfer(holder1, oti1, 0.35e6);
+
+        // And holder1 exercises 0.2 options of oti1
+        vm.warp(americanExWeeklies[0][0]);
+
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
         clarity.exercise(oti1, 0.2e6);
@@ -224,6 +253,8 @@ contract PositionViewsTest is BaseClarityMarketsTest {
         assertEq(position.amountAssignedShort, 0, "holder1 amount assigned short");
         assertEq(magnitude, 2.3e6, "holder1 magnitude");
     }
+
+    // TODO writer whenTransferred
 
     // TODO writer whenNettedOff
 

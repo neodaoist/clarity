@@ -2,7 +2,7 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
 // Interfaces
 import {IERC20Factory} from "../../src/interface/adapter/IERC20Factory.sol";
@@ -18,7 +18,7 @@ import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
 // Contract Under Test
 import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 
-contract ERC20FactoryTest is BaseClarityMarketsTest {
+contract ERC20FactoryTest is BaseUnitTestSuite {
     /////////
 
     using LibPosition for uint248;

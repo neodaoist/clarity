@@ -9,18 +9,18 @@ struct AssetSet {
     mapping(IERC20 => bool) saved;
 }
 
-library LibAssetSet {
+library Assets {
     /////////
 
-    function add(AssetSet storage s, IERC20 option) internal {
-        if (!s.saved[option]) {
-            s.assets.push(option);
-            s.saved[option] = true;
+    function add(AssetSet storage s, IERC20 asset) internal {
+        if (!s.saved[asset]) {
+            s.assets.push(asset);
+            s.saved[asset] = true;
         }
     }
 
-    function contains(AssetSet storage s, IERC20 option) internal view returns (bool) {
-        return s.saved[option];
+    function contains(AssetSet storage s, IERC20 asset) internal view returns (bool) {
+        return s.saved[asset];
     }
 
     function count(AssetSet storage s) internal view returns (uint256) {

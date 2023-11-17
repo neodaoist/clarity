@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
 // Library Under test
 import {LibOption} from "../../src/library/LibOption.sol";
 
-contract LibOptionTest is BaseClarityMarketsTest {
+contract LibOptionTest is BaseUnitTestSuite {
     /////////
 
     ///////// Instrument Hash

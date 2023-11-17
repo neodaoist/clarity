@@ -6,7 +6,7 @@ struct ActorSet {
     mapping(address => bool) saved;
 }
 
-library LibActorSet {
+library Actors {
     /////////
 
     function add(ActorSet storage s, address actor) internal {
