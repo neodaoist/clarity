@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
-contract WriteTest is BaseClarityMarketsTest {
+contract WriteTest is BaseUnitTestSuite {
     /////////
 
     /////////

@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
 // Library Under test
 import {LibPosition} from "../../src/library/LibPosition.sol";
 
-contract LibPositionTest is BaseClarityMarketsTest {
+contract LibPositionTest is BaseUnitTestSuite {
     /////////
 
     ///////// Token ID Encoding

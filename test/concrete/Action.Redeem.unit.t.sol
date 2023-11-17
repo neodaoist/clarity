@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
-contract RedeemTest is BaseClarityMarketsTest {
+contract RedeemTest is BaseUnitTestSuite {
     /////////
 
     using LibPosition for uint256;

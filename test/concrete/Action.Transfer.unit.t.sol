@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
-contract TransferTest is BaseClarityMarketsTest {
+contract TransferTest is BaseUnitTestSuite {
     /////////
 
     using LibPosition for uint256;
@@ -28,7 +28,7 @@ contract TransferTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply before transfer");
         assertOptionBalances(
             writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
         );
@@ -41,7 +41,7 @@ contract TransferTest is BaseClarityMarketsTest {
         clarity.transfer(holder, optionTokenId, 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply after transfer");
         assertOptionBalances(
             writer, optionTokenId, 0.25e6, 1e6, 0, "writer option balances after transfer"
         );
@@ -64,7 +64,7 @@ contract TransferTest is BaseClarityMarketsTest {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply before transfer");
         assertOptionBalances(
             writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
         );
@@ -77,7 +77,7 @@ contract TransferTest is BaseClarityMarketsTest {
         clarity.transfer(holder, optionTokenId.longToShort(), 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply after transfer");
         assertOptionBalances(
             writer, optionTokenId, 1e6, 0.25e6, 0, "writer option balances after transfer"
         );

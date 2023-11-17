@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
-contract RebasingTest is BaseClarityMarketsTest {
+contract RebasingTest is BaseUnitTestSuite {
     /////////
 
     using LibPosition for uint256;
@@ -68,7 +68,7 @@ contract RebasingTest is BaseClarityMarketsTest {
         // totalSupply()
 
         // Then
-        assertTotalSupplies(optionTokenId, 0, 0, 0, "given none written");
+        assertTotalSupplies(optionTokenId, 0, 0, "given none written");
     }
 
     function test_totalSupply_whenSomeWritten() public {
@@ -87,9 +87,7 @@ contract RebasingTest is BaseClarityMarketsTest {
         // When
         // totalSupply()
 
-        assertTotalSupplies(
-            optionTokenId, SOME_WRITTEN, SOME_WRITTEN, 0, "given some written"
-        );
+        assertTotalSupplies(optionTokenId, SOME_WRITTEN, 0, "given some written");
     }
 
     function test_totalSupply_whenManyWritten() public {
@@ -109,9 +107,7 @@ contract RebasingTest is BaseClarityMarketsTest {
         // totalSupply()
 
         // Then
-        assertTotalSupplies(
-            optionTokenId, MANY_WRITTEN, MANY_WRITTEN, 0, "given many written"
-        );
+        assertTotalSupplies(optionTokenId, MANY_WRITTEN, 0, "given many written");
     }
 
     function test_totalSupply_whenMaxWritten() public {
@@ -131,9 +127,7 @@ contract RebasingTest is BaseClarityMarketsTest {
         // totalSupply()
 
         // Then
-        assertTotalSupplies(
-            optionTokenId, MAX_WRITTEN, MAX_WRITTEN, 0, "given max written"
-        );
+        assertTotalSupplies(optionTokenId, MAX_WRITTEN, 0, "given max written");
     }
 
     // Scenario A is duplicative of the above 4 tests, but keeping those for clarity ;)
@@ -162,11 +156,7 @@ contract RebasingTest is BaseClarityMarketsTest {
 
             // Then
             assertTotalSupplies(
-                optionTokenId,
-                amountWritten,
-                amountWritten,
-                0,
-                "A: none netted off, none exercised"
+                optionTokenId, amountWritten, 0, "A: none netted off, none exercised"
             );
         }
     }
@@ -198,7 +188,6 @@ contract RebasingTest is BaseClarityMarketsTest {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountNettedOff,
                 amountWritten - amountNettedOff,
                 0,
                 "B: some netted off, none exercised"
@@ -234,7 +223,6 @@ contract RebasingTest is BaseClarityMarketsTest {
             assertTotalSupplies(
                 optionTokenId,
                 amountWritten - amountNettedOff,
-                amountWritten - amountNettedOff,
                 0,
                 "C: most netted off, none exercised"
             );
@@ -265,9 +253,7 @@ contract RebasingTest is BaseClarityMarketsTest {
             // totalSupply()
 
             // Then
-            assertTotalSupplies(
-                optionTokenId, 0, 0, 0, "D: all netted off, none exercised"
-            );
+            assertTotalSupplies(optionTokenId, 0, 0, "D: all netted off, none exercised");
         }
     }
 
@@ -301,7 +287,6 @@ contract RebasingTest is BaseClarityMarketsTest {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountExercised,
                 amountWritten - amountExercised,
                 amountExercised,
                 "E: none netted off, some exercised"
@@ -343,7 +328,6 @@ contract RebasingTest is BaseClarityMarketsTest {
             assertTotalSupplies(
                 optionTokenId,
                 amountWritten - amountNettedOff - amountExercised,
-                amountWritten - amountNettedOff - amountExercised,
                 amountExercised,
                 "F: some netted off, some exercised"
             );
@@ -384,7 +368,6 @@ contract RebasingTest is BaseClarityMarketsTest {
             assertTotalSupplies(
                 optionTokenId,
                 amountWritten - amountNettedOff - amountExercised,
-                amountWritten - amountNettedOff - amountExercised,
                 amountExercised,
                 "G: most netted off, some exercised"
             );
@@ -421,7 +404,6 @@ contract RebasingTest is BaseClarityMarketsTest {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountExercised,
                 amountWritten - amountExercised,
                 amountExercised,
                 "H: none netted off, most exercised"
@@ -463,7 +445,6 @@ contract RebasingTest is BaseClarityMarketsTest {
             assertTotalSupplies(
                 optionTokenId,
                 amountWritten - amountNettedOff - amountExercised,
-                amountWritten - amountNettedOff - amountExercised,
                 amountExercised,
                 "I: some netted off, most exercised"
             );
@@ -498,7 +479,7 @@ contract RebasingTest is BaseClarityMarketsTest {
 
             // Then
             assertTotalSupplies(
-                optionTokenId, 0, 0, amountWritten, "J: none netted off, all exercised"
+                optionTokenId, 0, amountWritten, "J: none netted off, all exercised"
             );
         }
     }

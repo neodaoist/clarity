@@ -6,7 +6,7 @@ struct OptionSet {
     mapping(uint256 => bool) saved;
 }
 
-library LibOptionSet {
+library Options {
     /////////
 
     function add(OptionSet storage s, uint256 option) internal {

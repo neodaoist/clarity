@@ -5,9 +5,10 @@ pragma solidity 0.8.23;
 import {console2} from "forge-std/console2.sol";
 
 // Interfaces
-import {IPosition} from "./interface/IPosition.sol";
 import {IClearingPool} from "./interface/IClearingPool.sol";
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
+import {IInstrument} from "./interface/IInstrument.sol";
+import {IPosition} from "./interface/IPosition.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
 import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
 
@@ -16,9 +17,9 @@ import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
 
 // Libraries
 import {LibMath} from "./library/LibMath.sol";
+import {LibMetadata} from "./library/LibMetadata.sol";
 import {LibOption} from "./library/LibOption.sol";
 import {LibPosition} from "./library/LibPosition.sol";
-import {LibMetadata} from "./library/LibMetadata.sol";
 
 // External Libraries
 import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
@@ -42,9 +43,10 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 /// oracles, zero governance, and zero custody. It is designed to be secure, composable,
 /// immutable, ergonomic, and gas minimal.
 contract ClarityMarkets is
-    IPosition,
     IClearingPool,
     IOptionMarkets,
+    IInstrument,
+    IPosition,
     IClarityCallback,
     ERC6909Rebasing
 {
@@ -53,6 +55,9 @@ contract ClarityMarkets is
     using LibMath for uint8;
     using LibMath for uint64;
     using LibMath for uint256;
+
+    using LibMetadata for string;
+    using LibMetadata for bytes31;
 
     using LibOption for uint32;
     using LibOption for uint64;
@@ -63,9 +68,6 @@ contract ClarityMarkets is
     using LibPosition for uint248;
     using LibPosition for uint256;
     using LibPosition for TokenType;
-
-    using LibMetadata for string;
-    using LibMetadata for bytes31;
 
     using SafeCastLib for uint256;
 
@@ -122,7 +124,7 @@ contract ClarityMarkets is
 
     ///////// Public Constants
 
-    /// @notice The number of decimals for all Clarity derivatives tokens
+    /// @notice The number of decimals for Clarity derivatives tokens
     uint8 public constant CONTRACT_SCALAR = 6;
 
     /// @notice The minimum supported number of decimals for ERC20 assets
@@ -137,8 +139,10 @@ contract ClarityMarkets is
     /// @notice The maximum strike price for a Clarity derivative
     uint104 public constant MAXIMUM_STRIKE_PRICE = 18_446_744_073_709_551_615e6;
 
-    /// @notice The maximum amount of options that can be written for a Clarity derivative
+    /// @notice The maximum amount that can be written for a Clarity derivative
     uint64 public constant MAXIMUM_WRITABLE = 1_800_000_000_000e6;
+
+    // TODO add maximum expiry timestamp
 
     ///////// Private State
 
@@ -158,7 +162,7 @@ contract ClarityMarkets is
 
     ///////// Views
 
-    // Option Views
+    // Option
 
     /// @notice Returns the token id for a given option, if it has been written already,
     /// otherwise reverts
@@ -226,7 +230,7 @@ contract ClarityMarkets is
         _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
-    // Option State
+    // Instrument
 
     /// @notice Returns the open interest of a given option (equal to the total support of
     /// both the long and short tokens for this option)
@@ -244,24 +248,7 @@ contract ClarityMarkets is
             - optionStored.optionState.amountExercised;
     }
 
-    /// @notice Returns the amount of options that can still be written for a given option
-    /// @param tokenId The token id of the option (accepts long, short, or assigned short)
-    /// @return amount The amount of options that can still be written
-    function remainingWriteableAmount(uint256 tokenId)
-        external
-        view
-        returns (uint64 amount)
-    {
-        // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
-        if (optionStored.writeAsset == address(0)) {
-            revert OptionDoesNotExist(tokenId);
-        }
-
-        amount = MAXIMUM_WRITABLE - optionStored.optionState.amountWritten;
-    }
-
-    ///////// Position
+    // Position
 
     /// @notice Returns the token type for a given token (either long, short, or assigned
     /// short)
@@ -334,7 +321,7 @@ contract ClarityMarkets is
 
         // Calculate the magnitude
         magnitude = int160(
-            int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance)
+            int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance) // TODO
         );
     }
 
@@ -546,7 +533,7 @@ contract ClarityMarkets is
         );
     }
 
-    ///////// Functions
+    ///////// Actions
 
     // ERC6909 Transfer
 

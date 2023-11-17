@@ -2,7 +2,7 @@
 pragma solidity 0.8.23;
 
 // Test Harness
-import "../BaseClarityMarkets.t.sol";
+import "../BaseUnitTestSuite.t.sol";
 
 // Libraries
 import {LibOption} from "../../src/library/LibOption.sol";
@@ -11,7 +11,7 @@ import {LibPosition} from "../../src/library/LibPosition.sol";
 // Views Under Test
 import {IOption} from "../../src/interface/option/IOption.sol";
 
-contract OptionViewsTest is BaseClarityMarketsTest {
+contract OptionViewTest is BaseUnitTestSuite {
     /////////
 
     using LibPosition for uint248;
