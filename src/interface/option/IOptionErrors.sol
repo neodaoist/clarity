@@ -51,6 +51,8 @@ interface IOptionErrors {
 
     ///////// Net Off
 
+    error NetOffAmountZero();
+
     /// @dev Also used in ERC20Factory and ClarityWrappedLong
     error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
 

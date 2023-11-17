@@ -12,3 +12,6 @@ docs/
 
 # Dotenv file
 .env
+
+# Coverage report
+lcov.info
