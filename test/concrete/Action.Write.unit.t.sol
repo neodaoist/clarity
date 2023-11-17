@@ -7,7 +7,7 @@ import "../BaseUnitTestSuite.t.sol";
 contract WriteTest is BaseUnitTestSuite {
     /////////
 
-    using LibOption for uint32[];    
+    using LibOption for uint32[];
 
     /////////
     // function writeCall(
@@ -260,7 +260,9 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(USDCLIKE.balanceOf(writer), usdcBalance, "USDC balance after write 5");
 
         // check previous option balances did not change
-        assertOptionBalances(writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances");
+        assertOptionBalances(
+            writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances"
+        );
         assertOptionBalances(writer, oti2, 17e6, 17e6, 0, "option 2 final balances");
         assertOptionBalances(writer, oti3, 1e6, 1e6, 0, "option 3 final balances");
         assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
@@ -556,9 +558,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 tooLarge = ((2 ** 64 - 1) * 1e6) + 1;
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.StrikePriceTooLarge.selector, tooLarge
-            )
+            abi.encodeWithSelector(IOptionErrors.StrikePriceTooLarge.selector, tooLarge)
         );
 
         vm.prank(writer);
@@ -780,7 +780,9 @@ contract WriteTest is BaseUnitTestSuite {
         assertTotalSupplies(oti3, 1e6, 0, "total supplies 3");
         assertOptionBalances(writer, oti3, 1e6, 1e6, 0, "option 3 balances");
         assertEq(
-            LUSDLIKE.balanceOf(writer), lusdBalance - 1700e18, "LUSD balance after write 3"
+            LUSDLIKE.balanceOf(writer),
+            lusdBalance - 1700e18,
+            "LUSD balance after write 3"
         );
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write 3");
 
@@ -853,7 +855,9 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
 
         // check previous option balances did not change
-        assertOptionBalances(writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances");
+        assertOptionBalances(
+            writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances"
+        );
         assertOptionBalances(writer, oti2, 17e6, 17e6, 0, "option 2 final balances");
         assertOptionBalances(writer, oti3, 1e6, 1e6, 0, "option 3 final balances");
         assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
@@ -1149,9 +1153,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 tooLarge = ((2 ** 64 - 1) * 1e6) + 1;
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.StrikePriceTooLarge.selector, tooLarge
-            )
+            abi.encodeWithSelector(IOptionErrors.StrikePriceTooLarge.selector, tooLarge)
         );
 
         vm.prank(writer);
@@ -1173,7 +1175,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.expectRevert(
             abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
-        
+
         clarity.writePut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -1319,7 +1321,9 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testRevert_write_givenCall_whenInitialAmountGreaterThanMaximumWritable() public {
+    function testRevert_write_givenCall_whenInitialAmountGreaterThanMaximumWritable()
+        public
+    {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
@@ -1340,7 +1344,9 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testRevert_write_givenCall_whenSubsequentAmountGreaterThanMaximumWritable() public {
+    function testRevert_write_givenCall_whenSubsequentAmountGreaterThanMaximumWritable()
+        public
+    {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
@@ -1424,7 +1430,9 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testRevert_write_givenPut_whenInitialAmountGreaterThanMaximumWritable() public {
+    function testRevert_write_givenPut_whenInitialAmountGreaterThanMaximumWritable()
+        public
+    {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
@@ -1445,7 +1453,9 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testRevert_write_givenPut_whenSubsequentAmountGreaterThanMaximumWritable() public {
+    function testRevert_write_givenPut_whenSubsequentAmountGreaterThanMaximumWritable()
+        public
+    {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
@@ -1530,7 +1540,7 @@ contract WriteTest is BaseUnitTestSuite {
             strikePrice: 1700e18,
             optionAmount: 0
         });
-        
+
         uint64[] memory optionAmounts = new uint64[](1);
         optionAmounts[0] = 1.25e6;
 
@@ -1541,7 +1551,9 @@ contract WriteTest is BaseUnitTestSuite {
 
         // check balances
         assertTotalSupplies(optionTokenIds[0], 1.25e6, 0, "total supplies");
-        assertOptionBalances(writer, optionTokenIds[0], 1.25e6, 1.25e6, 0, "option balances");
+        assertOptionBalances(
+            writer, optionTokenIds[0], 1.25e6, 1.25e6, 0, "option balances"
+        );
         assertEq(
             WETHLIKE.balanceOf(writer),
             wethBalance - (1e18 * 1.25),
