@@ -7,7 +7,6 @@ import {console2} from "forge-std/console2.sol";
 // Interfaces
 import {IClearingPool} from "./interface/IClearingPool.sol";
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
-import {IInstrument} from "./interface/IInstrument.sol";
 import {IPosition} from "./interface/IPosition.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
 import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
@@ -45,7 +44,6 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 contract ClarityMarkets is
     IClearingPool,
     IOptionMarkets,
-    IInstrument,
     IPosition,
     IClarityCallback,
     ERC6909Rebasing
@@ -228,24 +226,6 @@ contract ClarityMarkets is
         }
         _option.exerciseWindow = optionStored.exerciseWindow;
         _option.exerciseStyle = optionStored.exerciseStyle;
-    }
-
-    // Instrument
-
-    /// @notice Returns the open interest of a given option (equal to the total support of
-    /// both the long and short tokens for this option)
-    /// @param tokenId The token id of the option (accepts long, short, or assigned short)
-    /// @return amount The open interest of the option
-    function openInterest(uint256 tokenId) external view returns (uint64 amount) {
-        // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
-        if (optionStored.writeAsset == address(0)) {
-            revert OptionDoesNotExist(tokenId);
-        }
-
-        amount = optionStored.optionState.amountWritten
-            - optionStored.optionState.amountNettedOff
-            - optionStored.optionState.amountExercised;
     }
 
     // Position
