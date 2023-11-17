@@ -373,7 +373,7 @@ contract ClarityMarkets is
                 // If assigned short, total supply is amount exercised
                 amount = amountExercised;
             } else {
-                revert InvalidTokenType(tokenId); // should be unreachable
+                revert(); // should be unreachable
             }
         }
     }
@@ -916,7 +916,7 @@ contract ClarityMarkets is
         ///////// Function Requirements
         // Check that the exercise amount is not zero
         if (optionAmount == 0) {
-            revert ExerciseAmountZero();
+            revert NetOffAmountZero();
         }
 
         // Check that the option exists
