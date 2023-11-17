@@ -61,13 +61,13 @@ contract NetOffTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeCall({
-            baseAsset: address(WETHLIKE), 
+            baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
             strikePrice: 1750e18,
             optionAmount: 1e6
         });
-        
+
         vm.expectRevert(IOptionErrors.NetOffAmountZero.selector);
 
         clarity.netOff(optionTokenId, 0);

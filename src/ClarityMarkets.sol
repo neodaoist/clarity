@@ -168,7 +168,7 @@ contract ClarityMarkets is
     /// pair)
     /// @param quoteAsset The quote asset of the option (the asset in which the strike
     /// price is denominated)
-    /// @param exerciseWindows The timeframe(s) during which this option can be exercised,
+    /// @param exerciseWindow The timeframe(s) during which this option can be exercised,
     /// inclusive
     /// @param strikePrice The strike price of the option, denominated in the quote asset
     /// @param isCall Whether the option is a call or a put
@@ -176,7 +176,7 @@ contract ClarityMarkets is
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindows,
+        uint32[] calldata exerciseWindow,
         uint256 strikePrice,
         bool isCall
     ) external view returns (uint256 _optionTokenId) {
@@ -184,7 +184,7 @@ contract ClarityMarkets is
         uint248 optionHash = LibOption.paramsToHash(
             baseAsset,
             quoteAsset,
-            exerciseWindows,
+            exerciseWindow,
             strikePrice,
             isCall ? OptionType.CALL : OptionType.PUT
         );

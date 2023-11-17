@@ -277,7 +277,25 @@ abstract contract BaseUnitTestSuite is Test {
 
     ///////// Custom Type Assertions
 
-    // TODO add assertion for Option itself
+    function assertEq(IOption.Option memory a, IOption.Option memory b) internal {
+        assertEq(a.baseAsset, b.baseAsset);
+        assertEq(a.quoteAsset, b.quoteAsset);
+        assertEq(a.exerciseWindow, b.exerciseWindow);
+        assertEq(a.strikePrice, b.strikePrice);
+        assertEq(a.optionType, b.optionType);
+        assertEq(a.exerciseStyle, b.exerciseStyle);
+    }
+
+    function assertEq(IOption.Option memory a, IOption.Option memory b, string memory err)
+        internal
+    {
+        assertEq(a.baseAsset, b.baseAsset, err);
+        assertEq(a.quoteAsset, b.quoteAsset, err);
+        assertEq(a.exerciseWindow, b.exerciseWindow, err);
+        assertEq(a.strikePrice, b.strikePrice, err);
+        assertEq(a.optionType, b.optionType, err);
+        assertEq(a.exerciseStyle, b.exerciseStyle, err);
+    }
 
     function assertEq(IOption.OptionType a, IOption.OptionType b) internal {
         if (a != b) {
