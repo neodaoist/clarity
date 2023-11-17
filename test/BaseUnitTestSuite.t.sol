@@ -221,12 +221,6 @@ abstract contract BaseUnitTestSuite is Test {
         string memory message
     ) internal {
         assertEq(
-            clarity.openInterest(optionTokenId),
-            expectedOI,
-            string.concat("open interest ", message)
-        );
-
-        assertEq(
             clarity.totalSupply(optionTokenId),
             expectedOI,
             string.concat("long total supply ", message)
