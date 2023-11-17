@@ -1,0 +1,33 @@
+Feature: Invariants
+
+# Core Protocol Invariant
+For all ERC20 assets in the domain...
+Invariant: A1 - Clearinghouse asset balance is greater than or equal to total clearing liabilities for that asset
+
+# Core ERC6909 Invariant
+For all token ids in the domain...
+Invariant: B1 - Sum of all balances is equal to total supply of that token id
+
+# Options Invariants
+For all options in the domain...
+Invariant: C1 - Total supply of longs is equal to total supply of shorts is equal to open interest
+Invariant: C2 - Amount written is greater than or equal to amount netted off plus amount exercised
+Invariant: C3 - Amount exercised is equal to total supply of assigned shorts
+Invariant: C4 - Amount written minus amount netted off is equal to total suppply of unassigned shorts plus total supply of assigned shorts
+Invariant: C5 - Amount written minus amount netted off minus amount exercised is equal to total supply of unassigned shorts
+
+# Futures Invariants
+soon ™️
+
+# Adapter Invariants
+For all wrapped longs in the domain...
+Invariant: E1 - There is one and only one deployed wrapper
+Invariant: E2 - Sum of all balances is equal to total supply
+Invariant: E3 - Total supply is equal to wrapper balance of Clearinghouse longs
+Invariant: E4 - Total supply is less than or equal to Clearinghouse open interest
+
+For all wrapped shorts in the domain...
+Invariant: E5 - There is one and only one deployed wrapper
+Invariant: E6 - Sum of all balances is equal to total supply
+Invariant: E7 - Total supply is equal to wrapper balance of Clearinghouse shorts
+Invariant: E8 - Total supply is less than or equal to Clearinghouse open interest
