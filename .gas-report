@@ -1,30 +1,30 @@
 | src/ClarityMarkets.sol:ClarityMarkets contract |                 |        |        |        |         |
 |------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                | Deployment Size |        |        |        |         |
-| 4406503                                        | 22040           |        |        |        |         |
+| 4405103                                        | 22033           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
 | CONTRACT_SCALAR                                | 316             | 316    | 316    | 316    | 2       |
-| MAXIMUM_WRITABLE                               | 305             | 305    | 305    | 305    | 4       |
+| MAXIMUM_WRITABLE                               | 305             | 305    | 305    | 305    | 6       |
 | approve                                        | 25077           | 25077  | 25077  | 25077  | 55      |
 | assetMetadataStorage                           | 686             | 686    | 686    | 686    | 4       |
 | balanceOf                                      | 969             | 1925   | 1883   | 3945   | 984     |
 | batchWrite                                     | 898             | 41805  | 921    | 123596 | 3       |
 | decimals                                       | 373             | 373    | 373    | 373    | 22      |
-| exercise                                       | 478             | 38719  | 49905  | 67517  | 62      |
+| exercise                                       | 472             | 38719  | 49905  | 67517  | 62      |
 | names                                          | 2332            | 2435   | 2381   | 2617   | 109     |
-| netOff                                         | 1719            | 15915  | 17670  | 17670  | 40      |
-| option                                         | 2553            | 2561   | 2553   | 2900   | 190     |
-| optionTokenId                                  | 4110            | 4110   | 4110   | 4110   | 1       |
+| netOff                                         | 520             | 15539  | 17670  | 17670  | 41      |
+| option                                         | 2553            | 2562   | 2553   | 2900   | 194     |
+| optionTokenId                                  | 2111            | 2511   | 2112   | 4110   | 5       |
 | position                                       | 718             | 4609   | 4792   | 6792   | 10      |
 | redeem                                         | 483             | 8721   | 11975  | 17170  | 18      |
 | tokenType                                      | 361             | 1055   | 746    | 2677   | 5       |
 | tokenURI                                       | 252234          | 252612 | 252472 | 253955 | 18      |
-| totalSupply                                    | 832             | 1264   | 1233   | 2637   | 162     |
+| totalSupply                                    | 832             | 1252   | 1222   | 2637   | 213     |
 | transfer                                       | 951             | 11926  | 4583   | 26483  | 59      |
 | transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
-| write                                          | 515             | 16798  | 16470  | 124770 | 3028    |
-| writeCall                                      | 1085            | 240959 | 238416 | 344497 | 234     |
-| writePut                                       | 1042            | 185851 | 237764 | 339112 | 41      |
+| write                                          | 515             | 16808  | 16470  | 124770 | 3034    |
+| writeCall                                      | 1085            | 242179 | 238416 | 344497 | 239     |
+| writePut                                       | 1042            | 194728 | 237764 | 339112 | 49      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |
@@ -34,7 +34,7 @@
 | Function Name                                                    | min             | avg     | median  | max     | # calls |
 | clarity                                                          | 182             | 182     | 182     | 182     | 1       |
 | deployWrappedLong                                                | 4338            | 1268018 | 1356183 | 1356183 | 46      |
-| deployWrappedShort                                               | 402             | 1206940 | 1370935 | 1370935 | 50      |
+| deployWrappedShort                                               | 402             | 1206930 | 1370924 | 1370924 | 50      |
 | wrapperFor                                                       | 490             | 490     | 490     | 490     | 22      |
 
 

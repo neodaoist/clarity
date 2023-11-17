@@ -41,7 +41,7 @@ interface IOption {
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindows,
+        uint32[] calldata exerciseWindow,
         uint256 strikePrice,
         bool isCall
     ) external view returns (uint256 optionTokenId);

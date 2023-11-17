@@ -15,3 +15,7 @@ docs/
 
 # Coverage report
 lcov.info
+
+# Gas comparison reports
+.gas-report2
+.gas-report3
