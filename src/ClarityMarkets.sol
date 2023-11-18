@@ -131,6 +131,9 @@ contract ClarityMarkets is
     /// @notice The maximum supported number of decimals for ERC20 assets
     uint8 public constant MAXIMUM_ERC20_DECIMALS = 18;
 
+    /// @notice The maximum expiry timestamp for a Clarity derivative
+    uint32 public constant MAXIMUM_EXPIRY = 4_294_967_295;
+
     /// @notice The minimum strike price for a Clarity derivative
     uint24 public constant MINIMUM_STRIKE_PRICE = 1e6;
 
@@ -138,9 +141,7 @@ contract ClarityMarkets is
     uint104 public constant MAXIMUM_STRIKE_PRICE = 18_446_744_073_709_551_615e6;
 
     /// @notice The maximum amount that can be written for a Clarity derivative
-    uint64 public constant MAXIMUM_WRITABLE = 1_800_000_000_000e6;
-
-    // TODO add maximum expiry timestamp
+    uint64 public constant MAXIMUM_WRITABLE = 18_446_744_073_709_551_615;
 
     ///////// Private State
 
@@ -679,7 +680,7 @@ contract ClarityMarkets is
             clearingInfo = OptionClearingInfo({
                 writeAsset: baseAsset,
                 writeDecimals: assetInfo.baseDecimals,
-                writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 unit
+                writeAmount: assetInfo.baseDecimals.oneClearingUnit(),
                 exerciseAsset: quoteAsset,
                 exerciseDecimals: assetInfo.quoteDecimals,
                 exerciseAmount: strikePrice.actualScaledDownToClearingStrikeUnit()
@@ -691,7 +692,7 @@ contract ClarityMarkets is
                 writeAmount: strikePrice.actualScaledDownToClearingStrikeUnit(),
                 exerciseAsset: baseAsset,
                 exerciseDecimals: assetInfo.baseDecimals,
-                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1 unit
+                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit()
             });
         }
 
@@ -718,6 +719,10 @@ contract ClarityMarkets is
         }
         if (exerciseWindow[1] <= block.timestamp) {
             revert ExerciseWindowExpiryPast(exerciseWindow[1]);
+        }
+        // Not possible with strongly typed input args
+        if (exerciseWindow[1] >= MAXIMUM_EXPIRY) {
+            revert ExerciseWindowExpiryTooFarInFuture(exerciseWindow[1]);
         }
 
         // Check that strike price is valid

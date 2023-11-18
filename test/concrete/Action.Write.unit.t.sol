@@ -268,6 +268,24 @@ contract WriteTest is BaseUnitTestSuite {
         assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
     }
 
+    function test_writeNewCall_whenFarInFutureButValidExpiry() public {
+        uint32[] memory farInFutureExerciseWindow = new uint32[](2);
+        farInFutureExerciseWindow[0] = FRI1;
+        farInFutureExerciseWindow[1] = uint32(clarity.MAXIMUM_EXPIRY() - 1);
+
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        // no revert
+        clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: farInFutureExerciseWindow,
+            strikePrice: 2000e18,
+            optionAmount: 1e6
+        });
+        vm.stopPrank();
+    }
+
     function test_writeNewCall_whenLargeButValidStrikePrice() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -282,7 +300,24 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    // TODO valid but almost expired
+    function test_writeNewCall_whenAmountAtLimitOfMaximumWritable() public {
+        // need moar WETH to write massive amount of calls
+        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+
+        uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
+
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        // no revert
+        clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1950e18,
+            optionAmount: maximumAmount
+        });
+        vm.stopPrank();
+    }
 
     // Events
 
@@ -475,7 +510,11 @@ contract WriteTest is BaseUnitTestSuite {
         assertTotalSupplies(optionTokenId, 1e6, 0, "total supplies before second write");
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionAlreadyExists.selector, optionTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionAlreadyExists.selector, optionTokenId
+            )
+        );
 
         // When
         vm.prank(writer);
@@ -597,26 +636,6 @@ contract WriteTest is BaseUnitTestSuite {
             strikePrice: tooLarge,
             optionAmount: 1e6
         });
-    }
-
-    function testRevert_writeNewCall_whenAmountGreaterThanMaximumWritable() public {
-        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
-
-        vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-
-        vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
-        );
-
-        clarity.writeNewCall({
-            baseAsset: address(WETHLIKE),
-            quoteAsset: address(LUSDLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
-            optionAmount: tooMuch
-        });
-        vm.stopPrank();
     }
 
     // TODO insufficient asset balance
@@ -889,6 +908,24 @@ contract WriteTest is BaseUnitTestSuite {
         assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
     }
 
+    function test_writeNewPut_whenFarInFutureButValidExpiry() public {
+        uint32[] memory farInFutureExerciseWindow = new uint32[](2);
+        farInFutureExerciseWindow[0] = FRI1;
+        farInFutureExerciseWindow[1] = uint32(clarity.MAXIMUM_EXPIRY() - 1);
+
+        vm.startPrank(writer);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        // no revert
+        clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: farInFutureExerciseWindow,
+            strikePrice: 2000e18,
+            optionAmount: 1e6
+        });
+        vm.stopPrank();
+    }
+
     function test_writeNewPut_whenLargeButValidStrikePrice() public {
         // need moar LUSD to write put with massive strike
         deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000));
@@ -902,6 +939,25 @@ contract WriteTest is BaseUnitTestSuite {
             exerciseWindow: americanExWeeklies[0],
             strikePrice: (2 ** 64 - 1) * 1e6,
             optionAmount: 1e6
+        });
+        vm.stopPrank();
+    }
+
+    function test_writeNewPut_whenAmountAtLimitOfMaximumWritable() public {
+        // need moar LUSD to write massive amount of puts
+        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+
+        uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
+
+        vm.startPrank(writer);
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        // no revert
+        clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1e18,
+            optionAmount: maximumAmount
         });
         vm.stopPrank();
     }
@@ -1084,7 +1140,7 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeNewPut_givenOptionAlreadyExists() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -1097,7 +1153,11 @@ contract WriteTest is BaseUnitTestSuite {
         assertTotalSupplies(optionTokenId, 1e6, 0, "total supplies before second write");
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionAlreadyExists.selector, optionTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionAlreadyExists.selector, optionTokenId
+            )
+        );
 
         // When
         vm.prank(writer);
@@ -1221,26 +1281,6 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeNewPut_whenAmountGreaterThanMaximumWritable() public {
-        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
-
-        vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-
-        vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
-        );
-
-        clarity.writeNewPut({
-            baseAsset: address(WETHLIKE),
-            quoteAsset: address(LUSDLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
-            optionAmount: tooMuch
-        });
-        vm.stopPrank();
-    }
-
     /////////
     // function writeExisting(uint256 optionTokenId, uint64 optionAmount) external
 
@@ -1272,6 +1312,55 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
 
+    function test_writeExisting_givenCall_whenInitialAmountAtLimitOfMaximumWritable()
+        public
+    {
+        // need moar WETH to write massive amount of calls
+        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+
+        uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
+
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 0
+        });
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        // no revert
+        clarity.writeExisting(optionTokenId, maximumAmount);
+        vm.stopPrank();
+
+        assertTotalSupplies(optionTokenId, maximumAmount, 0, "total supplies");
+    }
+
+    function test_writeExisting_givenCall_whenSubsequentAmountAtLimitOfMaximumWritable()
+        public
+    {
+        // need moar WETH to write massive amount of calls
+        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+
+        uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
+
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 0
+        });
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        clarity.writeExisting(optionTokenId, 10e6);
+        // no revert
+        clarity.writeExisting(optionTokenId, maximumAmount - 10e6);
+        vm.stopPrank();
+
+        assertTotalSupplies(optionTokenId, maximumAmount, 0, "total supplies");
+    }
+
     function test_writeExisting_givenPut() public {
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeNewPut({
@@ -1298,6 +1387,55 @@ contract WriteTest is BaseUnitTestSuite {
             lusdBalance - (1700e18 * 1.35),
             "LUSD balance after write"
         );
+    }
+
+    function test_writeExisting_givenPut_whenInitialAmountAtLimitOfMaximumWritable()
+        public
+    {
+        // need moar LUSD to write massive amount of puts
+        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+
+        uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
+
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1e18,
+            optionAmount: 0
+        });
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        // no revert
+        clarity.writeExisting(optionTokenId, maximumAmount);
+        vm.stopPrank();
+
+        assertTotalSupplies(optionTokenId, maximumAmount, 0, "total supplies");
+    }
+
+    function test_writeExisting_givenPut_whenSubsequentAmountAtLimitOfMaximumWritable()
+        public
+    {
+        // need moar LUSD to write massive amount of puts
+        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+
+        uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
+
+        vm.startPrank(writer);
+        uint256 optionTokenId = clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1e18,
+            optionAmount: 0
+        });
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        clarity.writeExisting(optionTokenId, 10e6);
+        // no revert
+        clarity.writeExisting(optionTokenId, maximumAmount - 10e6);
+        vm.stopPrank();
+
+        assertTotalSupplies(optionTokenId, maximumAmount, 0, "total supplies");
     }
 
     // Events
@@ -1376,10 +1514,12 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testRevert_writeExisting_givenCall_whenInitialAmountGreaterThanMaximumWritable()
-        public
-    {
-        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
+    function testRevert_writeExisting_givenCall_whenSubsequentAmountGreaterThanMaximumWritable(
+    ) public {
+        // need moar WETH to write massive amount of calls
+        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+
+        uint64 halfTooMuch = clarity.MAXIMUM_WRITABLE() / 2;
 
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeNewCall({
@@ -1389,39 +1529,15 @@ contract WriteTest is BaseUnitTestSuite {
             strikePrice: 1700e18,
             optionAmount: 0
         });
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        clarity.writeExisting(optionTokenId, halfTooMuch);
+        clarity.writeExisting(optionTokenId, halfTooMuch);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
+            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, 2)
         );
 
-        clarity.writeExisting(optionTokenId, tooMuch);
-        vm.stopPrank();
-    }
-
-    function testRevert_writeExisting_givenCall_whenSubsequentAmountGreaterThanMaximumWritable()
-        public
-    {
-        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
-
-        vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeNewCall({
-            baseAsset: address(WETHLIKE),
-            quoteAsset: address(LUSDLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
-            optionAmount: 0
-        });
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.writeExisting(optionTokenId, 10e6);
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.WriteAmountTooLarge.selector, tooMuch - 10e6
-            )
-        );
-
-        clarity.writeExisting(optionTokenId, tooMuch - 10e6);
+        clarity.writeExisting(optionTokenId, 2); // two too many
         vm.stopPrank();
     }
 
@@ -1485,52 +1601,30 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testRevert_writeExisting_givenPut_whenInitialAmountGreaterThanMaximumWritable()
-        public
-    {
-        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
+    function testRevert_writeExisting_givenPut_whenSubsequentAmountGreaterThanMaximumWritable(
+    ) public {
+        // need moar LUSD to write massive amount of puts
+        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+
+        uint64 halfTooMuch = clarity.MAXIMUM_WRITABLE() / 2;
 
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strikePrice: 1e18,
             optionAmount: 0
         });
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        clarity.writeExisting(optionTokenId, halfTooMuch);
+        clarity.writeExisting(optionTokenId, halfTooMuch);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
+            abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, 2)
         );
 
-        clarity.writeExisting(optionTokenId, tooMuch);
-        vm.stopPrank();
-    }
-
-    function testRevert_writeExisting_givenPut_whenSubsequentAmountGreaterThanMaximumWritable()
-        public
-    {
-        uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
-
-        vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeNewPut({
-            baseAsset: address(WETHLIKE),
-            quoteAsset: address(LUSDLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
-            optionAmount: 0
-        });
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.writeExisting(optionTokenId, 10e6);
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.WriteAmountTooLarge.selector, tooMuch - 10e6
-            )
-        );
-
-        clarity.writeExisting(optionTokenId, tooMuch - 10e6);
+        clarity.writeExisting(optionTokenId, 2); // two too many
         vm.stopPrank();
     }
 
@@ -1792,5 +1886,6 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.batchWriteExisting(optionTokenIds, optionAmounts);
     }
 
-    // TODO add more batchWriteExisting() sad paths (eg, option expired, write amount zero)
+    // TODO add more batchWriteExisting() sad paths (eg, option expired, write amount
+    // zero)
 }
