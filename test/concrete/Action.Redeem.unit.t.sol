@@ -31,7 +31,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -57,7 +57,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -97,7 +97,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -129,7 +129,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -180,7 +180,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -227,7 +227,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -275,7 +275,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -301,7 +301,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -343,7 +343,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -375,7 +375,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -428,7 +428,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -477,7 +477,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -529,7 +529,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 shortTokenId = clarity.writeCall({
+        uint256 shortTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -552,7 +552,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 shortTokenId = clarity.writePut({
+        uint256 shortTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -577,7 +577,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 longTokenId = clarity.writeCall({
+        uint256 longTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -600,7 +600,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 longTokenId = clarity.writeCall({
+        uint256 longTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -648,7 +648,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 shortTokenId = clarity.writeCall({
+        uint256 shortTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],

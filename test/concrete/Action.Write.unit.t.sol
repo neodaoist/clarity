@@ -10,7 +10,7 @@ contract WriteTest is BaseUnitTestSuite {
     using LibOption for uint32[];
 
     /////////
-    // function writeCall(
+    // function writeNewCall(
     //     address baseAsset,
     //     address quoteAsset,
     //     uint32[] calldata exerciseWindows,
@@ -18,13 +18,13 @@ contract WriteTest is BaseUnitTestSuite {
     //     uint64 optionAmount
     // ) external returns (uint256 optionTokenId);
 
-    function test_writeCall() public {
+    function test_writeNewCall() public {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -53,12 +53,12 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
 
-    function test_writeCall_zero() public {
+    function test_writeNewCall_zero() public {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -84,7 +84,7 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
 
-    function test_writeCall_many() public {
+    function test_writeNewCall_many() public {
         // write WETH-LUSD x3, WBTC-LUSD, WETH-USDC
 
         // standardized scalar
@@ -101,7 +101,7 @@ contract WriteTest is BaseUnitTestSuite {
         // WETH-LUSD 1
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeCall({
+        oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -136,7 +136,7 @@ contract WriteTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        oti2 = clarity.writeCall({
+        oti2 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -168,7 +168,7 @@ contract WriteTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        oti3 = clarity.writeCall({
+        oti3 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[1],
@@ -200,7 +200,7 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        oti4 = clarity.writeCall({
+        oti4 = clarity.writeNewCall({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -232,7 +232,7 @@ contract WriteTest is BaseUnitTestSuite {
         wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        oti5 = clarity.writeCall({
+        oti5 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -268,11 +268,11 @@ contract WriteTest is BaseUnitTestSuite {
         assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
     }
 
-    function test_writeCall_whenLargeButValidStrikePrice() public {
+    function test_writeNewCall_whenLargeButValidStrikePrice() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         // no revert
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -283,11 +283,10 @@ contract WriteTest is BaseUnitTestSuite {
     }
 
     // TODO valid but almost expired
-    // TODO add totalSupply() checks
 
     // Events
 
-    function testEvent_writeCall_OptionCreated() public {
+    function testEvent_writeNewCall_OptionCreated() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
@@ -311,7 +310,7 @@ contract WriteTest is BaseUnitTestSuite {
             IOption.OptionType.CALL
         );
 
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -321,7 +320,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testEvent_writeCall_OptionsWritten() public {
+    function testEvent_writeNewCall_OptionsWritten() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
@@ -337,7 +336,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.expectEmit(true, true, true, true);
         emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -349,7 +348,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     // Sad Paths
 
-    function testRevert_writeCall_whenAssetsIdentical() public {
+    function testRevert_writeNewCall_whenAssetsIdentical() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetsIdentical.selector,
@@ -359,7 +358,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(WETHLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -368,7 +367,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenBaseAssetDecimalsTooSmall() public {
+    function testRevert_writeNewCall_whenBaseAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 5
@@ -382,7 +381,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -391,7 +390,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenQuoteAssetDecimalsTooSmall() public {
+    function testRevert_writeNewCall_whenQuoteAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 5
@@ -405,7 +404,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -414,7 +413,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenBaseAssetDecimalsTooLarge() public {
+    function testRevert_writeNewCall_whenBaseAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 19
@@ -428,7 +427,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -437,7 +436,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenQuoteAssetDecimalsTooLarge() public {
+    function testRevert_writeNewCall_whenQuoteAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 19
@@ -451,7 +450,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -460,14 +459,43 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenExerciseWindowMispaired() public {
+    function testRevert_writeNewCall_givenOptionAlreadyExists() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 1e6
+        });
+        vm.stopPrank();
+
+        assertTotalSupplies(optionTokenId, 1e6, 0, "total supplies before second write");
+
+        // Then
+        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionAlreadyExists.selector, optionTokenId));
+
+        // When
+        vm.prank(writer);
+        clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 0.8e6
+        });
+    }
+
+    function testRevert_writeNewCall_whenExerciseWindowMispaired() public {
         vm.expectRevert(IOptionErrors.ExerciseWindowMispaired.selector);
 
         uint32[] memory mispaired = new uint32[](1);
         mispaired[0] = DAWN;
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: mispaired,
@@ -476,7 +504,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenExerciseWindowZeroTime() public {
+    function testRevert_writeNewCall_whenExerciseWindowZeroTime() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.ExerciseWindowZeroTime.selector, DAWN, DAWN
@@ -488,7 +516,7 @@ contract WriteTest is BaseUnitTestSuite {
         zeroTime[1] = DAWN;
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: zeroTime,
@@ -497,7 +525,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenExerciseWindowMisordered() public {
+    function testRevert_writeNewCall_whenExerciseWindowMisordered() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.ExerciseWindowMisordered.selector, DAWN + 1 seconds, DAWN
@@ -509,7 +537,7 @@ contract WriteTest is BaseUnitTestSuite {
         misordered[1] = DAWN;
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: misordered,
@@ -518,7 +546,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenExerciseWindowExpiryPast() public {
+    function testRevert_writeNewCall_whenExerciseWindowExpiryPast() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
@@ -530,7 +558,7 @@ contract WriteTest is BaseUnitTestSuite {
         expiryPast[1] = DAWN - 1 days;
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: expiryPast,
@@ -539,13 +567,13 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenStrikePriceTooSmall() public {
+    function testRevert_writeNewCall_whenStrikePriceTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(IOptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
         );
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -554,7 +582,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenStrikePriceTooLarge() public {
+    function testRevert_writeNewCall_whenStrikePriceTooLarge() public {
         uint256 tooLarge = ((2 ** 64 - 1) * 1e6) + 1;
 
         vm.expectRevert(
@@ -562,7 +590,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -571,7 +599,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeCall_whenAmountGreaterThanMaximumWritable() public {
+    function testRevert_writeNewCall_whenAmountGreaterThanMaximumWritable() public {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
@@ -581,7 +609,7 @@ contract WriteTest is BaseUnitTestSuite {
             abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
 
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -591,13 +619,11 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    // TODO double check all relevant reverts covered for writePut(), write(), and
-    // batchWrite()
     // TODO insufficient asset balance
     // TODO insufficient asset approval
 
     /////////
-    // function writePut(
+    // function writeNewPut(
     //     address baseAsset,
     //     address quoteAsset,
     //     uint32[] calldata exerciseWindow,
@@ -605,13 +631,13 @@ contract WriteTest is BaseUnitTestSuite {
     //     uint64 optionAmount
     // ) external returns (uint256 _optionTokenId);
 
-    function test_writePut() public {
+    function test_writeNewPut() public {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -640,12 +666,12 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
     }
 
-    function test_writePut_zero() public {
+    function test_writeNewPut_zero() public {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -671,7 +697,7 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
     }
 
-    function test_writePut_many() public {
+    function test_writeNewPut_many() public {
         // write WETH-LUSD x3, WBTC-LUSD, WETH-USDC
 
         // standardized scalar
@@ -688,7 +714,7 @@ contract WriteTest is BaseUnitTestSuite {
         // WETH-LUSD 1
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        oti1 = clarity.writePut({
+        oti1 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -723,7 +749,7 @@ contract WriteTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        oti2 = clarity.writePut({
+        oti2 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -757,7 +783,7 @@ contract WriteTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.prank(writer);
-        oti3 = clarity.writePut({
+        oti3 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[1],
@@ -791,7 +817,7 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        oti4 = clarity.writePut({
+        oti4 = clarity.writeNewPut({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -826,7 +852,7 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        oti5 = clarity.writePut({
+        oti5 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -863,14 +889,14 @@ contract WriteTest is BaseUnitTestSuite {
         assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
     }
 
-    function test_writePut_whenLargeButValidStrikePrice() public {
+    function test_writeNewPut_whenLargeButValidStrikePrice() public {
         // need moar LUSD to write put with massive strike
         deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000));
 
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000));
         // no revert
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -882,7 +908,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     // Events
 
-    function testEvent_writePut_OptionCreated() public {
+    function testEvent_writeNewPut_OptionCreated() public {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
@@ -906,7 +932,7 @@ contract WriteTest is BaseUnitTestSuite {
             IOption.OptionType.CALL
         );
 
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -916,7 +942,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testEvent_writePut_OptionsWritten() public {
+    function testEvent_writeNewPut_OptionsWritten() public {
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
@@ -932,7 +958,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.expectEmit(true, true, true, true);
         emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -944,7 +970,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     // Sad Paths
 
-    function testRevert_writePut_whenAssetsIdentical() public {
+    function testRevert_writeNewPut_whenAssetsIdentical() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetsIdentical.selector,
@@ -954,7 +980,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(WETHLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -963,7 +989,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenBaseAssetDecimalsTooSmall() public {
+    function testRevert_writeNewPut_whenBaseAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 5
@@ -977,7 +1003,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -986,7 +1012,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenQuoteAssetDecimalsTooSmall() public {
+    function testRevert_writeNewPut_whenQuoteAssetDecimalsTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 5
@@ -1000,7 +1026,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1009,7 +1035,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenBaseAssetDecimalsTooLarge() public {
+    function testRevert_writeNewPut_whenBaseAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(WETHLIKE), 19
@@ -1023,7 +1049,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1032,7 +1058,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenQuoteAssetDecimalsTooLarge() public {
+    function testRevert_writeNewPut_whenQuoteAssetDecimalsTooLarge() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.AssetDecimalsOutOfRange.selector, address(LUSDLIKE), 19
@@ -1046,7 +1072,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1055,14 +1081,43 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenExerciseWindowMispaired() public {
+    function testRevert_writeNewPut_givenOptionAlreadyExists() public {
+        // Given
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 1e6
+        });
+        vm.stopPrank();
+
+        assertTotalSupplies(optionTokenId, 1e6, 0, "total supplies before second write");
+
+        // Then
+        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionAlreadyExists.selector, optionTokenId));
+
+        // When
+        vm.prank(writer);
+        clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            exerciseWindow: americanExWeeklies[0],
+            strikePrice: 1700e18,
+            optionAmount: 0.8e6
+        });
+    }
+
+    function testRevert_writeNewPut_whenExerciseWindowMispaired() public {
         vm.expectRevert(IOptionErrors.ExerciseWindowMispaired.selector);
 
         uint32[] memory mispaired = new uint32[](1);
         mispaired[0] = DAWN;
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: mispaired,
@@ -1071,7 +1126,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenExerciseWindowZeroTime() public {
+    function testRevert_writeNewPut_whenExerciseWindowZeroTime() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.ExerciseWindowZeroTime.selector, DAWN, DAWN
@@ -1083,7 +1138,7 @@ contract WriteTest is BaseUnitTestSuite {
         zeroTime[1] = DAWN;
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: zeroTime,
@@ -1092,7 +1147,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenExerciseWindowMisordered() public {
+    function testRevert_writeNewPut_whenExerciseWindowMisordered() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.ExerciseWindowMisordered.selector, DAWN + 1 seconds, DAWN
@@ -1104,7 +1159,7 @@ contract WriteTest is BaseUnitTestSuite {
         misordered[1] = DAWN;
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: misordered,
@@ -1113,7 +1168,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenExerciseWindowExpiryPast() public {
+    function testRevert_writeNewPut_whenExerciseWindowExpiryPast() public {
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
@@ -1125,7 +1180,7 @@ contract WriteTest is BaseUnitTestSuite {
         expiryPast[1] = DAWN - 1 days;
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: expiryPast,
@@ -1134,13 +1189,13 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenStrikePriceTooSmall() public {
+    function testRevert_writeNewPut_whenStrikePriceTooSmall() public {
         vm.expectRevert(
             abi.encodeWithSelector(IOptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
         );
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1149,7 +1204,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenStrikePriceTooLarge() public {
+    function testRevert_writeNewPut_whenStrikePriceTooLarge() public {
         uint256 tooLarge = ((2 ** 64 - 1) * 1e6) + 1;
 
         vm.expectRevert(
@@ -1157,7 +1212,7 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1166,7 +1221,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writePut_whenAmountGreaterThanMaximumWritable() public {
+    function testRevert_writeNewPut_whenAmountGreaterThanMaximumWritable() public {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
@@ -1176,7 +1231,7 @@ contract WriteTest is BaseUnitTestSuite {
             abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
 
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1187,11 +1242,11 @@ contract WriteTest is BaseUnitTestSuite {
     }
 
     /////////
-    // function write(uint256 optionTokenId, uint64 optionAmount) external
+    // function writeExisting(uint256 optionTokenId, uint64 optionAmount) external
 
-    function test_write_givenCall() public {
+    function test_writeExisting_givenCall() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1203,7 +1258,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.write(optionTokenId, 1.25e6);
+        clarity.writeExisting(optionTokenId, 1.25e6);
         vm.stopPrank();
 
         // check balances
@@ -1217,9 +1272,9 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
     }
 
-    function test_write_givenPut() public {
+    function test_writeExisting_givenPut() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1231,7 +1286,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.write(optionTokenId, 1.35e6);
+        clarity.writeExisting(optionTokenId, 1.35e6);
         vm.stopPrank();
 
         // check balances
@@ -1247,9 +1302,9 @@ contract WriteTest is BaseUnitTestSuite {
 
     // Events
 
-    function testEvent_write_givenCall_OptionsWritten() public {
+    function testEvent_writeExisting_givenCall_OptionsWritten() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1271,13 +1326,13 @@ contract WriteTest is BaseUnitTestSuite {
         vm.expectEmit(true, true, true, true);
         emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.005e6);
 
-        clarity.write(optionTokenId, 0.005e6);
+        clarity.writeExisting(optionTokenId, 0.005e6);
         vm.stopPrank();
     }
 
-    function testEvent_write_givenPut_OptionsWritten() public {
+    function testEvent_writeExisting_givenPut_OptionsWritten() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1299,15 +1354,15 @@ contract WriteTest is BaseUnitTestSuite {
         vm.expectEmit(true, true, true, true);
         emit IOptionEvents.OptionsWritten(writer, expectedOptionTokenId, 0.006e6);
 
-        clarity.write(optionTokenId, 0.006e6);
+        clarity.writeExisting(optionTokenId, 0.006e6);
         vm.stopPrank();
     }
 
     // Sad Paths
 
-    function testRevert_write_givenCall_whenWriteAmountZero() public {
+    function testRevert_writeExisting_givenCall_whenWriteAmountZero() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1317,17 +1372,17 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.expectRevert(IOptionErrors.WriteAmountZero.selector);
 
-        clarity.write(optionTokenId, 0);
+        clarity.writeExisting(optionTokenId, 0);
         vm.stopPrank();
     }
 
-    function testRevert_write_givenCall_whenInitialAmountGreaterThanMaximumWritable()
+    function testRevert_writeExisting_givenCall_whenInitialAmountGreaterThanMaximumWritable()
         public
     {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1340,17 +1395,17 @@ contract WriteTest is BaseUnitTestSuite {
             abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
 
-        clarity.write(optionTokenId, tooMuch);
+        clarity.writeExisting(optionTokenId, tooMuch);
         vm.stopPrank();
     }
 
-    function testRevert_write_givenCall_whenSubsequentAmountGreaterThanMaximumWritable()
+    function testRevert_writeExisting_givenCall_whenSubsequentAmountGreaterThanMaximumWritable()
         public
     {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1358,7 +1413,7 @@ contract WriteTest is BaseUnitTestSuite {
             optionAmount: 0
         });
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.write(optionTokenId, 10e6);
+        clarity.writeExisting(optionTokenId, 10e6);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -1366,11 +1421,11 @@ contract WriteTest is BaseUnitTestSuite {
             )
         );
 
-        clarity.write(optionTokenId, tooMuch - 10e6);
+        clarity.writeExisting(optionTokenId, tooMuch - 10e6);
         vm.stopPrank();
     }
 
-    function testRevert_write_givenCall_whenOptionDoesNotExist() public {
+    function testRevert_writeExisting_givenCall_whenOptionDoesNotExist() public {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -1387,12 +1442,12 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.write(optionTokenId, 1e6);
+        clarity.writeExisting(optionTokenId, 1e6);
     }
 
-    function testRevert_write_givenCall_whenOptionExpired() public {
+    function testRevert_writeExisting_givenCall_whenOptionExpired() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1410,13 +1465,13 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.warp(americanExWeeklies[0][1] + 1 seconds);
 
-        clarity.write(optionTokenId, 1e6);
+        clarity.writeExisting(optionTokenId, 1e6);
         vm.stopPrank();
     }
 
-    function testRevert_write_givenPut_whenWriteAmountZero() public {
+    function testRevert_writeExisting_givenPut_whenWriteAmountZero() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1426,17 +1481,17 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.expectRevert(IOptionErrors.WriteAmountZero.selector);
 
-        clarity.write(optionTokenId, 0);
+        clarity.writeExisting(optionTokenId, 0);
         vm.stopPrank();
     }
 
-    function testRevert_write_givenPut_whenInitialAmountGreaterThanMaximumWritable()
+    function testRevert_writeExisting_givenPut_whenInitialAmountGreaterThanMaximumWritable()
         public
     {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1449,17 +1504,17 @@ contract WriteTest is BaseUnitTestSuite {
             abi.encodeWithSelector(IOptionErrors.WriteAmountTooLarge.selector, tooMuch)
         );
 
-        clarity.write(optionTokenId, tooMuch);
+        clarity.writeExisting(optionTokenId, tooMuch);
         vm.stopPrank();
     }
 
-    function testRevert_write_givenPut_whenSubsequentAmountGreaterThanMaximumWritable()
+    function testRevert_writeExisting_givenPut_whenSubsequentAmountGreaterThanMaximumWritable()
         public
     {
         uint64 tooMuch = clarity.MAXIMUM_WRITABLE() + 1;
 
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1467,7 +1522,7 @@ contract WriteTest is BaseUnitTestSuite {
             optionAmount: 0
         });
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.write(optionTokenId, 10e6);
+        clarity.writeExisting(optionTokenId, 10e6);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -1475,11 +1530,11 @@ contract WriteTest is BaseUnitTestSuite {
             )
         );
 
-        clarity.write(optionTokenId, tooMuch - 10e6);
+        clarity.writeExisting(optionTokenId, tooMuch - 10e6);
         vm.stopPrank();
     }
 
-    function testRevert_write_givenPut_whenOptionDoesNotExist() public {
+    function testRevert_writeExisting_givenPut_whenOptionDoesNotExist() public {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -1496,12 +1551,12 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.write(optionTokenId, 1e6);
+        clarity.writeExisting(optionTokenId, 1e6);
     }
 
-    function testRevert_write_givenPut_whenOptionExpired() public {
+    function testRevert_writeExisting_givenPut_whenOptionExpired() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1519,21 +1574,21 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.warp(americanExWeeklies[0][1] + 1 seconds);
 
-        clarity.write(optionTokenId, 1e6);
+        clarity.writeExisting(optionTokenId, 1e6);
         vm.stopPrank();
     }
 
     /////////
-    // function batchWrite(uint256[] calldata optionTokenIds, uint64[] calldata
+    // function batchWriteExisting(uint256[] calldata optionTokenIds, uint64[] calldata
     // optionAmounts) external
 
-    function test_batchWrite() public {
+    function test_batchWriteExisting() public {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
         uint256[] memory optionTokenIds = new uint256[](1);
-        optionTokenIds[0] = clarity.writeCall({
+        optionTokenIds[0] = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1546,7 +1601,7 @@ contract WriteTest is BaseUnitTestSuite {
 
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
 
-        clarity.batchWrite(optionTokenIds, optionAmounts);
+        clarity.batchWriteExisting(optionTokenIds, optionAmounts);
         vm.stopPrank();
 
         // check balances
@@ -1564,7 +1619,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     // TODO update to match new max asset amounts
 
-    // function test_batchWrite_many() public {
+    // function test_batchWriteExisting_many() public {
     //     uint256 wethBalance = WETHLIKE.balanceOf(writer);
     //     uint256 wbtcBalance = WBTCLIKE.balanceOf(writer);
     //     uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -1573,28 +1628,28 @@ contract WriteTest is BaseUnitTestSuite {
     //     vm.startPrank(writer);
     //     uint256[] memory optionTokenIds = new uint256[](8);
     //     optionTokenIds[0] =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    //         clarity.writeNewCall(address(WETHLIKE), address(LUSDLIKE),
     // americanExWeeklies[0], 1700e18, 0);
     //     optionTokenIds[1] =
-    //         clarity.writePut(address(WETHLIKE), address(LUSDLIKE),
+    //         clarity.writeNewPut(address(WETHLIKE), address(LUSDLIKE),
     // americanExWeeklies[0], 1700e18, 0);
     //     optionTokenIds[2] =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    //         clarity.writeNewCall(address(WETHLIKE), address(LUSDLIKE),
     // americanExWeeklies[0], 1725e18, 0);
     //     optionTokenIds[3] =
-    //         clarity.writePut(address(WETHLIKE), address(LUSDLIKE),
+    //         clarity.writeNewPut(address(WETHLIKE), address(LUSDLIKE),
     // americanExWeeklies[0], 1725e18, 0);
     //     optionTokenIds[4] =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    //         clarity.writeNewCall(address(WETHLIKE), address(LUSDLIKE),
     // americanExWeeklies[3], 1700e18, 0);
     //     optionTokenIds[5] =
-    //         clarity.writeCall(address(WETHLIKE), address(USDCLIKE),
+    //         clarity.writeNewCall(address(WETHLIKE), address(USDCLIKE),
     // americanExWeeklies[0], 1675e6, 0);
     //     optionTokenIds[6] =
-    //         clarity.writeCall(address(WBTCLIKE), address(LUSDLIKE),
+    //         clarity.writeNewCall(address(WBTCLIKE), address(LUSDLIKE),
     // americanExWeeklies[1], 21_001e18, 0);
     //     optionTokenIds[7] =
-    //         clarity.writePut(address(WBTCLIKE), address(USDCLIKE),
+    //         clarity.writeNewPut(address(WBTCLIKE), address(USDCLIKE),
     // americanExWeeklies[1], 21_001e6, 0);
     //     uint64[] memory optionAmounts = new uint64[](8);
     //     optionAmounts[0] = 1.25e6;
@@ -1615,7 +1670,7 @@ contract WriteTest is BaseUnitTestSuite {
     //     USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE,
     // STARTING_BALANCE));
 
-    //     clarity.batchWrite(optionTokenIds, optionAmounts);
+    //     clarity.batchWriteExisting(optionTokenIds, optionAmounts);
     //     vm.stopPrank();
 
     //     // check Clarity balances
@@ -1713,7 +1768,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     // Sad Paths
 
-    function testRevert_batchWrite_whenArrayLengthZero() public {
+    function testRevert_batchWriteExisting_whenArrayLengthZero() public {
         vm.expectRevert(IOptionErrors.BatchWriteArrayLengthZero.selector);
 
         uint256[] memory optionTokenIds = new uint256[](0);
@@ -1721,10 +1776,10 @@ contract WriteTest is BaseUnitTestSuite {
         optionAmounts[0] = 123e6;
 
         vm.prank(writer);
-        clarity.batchWrite(optionTokenIds, optionAmounts);
+        clarity.batchWriteExisting(optionTokenIds, optionAmounts);
     }
 
-    function testRevert_batchWrite_whenArrayLengthMismatch() public {
+    function testRevert_batchWriteExisting_whenArrayLengthMismatch() public {
         vm.expectRevert(IOptionErrors.BatchWriteArrayLengthMismatch.selector);
 
         uint256[] memory optionTokenIds = new uint256[](1);
@@ -1734,8 +1789,8 @@ contract WriteTest is BaseUnitTestSuite {
         optionAmounts[1] = 789e6;
 
         vm.prank(writer);
-        clarity.batchWrite(optionTokenIds, optionAmounts);
+        clarity.batchWriteExisting(optionTokenIds, optionAmounts);
     }
 
-    // TODO add more batchWrite() sad paths (eg, option expired, write amount zero)
+    // TODO add more batchWriteExisting() sad paths (eg, option expired, write amount zero)
 }

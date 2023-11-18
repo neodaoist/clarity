@@ -23,8 +23,8 @@
 | transfer                                       | 951             | 11926  | 4583   | 26483  | 59      |
 | transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
 | write                                          | 515             | 16808  | 16470  | 124770 | 3034    |
-| writeCall                                      | 1085            | 242179 | 238416 | 344497 | 239     |
-| writePut                                       | 1042            | 194728 | 237764 | 339112 | 49      |
+| writeNewCall                                      | 1085            | 242179 | 238416 | 344497 | 239     |
+| writeNewPut                                       | 1042            | 194728 | 237764 | 339112 | 49      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |

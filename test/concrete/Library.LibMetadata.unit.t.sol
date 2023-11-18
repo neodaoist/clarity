@@ -369,7 +369,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_tokenURI_long() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId = clarity.writeCall({
+        uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -401,7 +401,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 putOptionToken = clarity.writePut({
+        uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -435,7 +435,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_tokenURI_short() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId = clarity.writeCall({
+        uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -471,7 +471,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 putOptionToken = clarity.writePut({
+        uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -509,7 +509,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_tokenURI_assigned() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId = clarity.writeCall({
+        uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -546,7 +546,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 putOptionToken = clarity.writePut({
+        uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -589,7 +589,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId = clarity.writeCall({
+        uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow1,
@@ -623,7 +623,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 putOptionTokenId = clarity.writePut({
+        uint256 putOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow1,
@@ -664,7 +664,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId2 = clarity.writeCall({
+        uint256 callOptionTokenId2 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow2,
@@ -698,7 +698,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 putOptionTokenId2 = clarity.writePut({
+        uint256 putOptionTokenId2 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow2,
@@ -739,7 +739,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId3 = clarity.writeCall({
+        uint256 callOptionTokenId3 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow3,
@@ -773,7 +773,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 putOptionTokenId3 = clarity.writePut({
+        uint256 putOptionTokenId3 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow3,
@@ -809,7 +809,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_tokenURI_differentExerciseStyle() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId = clarity.writeCall({
+        uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: europeanExWeeklies[0],
@@ -843,7 +843,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        uint256 putOptionToken = clarity.writePut({
+        uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: europeanExWeeklies[0],
@@ -879,7 +879,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_tokenURI_differentStrike() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId = clarity.writeCall({
+        uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -913,7 +913,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        uint256 putOptionToken = clarity.writePut({
+        uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -949,7 +949,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_tokenURI_differentAssets() public {
         vm.startPrank(writer);
         WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        uint256 callOptionTokenId = clarity.writeCall({
+        uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -983,7 +983,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        uint256 putOptionToken = clarity.writePut({
+        uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1022,7 +1022,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_assetStorage_whenCall() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.writeCall({
+        clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -1045,7 +1045,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     function test_assetStorage_whenPut() public {
         vm.startPrank(writer);
         USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
-        clarity.writePut({
+        clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],

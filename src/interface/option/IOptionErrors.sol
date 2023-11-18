@@ -33,6 +33,8 @@ interface IOptionErrors {
 
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
 
+    error OptionAlreadyExists(uint256 optionTokenId);
+
     error WriteAmountZero();
 
     error WriteAmountTooSmall();

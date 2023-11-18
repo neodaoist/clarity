@@ -593,7 +593,7 @@ contract ClarityMarkets is
     /// @param strikePrice The strike price of the option, denominated in the quote asset
     /// @param optionAmount The amount of options to write
     /// @return _optionTokenId The token id of the option
-    function writeCall(
+    function writeNewCall(
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
@@ -621,7 +621,7 @@ contract ClarityMarkets is
     /// @param strikePrice The strike price of the option, denominated in the quote asset
     /// @param optionAmount The amount of options to write
     /// @return _optionTokenId The token id of the option
-    function writePut(
+    function writeNewPut(
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
@@ -639,7 +639,7 @@ contract ClarityMarkets is
     }
 
     /// @dev Function requirements, effects, interactions, and protocol invariant for
-    /// writing a new option, called by writeCall() and writePut()
+    /// writing a new option, called by writeNewCall() and writeNewPut()
     function _writeNew(
         address baseAsset,
         address quoteAsset,
@@ -673,6 +673,39 @@ contract ClarityMarkets is
             revert AssetDecimalsOutOfRange(quoteAsset, assetInfo.quoteDecimals);
         }
 
+        // Calculate the write and exercise amounts for clearing purposes
+        OptionClearingInfo memory clearingInfo; // memory struct to avoid stack too deep
+        if (_optionType == OptionType.CALL) {
+            clearingInfo = OptionClearingInfo({
+                writeAsset: baseAsset,
+                writeDecimals: assetInfo.baseDecimals,
+                writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 unit
+                exerciseAsset: quoteAsset,
+                exerciseDecimals: assetInfo.quoteDecimals,
+                exerciseAmount: strikePrice.actualScaledDownToClearingStrikeUnit()
+            });
+        } else {
+            clearingInfo = OptionClearingInfo({
+                writeAsset: quoteAsset,
+                writeDecimals: assetInfo.quoteDecimals,
+                writeAmount: strikePrice.actualScaledDownToClearingStrikeUnit(),
+                exerciseAsset: baseAsset,
+                exerciseDecimals: assetInfo.baseDecimals,
+                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1 unit
+            });
+        }
+
+        // Generate the option hash and option token id
+        uint248 optionHash = LibOption.paramsToHash(
+            baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType
+        );
+        _optionTokenId = optionHash.hashToId();
+
+        // Check that the option does not exist already
+        if (optionStorage[optionHash].writeAsset != address(0)) {
+            revert OptionAlreadyExists(_optionTokenId);
+        }
+
         // Check that the exercise window is valid
         if (exerciseWindow.length != 2) {
             revert ExerciseWindowMispaired();
@@ -701,38 +734,8 @@ contract ClarityMarkets is
         }
 
         ///////// Effects
-
-        // Calculate the write and exercise amounts for clearing purposes
-        OptionClearingInfo memory clearingInfo; // memory struct to avoid stack too deep
-        if (_optionType == OptionType.CALL) {
-            clearingInfo = OptionClearingInfo({
-                writeAsset: baseAsset,
-                writeDecimals: assetInfo.baseDecimals,
-                writeAmount: assetInfo.baseDecimals.oneClearingUnit(), // implicit 1 unit
-                exerciseAsset: quoteAsset,
-                exerciseDecimals: assetInfo.quoteDecimals,
-                exerciseAmount: strikePrice.actualScaledDownToClearingStrikeUnit()
-            });
-        } else {
-            clearingInfo = OptionClearingInfo({
-                writeAsset: quoteAsset,
-                writeDecimals: assetInfo.quoteDecimals,
-                writeAmount: strikePrice.actualScaledDownToClearingStrikeUnit(),
-                exerciseAsset: baseAsset,
-                exerciseDecimals: assetInfo.baseDecimals,
-                exerciseAmount: assetInfo.baseDecimals.oneClearingUnit() // implicit 1
-                    // unit
-            });
-        }
-
         // Determine the exercise style
         ExerciseStyle exerciseStyle = exerciseWindow.determineExerciseStyle();
-
-        // Generate the option hash and option token id
-        uint248 optionHash = LibOption.paramsToHash(
-            baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType
-        );
-        _optionTokenId = optionHash.hashToId();
 
         // Store the option
         optionStorage[optionHash] = OptionStorage({
@@ -807,7 +810,7 @@ contract ClarityMarkets is
     }
 
     /// @dev Some Effects and all Interations for writing a given amount of options,
-    /// called by _writeNew() and write()
+    /// called by _writeNew() and writeExisting()
     function _writeOptions(
         uint256 _optionTokenId,
         uint64 optionAmount,
@@ -836,7 +839,7 @@ contract ClarityMarkets is
     /// @notice Writes a given amount for an already existing option
     /// @param _optionTokenId The token id of the option
     /// @param optionAmount The amount of options to write
-    function write(uint256 _optionTokenId, uint64 optionAmount) public override {
+    function writeExisting(uint256 _optionTokenId, uint64 optionAmount) public override {
         ///////// Function Requirements
         // Check that the option amount is not zero
         if (optionAmount == 0) {
@@ -878,7 +881,7 @@ contract ClarityMarkets is
     /// @notice Writes given amounts for multiple already existing options
     /// @param optionTokenIds The token ids of the options
     /// @param optionAmounts The amounts of options to write
-    function batchWrite(
+    function batchWriteExisting(
         uint256[] calldata optionTokenIds,
         uint64[] calldata optionAmounts
     ) external {
@@ -896,7 +899,7 @@ contract ClarityMarkets is
         ///////// Effects, Interactions, Protocol Invariant
         // Iterate through the arrays, writing on each option
         for (uint256 i = 0; i < idsLength; i++) {
-            write(optionTokenIds[i], optionAmounts[i]);
+            writeExisting(optionTokenIds[i], optionAmounts[i]);
         }
     }
 
@@ -1173,7 +1176,7 @@ contract ClarityMarkets is
 
     /// @dev Verifies that the clearing liabilities can be met for a given ERC20 asset
     /// pair, called by all functions which transfer in or out ERC20 assets --
-    /// _writeNew(), write(), netOff(), exercise(), and redeem()
+    /// _writeNew(), writeExisting(), netOff(), exercise(), and redeem()
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
         assert(
             IERC20Minimal(writeAsset).balanceOf(address(this))

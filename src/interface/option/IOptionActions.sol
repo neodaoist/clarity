@@ -2,22 +2,22 @@
 pragma solidity 0.8.23;
 
 interface IOptionActions {
-    function writeCall(
+    function writeNewCall(
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
         uint256 strikePrice,
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
-    function writePut(
+    function writeNewPut(
         address baseAsset,
         address quoteAsset,
         uint32[] calldata exerciseWindow,
         uint256 strikePrice,
         uint64 optionAmount
     ) external returns (uint256 optionTokenId);
-    function write(uint256 optionTokenId, uint64 optionAmount) external;
-    function batchWrite(
+    function writeExisting(uint256 optionTokenId, uint64 optionAmount) external;
+    function batchWriteExisting(
         uint256[] calldata optionTokenIds,
         uint64[] calldata optionAmounts
     ) external;

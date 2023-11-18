@@ -18,7 +18,7 @@ contract TransferTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -54,7 +54,7 @@ contract TransferTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -103,7 +103,7 @@ contract TransferTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -124,7 +124,7 @@ contract TransferTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],

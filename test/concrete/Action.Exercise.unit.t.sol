@@ -32,7 +32,7 @@ contract ExerciseTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 2.25e6
         );
         bool success = clarity.transfer(holder, optionTokenId, 1.15e6);
@@ -646,7 +646,7 @@ contract ExerciseTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
         );
         for (uint256 i = 0; i < numWrites; i++) {
@@ -659,7 +659,7 @@ contract ExerciseTest is BaseUnitTestSuite {
             );
             optionAmountWritten += amount;
 
-            clarity.write(optionTokenId, amount);
+            clarity.writeExisting(optionTokenId, amount);
         }
         clarity.transfer(holder, optionTokenId, optionAmountWritten);
         vm.stopPrank();
@@ -785,7 +785,7 @@ contract ExerciseTest is BaseUnitTestSuite {
     //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE,
     // STARTING_BALANCE));
     //     uint256 optionTokenId =
-    //         clarity.writeCall(address(WETHLIKE), address(LUSDLIKE),
+    //         clarity.writeNewCall(address(WETHLIKE), address(LUSDLIKE),
     // americanExWeeklies[0], 1700e18, 1e6);
     //     vm.stopPrank();
 
@@ -807,7 +807,7 @@ contract ExerciseTest is BaseUnitTestSuite {
     function testRevert_exercise_whenOptionNotWithinExerciseWindow() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6
         );
         vm.stopPrank();
@@ -844,7 +844,7 @@ contract ExerciseTest is BaseUnitTestSuite {
     function testRevert_exercise_whenExerciseAmountExceedsLongBalance() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6
         );
         vm.stopPrank();
@@ -880,7 +880,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeCall(
+        oti1 = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), exerciseWindow, 1750e18, 0.15e6
         );
         vm.stopPrank();
@@ -888,12 +888,12 @@ contract ExerciseTest is BaseUnitTestSuite {
         // And writer2 writes 0.35 options of oti1
         vm.startPrank(writer2);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.write(oti1, 0.35e6);
+        clarity.writeExisting(oti1, 0.35e6);
         vm.stopPrank();
 
         // And writer1 writes 2 options of oti1
         vm.prank(writer1);
-        clarity.write(oti1, 2e6);
+        clarity.writeExisting(oti1, 2e6);
 
         // And writer1 transfers 2.15 longs of oti1 to holder1
         vm.prank(writer1);
@@ -1011,7 +1011,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         // Given writer1 writes 1.25 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeCall(
+        oti1 = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1.25e6
         );
         vm.stopPrank();
@@ -1019,7 +1019,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         // And writer2 writes 0.25 options of oti1
         vm.startPrank(writer2);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.write(oti1, 0.25e6);
+        clarity.writeExisting(oti1, 0.25e6);
         vm.stopPrank();
 
         // And writer1 transfers 0.5 shorts of oti1 to writer3
@@ -1028,13 +1028,13 @@ contract ExerciseTest is BaseUnitTestSuite {
 
         // And writer1 writes 1 option of oti2
         vm.prank(writer1);
-        oti2 = clarity.writeCall(
+        oti2 = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
         );
 
         // And writer1 writes 1 option of oti1
         vm.prank(writer1);
-        clarity.write(oti1, 1e6);
+        clarity.writeExisting(oti1, 1e6);
 
         // And writer1 transfers 2.25 longs of oti1 to holder1
         vm.prank(writer1);
