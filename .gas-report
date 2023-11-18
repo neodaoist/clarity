@@ -3,13 +3,13 @@
 | Deployment Cost                                | Deployment Size |        |        |        |         |
 | 4463581                                        | 22325           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
-| CONTRACT_SCALAR                                | 316             | 316    | 316    | 316    | 2       |
+| CONTRACT_SCALAR                                | 316             | 316    | 316    | 316    | 10      |
 | MAXIMUM_EXPIRY                                 | 294             | 294    | 294    | 294    | 2       |
 | MAXIMUM_WRITABLE                               | 295             | 295    | 295    | 295    | 8       |
 | approve                                        | 25055           | 25055  | 25055  | 25055  | 55      |
 | assetMetadataStorage                           | 686             | 686    | 686    | 686    | 4       |
-| balanceOf                                      | 969             | 1925   | 1883   | 3945   | 984     |
-| batchWriteExisting                             | 875             | 41784  | 898    | 123579 | 3       |
+| balanceOf                                      | 969             | 1921   | 1883   | 3945   | 1008    |
+| batchWriteExisting                             | 875             | 351404 | 123579 | 819834 | 5       |
 | decimals                                       | 351             | 351    | 351    | 351    | 22      |
 | exercise                                       | 472             | 38719  | 49905  | 67517  | 62      |
 | names                                          | 2376            | 2479   | 2425   | 2661   | 109     |
@@ -20,12 +20,12 @@
 | redeem                                         | 505             | 8740   | 11992  | 17188  | 18      |
 | tokenType                                      | 405             | 1099   | 790    | 2721   | 5       |
 | tokenURI                                       | 252213          | 252591 | 252451 | 253934 | 18      |
-| totalSupply                                    | 876             | 1298   | 1266   | 2681   | 231     |
+| totalSupply                                    | 876             | 1301   | 1341   | 2681   | 255     |
 | transfer                                       | 951             | 11926  | 4583   | 26483  | 59      |
 | transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
-| writeExisting                                  | 494             | 16935  | 16455  | 124755 | 3040    |
-| writeNewCall                                   | 1108            | 243133 | 238894 | 344975 | 243     |
-| writeNewPut                                    | 1086            | 200966 | 238263 | 339611 | 53      |
+| writeExisting                                  | 494             | 17037  | 16455  | 124755 | 3044    |
+| writeNewCall                                   | 1108            | 238868 | 238894 | 344975 | 257     |
+| writeNewPut                                    | 1086            | 194358 | 238263 | 339611 | 63      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |
