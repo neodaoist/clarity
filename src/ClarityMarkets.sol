@@ -401,7 +401,7 @@ contract ClarityMarkets is
     }
 
     /// @dev Returns the balance of a given token id for a given owner, called by
-    /// balanceOf(), position(), netOff(), exercise(), and redeem() -- being
+    /// balanceOf(), position(), netOff(), exerciseLongs(), and redeemShorts() -- being
     /// separate from balanceOf() allows gas savings by not repeatedly checking
     /// that the option exists
     /// @param owner The owner of the token
@@ -978,12 +978,15 @@ contract ClarityMarkets is
 
     // Exercise
 
-    /// @notice Exercises the specificied amount of a given option, burning the long
+    /// @notice Exercises the specified amount of a given option, burning the long
     /// tokens, transferring in the required amount of the exercise asset, and
     /// transferring out the concomitant amount of the write asset
     /// @param _optionTokenId The token id of the option
     /// @param optionAmount The amount of options to exercise
-    function exercise(uint256 _optionTokenId, uint64 optionAmount) external override {
+    function exerciseLongs(uint256 _optionTokenId, uint64 optionAmount)
+        external
+        override
+    {
         ///////// Function Requirements
         // Check that the exercise amount is not zero
         if (optionAmount == 0) {
@@ -1059,7 +1062,7 @@ contract ClarityMarkets is
     /// assigned options
     /// TODO add info about timing and restrictions
     /// @param shortTokenId The token id of the short token
-    function redeem(uint256 shortTokenId)
+    function redeemShorts(uint256 shortTokenId)
         external
         override
         returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed)
@@ -1167,7 +1170,7 @@ contract ClarityMarkets is
     ///////// FREI-PI
 
     /// @dev Increments the clearing liability for a ERC20 given asset, called by
-    /// _writeOptions() and exercise()
+    /// _writeOptions() and exerciseLongs()
     /// @param asset The asset to increment the clearing liability for
     /// @param amount The amount to increment the clearing liability by
     function _incrementClearingLiability(address asset, uint256 amount) internal {
@@ -1175,7 +1178,7 @@ contract ClarityMarkets is
     }
 
     /// @dev Decrements the clearing liability for a given ERC20 asset, called by
-    /// netOff(), exercise() and redeem()
+    /// netOff(), exerciseLongs() and redeemShorts()
     /// @param asset The asset to decrement the clearing liability for
     /// @param amount The amount to decrement the clearing liability by
     function _decrementClearingLiability(address asset, uint256 amount) internal {
@@ -1184,7 +1187,7 @@ contract ClarityMarkets is
 
     /// @dev Verifies that the clearing liabilities can be met for a given ERC20 asset
     /// pair, called by all functions which transfer in or out ERC20 assets --
-    /// _writeNew(), writeExisting(), netOff(), exercise(), and redeem()
+    /// _writeNew(), writeExisting(), netOff(), exerciseLongs(), and redeemShorts()
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
         assert(
             IERC20Minimal(writeAsset).balanceOf(address(this))

@@ -11,7 +11,7 @@ contract RedeemTest is BaseUnitTestSuite {
     using LibPosition for uint248;
 
     /////////
-    // function redeem(uint256 optionTokenId)
+    // function redeemShorts(uint256 optionTokenId)
     //     external
     //     returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed);
 
@@ -27,7 +27,9 @@ contract RedeemTest is BaseUnitTestSuite {
 
     // Calls
 
-    function testRevert_redeem_shortCall_beforeOrOnExpiry_givenUnassigned() public {
+    function testRevert_redeemShorts_shortCall_beforeOrOnExpiry_givenUnassigned()
+        public
+    {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -47,10 +49,10 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(optionTokenId.longToShort());
+        clarity.redeemShorts(optionTokenId.longToShort());
     }
 
-    function test_redeem_shortCall_afterExpiry_givenUnassigned() public {
+    function test_redeemShorts_shortCall_afterExpiry_givenUnassigned() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -79,7 +81,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 2.25e6, 0, 0, "after redeem");
@@ -91,7 +93,7 @@ contract RedeemTest is BaseUnitTestSuite {
         assertAssetBalance(writer, LUSDLIKE, lusdBalance, "after redeem");
     }
 
-    function testRevert_redeem_shortCall_beforeOrOnExpiry_givenPartiallyAssigned()
+    function testRevert_redeemShorts_shortCall_beforeOrOnExpiry_givenPartiallyAssigned()
         public
     {
         // Given
@@ -111,7 +113,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 1.05e6);
+        clarity.exerciseLongs(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // Then
@@ -119,10 +121,10 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(optionTokenId.longToShort());
+        clarity.redeemShorts(optionTokenId.longToShort());
     }
 
-    function test_redeem_shortCall_afterExpiry_givenPartiallyAssigned() public {
+    function test_redeemShorts_shortCall_afterExpiry_givenPartiallyAssigned() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -143,7 +145,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 1.05e6);
+        clarity.exerciseLongs(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // pre checks
@@ -159,7 +161,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
@@ -173,7 +175,7 @@ contract RedeemTest is BaseUnitTestSuite {
         );
     }
 
-    function test_redeem_shortCall_beforeOrOnExpiry_givenFullyAssigned() public {
+    function test_redeemShorts_shortCall_beforeOrOnExpiry_givenFullyAssigned() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -194,7 +196,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 2.25e6);
+        clarity.exerciseLongs(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
@@ -208,7 +210,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
@@ -220,7 +222,7 @@ contract RedeemTest is BaseUnitTestSuite {
         );
     }
 
-    function test_redeem_shortCall_afterExpiry_givenFullyAssigned() public {
+    function test_redeemShorts_shortCall_afterExpiry_givenFullyAssigned() public {
         // Given
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -241,7 +243,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 2.25e6);
+        clarity.exerciseLongs(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
@@ -257,7 +259,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
@@ -271,7 +273,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
     // Puts
 
-    function testRevert_redeem_shortPut_beforeOrOnExpiry_givenUnassigned() public {
+    function testRevert_redeemShorts_shortPut_beforeOrOnExpiry_givenUnassigned() public {
         // Given
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -291,10 +293,10 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(optionTokenId.longToShort());
+        clarity.redeemShorts(optionTokenId.longToShort());
     }
 
-    function test_redeem_shortPut_afterExpiry_givenUnassigned() public {
+    function test_redeemShorts_shortPut_afterExpiry_givenUnassigned() public {
         // Given
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
@@ -325,7 +327,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 2.25e6, 0, 0, "after redeem");
@@ -337,7 +339,7 @@ contract RedeemTest is BaseUnitTestSuite {
         assertAssetBalance(writer, WETHLIKE, wethBalance, "after redeem");
     }
 
-    function testRevert_redeem_shortPut_beforeOrOnExpiry_givenPartiallyAssigned()
+    function testRevert_redeemShorts_shortPut_beforeOrOnExpiry_givenPartiallyAssigned()
         public
     {
         // Given
@@ -357,7 +359,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 1.05e6);
+        clarity.exerciseLongs(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // Then
@@ -365,10 +367,10 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(optionTokenId.longToShort());
+        clarity.redeemShorts(optionTokenId.longToShort());
     }
 
-    function test_redeem_shortPut_afterExpiry_givenPartiallyAssigned() public {
+    function test_redeemShorts_shortPut_afterExpiry_givenPartiallyAssigned() public {
         // Given
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
@@ -389,7 +391,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 1.05e6);
+        clarity.exerciseLongs(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // pre checks
@@ -407,7 +409,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
@@ -421,7 +423,7 @@ contract RedeemTest is BaseUnitTestSuite {
         );
     }
 
-    function test_redeem_shortPut_beforeOrOnExpiry_givenFullyAssigned() public {
+    function test_redeemShorts_shortPut_beforeOrOnExpiry_givenFullyAssigned() public {
         // Given
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
@@ -442,7 +444,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 2.25e6);
+        clarity.exerciseLongs(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
@@ -458,7 +460,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
@@ -470,7 +472,7 @@ contract RedeemTest is BaseUnitTestSuite {
         );
     }
 
-    function test_redeem_shortPut_afterExpiry_givenFullyAssigned() public {
+    function test_redeemShorts_shortPut_afterExpiry_givenFullyAssigned() public {
         // Given
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
@@ -491,7 +493,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 2.25e6);
+        clarity.exerciseLongs(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
@@ -509,7 +511,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // When
         vm.prank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeem(optionTokenId.longToShort());
+            clarity.redeemShorts(optionTokenId.longToShort());
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
@@ -525,7 +527,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
     // Events
 
-    function testEvent_redeem_call() public {
+    function testEvent_redeemShorts_call() public {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -544,11 +546,11 @@ contract RedeemTest is BaseUnitTestSuite {
         emit IOptionEvents.ShortsRedeemed(writer, shortTokenId);
 
         // When
-        clarity.redeem(shortTokenId);
+        clarity.redeemShorts(shortTokenId);
         vm.stopPrank();
     }
 
-    function testEvent_redeem_put() public {
+    function testEvent_redeemShorts_put() public {
         // Given
         vm.startPrank(writer);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -567,13 +569,13 @@ contract RedeemTest is BaseUnitTestSuite {
         emit IOptionEvents.ShortsRedeemed(writer, shortTokenId);
 
         // When
-        clarity.redeem(shortTokenId);
+        clarity.redeemShorts(shortTokenId);
         vm.stopPrank();
     }
 
     // Sad Paths
 
-    function testRevert_redeem_whenLongToken() public {
+    function testRevert_redeemShorts_whenLongToken() public {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -593,10 +595,10 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(longTokenId);
+        clarity.redeemShorts(longTokenId);
     }
 
-    function testRevert_redeem_whenAssignedShortToken() public {
+    function testRevert_redeemShorts_whenAssignedShortToken() public {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -620,10 +622,10 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(assignedShortTokenId);
+        clarity.redeemShorts(assignedShortTokenId);
     }
 
-    function testRevert_redeem_whenOptionDoesNotExist() public {
+    function testRevert_redeemShorts_whenOptionDoesNotExist() public {
         uint256 nonexistentOptionTokenId = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -641,10 +643,10 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(nonexistentOptionTokenId);
+        clarity.redeemShorts(nonexistentOptionTokenId);
     }
 
-    function testRevert_redeem_whenShortBalanceZero() public {
+    function testRevert_redeemShorts_whenShortBalanceZero() public {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -667,6 +669,6 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // When
         vm.prank(writer);
-        clarity.redeem(shortTokenId);
+        clarity.redeemShorts(shortTokenId);
     }
 }

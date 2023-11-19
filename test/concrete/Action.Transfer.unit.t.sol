@@ -137,7 +137,7 @@ contract TransferTest is BaseUnitTestSuite {
 
         // exercise
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 0.000001e6);
+        clarity.exerciseLongs(optionTokenId, 0.000001e6);
         vm.stopPrank();
 
         // Then

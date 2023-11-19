@@ -218,7 +218,7 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // And the option has been exercised (ie, the short has been assigned)
         vm.warp(americanExWeeklies[0][0]);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 1);
+        clarity.exerciseLongs(optionTokenId, 1);
         vm.stopPrank();
 
         // Then
