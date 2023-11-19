@@ -206,7 +206,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 0.2e6);
+        clarity.exerciseLongs(oti1, 0.2e6);
         vm.stopPrank();
 
         // Then

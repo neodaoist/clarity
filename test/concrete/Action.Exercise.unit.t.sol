@@ -22,9 +22,9 @@ contract ExerciseTest is BaseUnitTestSuite {
     uint256 internal holder3LusdBalance;
 
     /////////
-    // function exercise(uint256 _optionTokenId, uint64 optionsAmount) external
+    // function exerciseLongs(uint256 _optionTokenId, uint64 optionsAmount) external
 
-    function test_exercise() public {
+    function test_exerciseLongs() public {
         uint256 writerWethBalance = WETHLIKE.balanceOf(writer);
         uint256 writerLusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 holderWethBalance = WETHLIKE.balanceOf(holder);
@@ -96,7 +96,7 @@ contract ExerciseTest is BaseUnitTestSuite {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(optionTokenId, 0.8e6);
+        clarity.exerciseLongs(optionTokenId, 0.8e6);
         vm.stopPrank();
 
         // Then
@@ -157,14 +157,14 @@ contract ExerciseTest is BaseUnitTestSuite {
 
     // Happy path, Simple background, Scenarios A-F
 
-    function test_exercise_whenSimpleA_andOneHolderExercisesLessThanWrite1()
+    function test_exerciseLongs_whenSimpleA_andOneHolderExercisesLessThanWrite1()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 0.1e6);
+        clarity.exerciseLongs(oti1, 0.1e6);
         vm.stopPrank();
 
         // Then
@@ -229,14 +229,14 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
     }
 
-    function test_exercise_whenSimpleB_andOneHolderExercisesEqualToWrite1()
+    function test_exerciseLongs_whenSimpleB_andOneHolderExercisesEqualToWrite1()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.15 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 0.15e6);
+        clarity.exerciseLongs(oti1, 0.15e6);
         vm.stopPrank();
 
         // Then
@@ -301,14 +301,14 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
     }
 
-    function test_exercise_whenSimpleC_andOneHolderExercisesLessThanWrite2()
+    function test_exerciseLongs_whenSimpleC_andOneHolderExercisesLessThanWrite2()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 0.2e6);
+        clarity.exerciseLongs(oti1, 0.2e6);
         vm.stopPrank();
 
         // Then
@@ -373,14 +373,14 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
     }
 
-    function test_exercise_whenSimpleD_andOneHolderExercisesEqualToWrite2()
+    function test_exerciseLongs_whenSimpleD_andOneHolderExercisesEqualToWrite2()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 0.5e6);
+        clarity.exerciseLongs(oti1, 0.5e6);
         vm.stopPrank();
 
         // Then
@@ -445,14 +445,14 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
     }
 
-    function test_exercise_whenSimpleE_andOneHolderExercisesLessThanWrite3()
+    function test_exerciseLongs_whenSimpleE_andOneHolderExercisesLessThanWrite3()
         public
         withSimpleBackground
     {
         // When holder1 exercises 1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 1e6);
+        clarity.exerciseLongs(oti1, 1e6);
         vm.stopPrank();
 
         // Then
@@ -517,14 +517,14 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
     }
 
-    function test_exercise_whenSimpleF_andOneHolderExercisesEqualToWrite3()
+    function test_exerciseLongs_whenSimpleF_andOneHolderExercisesEqualToWrite3()
         public
         withSimpleBackground
     {
         // When holder1 exercises 2.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        clarity.exercise(oti1, 2.5e6);
+        clarity.exerciseLongs(oti1, 2.5e6);
         vm.stopPrank();
 
         // Then
@@ -589,13 +589,13 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
     }
 
-    // function test_exercise_many_whenComplex_AndOneHolderExercisesAllOnce() public
+    // function test_exerciseLongs_many_whenComplex_AndOneHolderExercisesAllOnce() public
     // withComplexBackground {
     //     // When holder1 exercises 2.45 options of oti1
     //     vm.startPrank(holder1);
     //     LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE,
     // STARTING_BALANCE));
-    //     clarity.exercise(oti1, 2.45e6);
+    //     clarity.exerciseLongs(oti1, 2.45e6);
     //     vm.stopPrank();
 
     //     // Then
@@ -635,7 +635,7 @@ contract ExerciseTest is BaseUnitTestSuite {
     //     );
     // }
 
-    function test_exercise_upperBounds() public {
+    function test_exerciseLongs_upperBounds() public {
         uint256 numWrites = 3000;
         uint256 optionAmountWritten;
 
@@ -701,7 +701,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         LUSDLIKE.approve(
             address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000_000)
         );
-        clarity.exercise(optionTokenId, uint64(optionAmountWritten));
+        clarity.exerciseLongs(optionTokenId, uint64(optionAmountWritten));
         vm.stopPrank();
 
         // check option balances
@@ -751,36 +751,36 @@ contract ExerciseTest is BaseUnitTestSuite {
 
     // Events
 
-    function testEvent_exercise_OptionsExercised() public withSimpleBackground {
+    function testEvent_exerciseLongs_OptionsExercised() public withSimpleBackground {
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
 
         vm.expectEmit(true, true, true, true);
         emit IOptionEvents.OptionsExercised(holder, oti1, 1.000005e6);
 
-        clarity.exercise(oti1, 1.000005e6);
+        clarity.exerciseLongs(oti1, 1.000005e6);
         vm.stopPrank();
     }
 
     // Sad Paths
 
-    function testRevert_exercise_whenExerciseAmountZero() public {
+    function testRevert_exerciseLongs_whenExerciseAmountZero() public {
         vm.expectRevert(IOptionErrors.ExerciseAmountZero.selector);
 
         vm.prank(holder);
-        clarity.exercise(123, 0);
+        clarity.exerciseLongs(123, 0);
     }
 
-    function testRevert_exercise_whenOptionDoesNotExist() public {
+    function testRevert_exerciseLongs_whenOptionDoesNotExist() public {
         vm.expectRevert(
             abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 123)
         );
 
         vm.prank(holder);
-        clarity.exercise(123, 1e6);
+        clarity.exerciseLongs(123, 1e6);
     }
 
-    // function testRevert_exercise_whenOptionTokenIdNotLong() public {
+    // function testRevert_exerciseLongs_whenOptionTokenIdNotLong() public {
     //     vm.startPrank(writer);
     //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE,
     // STARTING_BALANCE));
@@ -794,17 +794,17 @@ contract ExerciseTest is BaseUnitTestSuite {
     // short));
 
     //     vm.prank(holder);
-    //     clarity.exercise(short, 1e6);
+    //     clarity.exerciseLongs(short, 1e6);
 
     //     uint256 assignedShort = Z;
     //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector,
     // assignedShort));
 
     //     vm.prank(holder);
-    //     clarity.exercise(assignedShort, 1e6);
+    //     clarity.exerciseLongs(assignedShort, 1e6);
     // }
 
-    function testRevert_exercise_whenOptionNotWithinExerciseWindow() public {
+    function testRevert_exerciseLongs_whenOptionNotWithinExerciseWindow() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
@@ -824,7 +824,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.exercise(optionTokenId, 1e6);
+        clarity.exerciseLongs(optionTokenId, 1e6);
 
         // after expityTimestamp
         vm.warp(americanExWeeklies[0][1] + 1 seconds);
@@ -838,10 +838,10 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.exercise(optionTokenId, 1e6);
+        clarity.exerciseLongs(optionTokenId, 1e6);
     }
 
-    function testRevert_exercise_whenExerciseAmountExceedsLongBalance() public {
+    function testRevert_exerciseLongs_whenExerciseAmountExceedsLongBalance() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
@@ -858,7 +858,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.exercise(optionTokenId, 1.000001e6);
+        clarity.exerciseLongs(optionTokenId, 1.000001e6);
     }
 
     // TODO revert on too much decimal precision

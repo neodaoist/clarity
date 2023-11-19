@@ -16,6 +16,10 @@ library Options {
         }
     }
 
+    function at(OptionSet storage s, uint256 index) internal view returns (uint256) {
+        return s.options[index];
+    }
+
     function contains(OptionSet storage s, uint256 option) internal view returns (bool) {
         return s.saved[option];
     }
