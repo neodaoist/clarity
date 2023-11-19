@@ -30,14 +30,18 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     using LibPosition for uint256;
 
+    // Contract Under Test
     ClarityMarkets private clarity;
 
     // Collection Helpers
-    AssetSet private _assets;
+    AssetSet private baseAssets;
+    AssetSet private quoteAssets;
     ActorSet private _actors;
     OptionSet private _options;
 
     // Ghost Variables
+    mapping(address => uint256) public ghost_clearingLiabilityFor;
+
     mapping(uint256 => uint256) public ghost_longSumFor;
     mapping(uint256 => uint256) public ghost_shortSumFor;
     mapping(uint256 => uint256) public ghost_assignedShortSumFor;
@@ -54,9 +58,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     IERC20 private USDCLIKE;
     IERC20 private USDTLIKE;
 
-    IERC20[] private possibleAssets;
-
-    uint256 internal constant STARTING_BALANCE = 1_000_000;
+    uint8 private constant CONTRACT_SCALAR = 6;
 
     // Actors
     address private actor;
@@ -73,31 +75,46 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
         FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
         USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
-        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18))); // TODO
-            // add Tether idiosyncrasies
+        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18)));
+        vm.label(address(WETHLIKE), "WETHLIKE");
+        vm.label(address(WBTCLIKE), "WBTCLIKE");
+        vm.label(address(LINKLIKE), "LINKLIKE");
+        vm.label(address(PEPELIKE), "PEPELIKE");
+        vm.label(address(LUSDLIKE), "LUSDLIKE");
+        vm.label(address(FRAXLIKE), "FRAXLIKE");
+        vm.label(address(USDCLIKE), "USDCLIKE");
+        vm.label(address(USDTLIKE), "USDTLIKE");
+        // TODO add Tether idiosyncrasies
 
-        // setup possible assets
-        possibleAssets.push(WETHLIKE);
-        possibleAssets.push(WBTCLIKE);
-        possibleAssets.push(LINKLIKE);
-        possibleAssets.push(PEPELIKE);
-        possibleAssets.push(LUSDLIKE);
-        possibleAssets.push(FRAXLIKE);
-        possibleAssets.push(USDCLIKE);
-        possibleAssets.push(USDTLIKE);
+        // setup test assets
+        baseAssets.add(WETHLIKE);
+        baseAssets.add(WBTCLIKE);
+        baseAssets.add(LINKLIKE);
+        baseAssets.add(PEPELIKE);
+        quoteAssets.add(LUSDLIKE);
+        quoteAssets.add(FRAXLIKE);
+        quoteAssets.add(USDCLIKE);
+        quoteAssets.add(USDTLIKE);
 
         // setup actors // TODO replace with multiple actors
         actor = address(0xAAAA);
         vm.deal(actor, 10 ether);
 
         // deal balances
-        for (uint256 i = 0; i < possibleAssets.length; i++) {
-            deal(
-                address(possibleAssets[i]),
-                actor,
-                scaleUpAssetAmount(possibleAssets[i], STARTING_BALANCE)
-            );
-        }
+        // for (uint256 i = 0; i < baseAssets.count(); i++) {
+        //     deal(
+        //         address(baseAssets.at(i)),
+        //         actor,
+        //         scaleUpAssetAmount(baseAssets.at(i), STARTING_BALANCE)
+        //     );
+        // }
+        // for (uint256 i = 0; i < quoteAssets.count(); i++) {
+        //     deal(
+        //         address(quoteAssets.at(i)),
+        //         actor,
+        //         scaleUpAssetAmount(quoteAssets.at(i), STARTING_BALANCE)
+        //     );
+        // }
     }
 
     // TODO refactor to rationalize test utilities and inheritance
@@ -107,6 +124,14 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         returns (uint256)
     {
         return amount * (10 ** token.decimals());
+    }
+
+    function scaleUpFullWriteAmount(IERC20 token, uint256 amount)
+        internal
+        view
+        returns (uint256)
+    {
+        return amount * (10 ** (token.decimals() - CONTRACT_SCALAR));
     }
 
     function clearingLiabilityFor(IERC20 asset)
@@ -124,52 +149,108 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 exerciseTimestamp,
         uint256 expiryTimestamp,
         uint256 strikePrice,
-        uint256 optionAmount
+        uint64 optionAmount
     ) external {
-        // bound assets
-        baseAssetIndex = bound(baseAssetIndex, 0, possibleAssets.length);
-        quoteAssetIndex = bound(quoteAssetIndex, 0, possibleAssets.length);
-        require(baseAssetIndex != quoteAssetIndex, "base == quote"); // TODO improve
+        // set assets
+        baseAssetIndex = baseAssetIndex % baseAssets.count();
+        quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
-        // bound timestamps and setup ExerciseWindow
-        exerciseTimestamp = bound(exerciseTimestamp, 1, type(uint32).max - 365 days);
+        // set ExerciseWindow
+        exerciseTimestamp =
+            bound(exerciseTimestamp, block.timestamp, clarity.MAXIMUM_EXPIRY() - 365 days);
         expiryTimestamp = bound(
-            expiryTimestamp, exerciseTimestamp + 1 seconds, type(uint32).max - 1 seconds
+            expiryTimestamp, exerciseTimestamp + 1 seconds, clarity.MAXIMUM_EXPIRY()
         );
         uint32[] memory exerciseWindow = new uint32[](2);
         exerciseWindow[0] = uint32(exerciseTimestamp);
         exerciseWindow[1] = uint32(expiryTimestamp);
 
-        // bound strike price and option amount
+        // bind strike price
         strikePrice = bound(
             strikePrice, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE()
         );
-        optionAmount = bound(optionAmount, 10, type(uint32).max); // TODO improve
 
-        // write call
+        // deal asset, approve clearinghouse, write option
         vm.startPrank(actor);
-        possibleAssets[baseAssetIndex].approve(address(clarity), type(uint256).max);
+        IERC20 baseAsset = baseAssets.at(baseAssetIndex);
+
+        uint256 fullAmountForWrite = scaleUpFullWriteAmount(baseAsset, optionAmount);
+        deal(address(baseAsset), actor, fullAmountForWrite);
+
+        baseAsset.approve(address(clarity), type(uint256).max);
+
         uint256 optionTokenId = clarity.writeNewCall({
-            baseAsset: address(possibleAssets[baseAssetIndex]),
-            quoteAsset: address(possibleAssets[quoteAssetIndex]),
+            baseAsset: address(baseAsset),
+            quoteAsset: address(quoteAssets.at(quoteAssetIndex)),
             exerciseWindow: exerciseWindow,
             strikePrice: strikePrice,
-            optionAmount: uint32(optionAmount)
+            optionAmount: optionAmount
         });
         vm.stopPrank();
 
         // track object sets
-        _assets.add(possibleAssets[baseAssetIndex]);
-        _assets.add(possibleAssets[quoteAssetIndex]);
         _options.add(optionTokenId);
 
         // track ghost variables
+        ghost_clearingLiabilityFor[address(baseAsset)] += fullAmountForWrite;
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
-        // no change in ghost_assignedShortSumFor
     }
 
-    function writeNewPut() external {}
+    function writeNewPut(
+        uint256 baseAssetIndex,
+        uint256 quoteAssetIndex,
+        uint256 exerciseTimestamp,
+        uint256 expiryTimestamp,
+        uint256 strikePrice,
+        uint64 optionAmount
+    ) external {
+        // set assets
+        baseAssetIndex = baseAssetIndex % baseAssets.count();
+        quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
+
+        // set ExerciseWindow
+        exerciseTimestamp =
+            bound(exerciseTimestamp, block.timestamp, clarity.MAXIMUM_EXPIRY() - 365 days);
+        expiryTimestamp = bound(
+            expiryTimestamp, exerciseTimestamp + 1 seconds, clarity.MAXIMUM_EXPIRY()
+        );
+        uint32[] memory exerciseWindow = new uint32[](2);
+        exerciseWindow[0] = uint32(exerciseTimestamp);
+        exerciseWindow[1] = uint32(expiryTimestamp);
+
+        // bind strike price
+        strikePrice = bound(
+            strikePrice, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE()
+        );
+
+        // deal asset, approve clearinghouse, write option
+        vm.startPrank(actor);
+        IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
+
+        uint256 fullAmountForWrite =
+            scaleUpFullWriteAmount(quoteAsset, strikePrice * optionAmount);
+        deal(address(quoteAsset), actor, fullAmountForWrite);
+
+        quoteAsset.approve(address(clarity), type(uint256).max);
+
+        uint256 optionTokenId = clarity.writeNewPut({
+            baseAsset: address(baseAssets.at(baseAssetIndex)),
+            quoteAsset: address(quoteAsset),
+            exerciseWindow: exerciseWindow,
+            strikePrice: strikePrice,
+            optionAmount: optionAmount
+        });
+        vm.stopPrank();
+
+        // track object sets
+        _options.add(optionTokenId);
+
+        // track ghost variables
+        ghost_clearingLiabilityFor[address(quoteAsset)] += fullAmountForWrite;
+        ghost_longSumFor[optionTokenId] += optionAmount;
+        ghost_shortSumFor[optionTokenId] += optionAmount;
+    }
 
     function writeExistingCall() external {}
 
@@ -193,57 +274,57 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Exercise
 
-    function exercise() external {}
+    function exerciseLong() external {}
 
     // Redeem
 
-    function redeem() external {}
+    function redeemShort() external {}
 
-    ///////// Actors
+    // ///////// Actors
 
-    // TODO WIP
+    // // TODO WIP
 
-    function actorsCount() external view returns (uint256) {
-        return _actors.actors.length;
-    }
+    // function actorsCount() external view returns (uint256) {
+    //     return _actors.actors.length;
+    // }
 
-    function actors() external view returns (address[] memory) {
-        return _actors.actors;
-    }
+    // function actors() external view returns (address[] memory) {
+    //     return _actors.actors;
+    // }
 
-    function forEachActor(function(address) external func) public {
-        _actors.forEach(func);
-    }
+    // function forEachActor(function(address) external func) public {
+    //     _actors.forEach(func);
+    // }
 
-    function reduceActors(
-        uint256 acc,
-        function(uint256,address) external returns (uint256) func
-    ) public returns (uint256) {
-        return _actors.reduce(acc, func);
-    }
+    // function reduceActors(
+    //     uint256 acc,
+    //     function(uint256,address) external returns (uint256) func
+    // ) public returns (uint256) {
+    //     return _actors.reduce(acc, func);
+    // }
 
-    ///////// Assets
+    // ///////// Assets
 
-    // TODO WIP
+    // // TODO WIP
 
-    function assetsCount() external view returns (uint256) {
-        return _assets.assets.length;
-    }
+    // function assetsCount() external view returns (uint256) {
+    //     return _assets.assets.length;
+    // }
 
-    function assets() external view returns (IERC20[] memory) {
-        return _assets.assets;
-    }
+    // function assets() external view returns (IERC20[] memory) {
+    //     return _assets.assets;
+    // }
 
-    function forEachAsset(function(IERC20) external func) public {
-        _assets.forEach(func);
-    }
+    // function forEachAsset(function(IERC20) external func) public {
+    //     _assets.forEach(func);
+    // }
 
-    function reduceAssets(
-        uint256 acc,
-        function(uint256,IERC20) external returns (uint256) func
-    ) public returns (uint256) {
-        return _assets.reduce(acc, func);
-    }
+    // function reduceAssets(
+    //     uint256 acc,
+    //     function(uint256,IERC20) external returns (uint256) func
+    // ) public returns (uint256) {
+    //     return _assets.reduce(acc, func);
+    // }
 
     ///////// Options
 
@@ -253,8 +334,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return _options.count();
     }
 
-    function options() external view returns (uint256[] memory) {
-        return _options.options;
+    function option(uint256 index) external view returns (uint256 optionTokenId) {
+        return _options.at(index);
     }
 
     function forEachOption(function(uint256) external func) public {

@@ -10,3 +10,12 @@ gas3:
 
 cov:
 	forge coverage --report lcov
+
+inv:
+	forge test --mc Invariant
+
+invv:
+	forge test --mc Invariant -vv
+
+invvv:
+	forge test --mc Invariant -vvv

@@ -19,6 +19,10 @@ library Assets {
         }
     }
 
+    function at(AssetSet storage s, uint256 index) internal view returns (IERC20) {
+        return s.assets[index];
+    }
+
     function contains(AssetSet storage s, IERC20 asset) internal view returns (bool) {
         return s.saved[asset];
     }

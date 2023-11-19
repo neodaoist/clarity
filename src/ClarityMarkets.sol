@@ -721,7 +721,7 @@ contract ClarityMarkets is
             revert ExerciseWindowExpiryPast(exerciseWindow[1]);
         }
         // Not possible with strongly typed input args
-        if (exerciseWindow[1] >= MAXIMUM_EXPIRY) {
+        if (exerciseWindow[1] > MAXIMUM_EXPIRY) {
             revert ExerciseWindowExpiryTooFarInFuture(exerciseWindow[1]);
         }
 

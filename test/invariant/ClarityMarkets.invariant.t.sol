@@ -21,7 +21,13 @@ contract ClarityMarketsInvariantTest is Test {
     ClarityMarkets private clarity;
     OptionsHandler private handler;
 
+    // Time
+    uint64 private constant DAWN = 1_000_000_000;
+
     function setUp() public {
+        // warm to dawn of time
+        vm.warp(DAWN);
+
         // deploy DCP
         clarity = new ClarityMarkets();
 
@@ -29,8 +35,9 @@ contract ClarityMarketsInvariantTest is Test {
         handler = new OptionsHandler(clarity);
 
         // target contracts
-        bytes4[] memory selectors = new bytes4[](1);
+        bytes4[] memory selectors = new bytes4[](2);
         selectors[0] = OptionsHandler.writeNewCall.selector;
+        selectors[1] = OptionsHandler.writeNewPut.selector;
         targetSelector(FuzzSelector({addr: address(handler), selectors: selectors}));
         targetContract(address(handler));
     }
@@ -40,7 +47,7 @@ contract ClarityMarketsInvariantTest is Test {
 
     function invariantB1_sumOfAllBalancesForTokenIdEqTotalSupply() public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 longTokenId = handler.options()[i];
+            uint256 longTokenId = handler.option(i);
             uint256 shortTokenId = longTokenId.longToShort();
             uint256 assignedShortTokenId = longTokenId.longToAssignedShort();
 
