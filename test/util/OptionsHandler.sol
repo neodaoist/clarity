@@ -68,7 +68,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     modifier createActor() {
         currentActor = msg.sender;
         _actors.add(msg.sender);
-        console2.log("HEY", msg.sender);
+
         _;
     }
 
@@ -129,12 +129,16 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return amount * (10 ** token.decimals());
     }
 
-    function scaleUpFullWriteAmount(IERC20 token, uint256 amount)
+    function scaleUpFullWriteAmountCall(IERC20 token, uint256 amount)
         internal
         view
         returns (uint256)
     {
         return amount * (10 ** (token.decimals() - CONTRACT_SCALAR));
+    }
+
+    function scaleUpFullWriteAmountPut(uint256 amount) internal pure returns (uint256) {
+        return amount / (10 ** CONTRACT_SCALAR);
     }
 
     ///////// Actions
@@ -172,7 +176,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.startPrank(currentActor);
         IERC20 baseAsset = baseAssets.at(baseAssetIndex);
 
-        uint256 fullAmountForWrite = scaleUpFullWriteAmount(baseAsset, optionAmount);
+        uint256 fullAmountForWrite = scaleUpFullWriteAmountCall(baseAsset, optionAmount);
         deal(address(baseAsset), currentActor, fullAmountForWrite);
 
         baseAsset.approve(address(clarity), type(uint256).max);
@@ -191,6 +195,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // track ghost variables
         ghost_clearingLiabilityFor[address(baseAsset)] += fullAmountForWrite;
+
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
     }
@@ -226,8 +231,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.startPrank(currentActor);
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
-        uint256 fullAmountForWrite =
-            scaleUpFullWriteAmount(quoteAsset, strikePrice * optionAmount);
+        uint256 fullAmountForWrite = scaleUpFullWriteAmountPut(strikePrice * optionAmount);
         deal(address(quoteAsset), currentActor, fullAmountForWrite);
 
         quoteAsset.approve(address(clarity), type(uint256).max);
@@ -246,6 +250,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // track ghost variables
         ghost_clearingLiabilityFor[address(quoteAsset)] += fullAmountForWrite;
+
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
     }
@@ -278,9 +283,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     function redeemShort() external {}
 
-    // ///////// Actors
+    ///////// Actors
 
-    // // TODO WIP
+    // TODO WIP
 
     // function actorsCount() external view returns (uint256) {
     //     return _actors.actors.length;
@@ -303,15 +308,23 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // ///////// Assets
 
-    // // TODO WIP
+    // TODO WIP
 
-    // function assetsCount() external view returns (uint256) {
-    //     return _assets.assets.length;
-    // }
+    function baseAssetsCount() external view returns (uint256) {
+        return baseAssets.assets.length;
+    }
 
-    // function assets() external view returns (IERC20[] memory) {
-    //     return _assets.assets;
-    // }
+    function baseAssetAt(uint256 index) external view returns (IERC20) {
+        return baseAssets.at(index);
+    }
+
+    function quoteAssetsCount() external view returns (uint256) {
+        return quoteAssets.assets.length;
+    }
+
+    function quoteAssetAt(uint256 index) external view returns (IERC20) {
+        return quoteAssets.at(index);
+    }
 
     // function forEachAsset(function(IERC20) external func) public {
     //     _assets.forEach(func);
@@ -332,7 +345,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return _options.count();
     }
 
-    function option(uint256 index) external view returns (uint256 optionTokenId) {
+    function optionTokenIdAt(uint256 index)
+        external
+        view
+        returns (uint256 optionTokenId)
+    {
         return _options.at(index);
     }
 

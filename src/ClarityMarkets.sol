@@ -1191,5 +1191,18 @@ contract ClarityMarkets is
             IERC20Minimal(exerciseAsset).balanceOf(address(this))
                 >= clearingLiabilities[exerciseAsset]
         );
+
+        console2.log(
+            "writeAsset: ",
+            IERC20Minimal(writeAsset).balanceOf(address(this)),
+            "clearingLiabilities: ",
+            clearingLiabilities[writeAsset]
+        );
+        console2.log(
+            "exerciseAsset: ",
+            IERC20Minimal(exerciseAsset).balanceOf(address(this)),
+            "clearingLiabilities: ",
+            clearingLiabilities[exerciseAsset]
+        );
     }
 }
