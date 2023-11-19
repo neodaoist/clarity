@@ -36,7 +36,10 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     // Collection Helpers
     AssetSet private baseAssets;
     AssetSet private quoteAssets;
+
     ActorSet private _actors;
+    address private currentActor;
+
     OptionSet private _options;
 
     // Ghost Variables
@@ -60,14 +63,19 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     uint8 private constant CONTRACT_SCALAR = 6;
 
-    // Actors
-    address private actor;
-    // TODO
+    // Modifiers
+
+    modifier createActor() {
+        currentActor = msg.sender;
+        _actors.add(msg.sender);
+        console2.log("HEY", msg.sender);
+        _;
+    }
 
     constructor(ClarityMarkets _clarity) {
         clarity = _clarity;
 
-        // deploy test assets // TODO move to BaseTest
+        // deploy test assets
         WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETHLIKE", 18)));
         WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTCLIKE", 8)));
         LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINKLIKE", 18)));
@@ -83,8 +91,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.label(address(LUSDLIKE), "LUSDLIKE");
         vm.label(address(FRAXLIKE), "FRAXLIKE");
         vm.label(address(USDCLIKE), "USDCLIKE");
-        vm.label(address(USDTLIKE), "USDTLIKE");
-        // TODO add Tether idiosyncrasies
+        vm.label(address(USDTLIKE), "USDTLIKE"); // TODO add Tether idiosyncrasies
 
         // setup test assets
         baseAssets.add(WETHLIKE);
@@ -96,11 +103,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         quoteAssets.add(USDCLIKE);
         quoteAssets.add(USDTLIKE);
 
-        // setup actors // TODO replace with multiple actors
-        actor = address(0xAAAA);
-        vm.deal(actor, 10 ether);
-
-        // deal balances
+        // TODO consider dealing balances here
         // for (uint256 i = 0; i < baseAssets.count(); i++) {
         //     deal(
         //         address(baseAssets.at(i)),
@@ -134,11 +137,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return amount * (10 ** (token.decimals() - CONTRACT_SCALAR));
     }
 
-    function clearingLiabilityFor(IERC20 asset)
-        public
-        returns (uint256 clearingLiability)
-    {}
-
     ///////// Actions
 
     // Write
@@ -150,7 +148,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 expiryTimestamp,
         uint256 strikePrice,
         uint64 optionAmount
-    ) external {
+    ) external createActor {
         // set assets
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
@@ -171,11 +169,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         );
 
         // deal asset, approve clearinghouse, write option
-        vm.startPrank(actor);
+        vm.startPrank(currentActor);
         IERC20 baseAsset = baseAssets.at(baseAssetIndex);
 
         uint256 fullAmountForWrite = scaleUpFullWriteAmount(baseAsset, optionAmount);
-        deal(address(baseAsset), actor, fullAmountForWrite);
+        deal(address(baseAsset), currentActor, fullAmountForWrite);
 
         baseAsset.approve(address(clarity), type(uint256).max);
 
@@ -204,7 +202,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 expiryTimestamp,
         uint256 strikePrice,
         uint64 optionAmount
-    ) external {
+    ) external createActor {
         // set assets
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
@@ -225,12 +223,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         );
 
         // deal asset, approve clearinghouse, write option
-        vm.startPrank(actor);
+        vm.startPrank(currentActor);
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
         uint256 fullAmountForWrite =
             scaleUpFullWriteAmount(quoteAsset, strikePrice * optionAmount);
-        deal(address(quoteAsset), actor, fullAmountForWrite);
+        deal(address(quoteAsset), currentActor, fullAmountForWrite);
 
         quoteAsset.approve(address(clarity), type(uint256).max);
 
@@ -338,15 +336,15 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return _options.at(index);
     }
 
-    function forEachOption(function(uint256) external func) public {
-        _options.forEach(func);
-    }
+    // function forEachOption(function(uint256) external func) public {
+    //     _options.forEach(func);
+    // }
 
-    function reduceOptions(
-        uint256 acc,
-        uint256 tokenId,
-        function(uint256,address,uint256) external returns (uint256) func
-    ) public returns (uint256) {
-        return _options.reduce(actor, tokenId, acc, func);
-    }
+    // function reduceOptions(
+    //     uint256 acc,
+    //     uint256 tokenId,
+    //     function(uint256,address,uint256) external returns (uint256) func
+    // ) public returns (uint256) {
+    //     return _options.reduce(currentActor, tokenId, acc, func);
+    // }
 }

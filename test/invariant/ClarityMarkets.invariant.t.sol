@@ -19,6 +19,7 @@ contract ClarityMarketsInvariantTest is Test {
     using LibPosition for uint256;
 
     ClarityMarkets private clarity;
+
     OptionsHandler private handler;
 
     // Time
@@ -42,7 +43,7 @@ contract ClarityMarketsInvariantTest is Test {
         targetContract(address(handler));
     }
 
-    // function invariantA_clearinghouseBalanceForAssetGteClearingLiability() public {
+    // function invariantA1_clearinghouseBalanceForAssetGteClearingLiability() public {
     // }
 
     function invariantB1_sumOfAllBalancesForTokenIdEqTotalSupply() public {
@@ -68,10 +69,4 @@ contract ClarityMarketsInvariantTest is Test {
             );
         }
     }
-
-    // function
-    // invariantC1_clearingLiabilityForAssetEqSumOfLongsShortsAndAssignedShortsLiability(
-    // ) public {}
-
-    // function invariantC1_totalSupplyOfLongsForOptionEqTotalSupplyOfShorts() public {}
 }
