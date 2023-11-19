@@ -19,7 +19,7 @@ contract NetOffTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
         );
         vm.stopPrank();
@@ -60,7 +60,7 @@ contract NetOffTest is BaseUnitTestSuite {
     function testRevert_netOff_whenAmountZero() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -90,7 +90,7 @@ contract NetOffTest is BaseUnitTestSuite {
     function testRevert_netOff_whenDontHoldSufficientLongs() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
         );
         clarity.transfer(holder, optionTokenId, 0.1e6);
@@ -108,7 +108,7 @@ contract NetOffTest is BaseUnitTestSuite {
     function testRevert_netOff_whenDontHoldSufficientShorts() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
         );
         clarity.transfer(holder, LibPosition.longToShort(optionTokenId), 0.1e6);

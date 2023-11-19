@@ -18,7 +18,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_tokenType() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
         );
         vm.stopPrank();
@@ -65,7 +65,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function testRevert_tokenType_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
         );
         vm.stopPrank();
@@ -87,7 +87,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         // Given writer1 writes 1 options
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
         );
         vm.stopPrank();
@@ -95,12 +95,12 @@ contract PositionViewTest is BaseUnitTestSuite {
         // And writer2 writes 0.25 options
         vm.startPrank(writer2);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.write(optionTokenId, 0.25e6);
+        clarity.writeExisting(optionTokenId, 0.25e6);
         vm.stopPrank();
 
         // And writer1 writes 2 options
         vm.prank(writer1);
-        clarity.write(optionTokenId, 2e6);
+        clarity.writeExisting(optionTokenId, 2e6);
 
         // And writer1 transfers 0.5 longs to holder1
         vm.prank(writer1);
@@ -139,7 +139,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_whenTokenTypeIsShort() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
         );
 
@@ -158,7 +158,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_whenTokenTypeIsAssignedShort() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
         );
 
@@ -178,7 +178,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeCall(
+        oti1 = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0.15e6
         );
         vm.stopPrank();
@@ -186,12 +186,12 @@ contract PositionViewTest is BaseUnitTestSuite {
         // And writer2 writes 0.35 options of oti1
         vm.startPrank(writer2);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        clarity.write(oti1, 0.35e6);
+        clarity.writeExisting(oti1, 0.35e6);
         vm.stopPrank();
 
         // And writer1 writes 2 options of oti1
         vm.prank(writer1);
-        clarity.write(oti1, 2e6);
+        clarity.writeExisting(oti1, 2e6);
 
         // And writer1 transfers 2.15 longs of oti1 to holder1
         vm.prank(writer1);
@@ -287,7 +287,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function testRevert_position_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
         );
         vm.stopPrank();

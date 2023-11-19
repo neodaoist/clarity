@@ -50,7 +50,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
 
@@ -105,7 +105,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
-            optionTokenIds[i] = clarity.writeCall(
+            optionTokenIds[i] = clarity.writeNewCall(
                 address(WETHLIKE),
                 address(FRAXLIKE),
                 americanExWeeklies[0],
@@ -170,7 +170,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
 
@@ -209,7 +209,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testRevert_deployWrappedLong_whenWrapperAlreadyDeployed() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         factory.deployWrappedLong(optionTokenId);
@@ -228,7 +228,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testRevert_deployWrappedLong_whenOptionExpired() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         vm.stopPrank();
@@ -256,7 +256,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         uint256 shortTokenId = optionTokenId.longToShort();
@@ -311,7 +311,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
-            optionTokenIds[i] = clarity.writeCall(
+            optionTokenIds[i] = clarity.writeNewCall(
                 address(WETHLIKE),
                 address(FRAXLIKE),
                 americanExWeeklies[0],
@@ -377,7 +377,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         uint256 shortTokenId = optionTokenId.longToShort();
@@ -399,7 +399,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
 
@@ -417,7 +417,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
@@ -459,7 +459,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         uint256 shortTokenId = optionTokenId.longToShort();
@@ -482,7 +482,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         uint256 shortTokenId = optionTokenId.longToShort();
@@ -508,7 +508,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall(
+        uint256 optionTokenId = clarity.writeNewCall(
             address(WETHLIKE), address(FRAXLIKE), americanExWeeklies[0], 1750e18, 10e6
         );
         uint256 shortTokenId = optionTokenId.longToShort();

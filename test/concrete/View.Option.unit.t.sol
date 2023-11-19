@@ -31,7 +31,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_optionTokenId_whenCall_andAmerican() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 expectedOptionTokenId = clarity.writeCall({
+        uint256 expectedOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -54,7 +54,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_optionTokenId_whenPut_andAmerican() public {
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        uint256 expectedOptionTokenId = clarity.writePut({
+        uint256 expectedOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -77,7 +77,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_optionTokenId_whenCall_andEuropean() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 expectedOptionTokenId = clarity.writeCall({
+        uint256 expectedOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
@@ -100,7 +100,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_optionTokenId_whenPut_andEuropean() public {
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        uint256 expectedOptionTokenId = clarity.writePut({
+        uint256 expectedOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
@@ -153,7 +153,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_option_whenCall_andAmerican() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -177,7 +177,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_option_whenPut_andAmerican() public {
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -201,7 +201,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_option_whenCall_andEuropean() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
@@ -225,7 +225,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     function test_option_whenPut_andEuropean() public {
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writePut({
+        uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],

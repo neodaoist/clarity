@@ -1,30 +1,31 @@
 | src/ClarityMarkets.sol:ClarityMarkets contract |                 |        |        |        |         |
 |------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                | Deployment Size |        |        |        |         |
-| 4405103                                        | 22033           |        |        |        |         |
+| 4463581                                        | 22325           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
-| CONTRACT_SCALAR                                | 316             | 316    | 316    | 316    | 2       |
-| MAXIMUM_WRITABLE                               | 305             | 305    | 305    | 305    | 6       |
-| approve                                        | 25077           | 25077  | 25077  | 25077  | 55      |
+| CONTRACT_SCALAR                                | 316             | 316    | 316    | 316    | 10      |
+| MAXIMUM_EXPIRY                                 | 294             | 294    | 294    | 294    | 2       |
+| MAXIMUM_WRITABLE                               | 295             | 295    | 295    | 295    | 8       |
+| approve                                        | 25055           | 25055  | 25055  | 25055  | 55      |
 | assetMetadataStorage                           | 686             | 686    | 686    | 686    | 4       |
-| balanceOf                                      | 969             | 1925   | 1883   | 3945   | 984     |
-| batchWrite                                     | 898             | 41805  | 921    | 123596 | 3       |
-| decimals                                       | 373             | 373    | 373    | 373    | 22      |
+| balanceOf                                      | 969             | 1921   | 1883   | 3945   | 1008    |
+| batchWriteExisting                             | 875             | 351404 | 123579 | 819834 | 5       |
+| decimals                                       | 351             | 351    | 351    | 351    | 22      |
 | exercise                                       | 472             | 38719  | 49905  | 67517  | 62      |
-| names                                          | 2332            | 2435   | 2381   | 2617   | 109     |
+| names                                          | 2376            | 2479   | 2425   | 2661   | 109     |
 | netOff                                         | 520             | 15539  | 17670  | 17670  | 41      |
-| option                                         | 2553            | 2562   | 2553   | 2900   | 194     |
+| option                                         | 2531            | 2540   | 2531   | 2878   | 194     |
 | optionTokenId                                  | 2111            | 2511   | 2112   | 4110   | 5       |
-| position                                       | 718             | 4609   | 4792   | 6792   | 10      |
-| redeem                                         | 483             | 8721   | 11975  | 17170  | 18      |
-| tokenType                                      | 361             | 1055   | 746    | 2677   | 5       |
-| tokenURI                                       | 252234          | 252612 | 252472 | 253955 | 18      |
-| totalSupply                                    | 832             | 1252   | 1222   | 2637   | 213     |
+| position                                       | 696             | 4587   | 4770   | 6770   | 10      |
+| redeem                                         | 505             | 8740   | 11992  | 17188  | 18      |
+| tokenType                                      | 405             | 1099   | 790    | 2721   | 5       |
+| tokenURI                                       | 252213          | 252591 | 252451 | 253934 | 18      |
+| totalSupply                                    | 876             | 1301   | 1341   | 2681   | 255     |
 | transfer                                       | 951             | 11926  | 4583   | 26483  | 59      |
 | transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
-| write                                          | 515             | 16808  | 16470  | 124770 | 3034    |
-| writeCall                                      | 1085            | 242179 | 238416 | 344497 | 239     |
-| writePut                                       | 1042            | 194728 | 237764 | 339112 | 49      |
+| writeExisting                                  | 494             | 17037  | 16455  | 124755 | 3044    |
+| writeNewCall                                   | 1108            | 238868 | 238894 | 344975 | 257     |
+| writeNewPut                                    | 1086            | 194358 | 238263 | 339611 | 63      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |
@@ -33,8 +34,8 @@
 | 3410730                                                          | 17252           |         |         |         |         |
 | Function Name                                                    | min             | avg     | median  | max     | # calls |
 | clarity                                                          | 182             | 182     | 182     | 182     | 1       |
-| deployWrappedLong                                                | 4338            | 1268018 | 1356183 | 1356183 | 46      |
-| deployWrappedShort                                               | 402             | 1206930 | 1370924 | 1370924 | 50      |
+| deployWrappedLong                                                | 4316            | 1268037 | 1356205 | 1356205 | 46      |
+| deployWrappedShort                                               | 402             | 1206987 | 1370990 | 1370990 | 50      |
 | wrapperFor                                                       | 490             | 490     | 490     | 490     | 22      |
 
 
@@ -46,12 +47,12 @@
 | balanceOf                                                      | 558             | 558   | 558    | 558   | 33      |
 | decimals                                                       | 249             | 249   | 249    | 249   | 11      |
 | name                                                           | 1512            | 1512  | 1512   | 1512  | 11      |
-| option                                                         | 4520            | 4520  | 4520   | 4520  | 11      |
+| option                                                         | 4498            | 4498  | 4498   | 4498  | 11      |
 | optionTokenId                                                  | 283             | 283   | 283    | 283   | 11      |
 | symbol                                                         | 1555            | 1555  | 1555   | 1555  | 11      |
 | totalSupply                                                    | 341             | 341   | 341    | 341   | 33      |
 | unwrapLongs                                                    | 409             | 9408  | 9723   | 23699 | 14      |
-| wrapLongs                                                      | 342             | 72917 | 81673  | 83673 | 30      |
+| wrapLongs                                                      | 342             | 72896 | 81651  | 83651 | 30      |
 
 
 | src/adapter/ClarityWrappedShort.sol:ClarityWrappedShort contract |                 |       |        |       |         |
@@ -62,12 +63,12 @@
 | balanceOf                                                        | 580             | 580   | 580    | 580   | 33      |
 | decimals                                                         | 293             | 293   | 293    | 293   | 11      |
 | name                                                             | 1512            | 1512  | 1512   | 1512  | 11      |
-| option                                                           | 4520            | 4520  | 4520   | 4520  | 11      |
+| option                                                           | 4498            | 4498  | 4498   | 4498  | 11      |
 | optionTokenId                                                    | 283             | 283   | 283    | 283   | 11      |
 | symbol                                                           | 1511            | 1511  | 1511   | 1511  | 11      |
 | totalSupply                                                      | 341             | 341   | 341    | 341   | 33      |
 | unwrapShorts                                                     | 364             | 9526  | 9870   | 23816 | 14      |
-| wrapShorts                                                       | 386             | 72905 | 82337  | 84337 | 31      |
+| wrapShorts                                                       | 386             | 72884 | 82315  | 84315 | 31      |
 
 
 

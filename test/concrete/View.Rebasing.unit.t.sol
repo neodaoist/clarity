@@ -56,7 +56,7 @@ contract RebasingTest is BaseUnitTestSuite {
     function test_totalSupply_whenNoneWritten() public {
         // Given
         vm.prank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -75,7 +75,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -94,7 +94,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -114,7 +114,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -142,7 +142,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -171,7 +171,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -205,7 +205,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -238,7 +238,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -267,7 +267,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -305,7 +305,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -345,7 +345,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -384,7 +384,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -422,7 +422,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -460,7 +460,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -531,7 +531,7 @@ contract RebasingTest is BaseUnitTestSuite {
     function test_balanceOf_whenNoneWritten() public {
         // Given
         vm.prank(writer);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -550,7 +550,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -571,7 +571,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -593,7 +593,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
@@ -623,7 +623,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -657,7 +657,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -693,7 +693,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -726,7 +726,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -757,7 +757,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -797,7 +797,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -839,7 +839,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -880,7 +880,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -920,7 +920,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
@@ -958,7 +958,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeCall({
+            uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],

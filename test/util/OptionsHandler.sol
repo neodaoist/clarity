@@ -149,7 +149,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // write call
         vm.startPrank(actor);
         possibleAssets[baseAssetIndex].approve(address(clarity), type(uint256).max);
-        uint256 optionTokenId = clarity.writeCall({
+        uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(possibleAssets[baseAssetIndex]),
             quoteAsset: address(possibleAssets[quoteAssetIndex]),
             exerciseWindow: exerciseWindow,
