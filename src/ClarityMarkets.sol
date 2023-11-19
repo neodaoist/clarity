@@ -163,6 +163,8 @@ contract ClarityMarkets is
 
     // Option
 
+    // TODO make this not revert, add info on best practice to check for empty
+
     /// @notice Returns the token id for a given option, if it has been written already,
     /// otherwise reverts
     /// @param baseAsset The base asset of the option (typically the volatile asset in a
@@ -613,6 +615,7 @@ contract ClarityMarkets is
 
     /// @notice Writes a new put option, minting long and short tokens for the writer
     /// TODO explain reverts and how to write for an option that already exists
+    /// TODO add info on rounding
     /// @param baseAsset The base asset of the option (typically the volatile asset in a
     /// pair)
     /// @param quoteAsset The quote asset of the option (the asset in which the strike is
@@ -1190,19 +1193,6 @@ contract ClarityMarkets is
         assert(
             IERC20Minimal(exerciseAsset).balanceOf(address(this))
                 >= clearingLiabilities[exerciseAsset]
-        );
-
-        console2.log(
-            "writeAsset: ",
-            IERC20Minimal(writeAsset).balanceOf(address(this)),
-            "clearingLiabilities: ",
-            clearingLiabilities[writeAsset]
-        );
-        console2.log(
-            "exerciseAsset: ",
-            IERC20Minimal(exerciseAsset).balanceOf(address(this)),
-            "clearingLiabilities: ",
-            clearingLiabilities[exerciseAsset]
         );
     }
 }

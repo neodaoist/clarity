@@ -1,7 +1,7 @@
 | src/ClarityMarkets.sol:ClarityMarkets contract |                 |        |        |        |         |
 |------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                | Deployment Size |        |        |        |         |
-| 4463581                                        | 22325           |        |        |        |         |
+| 4463781                                        | 22326           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
 | CONTRACT_SCALAR                                | 316             | 316    | 316    | 316    | 10      |
 | MAXIMUM_EXPIRY                                 | 294             | 294    | 294    | 294    | 2       |
@@ -24,8 +24,8 @@
 | transfer                                       | 951             | 11926  | 4583   | 26483  | 59      |
 | transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
 | writeExisting                                  | 494             | 17037  | 16455  | 124755 | 3044    |
-| writeNewCall                                   | 1108            | 238868 | 238894 | 344975 | 257     |
-| writeNewPut                                    | 1086            | 194358 | 238263 | 339611 | 63      |
+| writeNewCall                                   | 1108            | 238871 | 238897 | 344978 | 257     |
+| writeNewPut                                    | 1086            | 194361 | 238266 | 339614 | 63      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |

@@ -212,7 +212,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
-        // set ExerciseWindow
+        // bind ExerciseWindow
         exerciseTimestamp =
             bound(exerciseTimestamp, block.timestamp, clarity.MAXIMUM_EXPIRY() - 365 days);
         expiryTimestamp = bound(
@@ -222,10 +222,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         exerciseWindow[0] = uint32(exerciseTimestamp);
         exerciseWindow[1] = uint32(expiryTimestamp);
 
-        // bind strike price
+        // bind strike price and round to nearest million
         strikePrice = bound(
             strikePrice, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE()
         );
+        strikePrice = strikePrice - (strikePrice % (10 ** CONTRACT_SCALAR));
 
         // deal asset, approve clearinghouse, write option
         vm.startPrank(currentActor);
