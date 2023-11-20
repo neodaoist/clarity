@@ -5,7 +5,8 @@ pragma solidity 0.8.23;
 import "../BaseUnitTestSuite.t.sol";
 
 // Views Under Test
-import {IPosition} from "../../src/interface//IPosition.sol";
+import {IOption} from "../../src/interface/option/IOption.sol";
+import {IPosition} from "../../src/interface/IPosition.sol";
 
 contract PositionViewTest is BaseUnitTestSuite {
     /////////
@@ -19,7 +20,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0
         );
         vm.stopPrank();
 
@@ -46,9 +47,10 @@ contract PositionViewTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            americanExWeeklies[0],
+            expiryWeeklies[0],
             1750e18,
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
         );
         uint256 notCreatedOptionTokenId = LibPosition.hashToId(instrumentHash);
 
@@ -66,7 +68,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function testRevert_tokenType_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0
         );
         vm.stopPrank();
 
@@ -88,7 +90,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 1e6
         );
         vm.stopPrank();
 
@@ -140,7 +142,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 17e6
         );
 
         // When
@@ -159,7 +161,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 17e6
         );
 
         // When
@@ -179,7 +181,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         oti1 = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0.15e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0.15e6
         );
         vm.stopPrank();
 
@@ -202,7 +204,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         clarity.transfer(holder1, oti1, 0.35e6);
 
         // And holder1 exercises 0.2 options of oti1
-        vm.warp(americanExWeeklies[0][0]);
+        vm.warp(expiryWeeklies[1] - 1 seconds);
 
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -268,9 +270,10 @@ contract PositionViewTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            americanExWeeklies[0],
+            expiryWeeklies[0],
             1750e18,
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
         );
         uint256 notCreatedOptionTokenId = LibPosition.hashToId(instrumentHash);
 
@@ -288,7 +291,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function testRevert_position_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0
         );
         vm.stopPrank();
 

@@ -66,18 +66,15 @@ abstract contract BaseUnitTestSuite is Test {
     uint32 internal constant THU3 = DAWN + 20 days + 1 hours;
     uint32 internal constant THU4 = DAWN + 27 days + 1 hours;
 
-    uint32[][] internal americanExDailies;
-    uint32[][] internal americanExWeeklies;
-    uint32[][] internal americanExMonthlies;
-    uint32[][] internal americanExQuarterlies;
-    uint32[][] internal europeanExDailies;
-    uint32[][] internal europeanExWeeklies;
-    uint32[][] internal europeanExMonthlies;
-    uint32[][] internal europeanExQuarterlies;
-    uint32[] internal bermudanExEOW; // next 4 weeks
-    uint32[] internal bermudanExEOM; // next Oct, Nov, Dec, Jan
-    uint32[] internal bermudanExEOQ; // next Mar, Jun, Sep, Dec
-    uint32[] internal bermudanExEOY; // next 4 years
+    uint32[] internal expiryDailies;
+    uint32[] internal expiryWeeklies;
+    uint32[] internal expiryMonthlies;
+    uint32[] internal expiryQuarterlies;
+
+    uint32[] internal bermudanExpiriesFOW; // next 4 weeks
+    uint32[] internal bermudanExpiriesFOM; // next Oct, Nov, Dec, Jan
+    uint32[] internal bermudanExpiriesFOQ; // next Mar, Jun, Sep, Dec
+    uint32[] internal bermudanExpiriesFOY; // next 4 years
 
     uint256 internal constant NUM_TEST_EXERCISE_WINDOWS = 4;
 
@@ -144,35 +141,11 @@ abstract contract BaseUnitTestSuite is Test {
         holder3 = holders[2];
 
         // make test exercise windows
-        // American
-        americanExWeeklies = new uint32[][](4);
-        americanExWeeklies[0] = new uint32[](2);
-        americanExWeeklies[1] = new uint32[](2);
-        americanExWeeklies[2] = new uint32[](2);
-        americanExWeeklies[3] = new uint32[](2);
-        americanExWeeklies[0][0] = DAWN + 1 seconds;
-        americanExWeeklies[0][1] = FRI1;
-        americanExWeeklies[1][0] = FRI1 + 1 seconds;
-        americanExWeeklies[1][1] = FRI2;
-        americanExWeeklies[2][0] = FRI2 + 1 seconds;
-        americanExWeeklies[2][1] = FRI3;
-        americanExWeeklies[3][0] = FRI3 + 1 seconds;
-        americanExWeeklies[3][1] = FRI4;
-
-        // European
-        europeanExWeeklies = new uint32[][](4);
-        europeanExWeeklies[0] = new uint32[](2);
-        europeanExWeeklies[1] = new uint32[](2);
-        europeanExWeeklies[2] = new uint32[](2);
-        europeanExWeeklies[3] = new uint32[](2);
-        europeanExWeeklies[0][0] = FRI1 - 1 hours;
-        europeanExWeeklies[0][1] = FRI1;
-        europeanExWeeklies[1][0] = FRI2 - 1 hours;
-        europeanExWeeklies[1][1] = FRI2;
-        europeanExWeeklies[2][0] = FRI3 - 1 hours;
-        europeanExWeeklies[2][1] = FRI3;
-        europeanExWeeklies[3][0] = FRI4 - 1 hours;
-        europeanExWeeklies[3][1] = FRI4;
+        expiryWeeklies = new uint32[](4);
+        expiryWeeklies[0] = FRI1;
+        expiryWeeklies[1] = FRI2;
+        expiryWeeklies[2] = FRI3;
+        expiryWeeklies[3] = FRI4;
     }
 
     ///////// Actor Helpers

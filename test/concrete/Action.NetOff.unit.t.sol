@@ -20,7 +20,8 @@ contract NetOffTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, 
+            true,1e6
         );
         vm.stopPrank();
 
@@ -63,8 +64,9 @@ contract NetOffTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            exerciseWindow: americanExWeeklies[0],
+            expiry: expiryWeeklies[0],
             strike: 1750e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
 
@@ -91,7 +93,7 @@ contract NetOffTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
+            address(WETHLIKE), address(USDCLIKE), expiryWeeklies[0], 1750e18, true, 1e6
         );
         clarity.transfer(holder, optionTokenId, 0.1e6);
 
@@ -109,7 +111,7 @@ contract NetOffTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 1e6
+            address(WETHLIKE), address(USDCLIKE), expiryWeeklies[0], 1750e18, true, 1e6
         );
         clarity.transfer(holder, LibPosition.longToShort(optionTokenId), 0.1e6);
 

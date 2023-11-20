@@ -144,32 +144,22 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     ///////// Actions
 
     // Write
-
+    
     function writeNewCall(
         uint256 baseAssetIndex,
         uint256 quoteAssetIndex,
-        uint256 exerciseTimestamp,
-        uint256 expiryTimestamp,
+        uint32 expiry,
         uint256 strike,
+        bool allowEarlyExercise,
         uint64 optionAmount
     ) external createActor {
         // set assets
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
-        // set ExerciseWindow
-        exerciseTimestamp =
-            bound(exerciseTimestamp, block.timestamp, clarity.MAXIMUM_EXPIRY() - 365 days);
-        expiryTimestamp = bound(
-            expiryTimestamp, exerciseTimestamp + 1 seconds, clarity.MAXIMUM_EXPIRY()
-        );
-        uint32[] memory exerciseWindow = new uint32[](2);
-        exerciseWindow[0] = uint32(exerciseTimestamp);
-        exerciseWindow[1] = uint32(expiryTimestamp);
-
         // bind strike price
         strike =
-            bound(strike, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE());
+            bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
 
         // deal asset, approve clearinghouse, write option
         vm.startPrank(currentActor);
@@ -183,8 +173,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(baseAsset),
             quoteAsset: address(quoteAssets.at(quoteAssetIndex)),
-            exerciseWindow: exerciseWindow,
+            expiry: expiry,
             strike: strike,
+            allowEarlyExercise: allowEarlyExercise,
             optionAmount: optionAmount
         });
         vm.stopPrank();
@@ -202,28 +193,18 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     function writeNewPut(
         uint256 baseAssetIndex,
         uint256 quoteAssetIndex,
-        uint256 exerciseTimestamp,
-        uint256 expiryTimestamp,
+        uint32 expiry,
         uint256 strike,
+        bool allowEarlyExercise,
         uint64 optionAmount
     ) external createActor {
         // set assets
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
-        // bind ExerciseWindow
-        exerciseTimestamp =
-            bound(exerciseTimestamp, block.timestamp, clarity.MAXIMUM_EXPIRY() - 365 days);
-        expiryTimestamp = bound(
-            expiryTimestamp, exerciseTimestamp + 1 seconds, clarity.MAXIMUM_EXPIRY()
-        );
-        uint32[] memory exerciseWindow = new uint32[](2);
-        exerciseWindow[0] = uint32(exerciseTimestamp);
-        exerciseWindow[1] = uint32(expiryTimestamp);
-
         // bind strike price and round to nearest million
         strike =
-            bound(strike, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE());
+            bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
         strike = strike - (strike % (10 ** CONTRACT_SCALAR));
 
         // deal asset, approve clearinghouse, write option
@@ -238,8 +219,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(baseAssets.at(baseAssetIndex)),
             quoteAsset: address(quoteAsset),
-            exerciseWindow: exerciseWindow,
+            expiry: expiry,
             strike: strike,
+            allowEarlyExercise: allowEarlyExercise,
             optionAmount: optionAmount
         });
         vm.stopPrank();

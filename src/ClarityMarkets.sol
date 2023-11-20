@@ -620,7 +620,7 @@ contract ClarityMarkets is
             quoteAsset,
             expiry,
             strike,
-            allowEarlyExercise,
+            allowEarlyExercise ? ExerciseStyle.AMERICAN : ExerciseStyle.EUROPEAN,
             optionAmount,
             OptionType.CALL
         );
@@ -651,7 +651,7 @@ contract ClarityMarkets is
             quoteAsset,
             expiry,
             strike,
-            allowEarlyExercise,
+            allowEarlyExercise ? ExerciseStyle.AMERICAN : ExerciseStyle.EUROPEAN,
             optionAmount,
             OptionType.PUT
         );
@@ -664,7 +664,7 @@ contract ClarityMarkets is
         address quoteAsset,
         uint32 expiry,
         uint256 strike,
-        bool allowEarlyExercise,
+        ExerciseStyle exerciseStyle,
         uint64 optionAmount,
         OptionType _optionType
     ) private returns (uint256 _optionTokenId) {
@@ -714,10 +714,6 @@ contract ClarityMarkets is
                 exerciseAmount: assetInfo.baseDecimals.oneClearingUnit()
             });
         }
-
-        // Determine the exercise style
-        ExerciseStyle exerciseStyle = 
-            allowEarlyExercise ? ExerciseStyle.AMERICAN : ExerciseStyle.EUROPEAN;
 
         // Generate the option hash and option token id
         uint248 optionHash = LibOption.paramsToHash(

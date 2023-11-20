@@ -12,16 +12,17 @@ contract LibOptionTest is BaseUnitTestSuite {
 
     ///////// Instrument Hash
 
-    function test_paramsToHash() public {
+    function test_paramsToHash_whenEuropeanCall() public {
         uint248 expectedHash = uint248(
             bytes31(
                 keccak256(
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
-                        IOption.OptionType.CALL
+                        IOption.OptionType.CALL,
+                        IOption.ExerciseStyle.EUROPEAN
                     )
                 )
             )
@@ -29,9 +30,91 @@ contract LibOptionTest is BaseUnitTestSuite {
         uint248 actualHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
-            americanExWeeklies[0],
+            expiryWeeklies[0],
             uint256(1750e18),
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.EUROPEAN
+        );
+
+        assertEq(actualHash, expectedHash, "paramsToHash");
+    }
+
+    function test_paramsToHash_whenEuropeanPut() public {
+        uint248 expectedHash = uint248(
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        address(WETHLIKE),
+                        address(USDCLIKE),
+                        expiryWeeklies[0],
+                        uint256(1750e18),
+                        IOption.OptionType.PUT,
+                        IOption.ExerciseStyle.EUROPEAN
+                    )
+                )
+            )
+        );
+        uint248 actualHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(USDCLIKE),
+            expiryWeeklies[0],
+            uint256(1750e18),
+            IOption.OptionType.PUT,
+            IOption.ExerciseStyle.EUROPEAN
+        );
+
+        assertEq(actualHash, expectedHash, "paramsToHash");
+    }
+
+    function test_paramsToHash_whenAmericanCall() public {
+        uint248 expectedHash = uint248(
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        address(WETHLIKE),
+                        address(USDCLIKE),
+                        expiryWeeklies[0],
+                        uint256(1750e18),
+                        IOption.OptionType.CALL,
+                        IOption.ExerciseStyle.AMERICAN
+                    )
+                )
+            )
+        );
+        uint248 actualHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(USDCLIKE),
+            expiryWeeklies[0],
+            uint256(1750e18),
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
+        );
+
+        assertEq(actualHash, expectedHash, "paramsToHash");
+    }
+
+    function test_paramsToHash_whenAmericanPut() public {
+        uint248 expectedHash = uint248(
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        address(WETHLIKE),
+                        address(USDCLIKE),
+                        expiryWeeklies[0],
+                        uint256(1750e18),
+                        IOption.OptionType.PUT,
+                        IOption.ExerciseStyle.AMERICAN
+                    )
+                )
+            )
+        );
+        uint248 actualHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(USDCLIKE),
+            expiryWeeklies[0],
+            uint256(1750e18),
+            IOption.OptionType.PUT,
+            IOption.ExerciseStyle.AMERICAN
         );
 
         assertEq(actualHash, expectedHash, "paramsToHash");

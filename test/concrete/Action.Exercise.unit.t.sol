@@ -33,7 +33,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 2.25e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 2.25e6
         );
         bool success = clarity.transfer(holder, optionTokenId, 1.15e6);
         require(success);
@@ -92,7 +92,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
 
         // exercise
-        vm.warp(americanExWeeklies[0][1]);
+        vm.warp(expiryWeeklies[0]);
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -647,7 +647,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 0
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 0
         );
         for (uint256 i = 0; i < numWrites; i++) {
             uint64 amount = uint64(
@@ -696,7 +696,7 @@ contract ExerciseTest is BaseUnitTestSuite {
             "holder assigned balance before exercise"
         );
 
-        vm.warp(americanExWeeklies[0][0]);
+        vm.warp(expiryWeeklies[1] - 1 seconds);
         vm.startPrank(holder);
         LUSDLIKE.approve(
             address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000_000)
@@ -786,7 +786,7 @@ contract ExerciseTest is BaseUnitTestSuite {
     // STARTING_BALANCE));
     //     uint256 optionTokenId =
     //         clarity.writeNewCall(address(WETHLIKE), address(LUSDLIKE),
-    // americanExWeeklies[0], 1700e18, 1e6);
+    // expiryWeeklies[0], 1700e18, 1e6);
     //     vm.stopPrank();
 
     //     uint256 short = Y;
@@ -808,32 +808,32 @@ contract ExerciseTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 1e6
         );
         vm.stopPrank();
 
         // before exerciseTimestamp
-        vm.warp(americanExWeeklies[0][0] - 1 seconds);
+        vm.warp(expiryWeeklies[0] - 1 seconds);
 
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.OptionNotWithinExerciseWindow.selector,
-                americanExWeeklies[0][0],
-                americanExWeeklies[0][1]
+                1,
+                expiryWeeklies[0]
             )
         );
 
         vm.prank(writer);
         clarity.exerciseLongs(optionTokenId, 1e6);
 
-        // after expityTimestamp
-        vm.warp(americanExWeeklies[0][1] + 1 seconds);
+        // after expiryTimestamp
+        vm.warp(expiryWeeklies[0] + 1 seconds);
 
         vm.expectRevert(
             abi.encodeWithSelector(
                 IOptionErrors.OptionNotWithinExerciseWindow.selector,
-                americanExWeeklies[0][0],
-                americanExWeeklies[0][1]
+                1,
+                expiryWeeklies[0]
             )
         );
 
@@ -845,11 +845,11 @@ contract ExerciseTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18,true, 1e6
         );
         vm.stopPrank();
 
-        vm.warp(americanExWeeklies[0][0]);
+        vm.warp(expiryWeeklies[1] - 1 seconds);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -866,10 +866,6 @@ contract ExerciseTest is BaseUnitTestSuite {
     ///////// Test Backgrounds
 
     modifier withSimpleBackground() {
-        uint32[] memory exerciseWindow = new uint32[](2);
-        exerciseWindow[0] = FRI1 + 1 seconds;
-        exerciseWindow[1] = FRI2;
-
         writer1WethBalance = WETHLIKE.balanceOf(writer1);
         writer1LusdBalance = LUSDLIKE.balanceOf(writer1);
         writer2WethBalance = WETHLIKE.balanceOf(writer2);
@@ -881,7 +877,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         oti1 = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), exerciseWindow, 1750e18, 0.15e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0.15e6
         );
         vm.stopPrank();
 
@@ -985,7 +981,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
 
         // warp to exercise window
-        vm.warp(exerciseWindow[0]);
+        vm.warp(expiryWeeklies[0]);
 
         _;
     }
@@ -1012,7 +1008,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         oti1 = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1700e18, 1.25e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 1.25e6
         );
         vm.stopPrank();
 
@@ -1029,7 +1025,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         // And writer1 writes 1 option of oti2
         vm.prank(writer1);
         oti2 = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
+            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 1e6
         );
 
         // And writer1 writes 1 option of oti1
@@ -1217,7 +1213,7 @@ contract ExerciseTest is BaseUnitTestSuite {
         );
 
         // warp to exercise window
-        vm.warp(americanExWeeklies[0][1]);
+        vm.warp(expiryWeeklies[0]);
 
         _;
     }

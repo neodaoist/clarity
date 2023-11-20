@@ -35,9 +35,10 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
-                        IOption.OptionType.CALL
+                        IOption.OptionType.CALL,
+                        IOption.ExerciseStyle.AMERICAN
                     )
                 )
             )
@@ -46,9 +47,10 @@ contract LibPositionTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
-            americanExWeeklies[0],
+            expiryWeeklies[0],
             uint256(1750e18),
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
         );
         uint256 tokenId = LibPosition.hashToId(instrumentHash);
         uint248 actualHash = LibPosition.idToHash(tokenId);
@@ -63,7 +65,7 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
                         IOption.OptionType.CALL
                     )
@@ -84,7 +86,7 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
                         IOption.OptionType.CALL
                     )
@@ -105,7 +107,7 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
                         IOption.OptionType.CALL
                     )
@@ -125,7 +127,7 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
                         IOption.OptionType.CALL
                     )
@@ -150,7 +152,7 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
                         IOption.OptionType.CALL
                     )
@@ -174,7 +176,7 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
                         IOption.OptionType.CALL
                     )
@@ -201,7 +203,7 @@ contract LibPositionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        expiryWeeklies[0],
                         uint256(1750e18),
                         IOption.OptionType.CALL
                     )
