@@ -29,6 +29,7 @@ fail_on_revert = true
 
 [fmt]
 bracket_spacing = false
+ignore = ["src/interface/option/IOptionViews.sol", "src/interface/option/IOptionActions.sol"]
 int_types = "long"
 line_length = 90
 multiline_func_header = "attributes_first"
