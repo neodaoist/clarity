@@ -190,7 +190,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1750e18,
+            strike: 1750e18,
             optionType: IOption.OptionType.CALL
         }).hashToId();
 
@@ -439,7 +439,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1750e18,
+            strike: 1750e18,
             optionType: IOption.OptionType.CALL
         }).hashToId();
 

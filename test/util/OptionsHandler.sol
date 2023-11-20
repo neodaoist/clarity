@@ -150,7 +150,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 quoteAssetIndex,
         uint256 exerciseTimestamp,
         uint256 expiryTimestamp,
-        uint256 strikePrice,
+        uint256 strike,
         uint64 optionAmount
     ) external createActor {
         // set assets
@@ -168,9 +168,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         exerciseWindow[1] = uint32(expiryTimestamp);
 
         // bind strike price
-        strikePrice = bound(
-            strikePrice, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE()
-        );
+        strike =
+            bound(strike, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE());
 
         // deal asset, approve clearinghouse, write option
         vm.startPrank(currentActor);
@@ -185,7 +184,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             baseAsset: address(baseAsset),
             quoteAsset: address(quoteAssets.at(quoteAssetIndex)),
             exerciseWindow: exerciseWindow,
-            strikePrice: strikePrice,
+            strike: strike,
             optionAmount: optionAmount
         });
         vm.stopPrank();
@@ -205,7 +204,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 quoteAssetIndex,
         uint256 exerciseTimestamp,
         uint256 expiryTimestamp,
-        uint256 strikePrice,
+        uint256 strike,
         uint64 optionAmount
     ) external createActor {
         // set assets
@@ -223,16 +222,15 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         exerciseWindow[1] = uint32(expiryTimestamp);
 
         // bind strike price and round to nearest million
-        strikePrice = bound(
-            strikePrice, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE()
-        );
-        strikePrice = strikePrice - (strikePrice % (10 ** CONTRACT_SCALAR));
+        strike =
+            bound(strike, clarity.MINIMUM_STRIKE_PRICE(), clarity.MAXIMUM_STRIKE_PRICE());
+        strike = strike - (strike % (10 ** CONTRACT_SCALAR));
 
         // deal asset, approve clearinghouse, write option
         vm.startPrank(currentActor);
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
-        uint256 fullAmountForWrite = scaleUpFullWriteAmountPut(strikePrice * optionAmount);
+        uint256 fullAmountForWrite = scaleUpFullWriteAmountPut(strike * optionAmount);
         deal(address(quoteAsset), currentActor, fullAmountForWrite);
 
         quoteAsset.approve(address(clarity), type(uint256).max);
@@ -241,7 +239,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             baseAsset: address(baseAssets.at(baseAssetIndex)),
             quoteAsset: address(quoteAsset),
             exerciseWindow: exerciseWindow,
-            strikePrice: strikePrice,
+            strike: strike,
             optionAmount: optionAmount
         });
         vm.stopPrank();

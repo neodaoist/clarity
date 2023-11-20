@@ -20,7 +20,7 @@ library LibMetadata {
         string quoteAssetSymbol;
         string expiry;
         string exerciseStyle;
-        string strikePrice;
+        string strike;
     }
 
     ///////// Ticker
@@ -34,7 +34,7 @@ library LibMetadata {
         string memory quoteAssetSymbol,
         string memory expiry,
         IOption.ExerciseStyle exerciseStyle,
-        string memory strikePrice,
+        string memory strike,
         IOption.OptionType optionType
     ) internal pure returns (string memory ticker) {
         ticker = string.concat(
@@ -46,7 +46,7 @@ library LibMetadata {
             "-",
             (exerciseStyle == IOption.ExerciseStyle.AMERICAN) ? "A" : "E",
             "-",
-            strikePrice,
+            strike,
             "-",
             (optionType == IOption.OptionType.CALL ? "C" : "P")
         );
@@ -115,7 +115,7 @@ library LibMetadata {
             '", "exerciseLongs_style": "',
             parameters.exerciseStyle,
             '", "strike_price": "',
-            parameters.strikePrice
+            parameters.strike
         );
     }
 
@@ -173,7 +173,7 @@ library LibMetadata {
             '</text><text x="50" y="272" class="secondary">Exercise style: ',
             parameters.exerciseStyle,
             '</text><text x="50" y="308" class="secondary">Strike price: ',
-            parameters.strikePrice
+            parameters.strike
         );
     }
 

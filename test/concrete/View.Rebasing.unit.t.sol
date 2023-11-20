@@ -60,7 +60,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: 0
         });
 
@@ -79,7 +79,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: SOME_WRITTEN
         });
         vm.stopPrank();
@@ -98,7 +98,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: MANY_WRITTEN
         });
         vm.stopPrank();
@@ -118,7 +118,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: MAX_WRITTEN
         });
         vm.stopPrank();
@@ -146,7 +146,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
             vm.stopPrank();
@@ -175,7 +175,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -209,7 +209,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -242,7 +242,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -271,7 +271,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -309,7 +309,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -349,7 +349,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -388,7 +388,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -426,7 +426,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -464,7 +464,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -535,7 +535,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: 0
         });
 
@@ -554,7 +554,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: SOME_WRITTEN
         });
         vm.stopPrank();
@@ -575,7 +575,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: MANY_WRITTEN
         });
         vm.stopPrank();
@@ -597,7 +597,7 @@ contract RebasingTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            strike: 1900e18,
             optionAmount: MAX_WRITTEN
         });
         vm.stopPrank();
@@ -627,7 +627,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
             vm.stopPrank();
@@ -661,7 +661,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -697,7 +697,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -730,7 +730,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -761,7 +761,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -801,7 +801,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -843,7 +843,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -884,7 +884,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -924,7 +924,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 
@@ -962,7 +962,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
                 exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                strike: (1900 + i) * 1e18, // unique option for each test
                 optionAmount: amountWritten
             });
 

@@ -64,7 +64,7 @@ contract NetOffTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1750e18,
+            strike: 1750e18,
             optionAmount: 1e6
         });
 

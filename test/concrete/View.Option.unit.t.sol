@@ -24,7 +24,7 @@ contract OptionViewTest is BaseUnitTestSuite {
     //     address baseAsset,
     //     address quoteAsset,
     //     uint32[] calldata exerciseWindows,
-    //     uint256 strikePrice,
+    //     uint256 strike,
     //     bool isCall
     // ) external view returns (uint256 optionTokenId);
 
@@ -35,7 +35,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -44,7 +44,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             isCall: true
         });
 
@@ -58,7 +58,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -67,7 +67,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             isCall: false
         });
 
@@ -81,7 +81,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -90,7 +90,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             isCall: true
         });
 
@@ -104,7 +104,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -113,7 +113,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             isCall: false
         });
 
@@ -127,7 +127,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionType: IOption.OptionType.CALL
         }).hashToId();
 
@@ -141,7 +141,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             isCall: true
         });
     }
@@ -157,7 +157,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -166,7 +166,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -181,7 +181,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -190,7 +190,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -205,7 +205,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -214,7 +214,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.EUROPEAN
         });
@@ -229,7 +229,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -238,7 +238,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: europeanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.EUROPEAN
         });
@@ -253,7 +253,7 @@ contract OptionViewTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionType: IOption.OptionType.CALL
         }).hashToId();
 

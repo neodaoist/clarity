@@ -37,7 +37,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
@@ -63,7 +63,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
@@ -103,7 +103,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -135,7 +135,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -186,7 +186,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -233,7 +233,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -281,7 +281,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
@@ -307,7 +307,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
@@ -349,7 +349,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -381,7 +381,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -434,7 +434,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -483,7 +483,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         clarity.transfer(holder, optionTokenId, 2.25e6);
@@ -535,7 +535,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         }).longToShort();
 
@@ -558,7 +558,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         }).longToShort();
 
@@ -583,7 +583,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
@@ -606,7 +606,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
@@ -630,7 +630,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL
         }).hashToId().longToShort();
 
@@ -654,7 +654,7 @@ contract RedeemTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 2.25e6
         }).longToShort();
         clarity.transfer(holder, shortTokenId, 2.25e6);

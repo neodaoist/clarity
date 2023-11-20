@@ -20,7 +20,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
     //     string memory quoteAssetSymbol,
     //     uint32 expiry,
     //     IOption.ExerciseStyle exerciseStyle,
-    //     uint256 strikePrice,
+    //     uint256 strike,
     //     IOption.OptionType optionType;
 
     function test_paramsToTicker_whenAmerican() public {
@@ -373,7 +373,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -405,7 +405,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -439,7 +439,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -475,7 +475,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -513,7 +513,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -550,7 +550,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -593,7 +593,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow1,
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -627,7 +627,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow1,
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -668,7 +668,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow2,
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -702,7 +702,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow2,
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -743,7 +743,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow3,
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -777,7 +777,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: exWindow3,
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -813,7 +813,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -847,7 +847,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -883,7 +883,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 2022e18,
+            strike: 2022e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -917,7 +917,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 2022e18,
+            strike: 2022e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -953,7 +953,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 35_000e18,
+            strike: 35_000e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -987,7 +987,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 35_000e18,
+            strike: 35_000e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -1026,7 +1026,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -1049,7 +1049,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e6,
+            strike: 1700e6,
             optionAmount: 1e6
         });
         vm.stopPrank();

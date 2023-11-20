@@ -52,20 +52,9 @@ contract LibOptionTest is BaseUnitTestSuite {
         );
     }
 
-    ///////// Exercise Style
-
-    function test_determineExerciseStyle() public {
-        assertEq(
-            LibOption.determineExerciseStyle(americanExWeeklies[0]),
-            IOption.ExerciseStyle.AMERICAN,
-            "determineExerciseStyle should return AMERICAN for American-style exercise window"
-        );
-        assertEq(
-            LibOption.determineExerciseStyle(europeanExWeeklies[0]),
-            IOption.ExerciseStyle.EUROPEAN,
-            "determineExerciseStyle should return EUROPEAN for European-style exercise window"
-        );
-    }
+    ///////// String Conversion for...
+    
+    // Exercise Style
 
     function test_exerciseStyle_toString() public {
         assertEq(
@@ -80,26 +69,13 @@ contract LibOptionTest is BaseUnitTestSuite {
         );
     }
 
-    ///////// Exercise Window
+    // Strike Price
 
-    function test_toExerciseWindow() public {
-        IOption.ExerciseWindow memory expectedExerciseWindow =
-            IOption.ExerciseWindow(americanExWeeklies[0][0], americanExWeeklies[0][1]);
-        IOption.ExerciseWindow memory actualExerciseWindow =
-            LibOption.toExerciseWindow(americanExWeeklies[0]);
-
-        assertEq(
-            actualExerciseWindow,
-            expectedExerciseWindow,
-            "toExerciseWindow should return the correct ExerciseWindow"
-        );
-    }
-
-    ///////// String Conversion for Strike Price and Unix Timestamp
-
-    function test_strikePrice_toString() public {
+    function test_strike_toString() public {
         assertEq(LibOption.toString(1750), "1750", "toString(1750) should return '1750'");
     }
+
+    // Unix Timestamp
 
     function test_unixTimestamp_toString() public {
         assertEq(

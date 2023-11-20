@@ -59,7 +59,7 @@ contract ClarityMarkets is
 
     using LibOption for uint32;
     using LibOption for uint64;
-    using LibOption for uint32[];
+    using LibOption for uint256;
     using LibOption for OptionType;
     using LibOption for ExerciseStyle;
 
@@ -81,9 +81,9 @@ contract ClarityMarkets is
         // slot 1
         address exerciseAsset;
         uint64 exerciseAmount;
+        uint32 expiry;
         // slot 2
         OptionState optionState;
-        ExerciseWindow exerciseWindow;
     }
 
     /// @dev Storage struct for the state of an option
@@ -135,10 +135,10 @@ contract ClarityMarkets is
     uint32 public constant MAXIMUM_EXPIRY = 4_294_967_295;
 
     /// @notice The minimum strike price for a Clarity derivative
-    uint24 public constant MINIMUM_STRIKE_PRICE = 1e6;
+    uint24 public constant MINIMUM_STRIKE = 1e6;
 
     /// @notice The maximum strike price for a Clarity derivative
-    uint104 public constant MAXIMUM_STRIKE_PRICE = 18_446_744_073_709_551_615e6;
+    uint104 public constant MAXIMUM_STRIKE = 18_446_744_073_709_551_615e6;
 
     /// @notice The maximum amount that can be written for a Clarity derivative
     uint64 public constant MAXIMUM_WRITABLE = 18_446_744_073_709_551_615;
@@ -165,32 +165,39 @@ contract ClarityMarkets is
 
     // TODO make this not revert, add info on best practice to check for empty
 
-    /// @notice Returns the token id for a given option, if it has been written already,
-    /// otherwise reverts
-    /// @param baseAsset The base asset of the option (typically the volatile asset in a
-    /// pair)
-    /// @param quoteAsset The quote asset of the option (the asset in which the strike
-    /// price is denominated)
-    /// @param exerciseWindow The timeframe(s) during which this option can be exercised,
-    /// inclusive
-    /// @param strikePrice The strike price of the option, denominated in the quote asset
-    /// @param isCall Whether the option is a call or a put
-    /// @return _optionTokenId The token id of the option
+    // / @notice Returns the token id for a given option, if it has been written already,
+    // / otherwise reverts
+    // / @param baseAsset The base asset of the option (typically the volatile asset in a
+    // / pair)
+    // / @param quoteAsset The quote asset of the option (the asset in which the strike
+    // / price is denominated)
+    // / @param exerciseWindow The timeframe(s) during which this option can be exercised,
+    // / inclusive
+    // / @param strike The strike price of the option, denominated in the quote asset
+    // / @param isCall Whether the option is a call or a put
+    // / @return _optionTokenId The token id of the option
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindow,
-        uint256 strikePrice,
-        bool isCall
+        uint32[] calldata expiries,
+        uint256 strike,
+        uint8 optionType,
+        uint8 exerciseStyle
     ) external view returns (uint256 _optionTokenId) {
         // Hash the option
-        uint248 optionHash = LibOption.paramsToHash(
-            baseAsset,
-            quoteAsset,
-            exerciseWindow,
-            strikePrice,
-            isCall ? OptionType.CALL : OptionType.PUT
-        );
+        uint248 optionHash;
+        if (exerciseStyle == uint8(ExerciseStyle.BERMUDAN)) {
+            // TODO
+        } else {
+            optionHash = LibOption.paramsToHash(
+                baseAsset,
+                quoteAsset,
+                expiries[0],
+                strike,
+                OptionType(optionType),
+                ExerciseStyle(exerciseStyle)
+            );
+        }
 
         // Check that the option has been created
         OptionStorage storage optionStored = optionStorage[optionHash];
@@ -215,20 +222,24 @@ contract ClarityMarkets is
 
         // Build the user-friendly Option struct
         if (optionStored.optionType == OptionType.CALL) {
-            _option.baseAsset = writeAsset;
-            _option.quoteAsset = optionStored.exerciseAsset;
-            _option.strikePrice =
-                optionStored.exerciseAmount.clearingScaledUpToActualStrike();
-            _option.optionType = OptionType.CALL;
+            _option = Option({
+                baseAsset: writeAsset,
+                quoteAsset: optionStored.exerciseAsset,
+                strike: optionStored.exerciseAmount.clearingScaledUpToActualStrike(),
+                expiry: optionStored.expiry,
+                optionType: OptionType.CALL,
+                exerciseStyle: optionStored.exerciseStyle
+            });
         } else {
-            _option.baseAsset = optionStored.exerciseAsset;
-            _option.quoteAsset = writeAsset;
-            _option.strikePrice =
-                optionStored.writeAmount.clearingScaledUpToActualStrike();
-            _option.optionType = OptionType.PUT;
+            _option = Option({
+                baseAsset: optionStored.exerciseAsset,
+                quoteAsset: writeAsset,
+                strike: optionStored.writeAmount.clearingScaledUpToActualStrike(),
+                expiry: optionStored.expiry,
+                optionType: OptionType.PUT,
+                exerciseStyle: optionStored.exerciseStyle
+            });
         }
-        _option.exerciseWindow = optionStored.exerciseWindow;
-        _option.exerciseStyle = optionStored.exerciseStyle;
     }
 
     // Position
@@ -507,9 +518,9 @@ contract ClarityMarkets is
                 tokenType: tokenId.tokenType().toString(),
                 baseAssetSymbol: baseAssetStored.symbol.toString(),
                 quoteAssetSymbol: quoteAssetStored.symbol.toString(),
-                expiry: optionStored.exerciseWindow.expiryTimestamp.toString(),
+                expiry: optionStored.expiry.toString(),
                 exerciseStyle: optionStored.exerciseStyle.toString(),
-                strikePrice: quoteAmount.clearingScaledDownToHumanReadableStrike(
+                strike: quoteAmount.clearingScaledDownToHumanReadableStrike(
                     quoteAssetStored.decimals
                     ).toString()
             })
@@ -591,23 +602,25 @@ contract ClarityMarkets is
     /// pair)
     /// @param quoteAsset The quote asset of the option (the asset in which the strike is
     /// denominated)
-    /// @param exerciseWindow The timeframe(s) during which this option can be exercised,
-    /// inclusive
-    /// @param strikePrice The strike price of the option, denominated in the quote asset
+    /// @param expiry TODO
+    /// @param strike The strike price of the option, denominated in the quote asset
+    /// @param allowEarlyExercise TODO
     /// @param optionAmount The amount of options to write
     /// @return _optionTokenId The token id of the option
     function writeNewCall(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindow,
-        uint256 strikePrice,
+        uint32 expiry,
+        uint256 strike,
+        bool allowEarlyExercise,
         uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
         _optionTokenId = _writeNew(
             baseAsset,
             quoteAsset,
-            exerciseWindow,
-            strikePrice,
+            expiry,
+            strike,
+            allowEarlyExercise,
             optionAmount,
             OptionType.CALL
         );
@@ -620,23 +633,25 @@ contract ClarityMarkets is
     /// pair)
     /// @param quoteAsset The quote asset of the option (the asset in which the strike is
     /// denominated)
-    /// @param exerciseWindow The timeframe(s) during which this option can be exercised,
-    /// inclusive
-    /// @param strikePrice The strike price of the option, denominated in the quote asset
+    /// @param expiry TODO
+    /// @param strike The strike price of the option, denominated in the quote asset
+    /// @param allowEarlyExercise TODO
     /// @param optionAmount The amount of options to write
     /// @return _optionTokenId The token id of the option
     function writeNewPut(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindow,
-        uint256 strikePrice,
+        uint32 expiry,
+        uint256 strike,
+        bool allowEarlyExercise,
         uint64 optionAmount
     ) external returns (uint256 _optionTokenId) {
         _optionTokenId = _writeNew(
             baseAsset,
             quoteAsset,
-            exerciseWindow,
-            strikePrice,
+            expiry,
+            strike,
+            allowEarlyExercise,
             optionAmount,
             OptionType.PUT
         );
@@ -647,8 +662,9 @@ contract ClarityMarkets is
     function _writeNew(
         address baseAsset,
         address quoteAsset,
-        uint32[] calldata exerciseWindow,
-        uint256 strikePrice,
+        uint32 expiry,
+        uint256 strike,
+        bool allowEarlyExercise,
         uint64 optionAmount,
         OptionType _optionType
     ) private returns (uint256 _optionTokenId) {
@@ -686,22 +702,26 @@ contract ClarityMarkets is
                 writeAmount: assetInfo.baseDecimals.oneClearingUnit(),
                 exerciseAsset: quoteAsset,
                 exerciseDecimals: assetInfo.quoteDecimals,
-                exerciseAmount: strikePrice.actualScaledDownToClearingStrikeUnit()
+                exerciseAmount: strike.actualScaledDownToClearingStrikeUnit()
             });
         } else {
             clearingInfo = OptionClearingInfo({
                 writeAsset: quoteAsset,
                 writeDecimals: assetInfo.quoteDecimals,
-                writeAmount: strikePrice.actualScaledDownToClearingStrikeUnit(),
+                writeAmount: strike.actualScaledDownToClearingStrikeUnit(),
                 exerciseAsset: baseAsset,
                 exerciseDecimals: assetInfo.baseDecimals,
                 exerciseAmount: assetInfo.baseDecimals.oneClearingUnit()
             });
         }
 
+        // Determine the exercise style
+        ExerciseStyle exerciseStyle = 
+            allowEarlyExercise ? ExerciseStyle.AMERICAN : ExerciseStyle.EUROPEAN;
+
         // Generate the option hash and option token id
         uint248 optionHash = LibOption.paramsToHash(
-            baseAsset, quoteAsset, exerciseWindow, strikePrice, _optionType
+            baseAsset, quoteAsset, expiry, strike, _optionType, exerciseStyle
         );
         _optionTokenId = optionHash.hashToId();
 
@@ -711,29 +731,29 @@ contract ClarityMarkets is
         }
 
         // Check that the exercise window is valid
-        if (exerciseWindow.length != 2) {
-            revert ExerciseWindowMispaired();
-        }
-        if (exerciseWindow[0] == exerciseWindow[1]) {
-            revert ExerciseWindowZeroTime(exerciseWindow[0], exerciseWindow[1]);
-        }
-        if (exerciseWindow[0] > exerciseWindow[1]) {
-            revert ExerciseWindowMisordered(exerciseWindow[0], exerciseWindow[1]);
-        }
-        if (exerciseWindow[1] <= block.timestamp) {
-            revert ExerciseWindowExpiryPast(exerciseWindow[1]);
+        // if (exerciseWindow.length != 2) {
+        //     revert ExerciseWindowMispaired();
+        // }
+        // if (exerciseWindow[0] == exerciseWindow[1]) {
+        //     revert ExerciseWindowZeroTime(exerciseWindow[0], exerciseWindow[1]);
+        // }
+        // if (exerciseWindow[0] > exerciseWindow[1]) {
+        //     revert ExerciseWindowMisordered(exerciseWindow[0], exerciseWindow[1]);
+        // }
+        if (expiry <= block.timestamp) {
+            revert ExerciseWindowExpiryPast(expiry);
         }
         // Not possible with strongly typed input args
-        if (exerciseWindow[1] > MAXIMUM_EXPIRY) {
-            revert ExerciseWindowExpiryTooFarInFuture(exerciseWindow[1]);
+        if (expiry > MAXIMUM_EXPIRY) {
+            revert ExerciseWindowExpiryTooFarInFuture(expiry);
         }
 
         // Check that strike price is valid
-        if (strikePrice < MINIMUM_STRIKE_PRICE) {
-            revert StrikePriceTooSmall(strikePrice);
+        if (strike < MINIMUM_STRIKE) {
+            revert StrikePriceTooSmall(strike);
         }
-        if (strikePrice > MAXIMUM_STRIKE_PRICE) {
-            revert StrikePriceTooLarge(strikePrice);
+        if (strike > MAXIMUM_STRIKE) {
+            revert StrikePriceTooLarge(strike);
         }
 
         // Check that option amount does not exceed max writable
@@ -742,8 +762,6 @@ contract ClarityMarkets is
         }
 
         ///////// Effects
-        // Determine the exercise style
-        ExerciseStyle exerciseStyle = exerciseWindow.determineExerciseStyle();
 
         // Store the option
         optionStorage[optionHash] = OptionStorage({
@@ -753,22 +771,22 @@ contract ClarityMarkets is
             exerciseStyle: exerciseStyle,
             exerciseAsset: clearingInfo.exerciseAsset,
             exerciseAmount: clearingInfo.exerciseAmount,
+            expiry: expiry,
             optionState: OptionState({
                 amountWritten: optionAmount,
                 amountNettedOff: 0,
                 amountExercised: 0
-            }),
-            exerciseWindow: exerciseWindow.toExerciseWindow()
+            })
         });
 
         // Store the base ticker
         tickers[optionHash] = LibMetadata.paramsToTicker(
             assetInfo.baseSymbol,
             assetInfo.quoteSymbol,
-            exerciseWindow[1].toString(),
+            expiry.toString(),
             exerciseStyle,
-            strikePrice.actualScaledDownToHumanReadableStrike(assetInfo.quoteDecimals)
-                .toString(),
+            strike.actualScaledDownToHumanReadableStrike(assetInfo.quoteDecimals).toString(
+            ),
             _optionType
         );
 
@@ -791,13 +809,7 @@ contract ClarityMarkets is
         // Log event (ideally this would be emitted in the Interactions section,
         // but emitting here affords DRYer business logic for write)
         emit OptionCreated(
-            _optionTokenId,
-            baseAsset,
-            quoteAsset,
-            exerciseWindow[0],
-            exerciseWindow[1],
-            strikePrice,
-            OptionType.CALL
+            _optionTokenId, baseAsset, quoteAsset, expiry, strike, _optionType, exerciseStyle
         );
 
         // If the option amount is non-zero, actually write some options
@@ -861,9 +873,9 @@ contract ClarityMarkets is
         }
 
         // Check that the option is not expired
-        uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
-        if (expiryTimestamp < block.timestamp) {
-            revert OptionExpired(_optionTokenId, expiryTimestamp);
+        uint32 expiry = optionStored.expiry;
+        if (expiry < block.timestamp) {
+            revert OptionExpired(_optionTokenId, expiry);
         }
 
         // Check that amount is not greater than the remaining writable amount
@@ -940,6 +952,9 @@ contract ClarityMarkets is
         // Check that the position token type is a long
         // TODO
 
+        // Check that not expired, otherwise they can just redeem
+        // TODO
+
         // Check that the caller holds sufficient longs and shorts to net off
         OptionState storage optionState = optionStored.optionState;
         if (optionAmount > _balanceOf(msg.sender, _optionTokenId, optionState)) {
@@ -1004,18 +1019,24 @@ contract ClarityMarkets is
 
         // Scope to avoid stack too deep
         {
-            // Check that the option is within an exercise window
-            uint32 exerciseTimestamp = optionStored.exerciseWindow.exerciseTimestamp;
-            uint32 expiryTimestamp = optionStored.exerciseWindow.expiryTimestamp;
-            if (block.timestamp < exerciseTimestamp || block.timestamp > expiryTimestamp)
-            {
-                revert OptionNotWithinExerciseWindow(exerciseTimestamp, expiryTimestamp);
+            // Check that the option is within the exercise window
+            uint32 expiry = optionStored.expiry;
+            if (optionStored.exerciseStyle == ExerciseStyle.AMERICAN) {
+                if (block.timestamp > expiry) {
+                    revert OptionNotWithinExerciseWindow(1, expiry);
+                }
+            } else if (optionStored.exerciseStyle == ExerciseStyle.EUROPEAN) {
+                if (block.timestamp > expiry || block.timestamp < expiry - 1 days) {
+                    revert OptionNotWithinExerciseWindow(expiry - 1 days, expiry);
+                }
+            } else if (optionStored.exerciseStyle == ExerciseStyle.BERMUDAN) {
+                // TODO
+            } else {
+                revert(); // should be unreachable
             }
 
             // Check that the caller holds sufficient longs to exercise
-            // TODO improve gas efficiency
-            uint256 optionBalance =
-                _balanceOf(msg.sender, _optionTokenId, optionStored.optionState);
+            uint256 optionBalance = internalBalanceOf[msg.sender][_optionTokenId];
             if (optionAmount > optionBalance) {
                 revert ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
             }
@@ -1099,7 +1120,7 @@ contract ClarityMarkets is
                 optionStored.exerciseAmount * uint128(assignedShortAmount);
         } else {
             // Perform additional check that the option is expired
-            if (block.timestamp <= optionStored.exerciseWindow.expiryTimestamp) {
+            if (block.timestamp <= optionStored.expiry) {
                 revert EarlyRedemptionOnlyIfFullyAssigned();
             }
 

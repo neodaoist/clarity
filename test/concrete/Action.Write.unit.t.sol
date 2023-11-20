@@ -14,7 +14,7 @@ contract WriteTest is BaseUnitTestSuite {
     //     address baseAsset,
     //     address quoteAsset,
     //     uint32[] calldata exerciseWindows,
-    //     uint256 strikePrice,
+    //     uint256 strike,
     //     uint64 optionAmount
     // ) external returns (uint256 optionTokenId);
 
@@ -28,7 +28,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -38,7 +38,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -62,7 +62,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -71,7 +71,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -105,7 +105,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0.0275e6
         });
         vm.stopPrank();
@@ -115,7 +115,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -140,7 +140,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1750e18,
+            strike: 1750e18,
             optionAmount: 17e6
         });
 
@@ -149,7 +149,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1750e18,
+            strike: 1750e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -172,7 +172,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[1],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
 
@@ -181,7 +181,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[1].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -204,7 +204,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 20_000e18,
+            strike: 20_000e18,
             optionAmount: 10e6
         });
         vm.stopPrank();
@@ -214,7 +214,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 20_000e18,
+            strike: 20_000e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -236,7 +236,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1800e6,
+            strike: 1800e6,
             optionAmount: 1e6
         });
 
@@ -245,7 +245,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1800e6,
+            strike: 1800e6,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -280,7 +280,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: farInFutureExerciseWindow,
-            strikePrice: 2000e18,
+            strike: 2000e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -294,7 +294,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: (2 ** 64 - 1) * 1e6,
+            strike: (2 ** 64 - 1) * 1e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -313,7 +313,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            strike: 1950e18,
             optionAmount: maximumAmount
         });
         vm.stopPrank();
@@ -329,7 +329,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL
         });
         uint256 expectedOptionTokenId = LibPosition.hashToId(instrumentHash);
@@ -349,7 +349,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -363,7 +363,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL
         });
         uint256 expectedOptionTokenId = LibPosition.hashToId(instrumentHash);
@@ -375,7 +375,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0.005e6
         });
         vm.stopPrank();
@@ -397,7 +397,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(WETHLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -420,7 +420,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -443,7 +443,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -466,7 +466,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -489,7 +489,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -502,7 +502,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -522,7 +522,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0.8e6
         });
     }
@@ -538,7 +538,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: mispaired,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -559,7 +559,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: zeroTime,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -580,7 +580,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: misordered,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -601,7 +601,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: expiryPast,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -616,7 +616,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1e6 - 1,
+            strike: 1e6 - 1,
             optionAmount: 1e6
         });
     }
@@ -633,7 +633,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: tooLarge,
+            strike: tooLarge,
             optionAmount: 1e6
         });
     }
@@ -650,7 +650,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -669,7 +669,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -680,7 +680,7 @@ contract WriteTest is BaseUnitTestSuite {
     //     address baseAsset,
     //     address quoteAsset,
     //     uint32[] calldata exerciseWindow,
-    //     uint256 strikePrice,
+    //     uint256 strike,
     //     uint64 optionAmount
     // ) external returns (uint256 _optionTokenId);
 
@@ -694,7 +694,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -704,7 +704,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -728,7 +728,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -737,7 +737,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -771,7 +771,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0.0275e6
         });
         vm.stopPrank();
@@ -781,7 +781,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -806,7 +806,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1750e18,
+            strike: 1750e18,
             optionAmount: 17e6
         });
 
@@ -815,7 +815,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1750e18,
+            strike: 1750e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -840,7 +840,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[1],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
 
@@ -849,7 +849,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[1].toExerciseWindow(),
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -874,7 +874,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 20_000e18,
+            strike: 20_000e18,
             optionAmount: 10e6
         });
         vm.stopPrank();
@@ -884,7 +884,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 20_000e18,
+            strike: 20_000e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -909,7 +909,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1800e6,
+            strike: 1800e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -919,7 +919,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
             exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1800e6,
+            strike: 1800e6,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -954,7 +954,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: farInFutureExerciseWindow,
-            strikePrice: 2000e18,
+            strike: 2000e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -971,7 +971,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: (2 ** 64 - 1) * 1e6,
+            strike: (2 ** 64 - 1) * 1e6,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -990,7 +990,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1e18,
+            strike: 1e18,
             optionAmount: maximumAmount
         });
         vm.stopPrank();
@@ -1006,7 +1006,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT
         });
         uint256 expectedOptionTokenId = LibPosition.hashToId(instrumentHash);
@@ -1026,7 +1026,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -1040,7 +1040,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT
         });
         uint256 expectedOptionTokenId = LibPosition.hashToId(instrumentHash);
@@ -1052,7 +1052,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0.005e6
         });
         vm.stopPrank();
@@ -1074,7 +1074,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(WETHLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1097,7 +1097,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1120,7 +1120,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1143,7 +1143,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1166,7 +1166,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1179,7 +1179,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -1199,7 +1199,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0.8e6
         });
     }
@@ -1215,7 +1215,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: mispaired,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1236,7 +1236,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: zeroTime,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1257,7 +1257,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: misordered,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1278,7 +1278,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: expiryPast,
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1293,7 +1293,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1e6 - 1,
+            strike: 1e6 - 1,
             optionAmount: 1e6
         });
     }
@@ -1310,7 +1310,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: tooLarge,
+            strike: tooLarge,
             optionAmount: 1e6
         });
     }
@@ -1327,7 +1327,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
     }
@@ -1346,7 +1346,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -1361,7 +1361,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1396,7 +1396,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
@@ -1420,7 +1420,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
@@ -1438,7 +1438,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1473,7 +1473,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1e18,
+            strike: 1e18,
             optionAmount: 0
         });
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
@@ -1497,7 +1497,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1e18,
+            strike: 1e18,
             optionAmount: 0
         });
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
@@ -1517,7 +1517,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1527,7 +1527,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL
         });
         uint256 expectedOptionTokenId = LibPosition.hashToId(instrumentHash);
@@ -1545,7 +1545,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1555,7 +1555,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT
         });
         uint256 expectedOptionTokenId = LibPosition.hashToId(instrumentHash);
@@ -1575,7 +1575,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1597,7 +1597,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
@@ -1617,7 +1617,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.CALL
         });
         uint256 optionTokenId = LibPosition.hashToId(instrumentHash);
@@ -1638,7 +1638,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1665,7 +1665,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1688,7 +1688,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1705,7 +1705,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1727,7 +1727,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1e18,
+            strike: 1e18,
             optionAmount: 0
         });
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
@@ -1747,7 +1747,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionType: IOption.OptionType.PUT
         });
         uint256 optionTokenId = LibPosition.hashToId(instrumentHash);
@@ -1768,7 +1768,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1795,7 +1795,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1818,7 +1818,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 
@@ -1843,7 +1843,7 @@ contract WriteTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 0
         });
 

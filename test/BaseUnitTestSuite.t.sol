@@ -280,8 +280,8 @@ abstract contract BaseUnitTestSuite is Test {
     function assertEq(IOption.Option memory a, IOption.Option memory b) internal {
         assertEq(a.baseAsset, b.baseAsset);
         assertEq(a.quoteAsset, b.quoteAsset);
-        assertEq(a.exerciseWindow, b.exerciseWindow);
-        assertEq(a.strikePrice, b.strikePrice);
+        assertEq(a.expiry, b.expiry);
+        assertEq(a.strike, b.strike);
         assertEq(a.optionType, b.optionType);
         assertEq(a.exerciseStyle, b.exerciseStyle);
     }
@@ -291,8 +291,8 @@ abstract contract BaseUnitTestSuite is Test {
     {
         assertEq(a.baseAsset, b.baseAsset, err);
         assertEq(a.quoteAsset, b.quoteAsset, err);
-        assertEq(a.exerciseWindow, b.exerciseWindow, err);
-        assertEq(a.strikePrice, b.strikePrice, err);
+        assertEq(a.expiry, b.expiry);
+        assertEq(a.strike, b.strike, err);
         assertEq(a.optionType, b.optionType, err);
         assertEq(a.exerciseStyle, b.exerciseStyle, err);
     }
@@ -328,37 +328,6 @@ abstract contract BaseUnitTestSuite is Test {
         internal
     {
         if (a != b) {
-            emit log_named_string("Error", err);
-            assertEq(a, b);
-        }
-    }
-
-    function assertEq(IOption.ExerciseWindow memory a, IOption.ExerciseWindow memory b)
-        internal
-    {
-        if (a.exerciseTimestamp != b.exerciseTimestamp) {
-            emit log("Error: a == b not satisfied [ExerciseWindow.exerciseTimestamp]");
-            emit log_named_uint("      Left", a.exerciseTimestamp);
-            emit log_named_uint("     Right", b.exerciseTimestamp);
-            fail();
-        }
-        if (a.expiryTimestamp != b.expiryTimestamp) {
-            emit log("Error: a == b not satisfied [ExerciseWindow.expiryTimestamp]");
-            emit log_named_uint("      Left", a.expiryTimestamp);
-            emit log_named_uint("     Right", b.expiryTimestamp);
-            fail();
-        }
-    }
-
-    function assertEq(
-        IOption.ExerciseWindow memory a,
-        IOption.ExerciseWindow memory b,
-        string memory err
-    ) internal {
-        if (
-            a.exerciseTimestamp != b.exerciseTimestamp
-                || a.expiryTimestamp != b.expiryTimestamp
-        ) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }

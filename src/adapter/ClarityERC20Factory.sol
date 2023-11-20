@@ -45,13 +45,16 @@ contract ClarityERC20Factory is IERC20Factory {
             revert IOptionErrors.OptionDoesNotExist(optionTokenId);
         }
 
+        // Check that the style is not Bermudan
+        // TODO
+
         // Check that the option is not already wrapped
         if (wrapperFor[optionTokenId] != address(0)) {
             revert IOptionErrors.WrappedLongAlreadyDeployed(optionTokenId);
         }
 
         // Check that the option is not expired
-        if (block.timestamp > option.exerciseWindow.expiryTimestamp) {
+        if (block.timestamp > option.expiry) {
             revert IOptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
         }
 
@@ -86,13 +89,16 @@ contract ClarityERC20Factory is IERC20Factory {
             revert IOptionErrors.OptionDoesNotExist(optionTokenId);
         }
 
+        // Check that the style is not Bermudan
+        // TODO
+
         // Check that the option is not already wrapped
         if (wrapperFor[shortTokenId] != address(0)) {
             revert IOptionErrors.WrappedShortAlreadyDeployed(shortTokenId);
         }
 
         // Check that the option is not expired
-        if (block.timestamp > option.exerciseWindow.expiryTimestamp) {
+        if (block.timestamp > option.expiry) {
             revert IOptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
         }
 

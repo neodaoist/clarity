@@ -29,9 +29,9 @@ interface IOptionErrors {
 
     error ExerciseWindowExpiryTooFarInFuture(uint32 expiryTimestamp);
 
-    error StrikePriceTooSmall(uint256 strikePrice);
+    error StrikePriceTooSmall(uint256 strike);
 
-    error StrikePriceTooLarge(uint256 strikePrice);
+    error StrikePriceTooLarge(uint256 strike);
 
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
 

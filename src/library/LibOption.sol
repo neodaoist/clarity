@@ -14,22 +14,42 @@ library LibOption {
     function paramsToHash(
         address baseAsset,
         address quoteAsset,
-        uint32[] memory exerciseWindow,
-        uint256 strikePrice,
-        IOption.OptionType optionType
+        uint32 expiry,
+        uint256 strike,
+        IOption.OptionType optionType,
+        IOption.ExerciseStyle exerciseStyle
     ) internal pure returns (uint248 hash) {
         hash = uint248(
             bytes31(
                 keccak256(
                     abi.encode(
-                        baseAsset, quoteAsset, exerciseWindow, strikePrice, optionType
+                        baseAsset, quoteAsset, expiry, strike, optionType, exerciseStyle
                     )
                 )
             )
         );
     }
 
-    ///////// Option Type
+    // function bermudanParamsToHash(
+    //     address baseAsset,
+    //     address quoteAsset,
+    //     uint32[] memory expiries,
+    //     uint256 strike,
+    //     IOption.OptionType optionType,
+    //     IOption.ExerciseStyle exerciseStyle
+    // ) internal pure returns (uint248 hash) {
+    //     hash = uint248(
+    //         bytes31(
+    //             keccak256(
+    //                 abi.encode(
+    //                     baseAsset, quoteAsset, expiries, strike, optionType, exerciseStyle
+    //                 )
+    //             )
+    //         )
+    //     );
+    // }
+
+    ///////// String Conversion for Option Type
 
     function toString(IOption.OptionType optionType)
         internal
@@ -45,19 +65,7 @@ library LibOption {
         }
     }
 
-    ///////// Exercise Style
-
-    function determineExerciseStyle(uint32[] calldata exerciseWindows)
-        external
-        pure
-        returns (IOption.ExerciseStyle exerciseStyle)
-    {
-        if (exerciseWindows[1] - exerciseWindows[0] <= 1 hours) {
-            exerciseStyle = IOption.ExerciseStyle.EUROPEAN;
-        } else {
-            exerciseStyle = IOption.ExerciseStyle.AMERICAN;
-        }
-    }
+    ///////// String Conversion for Exercise Style
 
     function toString(IOption.ExerciseStyle exerciseStyle)
         internal
@@ -72,22 +80,6 @@ library LibOption {
             revert(); // theoretically unreachable
         }
     }
-
-    ///////// Exercise Window
-
-    function toExerciseWindow(uint32[] calldata exerciseWindows)
-        external
-        pure
-        returns (IOption.ExerciseWindow memory exerciseWindow)
-    {
-        exerciseWindow = IOption.ExerciseWindow(exerciseWindows[0], exerciseWindows[1]);
-    }
-
-    // function fromExerciseWindow(IOption.ExerciseWindow calldata exerciseWindow)
-    //     external
-    //     pure
-    //     returns (uint32[] memory exerciseWindows)
-    // {}
 
     ///////// String Conversion for Strike Price and Unix Timestamp
 

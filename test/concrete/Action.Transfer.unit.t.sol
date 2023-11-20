@@ -22,7 +22,7 @@ contract TransferTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -58,7 +58,7 @@ contract TransferTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -107,7 +107,7 @@ contract TransferTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -128,7 +128,7 @@ contract TransferTest is BaseUnitTestSuite {
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
             exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            strike: 1700e18,
             optionAmount: 1e6
         });
 
