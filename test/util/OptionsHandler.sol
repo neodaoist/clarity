@@ -42,12 +42,17 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     OptionSet private _options;
 
+    mapping(bytes32 => uint256) private calls;
+
     // Ghost Variables
     mapping(address => uint256) public ghost_clearingLiabilityFor;
 
     mapping(uint256 => uint256) public ghost_longSumFor;
     mapping(uint256 => uint256) public ghost_shortSumFor;
     mapping(uint256 => uint256) public ghost_assignedShortSumFor;
+
+    mapping(uint256 => address[]) public ghost_longOwnersOf;
+    mapping(uint256 => address[]) public ghost_shortOwnersOf;
 
     // Assets
     // volatile
@@ -68,6 +73,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     modifier createActor() {
         currentActor = msg.sender;
         _actors.add(msg.sender);
+
+        _;
+    }
+
+    modifier countCall(bytes32 key) {
+        calls[key]++;
 
         _;
     }
@@ -152,7 +163,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 strike,
         bool allowEarlyExercise,
         uint64 optionAmount
-    ) external createActor {
+    ) external createActor countCall("writeNewCall") {
         // set assets
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
@@ -190,6 +201,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
+
+        ghost_longOwnersOf[optionTokenId].push(currentActor);
+        ghost_shortOwnersOf[optionTokenId].push(currentActor);
     }
 
     function writeNewPut(
@@ -199,8 +213,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 strike,
         bool allowEarlyExercise,
         uint64 optionAmount
-    ) external createActor {
-        // set assets
+    ) external createActor countCall("writeNewPut") {
+        // bind assets
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
@@ -238,6 +252,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
+
+        ghost_longOwnersOf[optionTokenId].push(currentActor);
+        ghost_shortOwnersOf[optionTokenId].push(currentActor);
     }
 
     function writeExistingCall() external {}
@@ -250,11 +267,62 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Transfer
 
-    function transferLongs() external {}
+    function transferLongs(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
+        external
+        createActor
+        countCall("transferLongs")
+    {
+        // set option token id
+        uint256 optionTokenId = _options.at(optionIndex % _options.count());
 
-    function transferShorts() external {}
+        // set sender
+        ownerIndex = ownerIndex % ghost_longOwnersOf[optionTokenId].length;
+        address sender = ghost_longOwnersOf[optionTokenId][ownerIndex];
 
-    // TODO add senders and operators, using transferFrom()
+        // bind option amount
+        optionAmount = bound(optionAmount, 1, clarity.balanceOf(sender, optionTokenId));
+
+        // transfer options to current actor
+        vm.prank(sender);
+        clarity.transfer(currentActor, optionTokenId, optionAmount);
+
+        // track ghost variables
+        if (clarity.balanceOf(sender, optionTokenId) == 0) {
+            ghost_longOwnersOf[optionTokenId][ownerIndex] = currentActor;
+        } else {
+            ghost_longOwnersOf[optionTokenId].push(currentActor);
+        }
+    }
+
+    function transferShorts(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
+        external
+        createActor
+        countCall("transferShorts")
+    {
+        // set option token id
+        uint256 optionTokenId = _options.at(optionIndex % _options.count());
+        uint256 shortTokenId = optionTokenId.longToShort();
+
+        // set sender
+        ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
+        address sender = ghost_shortOwnersOf[optionTokenId][ownerIndex];
+
+        // bind option amount
+        optionAmount = bound(optionAmount, 1, clarity.balanceOf(sender, shortTokenId));
+
+        // transfer options to current actor
+        vm.prank(sender);
+        clarity.transfer(currentActor, shortTokenId, optionAmount);
+
+        // track ghost variables
+        if (clarity.balanceOf(sender, shortTokenId) == 0) {
+            ghost_shortOwnersOf[optionTokenId][ownerIndex] = currentActor;
+        } else {
+            ghost_shortOwnersOf[optionTokenId].push(currentActor);
+        }
+    }
+
+    // TODO add allowances and operators, using transferFrom()
 
     // Net Off
 
@@ -267,6 +335,15 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     // Redeem
 
     function redeemShort() external {}
+
+    function callSummary() external view {
+        console2.log("Call summary:");
+        console2.log("-------------------");
+        console2.log("writeNewCall", calls["writeNewCall"]);
+        console2.log("writeNewPut", calls["writeNewPut"]);
+        console2.log("transferLongs", calls["transferLongs"]);
+        console2.log("transferShorts", calls["transferShorts"]);
+    }
 
     ///////// Actors
 
