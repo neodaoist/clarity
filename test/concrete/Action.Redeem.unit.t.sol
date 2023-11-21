@@ -605,7 +605,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // Then
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.CanOnlyRedeemShort.selector, longTokenId)
+            abi.encodeWithSelector(IOptionErrors.CanOnlyRedeemShorts.selector, longTokenId)
         );
 
         // When
@@ -632,7 +632,7 @@ contract RedeemTest is BaseUnitTestSuite {
         // Then
         vm.expectRevert(
             abi.encodeWithSelector(
-                IOptionErrors.CanOnlyRedeemShort.selector, assignedShortTokenId
+                IOptionErrors.CanOnlyRedeemShorts.selector, assignedShortTokenId
             )
         );
 

@@ -7,6 +7,8 @@ import "../BaseExerciseUnitTestSuite.t.sol";
 contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     /////////
 
+    using LibPosition for uint256;
+
     /////////
     // function exerciseLongs(uint256 _optionTokenId, uint64 optionsAmount) external
 
@@ -580,6 +582,8 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
         );
     }
 
+    // TODO complex exercise scenarios
+
     // function test_exerciseLongs_many_whenComplex_AndOneHolderExercisesAllOnce() public
     // withComplexBackground {
     //     // When holder1 exercises 2.45 options of oti1
@@ -776,31 +780,32 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
         clarity.exerciseLongs(123, 1e6);
     }
 
-    // function testRevert_exerciseLongs_whenOptionTokenIdNotLong() public {
-    //     vm.startPrank(writer);
-    //     WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE,
-    // STARTING_BALANCE));
-    //     uint256 optionTokenId =
-    //         clarity.writeNewCall(address(WETHLIKE), address(LUSDLIKE),
-    // FRI1, 1700e18, 1e6);
-    //     vm.stopPrank();
+    function testRevert_exerciseLongs_whenOptionTokenIdNotLong() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
 
-    //     uint256 short = Y;
-    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector,
-    // short));
+        uint256 shortTokenId = optionTokenId.longToShort();
+        uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
 
-    //     vm.prank(holder);
-    //     clarity.exerciseLongs(short, 1e6);
+        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.CanOnlyExerciseLongs.selector, shortTokenId));
 
-    //     uint256 assignedShort = Z;
-    //     vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector,
-    // assignedShort));
+        clarity.exerciseLongs(shortTokenId, 1e6);
 
-    //     vm.prank(holder);
-    //     clarity.exerciseLongs(assignedShort, 1e6);
-    // }
+        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.CanOnlyExerciseLongs.selector, assignedShortTokenId));
 
-    function testRevert_exerciseLongs_whenOptionNotWithinExerciseWindow() public {
+        clarity.exerciseLongs(assignedShortTokenId, 1e6);
+        vm.stopPrank();
+    }
+
+    function testRevert_exerciseLongs_givenAfterExpiry() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({

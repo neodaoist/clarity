@@ -1017,7 +1017,9 @@ contract ClarityMarkets is
         }
 
         // Check that the position token type is a long
-        // TODO
+        if (_optionTokenId.tokenType() != TokenType.LONG) {
+            revert CanOnlyExerciseLongs(_optionTokenId);
+        }
 
         // Check that the option is within the exercise window
         uint32 expiry = optionStored.expiry;
@@ -1090,7 +1092,7 @@ contract ClarityMarkets is
         ///////// Function Requirements
         // Check that the token type is a short
         if (shortTokenId.tokenType() != TokenType.SHORT) {
-            revert CanOnlyRedeemShort(shortTokenId);
+            revert CanOnlyRedeemShorts(shortTokenId);
         }
 
         // Check that the option exists
