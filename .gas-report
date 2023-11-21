@@ -1,7 +1,7 @@
 | src/ClarityMarkets.sol:ClarityMarkets contract |                 |        |        |        |         |
 |------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                | Deployment Size |        |        |        |         |
-| 4264513                                        | 21330           |        |        |        |         |
+| 4261113                                        | 21313           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
 | CONTRACT_SCALAR                                | 272             | 272    | 272    | 272    | 10      |
 | MAXIMUM_EXPIRY                                 | 293             | 293    | 293    | 293    | 2       |
@@ -16,11 +16,11 @@
 | netOff                                         | 520             | 14684  | 17391  | 17391  | 44      |
 | option                                         | 2272            | 2282   | 2272   | 2796   | 216     |
 | optionTokenId                                  | 2086            | 2485   | 2086   | 4082   | 5       |
-| position                                       | 696             | 4139   | 4210   | 6210   | 10      |
+| position                                       | 696             | 4036   | 4107   | 6107   | 10      |
 | redeemShorts                                   | 484             | 8724   | 11980  | 17176  | 18      |
 | tokenType                                      | 384             | 1078   | 769    | 2700   | 5       |
 | tokenURI                                       | 252721          | 253025 | 252786 | 254261 | 18      |
-| totalSupply                                    | 855             | 1281   | 1320   | 2660   | 261     |
+| totalSupply                                    | 855             | 1281   | 1320   | 2660   | 264     |
 | transfer                                       | 951             | 12621  | 4583   | 26483  | 62      |
 | transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
 | writeExisting                                  | 472             | 17021  | 16439  | 124739 | 3044    |

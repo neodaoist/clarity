@@ -201,7 +201,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         assertEq(magnitude, 0, "magnitude");
     }
 
-    function test_position_writer_whenAssigned() public {
+    function test_position_writer_givenAssigned() public {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -244,55 +244,59 @@ contract PositionViewTest is BaseUnitTestSuite {
         // Then
         // check writer1 position
         vm.prank(writer1);
-        (IPosition.Position memory position, int160 magnitude) = clarity.position(oti1);
+        (IPosition.Position memory position1, int160 magnitude1) = clarity.position(oti1);
 
-        assertEq(position.amountLong, 0, "writer1 amount long");
+        assertEq(position1.amountLong, 0, "writer1 amount long");
         assertEq(
-            position.amountShort,
+            position1.amountShort,
             (2.15e6 * (2.5e6 - 0.2e6)) / 2.5e6,
             "writer1 amount short"
         );
         assertEq(
-            position.amountAssignedShort,
+            position1.amountAssignedShort,
             (2.15e6 * 0.2e6) / 2.5e6,
             "writer1 amount assigned short"
         );
-        assertEq(magnitude, -2.15e6, "writer1 magnitude");
+        assertEq(magnitude1, -1.978e6, "writer1 magnitude");
 
         // check writer2 position
         vm.prank(writer2);
-        (position, magnitude) = clarity.position(oti1);
+        (IPosition.Position memory position2, int160 magnitude2) = clarity.position(oti1);
 
-        assertEq(position.amountLong, 0, "writer2 amount long");
+        assertEq(position2.amountLong, 0, "writer2 amount long");
         assertEq(
-            position.amountShort,
+            position2.amountShort,
             (0.35e6 * (2.5e6 - 0.2e6)) / 2.5e6,
             "writer2 amount short"
         );
         assertEq(
-            position.amountAssignedShort,
+            position2.amountAssignedShort,
             (0.35e6 * 0.2e6) / 2.5e6,
             "writer2 amount assigned short"
         );
-        assertEq(magnitude, -0.35e6, "writer2 magnitude");
+        assertEq(magnitude2, -0.322e6, "writer2 magnitude");
 
         // check holder1 position
         vm.prank(holder1);
-        (position, magnitude) = clarity.position(oti1);
+        (IPosition.Position memory position3, int160 magnitude3) = clarity.position(oti1);
 
-        assertEq(position.amountLong, 2.3e6, "holder1 amount long");
-        assertEq(position.amountShort, 0, "holder1 amount short");
-        assertEq(position.amountAssignedShort, 0, "holder1 amount assigned short");
-        assertEq(magnitude, 2.3e6, "holder1 magnitude");
+        assertEq(position3.amountLong, 2.3e6, "holder1 amount long");
+        assertEq(position3.amountShort, 0, "holder1 amount short");
+        assertEq(position3.amountAssignedShort, 0, "holder1 amount assigned short");
+        assertEq(magnitude3, 2.3e6, "holder1 magnitude");
+
+        // check overall market
+        assertTotalSupplies(oti1, 2.3e6, 0.2e6, "total supplies after exercise");
+        assertEq(magnitude1 + magnitude2, magnitude3 * -1, "long magnitude mirrors short magnitude");
     }
 
-    // TODO writer whenTransferred
+    // TODO writer givenTransferred
 
-    // TODO writer whenNettedOff
+    // TODO writer givenNettedOff
 
-    // TODO writer whenRedeemed
+    // TODO writer givenExercised
 
-    // TODO writer whenExercised
+    // TODO writer givenRedeemed
 
     // Sad Paths
 

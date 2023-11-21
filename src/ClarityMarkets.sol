@@ -276,15 +276,17 @@ contract ClarityMarkets is
         uint256 shortTokenId;
         uint256 assignedShortTokenId;
 
-        if (tokenId.tokenType() == TokenType.LONG) {
+        TokenType _tokenType = tokenId.tokenType();
+
+        if (_tokenType == TokenType.LONG) {
             _optionTokenId = tokenId;
             shortTokenId = tokenId.longToShort();
             assignedShortTokenId = tokenId.longToAssignedShort();
-        } else if (tokenId.tokenType() == TokenType.SHORT) {
+        } else if (_tokenType == TokenType.SHORT) {
             _optionTokenId = tokenId.shortToLong();
             shortTokenId = tokenId;
             assignedShortTokenId = tokenId.shortToAssignedShort();
-        } else if (tokenId.tokenType() == TokenType.ASSIGNED_SHORT) {
+        } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
             _optionTokenId = tokenId.assignedShortToLong();
             shortTokenId = tokenId.assignedShortToShort();
             assignedShortTokenId = tokenId;
@@ -307,9 +309,7 @@ contract ClarityMarkets is
         });
 
         // Calculate the magnitude
-        magnitude = int160(
-            int256(longBalance) - int256(shortBalance) - int256(assignedShortBalance) // TODO
-        );
+        magnitude = int160(int256(longBalance) - int256(shortBalance));
     }
 
     /// @notice Returns the amount of options that can be netted off for a given token
