@@ -372,7 +372,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -405,7 +405,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -440,7 +440,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -477,7 +477,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -516,7 +516,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -554,7 +554,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -815,7 +815,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: false,
             optionAmount: 1e6
@@ -850,7 +850,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: false,
             optionAmount: 1e6
@@ -887,7 +887,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 2022e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -922,7 +922,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 2022e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -959,7 +959,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 35_000e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -994,7 +994,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 35_000e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1034,7 +1034,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1058,7 +1058,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e6,
             allowEarlyExercise: true,
             optionAmount: 1e6

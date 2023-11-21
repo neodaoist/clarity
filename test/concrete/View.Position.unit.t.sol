@@ -20,7 +20,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0
         );
         vm.stopPrank();
 
@@ -47,7 +47,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            expiryWeeklies[0],
+            FRI1,
             1750e18,
             IOption.OptionType.CALL,
             IOption.ExerciseStyle.AMERICAN
@@ -68,7 +68,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function testRevert_tokenType_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0
         );
         vm.stopPrank();
 
@@ -90,7 +90,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 1e6
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 1e6
         );
         vm.stopPrank();
 
@@ -142,7 +142,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 17e6
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 17e6
         );
 
         // When
@@ -161,7 +161,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 17e6
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 17e6
         );
 
         // When
@@ -181,7 +181,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         oti1 = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0.15e6
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0.15e6
         );
         vm.stopPrank();
 
@@ -204,7 +204,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         clarity.transfer(holder1, oti1, 0.35e6);
 
         // And holder1 exercises 0.2 options of oti1
-        vm.warp(expiryWeeklies[1] - 1 seconds);
+        vm.warp(FRI1 - 1 seconds);
 
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -270,7 +270,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            expiryWeeklies[0],
+            FRI1,
             1750e18,
             IOption.OptionType.CALL,
             IOption.ExerciseStyle.AMERICAN
@@ -291,7 +291,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function testRevert_position_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
         uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1750e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0
         );
         vm.stopPrank();
 

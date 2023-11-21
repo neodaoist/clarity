@@ -21,7 +21,7 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -58,7 +58,7 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -108,7 +108,7 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -130,14 +130,14 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
         });
 
         // warp to expiry
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         // exercise
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));

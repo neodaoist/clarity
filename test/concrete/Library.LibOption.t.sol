@@ -19,7 +19,7 @@ contract LibOptionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        expiryWeeklies[0],
+                        FRI1,
                         uint256(1750e18),
                         IOption.OptionType.CALL,
                         IOption.ExerciseStyle.EUROPEAN
@@ -30,7 +30,7 @@ contract LibOptionTest is BaseUnitTestSuite {
         uint248 actualHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
-            expiryWeeklies[0],
+            FRI1,
             uint256(1750e18),
             IOption.OptionType.CALL,
             IOption.ExerciseStyle.EUROPEAN
@@ -46,7 +46,7 @@ contract LibOptionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        expiryWeeklies[0],
+                        FRI1,
                         uint256(1750e18),
                         IOption.OptionType.PUT,
                         IOption.ExerciseStyle.EUROPEAN
@@ -57,7 +57,7 @@ contract LibOptionTest is BaseUnitTestSuite {
         uint248 actualHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
-            expiryWeeklies[0],
+            FRI1,
             uint256(1750e18),
             IOption.OptionType.PUT,
             IOption.ExerciseStyle.EUROPEAN
@@ -73,7 +73,7 @@ contract LibOptionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        expiryWeeklies[0],
+                        FRI1,
                         uint256(1750e18),
                         IOption.OptionType.CALL,
                         IOption.ExerciseStyle.AMERICAN
@@ -84,7 +84,7 @@ contract LibOptionTest is BaseUnitTestSuite {
         uint248 actualHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
-            expiryWeeklies[0],
+            FRI1,
             uint256(1750e18),
             IOption.OptionType.CALL,
             IOption.ExerciseStyle.AMERICAN
@@ -100,7 +100,7 @@ contract LibOptionTest is BaseUnitTestSuite {
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        expiryWeeklies[0],
+                        FRI1,
                         uint256(1750e18),
                         IOption.OptionType.PUT,
                         IOption.ExerciseStyle.AMERICAN
@@ -111,7 +111,7 @@ contract LibOptionTest is BaseUnitTestSuite {
         uint248 actualHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
-            expiryWeeklies[0],
+            FRI1,
             uint256(1750e18),
             IOption.OptionType.PUT,
             IOption.ExerciseStyle.AMERICAN
@@ -136,7 +136,7 @@ contract LibOptionTest is BaseUnitTestSuite {
     }
 
     ///////// String Conversion for...
-    
+
     // Exercise Style
 
     function test_exerciseStyle_toString() public {

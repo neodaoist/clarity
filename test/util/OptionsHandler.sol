@@ -144,7 +144,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     ///////// Actions
 
     // Write
-    
+
     function writeNewCall(
         uint256 baseAssetIndex,
         uint256 quoteAssetIndex,
@@ -157,9 +157,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
+        // bind expiry
+        vm.assume(expiry > 1);
+
         // bind strike price
-        strike =
-            bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
+        strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
 
         // deal asset, approve clearinghouse, write option
         vm.startPrank(currentActor);
@@ -202,9 +204,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
+        // bind expiry
+        vm.assume(expiry > 1);
+
         // bind strike price and round to nearest million
-        strike =
-            bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
+        strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
         strike = strike - (strike % (10 ** CONTRACT_SCALAR));
 
         // deal asset, approve clearinghouse, write option

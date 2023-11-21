@@ -27,7 +27,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -38,7 +38,7 @@ contract WriteTest is BaseUnitTestSuite {
         IOption.Option memory expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -62,7 +62,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -72,7 +72,7 @@ contract WriteTest is BaseUnitTestSuite {
         IOption.Option memory expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -106,7 +106,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0.0275e6
@@ -117,7 +117,7 @@ contract WriteTest is BaseUnitTestSuite {
         IOption.Option memory expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -142,7 +142,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti2 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1750e18,
             allowEarlyExercise: true,
             optionAmount: 17e6
@@ -152,7 +152,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1750e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -175,7 +175,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti3 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[1],
+            expiry: FRI2,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -185,7 +185,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[1],
+            expiry: FRI2,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -208,7 +208,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti4 = clarity.writeNewCall({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 20_000e18,
             allowEarlyExercise: true,
             optionAmount: 10e6
@@ -219,7 +219,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 20_000e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -241,7 +241,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti5 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1800e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -251,7 +251,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1800e6,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -297,7 +297,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: (2 ** 64 - 1) * 1e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -317,7 +317,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1950e18,
             allowEarlyExercise: true,
             optionAmount: maximumAmount
@@ -334,7 +334,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -346,7 +346,7 @@ contract WriteTest is BaseUnitTestSuite {
             expectedOptionTokenId,
             address(WETHLIKE),
             address(LUSDLIKE),
-            expiryWeeklies[0],
+            FRI1,
             1700e18,
             IOption.OptionType.CALL,
             IOption.ExerciseStyle.AMERICAN
@@ -355,7 +355,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -370,7 +370,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -383,7 +383,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0.005e6
@@ -406,7 +406,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(WETHLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -430,7 +430,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -454,7 +454,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -478,7 +478,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -502,7 +502,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -516,7 +516,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -537,7 +537,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0.8e6
@@ -632,7 +632,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1e6 - 1,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -650,7 +650,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: tooLarge,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -668,7 +668,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -688,7 +688,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -714,7 +714,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -725,7 +725,7 @@ contract WriteTest is BaseUnitTestSuite {
         IOption.Option memory expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -749,7 +749,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -759,7 +759,7 @@ contract WriteTest is BaseUnitTestSuite {
         IOption.Option memory expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -793,7 +793,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti1 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0.0275e6
@@ -804,7 +804,7 @@ contract WriteTest is BaseUnitTestSuite {
         IOption.Option memory expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -829,7 +829,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti2 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1750e18,
             allowEarlyExercise: true,
             optionAmount: 17e6
@@ -839,7 +839,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1750e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -864,7 +864,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti3 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[1],
+            expiry: FRI2,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -874,7 +874,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[1],
+            expiry: FRI2,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -899,7 +899,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti4 = clarity.writeNewPut({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 20_000e18,
             allowEarlyExercise: true,
             optionAmount: 10e6
@@ -910,7 +910,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 20_000e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -935,7 +935,7 @@ contract WriteTest is BaseUnitTestSuite {
         oti5 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1800e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -946,7 +946,7 @@ contract WriteTest is BaseUnitTestSuite {
         expected = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1800e6,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -995,7 +995,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: (2 ** 64 - 1) * 1e6,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1015,7 +1015,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1e18,
             allowEarlyExercise: true,
             optionAmount: maximumAmount
@@ -1032,7 +1032,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -1044,16 +1044,16 @@ contract WriteTest is BaseUnitTestSuite {
             expectedOptionTokenId,
             address(WETHLIKE),
             address(LUSDLIKE),
-            expiryWeeklies[0],
+            FRI1,
             1700e18,
-            IOption.OptionType.CALL,
+            IOption.OptionType.PUT,
             IOption.ExerciseStyle.AMERICAN
         );
 
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1068,7 +1068,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -1081,7 +1081,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0.005e6
@@ -1104,7 +1104,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(WETHLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1128,7 +1128,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1152,7 +1152,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1176,7 +1176,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1200,7 +1200,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1214,7 +1214,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1235,7 +1235,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0.8e6
@@ -1330,7 +1330,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1e6 - 1,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1348,7 +1348,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: tooLarge,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1366,7 +1366,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1386,7 +1386,7 @@ contract WriteTest is BaseUnitTestSuite {
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 1e6
@@ -1402,7 +1402,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1438,7 +1438,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1463,7 +1463,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1482,7 +1482,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1518,7 +1518,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1543,7 +1543,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1564,7 +1564,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1575,7 +1575,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -1594,7 +1594,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1605,7 +1605,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -1626,7 +1626,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1649,7 +1649,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1670,7 +1670,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -1692,7 +1692,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1700,13 +1700,11 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IOptionErrors.OptionExpired.selector,
-                optionTokenId,
-                expiryWeeklies[0]
+                IOptionErrors.OptionExpired.selector, optionTokenId, FRI1
             )
         );
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         clarity.writeExisting(optionTokenId, 1e6);
         vm.stopPrank();
@@ -1720,7 +1718,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1744,7 +1742,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1762,7 +1760,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1785,7 +1783,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1806,7 +1804,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -1828,7 +1826,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1836,13 +1834,11 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IOptionErrors.OptionExpired.selector,
-                optionTokenId,
-                expiryWeeklies[0]
+                IOptionErrors.OptionExpired.selector, optionTokenId, FRI1
             )
         );
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         clarity.writeExisting(optionTokenId, 1e6);
         vm.stopPrank();
@@ -1856,7 +1852,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1880,7 +1876,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1906,7 +1902,7 @@ contract WriteTest is BaseUnitTestSuite {
         optionTokenIds[0] = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 0
@@ -1942,28 +1938,28 @@ contract WriteTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         uint256[] memory optionTokenIds = new uint256[](8);
         optionTokenIds[0] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
         );
         optionTokenIds[1] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
         );
         optionTokenIds[2] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1725e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
         );
         optionTokenIds[3] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1725e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
         );
         optionTokenIds[4] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[3], 1700e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI4, 1700e18, true, 0
         );
         optionTokenIds[5] = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), expiryWeeklies[0], 1675e6, true, 0
+            address(WETHLIKE), address(USDCLIKE), FRI1, 1675e6, true, 0
         );
         optionTokenIds[6] = clarity.writeNewCall(
-            address(WBTCLIKE), address(LUSDLIKE), expiryWeeklies[1], 21_001e18, true, 0
+            address(WBTCLIKE), address(LUSDLIKE), FRI2, 21_001e18, true, 0
         );
         optionTokenIds[7] = clarity.writeNewPut(
-            address(WBTCLIKE), address(USDCLIKE), expiryWeeklies[1], 21_001e6, true, 0
+            address(WBTCLIKE), address(USDCLIKE), FRI2, 21_001e6, true, 0
         );
         uint64[] memory optionAmounts = new uint64[](8);
         optionAmounts[0] = 1.25e6;
@@ -2106,28 +2102,28 @@ contract WriteTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         uint256[] memory optionTokenIds = new uint256[](8);
         optionTokenIds[0] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
         );
         optionTokenIds[1] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1700e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
         );
         optionTokenIds[2] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1725e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
         );
         optionTokenIds[3] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[0], 1725e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
         );
         optionTokenIds[4] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), expiryWeeklies[3], 1700e18, true, 0
+            address(WETHLIKE), address(LUSDLIKE), FRI4, 1700e18, true, 0
         );
         optionTokenIds[5] = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), expiryWeeklies[0], 1675e6, true, 0
+            address(WETHLIKE), address(USDCLIKE), FRI1, 1675e6, true, 0
         );
         optionTokenIds[6] = clarity.writeNewCall(
-            address(WBTCLIKE), address(LUSDLIKE), expiryWeeklies[1], 21_001e18, true, 0
+            address(WBTCLIKE), address(LUSDLIKE), FRI2, 21_001e18, true, 0
         );
         optionTokenIds[7] = clarity.writeNewPut(
-            address(WBTCLIKE), address(USDCLIKE), expiryWeeklies[1], 21_001e6, true, 0
+            address(WBTCLIKE), address(USDCLIKE), FRI2, 21_001e6, true, 0
         );
         uint64[] memory optionAmounts = new uint64[](8);
         optionAmounts[0] = 1.25e6;

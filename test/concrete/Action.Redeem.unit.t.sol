@@ -36,14 +36,14 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         // Then
         vm.expectRevert(IOptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
@@ -63,7 +63,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -78,7 +78,7 @@ contract RedeemTest is BaseUnitTestSuite {
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // When
         vm.prank(writer);
@@ -104,7 +104,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -112,7 +112,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -137,7 +137,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -145,7 +145,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -160,7 +160,7 @@ contract RedeemTest is BaseUnitTestSuite {
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // When
         vm.prank(writer);
@@ -189,7 +189,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -197,7 +197,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -237,7 +237,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -245,7 +245,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -260,7 +260,7 @@ contract RedeemTest is BaseUnitTestSuite {
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // When
         vm.prank(writer);
@@ -286,14 +286,14 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
         });
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         // Then
         vm.expectRevert(IOptionErrors.EarlyRedemptionOnlyIfFullyAssigned.selector);
@@ -313,7 +313,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -330,7 +330,7 @@ contract RedeemTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
         wethBalance = WETHLIKE.balanceOf(writer);
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // When
         vm.prank(writer);
@@ -356,7 +356,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -364,7 +364,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -389,7 +389,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -397,7 +397,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -414,7 +414,7 @@ contract RedeemTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
         wethBalance = WETHLIKE.balanceOf(writer);
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // When
         vm.prank(writer);
@@ -443,7 +443,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -451,7 +451,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -493,7 +493,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -501,7 +501,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0]);
+        vm.warp(FRI1);
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -518,7 +518,7 @@ contract RedeemTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
         wethBalance = WETHLIKE.balanceOf(writer);
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // When
         vm.prank(writer);
@@ -546,13 +546,13 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 shortTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
         }).longToShort();
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // Then
         vm.expectEmit(true, true, true, true);
@@ -570,13 +570,13 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 shortTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
         }).longToShort();
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // Then
         vm.expectEmit(true, true, true, true);
@@ -596,7 +596,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 longTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -620,7 +620,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 longTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -645,7 +645,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 nonexistentOptionTokenId = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
@@ -670,7 +670,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 shortTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
-            expiry: expiryWeeklies[0],
+            expiry: FRI1,
             strike: 1700e18,
             allowEarlyExercise: true,
             optionAmount: 2.25e6
@@ -678,7 +678,7 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder, shortTokenId, 2.25e6);
         vm.stopPrank();
 
-        vm.warp(expiryWeeklies[0] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         // Then
         vm.expectRevert(

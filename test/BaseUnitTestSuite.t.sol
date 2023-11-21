@@ -66,10 +66,10 @@ abstract contract BaseUnitTestSuite is Test {
     uint32 internal constant THU3 = DAWN + 20 days + 1 hours;
     uint32 internal constant THU4 = DAWN + 27 days + 1 hours;
 
-    uint32[] internal expiryDailies;
-    uint32[] internal expiryWeeklies;
-    uint32[] internal expiryMonthlies;
-    uint32[] internal expiryQuarterlies;
+    // uint32[] internal expiryDailies;
+    // uint32[] internal expiryWeeklies;
+    // uint32[] internal expiryMonthlies;
+    // uint32[] internal expiryQuarterlies;
 
     uint32[] internal bermudanExpiriesFOW; // next 4 weeks
     uint32[] internal bermudanExpiriesFOM; // next Oct, Nov, Dec, Jan
@@ -139,13 +139,6 @@ abstract contract BaseUnitTestSuite is Test {
         holder1 = holders[0];
         holder2 = holders[1];
         holder3 = holders[2];
-
-        // make test exercise windows
-        expiryWeeklies = new uint32[](4);
-        expiryWeeklies[0] = FRI1;
-        expiryWeeklies[1] = FRI2;
-        expiryWeeklies[2] = FRI3;
-        expiryWeeklies[3] = FRI4;
     }
 
     ///////// Actor Helpers

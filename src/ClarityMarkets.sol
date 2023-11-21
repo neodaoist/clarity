@@ -805,7 +805,13 @@ contract ClarityMarkets is
         // Log event (ideally this would be emitted in the Interactions section,
         // but emitting here affords DRYer business logic for write)
         emit OptionCreated(
-            _optionTokenId, baseAsset, quoteAsset, expiry, strike, _optionType, exerciseStyle
+            _optionTokenId,
+            baseAsset,
+            quoteAsset,
+            expiry,
+            strike,
+            _optionType,
+            exerciseStyle
         );
 
         // If the option amount is non-zero, actually write some options

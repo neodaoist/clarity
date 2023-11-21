@@ -42,7 +42,8 @@ library LibOption {
     //         bytes31(
     //             keccak256(
     //                 abi.encode(
-    //                     baseAsset, quoteAsset, expiries, strike, optionType, exerciseStyle
+    //                     baseAsset, quoteAsset, expiries, strike, optionType,
+    // exerciseStyle
     //                 )
     //             )
     //         )
