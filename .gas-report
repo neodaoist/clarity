@@ -1,7 +1,7 @@
 | src/ClarityMarkets.sol:ClarityMarkets contract |                 |        |        |        |         |
 |------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                | Deployment Size |        |        |        |         |
-| 4261113                                        | 21313           |        |        |        |         |
+| 4252296                                        | 21269           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
 | CONTRACT_SCALAR                                | 272             | 272    | 272    | 272    | 10      |
 | MAXIMUM_EXPIRY                                 | 293             | 293    | 293    | 293    | 2       |
@@ -18,11 +18,11 @@
 | optionTokenId                                  | 2086            | 2485   | 2086   | 4082   | 5       |
 | position                                       | 696             | 4036   | 4107   | 6107   | 10      |
 | redeemShorts                                   | 484             | 8724   | 11980  | 17176  | 18      |
-| tokenType                                      | 384             | 1078   | 769    | 2700   | 5       |
+| tokenType                                      | 405             | 1114   | 809    | 2740   | 5       |
 | tokenURI                                       | 252721          | 253025 | 252786 | 254261 | 18      |
 | totalSupply                                    | 855             | 1281   | 1320   | 2660   | 264     |
-| transfer                                       | 951             | 12621  | 4583   | 26483  | 62      |
-| transferFrom                                   | 1290            | 26570  | 29110  | 29302  | 55      |
+| transfer                                       | 885             | 12587  | 4517   | 26417  | 62      |
+| transferFrom                                   | 1224            | 26525  | 29084  | 29236  | 55      |
 | writeExisting                                  | 472             | 17021  | 16439  | 124739 | 3044    |
 | writeNewCall                                   | 969             | 209308 | 208261 | 314245 | 261     |
 | writeNewPut                                    | 1013            | 178124 | 210641 | 309489 | 60      |
@@ -51,8 +51,8 @@
 | optionTokenId                                                  | 283             | 283   | 283    | 283   | 11      |
 | symbol                                                         | 1555            | 1555  | 1555   | 1555  | 11      |
 | totalSupply                                                    | 341             | 341   | 341    | 341   | 33      |
-| unwrapLongs                                                    | 409             | 9408  | 9723   | 23699 | 14      |
-| wrapLongs                                                      | 342             | 72452 | 81185  | 83185 | 30      |
+| unwrapLongs                                                    | 409             | 9386  | 9697   | 23678 | 14      |
+| wrapLongs                                                      | 342             | 72429 | 81159  | 83159 | 30      |
 
 
 | src/adapter/ClarityWrappedShort.sol:ClarityWrappedShort contract |                 |       |        |       |         |
@@ -67,8 +67,8 @@
 | optionTokenId                                                    | 283             | 283   | 283    | 283   | 11      |
 | symbol                                                           | 1511            | 1511  | 1511   | 1511  | 11      |
 | totalSupply                                                      | 341             | 341   | 341    | 341   | 33      |
-| unwrapShorts                                                     | 364             | 9526  | 9870   | 23816 | 14      |
-| wrapShorts                                                       | 386             | 72439 | 81849  | 83849 | 31      |
+| unwrapShorts                                                     | 364             | 9470  | 9804   | 23764 | 14      |
+| wrapShorts                                                       | 386             | 72381 | 81783  | 83783 | 31      |
 
 
 

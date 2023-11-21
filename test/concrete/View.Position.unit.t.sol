@@ -287,7 +287,11 @@ contract PositionViewTest is BaseUnitTestSuite {
 
         // check overall market
         assertTotalSupplies(oti1, 2.3e6, 0.2e6, "total supplies after exercise");
-        assertEq(magnitude1 + magnitude2, magnitude3 * -1, "long magnitude mirrors short magnitude");
+        assertEq(
+            magnitude1 + magnitude2,
+            magnitude3 * -1,
+            "long magnitude mirrors short magnitude"
+        );
     }
 
     // TODO writer givenTransferred

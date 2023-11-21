@@ -243,9 +243,8 @@ contract ClarityMarkets is
     /// @return _tokenType The token type of the token
     function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
         // Implicitly check that it is a valid position token type --
-        // discard the upper 31B (the option hash) to get the lowest
-        // 1B, then unsafely cast to PositionTokenType enum type
-        _tokenType = TokenType(tokenId & 0xFF); // TODO replace with LibToken
+        // if not, there will be an enum conversion revert thrown
+        _tokenType = tokenId.tokenType();
 
         // Check that the option exists
         OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
@@ -572,9 +571,11 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(tokenId);
         }
 
-        // Check that token is long or short
+        // Implicitly check that token type is long or short -- assigned short is
+        // currently the only other type, and otherwise would revert with an enum
+        // conversion error
         TokenType _tokenType = tokenId.tokenType();
-        if (_tokenType != TokenType.LONG && _tokenType != TokenType.SHORT) {
+        if (_tokenType == TokenType.ASSIGNED_SHORT) {
             revert CanOnlyTransferLongOrShort();
         }
 
