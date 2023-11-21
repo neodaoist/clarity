@@ -2206,7 +2206,7 @@ contract WriteTest is BaseUnitTestSuite {
             allowEarlyExercise: true,
             optionAmount: 0
         });
-        
+
         uint64[] memory optionAmounts = new uint64[](8);
         optionAmounts[0] = 1.25e6;
         optionAmounts[1] = 0.000001e6;

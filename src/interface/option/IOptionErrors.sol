@@ -69,7 +69,7 @@ interface IOptionErrors {
 
     error OptionTokenIdNotLong(uint256 optionTokenId);
 
-    error OptionNotWithinExerciseWindow(uint32 exerciseTimestamp, uint32 expiryTimestamp);
+    error OptionNotWithinExerciseWindow(uint32 start, uint32 end);
 
     error ExerciseAmountExceedsLongBalance(uint256 optionAmount, uint256 optionBalance);
 

@@ -1019,29 +1019,26 @@ contract ClarityMarkets is
         // Check that the position token type is a long
         // TODO
 
-        // Scope to avoid stack too deep
-        {
-            // Check that the option is within the exercise window
-            uint32 expiry = optionStored.expiry;
-            if (optionStored.exerciseStyle == ExerciseStyle.AMERICAN) {
-                if (block.timestamp > expiry) {
-                    revert OptionNotWithinExerciseWindow(1, expiry);
-                }
-            } else if (optionStored.exerciseStyle == ExerciseStyle.EUROPEAN) {
-                if (block.timestamp > expiry || block.timestamp < expiry - 1 days) {
-                    revert OptionNotWithinExerciseWindow(expiry - 1 days, expiry);
-                }
-            } else if (optionStored.exerciseStyle == ExerciseStyle.BERMUDAN) {
-                // TODO
-            } else {
-                revert(); // should be unreachable
+        // Check that the option is within the exercise window
+        uint32 expiry = optionStored.expiry;
+        if (optionStored.exerciseStyle == ExerciseStyle.AMERICAN) {
+            // Exercisable up to and including expiry
+            if (block.timestamp > expiry) {
+                revert OptionNotWithinExerciseWindow(1, expiry);
             }
+        } else if (optionStored.exerciseStyle == ExerciseStyle.EUROPEAN) {
+            // Exercisable from 1 day before expiry, up to and including expiry
+            if (block.timestamp > expiry || block.timestamp < expiry - 1 days) {
+                revert OptionNotWithinExerciseWindow(expiry - 1 days, expiry);
+            }
+        } else {
+            revert(); // should be unreachable
+        }
 
-            // Check that the caller holds sufficient longs to exercise
-            uint256 optionBalance = internalBalanceOf[msg.sender][_optionTokenId];
-            if (optionAmount > optionBalance) {
-                revert ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
-            }
+        // Check that the caller holds sufficient longs to exercise
+        uint256 optionBalance = internalBalanceOf[msg.sender][_optionTokenId];
+        if (optionAmount > optionBalance) {
+            revert ExerciseAmountExceedsLongBalance(optionAmount, optionBalance);
         }
 
         ///////// Effects
