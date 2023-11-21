@@ -795,11 +795,19 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
         uint256 shortTokenId = optionTokenId.longToShort();
         uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
 
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.CanOnlyExerciseLongs.selector, shortTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.CanOnlyExerciseLongs.selector, shortTokenId
+            )
+        );
 
         clarity.exerciseLongs(shortTokenId, 1e6);
 
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.CanOnlyExerciseLongs.selector, assignedShortTokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.CanOnlyExerciseLongs.selector, assignedShortTokenId
+            )
+        );
 
         clarity.exerciseLongs(assignedShortTokenId, 1e6);
         vm.stopPrank();

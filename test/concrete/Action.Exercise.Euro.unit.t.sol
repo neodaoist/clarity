@@ -24,7 +24,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
             allowEarlyExercise: false,
             optionAmount: 1e6
         });
-        
+
         // And transfer 0.6 options to Holder
         clarity.transfer(holder, optionTokenId, 0.6e6);
         vm.stopPrank();
@@ -32,14 +32,34 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         // pre checks
         // option balances
         assertTotalSupplies(optionTokenId, 1e6, 0, "total supplies before exercise");
-        assertOptionBalances(writer, optionTokenId, 0.4e6, 1e6, 0, "writer option balances before exercise");
-        assertOptionBalances(holder, optionTokenId, 0.6e6, 0, 0, "holder option balances before exercise");
+        assertOptionBalances(
+            writer, optionTokenId, 0.4e6, 1e6, 0, "writer option balances before exercise"
+        );
+        assertOptionBalances(
+            holder, optionTokenId, 0.6e6, 0, 0, "holder option balances before exercise"
+        );
 
         // asset balances
-        assertEq(WETHLIKE.balanceOf(writer), startingBalanceD18 - 1e18, "writer WETHLIKE balance before exercise");
-        assertEq(FRAXLIKE.balanceOf(writer), startingBalanceD18, "writer FRAXLIKE balance before exercise");
-        assertEq(WETHLIKE.balanceOf(holder), startingBalanceD18, "holder WETHLIKE balance before exercise");
-        assertEq(FRAXLIKE.balanceOf(holder), startingBalanceD18, "holder FRAXLIKE balance before exercise");
+        assertEq(
+            WETHLIKE.balanceOf(writer),
+            startingBalanceD18 - 1e18,
+            "writer WETHLIKE balance before exercise"
+        );
+        assertEq(
+            FRAXLIKE.balanceOf(writer),
+            startingBalanceD18,
+            "writer FRAXLIKE balance before exercise"
+        );
+        assertEq(
+            WETHLIKE.balanceOf(holder),
+            startingBalanceD18,
+            "holder WETHLIKE balance before exercise"
+        );
+        assertEq(
+            FRAXLIKE.balanceOf(holder),
+            startingBalanceD18,
+            "holder FRAXLIKE balance before exercise"
+        );
 
         // And current time is within exercise window of option
         vm.warp(FRI2 - 1 days);
@@ -52,15 +72,42 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
 
         // Then
         // option balances
-        assertTotalSupplies(optionTokenId, 0.45e6, 0.55e6, "total supplies after exercise");
-        assertOptionBalances(writer, optionTokenId, 0.4e6, 0.45e6, 0.55e6, "writer option balances after exercise");
-        assertOptionBalances(holder, optionTokenId, 0.05e6, 0, 0, "holder option balances after exercise");
+        assertTotalSupplies(
+            optionTokenId, 0.45e6, 0.55e6, "total supplies after exercise"
+        );
+        assertOptionBalances(
+            writer,
+            optionTokenId,
+            0.4e6,
+            0.45e6,
+            0.55e6,
+            "writer option balances after exercise"
+        );
+        assertOptionBalances(
+            holder, optionTokenId, 0.05e6, 0, 0, "holder option balances after exercise"
+        );
 
         // asset balances
-        assertEq(WETHLIKE.balanceOf(writer), startingBalanceD18 - 1e18, "writer WETHLIKE balance after exercise");
-        assertEq(FRAXLIKE.balanceOf(writer), startingBalanceD18, "writer FRAXLIKE balance after exercise");
-        assertEq(WETHLIKE.balanceOf(holder), startingBalanceD18 + (1e18 * 0.55), "holder WETHLIKE balance after exercise");
-        assertEq(FRAXLIKE.balanceOf(holder), startingBalanceD18 - (2000e18 * 0.55), "holder FRAXLIKE balance after exercise");
+        assertEq(
+            WETHLIKE.balanceOf(writer),
+            startingBalanceD18 - 1e18,
+            "writer WETHLIKE balance after exercise"
+        );
+        assertEq(
+            FRAXLIKE.balanceOf(writer),
+            startingBalanceD18,
+            "writer FRAXLIKE balance after exercise"
+        );
+        assertEq(
+            WETHLIKE.balanceOf(holder),
+            startingBalanceD18 + (1e18 * 0.55),
+            "holder WETHLIKE balance after exercise"
+        );
+        assertEq(
+            FRAXLIKE.balanceOf(holder),
+            startingBalanceD18 - (2000e18 * 0.55),
+            "holder FRAXLIKE balance after exercise"
+        );
     }
 
     // Events (see American Exercise unit test suite)
@@ -81,7 +128,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
             allowEarlyExercise: false,
             optionAmount: 1e6
         });
-        
+
         // And transfer 0.6 options to Holder
         clarity.transfer(holder, optionTokenId, 0.6e6);
         vm.stopPrank();
@@ -94,7 +141,11 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         FRAXLIKE.approve(address(clarity), startingBalanceD18);
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionNotWithinExerciseWindow.selector, FRI2 - 1 days, FRI2));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionNotWithinExerciseWindow.selector, FRI2 - 1 days, FRI2
+            )
+        );
 
         clarity.exerciseLongs(optionTokenId, 0.55e6);
         vm.stopPrank();
@@ -114,7 +165,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
             allowEarlyExercise: false,
             optionAmount: 1e6
         });
-        
+
         // And transfer 0.6 options to Holder
         clarity.transfer(holder, optionTokenId, 0.6e6);
         vm.stopPrank();
@@ -127,7 +178,11 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         FRAXLIKE.approve(address(clarity), startingBalanceD18);
 
         // Then
-        vm.expectRevert(abi.encodeWithSelector(IOptionErrors.OptionNotWithinExerciseWindow.selector, FRI2 - 1 days, FRI2));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionNotWithinExerciseWindow.selector, FRI2 - 1 days, FRI2
+            )
+        );
 
         clarity.exerciseLongs(optionTokenId, 0.55e6);
         vm.stopPrank();

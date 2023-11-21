@@ -57,7 +57,7 @@ interface IOptionErrors {
 
     error NetOffAmountZero();
 
-    error CanOnlyNetOffLongsAndShorts(uint256 tokenId); 
+    error CanOnlyCallNetOffForLongs(uint256 tokenId);
 
     /// @dev Also used in ERC20Factory and ClarityWrappedLong
     error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
@@ -71,7 +71,7 @@ interface IOptionErrors {
 
     error OptionTokenIdNotLong(uint256 optionTokenId);
 
-    error CanOnlyExerciseLongs(uint256 tokenId); 
+    error CanOnlyExerciseLongs(uint256 tokenId);
 
     error OptionNotWithinExerciseWindow(uint32 start, uint32 end);
 
@@ -84,7 +84,7 @@ interface IOptionErrors {
     error EarlyRedemptionOnlyIfFullyAssigned();
 
     // TODO reframe to standardize with other errors
-    error CanOnlyRedeemShorts(uint256 tokenId); 
+    error CanOnlyRedeemShorts(uint256 tokenId);
 
     ///////// Adapter
 

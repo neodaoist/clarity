@@ -163,8 +163,6 @@ contract ClarityMarkets is
 
     // Option
 
-    // TODO make this not revert, add info on best practice to check for empty
-
     // / @notice Returns the token id for a given option, if it has been written already,
     // / otherwise reverts
     // / @param baseAsset The base asset of the option (typically the volatile asset in a
@@ -185,19 +183,14 @@ contract ClarityMarkets is
         uint8 exerciseStyle
     ) external view returns (uint256 _optionTokenId) {
         // Hash the option
-        uint248 optionHash;
-        if (exerciseStyle == uint8(ExerciseStyle.BERMUDAN)) {
-            // TODO
-        } else {
-            optionHash = LibOption.paramsToHash(
-                baseAsset,
-                quoteAsset,
-                expiries[0],
-                strike,
-                OptionType(optionType),
-                ExerciseStyle(exerciseStyle)
-            );
-        }
+        uint248 optionHash = LibOption.paramsToHash(
+            baseAsset,
+            quoteAsset,
+            expiries[0],
+            strike,
+            OptionType(optionType),
+            ExerciseStyle(exerciseStyle)
+        );
 
         // Check that the option has been created
         OptionStorage storage optionStored = optionStorage[optionHash];
@@ -301,7 +294,7 @@ contract ClarityMarkets is
 
         // Determine the position
         OptionState storage optionState = optionStored.optionState;
-        uint256 longBalance = _balanceOf(msg.sender, _optionTokenId, optionState);
+        uint256 longBalance = internalBalanceOf[msg.sender][_optionTokenId];
         uint256 shortBalance =
             _balanceOf(msg.sender, _optionTokenId.longToShort(), optionState);
         uint256 assignedShortBalance =
@@ -328,7 +321,7 @@ contract ClarityMarkets is
         pure
         returns (uint64 optionAmount)
     {
-        revert("not yet impl");
+        revert("not yet impl"); // TODO
     }
 
     /// @notice Returns the amount of underlying asset that can be redeemed for a given
@@ -350,7 +343,7 @@ contract ClarityMarkets is
             uint32 exerciseAssetWhen
         )
     {
-        revert("not yet impl");
+        revert("not yet impl"); // TODO
     }
 
     // ERC6909 Rebasing
@@ -951,15 +944,20 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(_optionTokenId);
         }
 
-        // Check that the position token type is a long
-        // TODO
+        // Check that the token type is a long
+        if (_optionTokenId.tokenType() != TokenType.LONG) {
+            revert CanOnlyCallNetOffForLongs(_optionTokenId);
+        }
 
         // Check that not expired, otherwise they can just redeem
-        // TODO
+        uint32 expiry = optionStored.expiry;
+        if (expiry < block.timestamp) {
+            revert OptionExpired(_optionTokenId, expiry);
+        }
 
         // Check that the caller holds sufficient longs and shorts to net off
         OptionState storage optionState = optionStored.optionState;
-        if (optionAmount > _balanceOf(msg.sender, _optionTokenId, optionState)) {
+        if (optionAmount > internalBalanceOf[msg.sender][_optionTokenId]) {
             revert InsufficientLongBalance(_optionTokenId, optionAmount);
         }
         if (
@@ -1016,7 +1014,7 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(_optionTokenId);
         }
 
-        // Check that the position token type is a long
+        // Check that the token type is a long
         if (_optionTokenId.tokenType() != TokenType.LONG) {
             revert CanOnlyExerciseLongs(_optionTokenId);
         }
@@ -1171,7 +1169,7 @@ contract ClarityMarkets is
     /// @param asset The ERC20 asset to check
     /// @return amount The amount of the asset that can be skimmed
     function skimmable(address asset) external view returns (uint256 amount) {
-        revert("not yet impl");
+        revert("not yet impl"); // TODO
     }
 
     /// @notice Skims a given amount of a given asset from the clearinghouse, above and
@@ -1179,14 +1177,14 @@ contract ClarityMarkets is
     /// @param asset The ERC20 asset to skim
     /// @return amount The amount of the asset that was skimmed
     function skim(address asset) external returns (uint256 amount) {
-        revert("not yet impl");
+        revert("not yet impl"); // TODO
     }
 
     ///////// Clarity Callback
 
-    /// TODO
+    ///
     function clarityCallback(Callback calldata /*_callback*/ ) external pure {
-        revert("not yet impl");
+        revert("not yet impl"); // TODO
     }
 
     ///////// FREI-PI

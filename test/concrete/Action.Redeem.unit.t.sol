@@ -605,7 +605,9 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // Then
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.CanOnlyRedeemShorts.selector, longTokenId)
+            abi.encodeWithSelector(
+                IOptionErrors.CanOnlyRedeemShorts.selector, longTokenId
+            )
         );
 
         // When

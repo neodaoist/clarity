@@ -7,6 +7,8 @@ import "../BaseUnitTestSuite.t.sol";
 contract NetOffTest is BaseUnitTestSuite {
     /////////
 
+    using LibPosition for uint256;
+
     /////////
     // function netOff(uint256 _optionTokenId, uint64 optionsAmount)
     //     external
@@ -58,7 +60,23 @@ contract NetOffTest is BaseUnitTestSuite {
 
     // Events
 
-    // TODO
+    function testEvent_netOff_OptionsNettedOff() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
+
+        vm.expectEmit(true, true, true, true);
+        emit IOptionEvents.OptionsNettedOff(writer, optionTokenId, 0.999998e6);
+
+        clarity.netOff(optionTokenId, 0.999998e6);
+    }
 
     // Sad Paths
 
@@ -93,7 +111,53 @@ contract NetOffTest is BaseUnitTestSuite {
         clarity.netOff(nonExistentOptionTokenId, 1e6);
     }
 
-    function testRevert_netOff_whenDontHoldSufficientLongs() public {
+    function testRevert_netOff_whenTokenTypeIsAssignedShort() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 2000e18,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
+
+        uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.CanOnlyCallNetOffForLongs.selector, assignedShortTokenId
+            )
+        );
+
+        clarity.netOff(assignedShortTokenId, 1e6);
+    }
+
+    function testRevert_netOff_givenOptionIsExpired() public {
+        vm.startPrank(writer);
+        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 2000e18,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
+
+        vm.warp(FRI1 + 1 seconds);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOptionErrors.OptionExpired.selector, optionTokenId, FRI1
+            )
+        );
+
+        clarity.netOff(optionTokenId, 1e6);
+    }
+
+    function testRevert_netOff_givenDontHoldSufficientLongs() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -116,7 +180,7 @@ contract NetOffTest is BaseUnitTestSuite {
         vm.stopPrank();
     }
 
-    function testRevert_netOff_whenDontHoldSufficientShorts() public {
+    function testRevert_netOff_givenDontHoldSufficientShorts() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
