@@ -33,9 +33,12 @@ contract ClarityMarketsInvariantTest is Test {
         handler = new OptionsHandler(clarity);
 
         // target contracts
-        bytes4[] memory selectors = new bytes4[](2);
+        bytes4[] memory selectors = new bytes4[](4);
         selectors[0] = OptionsHandler.writeNewCall.selector;
         selectors[1] = OptionsHandler.writeNewPut.selector;
+        selectors[2] = OptionsHandler.transferLongs.selector;
+        selectors[3] = OptionsHandler.transferShorts.selector;
+
         targetSelector(FuzzSelector({addr: address(handler), selectors: selectors}));
         targetContract(address(handler));
     }
@@ -86,5 +89,9 @@ contract ClarityMarketsInvariantTest is Test {
                 "sumOfAllBalancesForTokenIdEqTotalSupply assignedShort"
             );
         }
+    }
+
+    function invariantUtil_callSummary() public view {
+        handler.callSummary();
     }
 }
