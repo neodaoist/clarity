@@ -5,7 +5,8 @@ pragma solidity 0.8.23;
 import "../BaseUnitTestSuite.t.sol";
 
 // Views Under Test
-import {IPosition} from "../../src/interface//IPosition.sol";
+import {IOption} from "../../src/interface/option/IOption.sol";
+import {IPosition} from "../../src/interface/IPosition.sol";
 
 contract PositionViewTest is BaseUnitTestSuite {
     /////////
@@ -18,9 +19,14 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_tokenType() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
         vm.stopPrank();
 
         assertEq(
@@ -46,9 +52,10 @@ contract PositionViewTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            americanExWeeklies[0],
+            FRI1,
             1750e18,
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
         );
         uint256 notCreatedOptionTokenId = LibPosition.hashToId(instrumentHash);
 
@@ -65,9 +72,14 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function testRevert_tokenType_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
         vm.stopPrank();
 
         // Then
@@ -87,9 +99,14 @@ contract PositionViewTest is BaseUnitTestSuite {
         // Given writer1 writes 1 options
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 1e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
         vm.stopPrank();
 
         // And writer2 writes 0.25 options
@@ -139,9 +156,14 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_whenTokenTypeIsShort() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 17e6
+        });
 
         // When
         (IPosition.Position memory position, int160 magnitude) =
@@ -158,9 +180,14 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_whenTokenTypeIsAssignedShort() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 17e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 17e6
+        });
 
         // When
         (IPosition.Position memory position, int160 magnitude) =
@@ -174,13 +201,18 @@ contract PositionViewTest is BaseUnitTestSuite {
         assertEq(magnitude, 0, "magnitude");
     }
 
-    function test_position_writer_whenAssigned() public {
+    function test_position_writer_givenAssigned() public {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0.15e6
-        );
+        oti1 = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0.15e6
+        });
         vm.stopPrank();
 
         // And writer2 writes 0.35 options of oti1
@@ -202,7 +234,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         clarity.transfer(holder1, oti1, 0.35e6);
 
         // And holder1 exercises 0.2 options of oti1
-        vm.warp(americanExWeeklies[0][0]);
+        vm.warp(FRI1 - 1 seconds);
 
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
@@ -212,55 +244,63 @@ contract PositionViewTest is BaseUnitTestSuite {
         // Then
         // check writer1 position
         vm.prank(writer1);
-        (IPosition.Position memory position, int160 magnitude) = clarity.position(oti1);
+        (IPosition.Position memory position1, int160 magnitude1) = clarity.position(oti1);
 
-        assertEq(position.amountLong, 0, "writer1 amount long");
+        assertEq(position1.amountLong, 0, "writer1 amount long");
         assertEq(
-            position.amountShort,
+            position1.amountShort,
             (2.15e6 * (2.5e6 - 0.2e6)) / 2.5e6,
             "writer1 amount short"
         );
         assertEq(
-            position.amountAssignedShort,
+            position1.amountAssignedShort,
             (2.15e6 * 0.2e6) / 2.5e6,
             "writer1 amount assigned short"
         );
-        assertEq(magnitude, -2.15e6, "writer1 magnitude");
+        assertEq(magnitude1, -1.978e6, "writer1 magnitude");
 
         // check writer2 position
         vm.prank(writer2);
-        (position, magnitude) = clarity.position(oti1);
+        (IPosition.Position memory position2, int160 magnitude2) = clarity.position(oti1);
 
-        assertEq(position.amountLong, 0, "writer2 amount long");
+        assertEq(position2.amountLong, 0, "writer2 amount long");
         assertEq(
-            position.amountShort,
+            position2.amountShort,
             (0.35e6 * (2.5e6 - 0.2e6)) / 2.5e6,
             "writer2 amount short"
         );
         assertEq(
-            position.amountAssignedShort,
+            position2.amountAssignedShort,
             (0.35e6 * 0.2e6) / 2.5e6,
             "writer2 amount assigned short"
         );
-        assertEq(magnitude, -0.35e6, "writer2 magnitude");
+        assertEq(magnitude2, -0.322e6, "writer2 magnitude");
 
         // check holder1 position
         vm.prank(holder1);
-        (position, magnitude) = clarity.position(oti1);
+        (IPosition.Position memory position3, int160 magnitude3) = clarity.position(oti1);
 
-        assertEq(position.amountLong, 2.3e6, "holder1 amount long");
-        assertEq(position.amountShort, 0, "holder1 amount short");
-        assertEq(position.amountAssignedShort, 0, "holder1 amount assigned short");
-        assertEq(magnitude, 2.3e6, "holder1 magnitude");
+        assertEq(position3.amountLong, 2.3e6, "holder1 amount long");
+        assertEq(position3.amountShort, 0, "holder1 amount short");
+        assertEq(position3.amountAssignedShort, 0, "holder1 amount assigned short");
+        assertEq(magnitude3, 2.3e6, "holder1 magnitude");
+
+        // check overall market
+        assertTotalSupplies(oti1, 2.3e6, 0.2e6, "total supplies after exercise");
+        assertEq(
+            magnitude1 + magnitude2,
+            magnitude3 * -1,
+            "long magnitude mirrors short magnitude"
+        );
     }
 
-    // TODO writer whenTransferred
+    // TODO writer givenTransferred
 
-    // TODO writer whenNettedOff
+    // TODO writer givenNettedOff
 
-    // TODO writer whenRedeemed
+    // TODO writer givenExercised
 
-    // TODO writer whenExercised
+    // TODO writer givenRedeemed
 
     // Sad Paths
 
@@ -268,9 +308,10 @@ contract PositionViewTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            americanExWeeklies[0],
+            FRI1,
             1750e18,
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
         );
         uint256 notCreatedOptionTokenId = LibPosition.hashToId(instrumentHash);
 
@@ -287,9 +328,14 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function testRevert_position_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), americanExWeeklies[0], 1750e18, 0
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
         vm.stopPrank();
 
         // Then

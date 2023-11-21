@@ -68,7 +68,7 @@ contract ClarityWrappedShort is
 
         // Check that the option is not expired
         IOption.Option memory _option = clarity.option(optionTokenId);
-        if (block.timestamp > _option.exerciseWindow.expiryTimestamp) {
+        if (block.timestamp > _option.expiry) {
             revert IOptionErrors.OptionExpired(optionTokenId, uint32(block.timestamp));
         }
 

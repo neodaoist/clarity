@@ -27,34 +27,33 @@ library LibMath {
 
     ///////// Strike Price Conversions
 
-    function actualScaledDownToClearingStrikeUnit(uint256 strikePrice)
+    function actualScaledDownToClearingStrikeUnit(uint256 strike)
         internal
         pure
         returns (uint64 scaled)
     {
-        scaled = (strikePrice / (10 ** CONTRACT_SCALAR)).safeCastTo64();
+        scaled = (strike / (10 ** CONTRACT_SCALAR)).safeCastTo64();
     }
 
-    function clearingScaledUpToActualStrike(uint64 strikePrice)
+    function clearingScaledUpToActualStrike(uint64 strike)
         internal
         pure
         returns (uint256 scaled)
     {
-        scaled = strikePrice * (10 ** CONTRACT_SCALAR);
+        scaled = strike * (10 ** CONTRACT_SCALAR);
     }
 
     function actualScaledDownToHumanReadableStrike(
-        uint256 strikePrice,
+        uint256 strike,
         uint8 quoteAssetDecimals
     ) internal pure returns (uint64 scaled) {
-        scaled = (strikePrice / (10 ** quoteAssetDecimals)).safeCastTo64();
+        scaled = (strike / (10 ** quoteAssetDecimals)).safeCastTo64();
     }
 
     function clearingScaledDownToHumanReadableStrike(
-        uint64 strikePrice,
+        uint64 strike,
         uint8 quoteAssetDecimals
     ) internal pure returns (uint64 scaled) {
-        scaled =
-            (strikePrice / (10 ** (quoteAssetDecimals - CONTRACT_SCALAR))).safeCastTo64();
+        scaled = (strike / (10 ** (quoteAssetDecimals - CONTRACT_SCALAR))).safeCastTo64();
     }
 }

@@ -43,6 +43,9 @@ library LibPosition {
 
     ///////// Token Type
 
+    // TODO
+    // discard the upper 31 bytes (the option hash) to get the lowest one byte,
+    // then unsafely cast to TokenType enum type
     function tokenType(uint256 tokenId)
         internal
         pure

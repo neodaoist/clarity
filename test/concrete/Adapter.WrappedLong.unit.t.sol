@@ -35,9 +35,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
@@ -74,13 +79,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
-            optionTokenIds[i] = clarity.writeNewCall(
-                address(WETHLIKE),
-                address(USDCLIKE),
-                americanExWeeklies[0],
-                (1750 + i) * 10 ** 18,
-                10e6
-            );
+            optionTokenIds[i] = clarity.writeNewCall({
+                baseAsset: address(WETHLIKE),
+                quoteAsset: address(USDCLIKE),
+                expiry: FRI1,
+                strike: (1750 + i) * 10 ** 6,
+                allowEarlyExercise: true,
+                optionAmount: 10e6
+            });
             wrappedLongs[i] =
                 ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
 
@@ -143,9 +149,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
 
@@ -163,9 +174,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function testRevert_wrapLongs_whenAmountZero() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
@@ -178,13 +194,18 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function testRevert_wrapLongs_whenOptionExpired() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
-        vm.warp(americanExWeeklies[0][1] + 1 seconds);
+        vm.warp(FRI1 + 1 seconds);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -201,9 +222,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function testRevert_wrapLongs_whenCallerHoldsInsufficientLongs() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         vm.stopPrank();
 
@@ -223,9 +249,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
 
         // And insufficient Clearinghouse approval has been granted to Factory
@@ -246,9 +277,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
         wrappedLong.wrapLongs(8e6);
@@ -290,13 +326,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
-            optionTokenIds[i] = clarity.writeNewCall(
-                address(WETHLIKE),
-                address(USDCLIKE),
-                americanExWeeklies[0],
-                (1750 + i) * 10 ** 18,
-                10e6
-            );
+            optionTokenIds[i] = clarity.writeNewCall({
+                baseAsset: address(WETHLIKE),
+                quoteAsset: address(USDCLIKE),
+                expiry: FRI1,
+                strike: (1750 + i) * 10 ** 6,
+                allowEarlyExercise: true,
+                optionAmount: 10e6
+            });
             wrappedLongs[i] =
                 ClarityWrappedLong(factory.deployWrappedLong(optionTokenIds[i]));
             clarity.approve(
@@ -375,9 +412,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
         wrappedLong.wrapLongs(8e6);
@@ -397,9 +439,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
         wrappedLong.wrapLongs(8e6);
@@ -417,9 +464,14 @@ contract WrappedLongTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), americanExWeeklies[0], 1750e18, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         wrappedLong = ClarityWrappedLong(factory.deployWrappedLong(optionTokenId));
         clarity.approve(address(wrappedLong), optionTokenId, type(uint256).max);
         wrappedLong.wrapLongs(8e6);

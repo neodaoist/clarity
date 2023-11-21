@@ -24,18 +24,22 @@ contract OptionViewTest is BaseUnitTestSuite {
     //     address baseAsset,
     //     address quoteAsset,
     //     uint32[] calldata exerciseWindows,
-    //     uint256 strikePrice,
+    //     uint256 strike,
     //     bool isCall
     // ) external view returns (uint256 optionTokenId);
 
     function test_optionTokenId_whenCall_andAmerican() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 expectedOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -43,22 +47,27 @@ contract OptionViewTest is BaseUnitTestSuite {
         uint256 actualOptionTokenId = clarity.optionTokenId({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
-            isCall: true
+            expiries: expiries,
+            strike: 1950e18,
+            optionType: uint8(IOption.OptionType.CALL),
+            exerciseStyle: uint8(IOption.ExerciseStyle.AMERICAN)
         });
 
         assertEq(actualOptionTokenId, expectedOptionTokenId);
     }
 
     function test_optionTokenId_whenPut_andAmerican() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
         uint256 expectedOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -66,22 +75,27 @@ contract OptionViewTest is BaseUnitTestSuite {
         uint256 actualOptionTokenId = clarity.optionTokenId({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
-            isCall: false
+            expiries: expiries,
+            strike: 1950e18,
+            optionType: uint8(IOption.OptionType.PUT),
+            exerciseStyle: uint8(IOption.ExerciseStyle.AMERICAN)
         });
 
         assertEq(actualOptionTokenId, expectedOptionTokenId);
     }
 
     function test_optionTokenId_whenCall_andEuropean() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 expectedOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: false,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -89,22 +103,27 @@ contract OptionViewTest is BaseUnitTestSuite {
         uint256 actualOptionTokenId = clarity.optionTokenId({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
-            isCall: true
+            expiries: expiries,
+            strike: 1950e18,
+            optionType: uint8(IOption.OptionType.CALL),
+            exerciseStyle: uint8(IOption.ExerciseStyle.EUROPEAN)
         });
 
         assertEq(actualOptionTokenId, expectedOptionTokenId);
     }
 
     function test_optionTokenId_whenPut_andEuropean() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
         uint256 expectedOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: false,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -112,9 +131,10 @@ contract OptionViewTest is BaseUnitTestSuite {
         uint256 actualOptionTokenId = clarity.optionTokenId({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
-            isCall: false
+            expiries: expiries,
+            strike: 1950e18,
+            optionType: uint8(IOption.OptionType.PUT),
+            exerciseStyle: uint8(IOption.ExerciseStyle.EUROPEAN)
         });
 
         assertEq(actualOptionTokenId, expectedOptionTokenId);
@@ -123,12 +143,16 @@ contract OptionViewTest is BaseUnitTestSuite {
     // Sad Paths
 
     function testRevert_optionTokenId_whenOptionDoesNotExist() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         uint256 optionTokenId = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
-            optionType: IOption.OptionType.CALL
+            expiry: FRI1,
+            strike: 1950e18,
+            optionType: IOption.OptionType.CALL,
+            exerciseStyle: IOption.ExerciseStyle.AMERICAN
         }).hashToId();
 
         vm.expectRevert(
@@ -140,9 +164,10 @@ contract OptionViewTest is BaseUnitTestSuite {
         clarity.optionTokenId({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
-            isCall: true
+            expiries: expiries,
+            strike: 1950e18,
+            optionType: uint8(IOption.OptionType.CALL),
+            exerciseStyle: uint8(IOption.ExerciseStyle.AMERICAN)
         });
     }
 
@@ -151,13 +176,17 @@ contract OptionViewTest is BaseUnitTestSuite {
     // option);
 
     function test_option_whenCall_andAmerican() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -165,8 +194,8 @@ contract OptionViewTest is BaseUnitTestSuite {
         IOption.Option memory expectedOption = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -175,13 +204,17 @@ contract OptionViewTest is BaseUnitTestSuite {
     }
 
     function test_option_whenPut_andAmerican() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -189,8 +222,8 @@ contract OptionViewTest is BaseUnitTestSuite {
         IOption.Option memory expectedOption = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.AMERICAN
         });
@@ -199,13 +232,17 @@ contract OptionViewTest is BaseUnitTestSuite {
     }
 
     function test_option_whenCall_andEuropean() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: false,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -213,8 +250,8 @@ contract OptionViewTest is BaseUnitTestSuite {
         IOption.Option memory expectedOption = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
             optionType: IOption.OptionType.CALL,
             exerciseStyle: IOption.ExerciseStyle.EUROPEAN
         });
@@ -223,13 +260,17 @@ contract OptionViewTest is BaseUnitTestSuite {
     }
 
     function test_option_whenPut_andEuropean() public {
+        uint32[] memory expiries = new uint32[](1);
+        expiries[0] = FRI1;
+
         vm.startPrank(writer);
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0],
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
+            allowEarlyExercise: false,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -237,8 +278,8 @@ contract OptionViewTest is BaseUnitTestSuite {
         IOption.Option memory expectedOption = IOption.Option({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: europeanExWeeklies[0].toExerciseWindow(),
-            strikePrice: 1950e18,
+            expiry: FRI1,
+            strike: 1950e18,
             optionType: IOption.OptionType.PUT,
             exerciseStyle: IOption.ExerciseStyle.EUROPEAN
         });
@@ -252,9 +293,10 @@ contract OptionViewTest is BaseUnitTestSuite {
         uint256 optionTokenId = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1950e18,
-            optionType: IOption.OptionType.CALL
+            expiry: FRI1,
+            strike: 1950e18,
+            optionType: IOption.OptionType.CALL,
+            exerciseStyle: IOption.ExerciseStyle.AMERICAN
         }).hashToId();
 
         vm.expectRevert(

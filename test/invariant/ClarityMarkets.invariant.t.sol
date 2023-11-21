@@ -25,13 +25,7 @@ contract ClarityMarketsInvariantTest is Test {
 
     OptionsHandler private handler;
 
-    // Time
-    uint64 private constant DAWN = 1_000_000_000;
-
     function setUp() public {
-        // warm to dawn of time
-        vm.warp(DAWN);
-
         // deploy DCP
         clarity = new ClarityMarkets();
 

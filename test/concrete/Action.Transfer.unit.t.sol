@@ -21,8 +21,9 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -57,8 +58,9 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -106,8 +108,9 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
         vm.stopPrank();
@@ -127,13 +130,14 @@ contract TransferTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1700e18,
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
             optionAmount: 1e6
         });
 
         // warp to expiry
-        vm.warp(americanExWeeklies[0][1]);
+        vm.warp(FRI1);
 
         // exercise
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
@@ -152,4 +156,6 @@ contract TransferTest is BaseUnitTestSuite {
     // function transferFrom(address sender, address receiver, uint256 id, uint256 amount)
     //     external
     //     returns (bool);
+
+    // TODO
 }

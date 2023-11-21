@@ -12,16 +12,17 @@ contract LibOptionTest is BaseUnitTestSuite {
 
     ///////// Instrument Hash
 
-    function test_paramsToHash() public {
+    function test_paramsToHash_whenEuropeanCall() public {
         uint248 expectedHash = uint248(
             bytes31(
                 keccak256(
                     abi.encode(
                         address(WETHLIKE),
                         address(USDCLIKE),
-                        americanExWeeklies[0],
+                        FRI1,
                         uint256(1750e18),
-                        IOption.OptionType.CALL
+                        IOption.OptionType.CALL,
+                        IOption.ExerciseStyle.EUROPEAN
                     )
                 )
             )
@@ -29,9 +30,91 @@ contract LibOptionTest is BaseUnitTestSuite {
         uint248 actualHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(USDCLIKE),
-            americanExWeeklies[0],
+            FRI1,
             uint256(1750e18),
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.EUROPEAN
+        );
+
+        assertEq(actualHash, expectedHash, "paramsToHash");
+    }
+
+    function test_paramsToHash_whenEuropeanPut() public {
+        uint248 expectedHash = uint248(
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        address(WETHLIKE),
+                        address(USDCLIKE),
+                        FRI1,
+                        uint256(1750e18),
+                        IOption.OptionType.PUT,
+                        IOption.ExerciseStyle.EUROPEAN
+                    )
+                )
+            )
+        );
+        uint248 actualHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(USDCLIKE),
+            FRI1,
+            uint256(1750e18),
+            IOption.OptionType.PUT,
+            IOption.ExerciseStyle.EUROPEAN
+        );
+
+        assertEq(actualHash, expectedHash, "paramsToHash");
+    }
+
+    function test_paramsToHash_whenAmericanCall() public {
+        uint248 expectedHash = uint248(
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        address(WETHLIKE),
+                        address(USDCLIKE),
+                        FRI1,
+                        uint256(1750e18),
+                        IOption.OptionType.CALL,
+                        IOption.ExerciseStyle.AMERICAN
+                    )
+                )
+            )
+        );
+        uint248 actualHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(USDCLIKE),
+            FRI1,
+            uint256(1750e18),
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
+        );
+
+        assertEq(actualHash, expectedHash, "paramsToHash");
+    }
+
+    function test_paramsToHash_whenAmericanPut() public {
+        uint248 expectedHash = uint248(
+            bytes31(
+                keccak256(
+                    abi.encode(
+                        address(WETHLIKE),
+                        address(USDCLIKE),
+                        FRI1,
+                        uint256(1750e18),
+                        IOption.OptionType.PUT,
+                        IOption.ExerciseStyle.AMERICAN
+                    )
+                )
+            )
+        );
+        uint248 actualHash = LibOption.paramsToHash(
+            address(WETHLIKE),
+            address(USDCLIKE),
+            FRI1,
+            uint256(1750e18),
+            IOption.OptionType.PUT,
+            IOption.ExerciseStyle.AMERICAN
         );
 
         assertEq(actualHash, expectedHash, "paramsToHash");
@@ -52,20 +135,9 @@ contract LibOptionTest is BaseUnitTestSuite {
         );
     }
 
-    ///////// Exercise Style
+    ///////// String Conversion for...
 
-    function test_determineExerciseStyle() public {
-        assertEq(
-            LibOption.determineExerciseStyle(americanExWeeklies[0]),
-            IOption.ExerciseStyle.AMERICAN,
-            "determineExerciseStyle should return AMERICAN for American-style exercise window"
-        );
-        assertEq(
-            LibOption.determineExerciseStyle(europeanExWeeklies[0]),
-            IOption.ExerciseStyle.EUROPEAN,
-            "determineExerciseStyle should return EUROPEAN for European-style exercise window"
-        );
-    }
+    // Exercise Style
 
     function test_exerciseStyle_toString() public {
         assertEq(
@@ -80,26 +152,13 @@ contract LibOptionTest is BaseUnitTestSuite {
         );
     }
 
-    ///////// Exercise Window
+    // Strike Price
 
-    function test_toExerciseWindow() public {
-        IOption.ExerciseWindow memory expectedExerciseWindow =
-            IOption.ExerciseWindow(americanExWeeklies[0][0], americanExWeeklies[0][1]);
-        IOption.ExerciseWindow memory actualExerciseWindow =
-            LibOption.toExerciseWindow(americanExWeeklies[0]);
-
-        assertEq(
-            actualExerciseWindow,
-            expectedExerciseWindow,
-            "toExerciseWindow should return the correct ExerciseWindow"
-        );
-    }
-
-    ///////// String Conversion for Strike Price and Unix Timestamp
-
-    function test_strikePrice_toString() public {
+    function test_strike_toString() public {
         assertEq(LibOption.toString(1750), "1750", "toString(1750) should return '1750'");
     }
+
+    // Unix Timestamp
 
     function test_unixTimestamp_toString() public {
         assertEq(

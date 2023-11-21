@@ -59,8 +59,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: 0
         });
 
@@ -78,8 +79,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: SOME_WRITTEN
         });
         vm.stopPrank();
@@ -97,8 +99,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: MANY_WRITTEN
         });
         vm.stopPrank();
@@ -117,8 +120,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: MAX_WRITTEN
         });
         vm.stopPrank();
@@ -145,8 +149,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
             vm.stopPrank();
@@ -174,8 +179,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
@@ -208,8 +214,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
@@ -241,8 +248,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
@@ -270,12 +278,13 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -308,14 +317,15 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
             clarity.netOff(optionTokenId, amountNettedOff);
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -348,14 +358,15 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
             clarity.netOff(optionTokenId, amountNettedOff);
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -387,12 +398,13 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -425,14 +437,15 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
             clarity.netOff(optionTokenId, amountNettedOff);
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -463,12 +476,13 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountWritten);
@@ -490,9 +504,10 @@ contract RebasingTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            americanExWeeklies[0],
+            FRI1,
             1750e18,
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
         );
         uint256 longTokenId = instrumentHash.hashToId();
         uint256 shortTokenId = longTokenId.longToShort();
@@ -534,8 +549,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: 0
         });
 
@@ -553,8 +569,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: SOME_WRITTEN
         });
         vm.stopPrank();
@@ -574,8 +591,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: MANY_WRITTEN
         });
         vm.stopPrank();
@@ -596,8 +614,9 @@ contract RebasingTest is BaseUnitTestSuite {
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
-            exerciseWindow: americanExWeeklies[0],
-            strikePrice: 1900e18,
+            expiry: FRI1,
+            strike: 1900e18,
+            allowEarlyExercise: true,
             optionAmount: MAX_WRITTEN
         });
         vm.stopPrank();
@@ -626,8 +645,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
             vm.stopPrank();
@@ -660,8 +680,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
@@ -696,8 +717,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
@@ -729,8 +751,9 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
@@ -760,12 +783,13 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -800,14 +824,15 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
             clarity.netOff(optionTokenId, amountNettedOff);
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -842,14 +867,15 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
             clarity.netOff(optionTokenId, amountNettedOff);
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -883,12 +909,13 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -923,14 +950,15 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
             clarity.netOff(optionTokenId, amountNettedOff);
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountExercised);
@@ -961,12 +989,13 @@ contract RebasingTest is BaseUnitTestSuite {
             uint256 optionTokenId = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
                 quoteAsset: address(FRAXLIKE),
-                exerciseWindow: americanExWeeklies[0],
-                strikePrice: (1900 + i) * 1e18, // unique option for each test
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
 
-            vm.warp(americanExWeeklies[0][0]);
+            vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
             clarity.exerciseLongs(optionTokenId, amountWritten);
@@ -993,9 +1022,10 @@ contract RebasingTest is BaseUnitTestSuite {
         uint248 instrumentHash = LibOption.paramsToHash(
             address(WETHLIKE),
             address(LUSDLIKE),
-            americanExWeeklies[0],
+            FRI1,
             1750e18,
-            IOption.OptionType.CALL
+            IOption.OptionType.CALL,
+            IOption.ExerciseStyle.AMERICAN
         );
         uint256 longTokenId = instrumentHash.hashToId();
         uint256 shortTokenId = longTokenId.longToShort();

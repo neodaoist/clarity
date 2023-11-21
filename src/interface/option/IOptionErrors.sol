@@ -29,9 +29,9 @@ interface IOptionErrors {
 
     error ExerciseWindowExpiryTooFarInFuture(uint32 expiryTimestamp);
 
-    error StrikePriceTooSmall(uint256 strikePrice);
+    error StrikePriceTooSmall(uint256 strike);
 
-    error StrikePriceTooLarge(uint256 strikePrice);
+    error StrikePriceTooLarge(uint256 strike);
 
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
 
@@ -57,6 +57,8 @@ interface IOptionErrors {
 
     error NetOffAmountZero();
 
+    error CanOnlyCallNetOffForLongs(uint256 tokenId);
+
     /// @dev Also used in ERC20Factory and ClarityWrappedLong
     error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
 
@@ -69,7 +71,9 @@ interface IOptionErrors {
 
     error OptionTokenIdNotLong(uint256 optionTokenId);
 
-    error OptionNotWithinExerciseWindow(uint32 exerciseTimestamp, uint32 expiryTimestamp);
+    error CanOnlyExerciseLongs(uint256 tokenId);
+
+    error OptionNotWithinExerciseWindow(uint32 start, uint32 end);
 
     error ExerciseAmountExceedsLongBalance(uint256 optionAmount, uint256 optionBalance);
 
@@ -79,8 +83,8 @@ interface IOptionErrors {
 
     error EarlyRedemptionOnlyIfFullyAssigned();
 
-    error CanOnlyRedeemShort(uint256 tokenId); // TODO reframe to standardize with other
-        // errors
+    // TODO reframe to standardize with other errors
+    error CanOnlyRedeemShorts(uint256 tokenId);
 
     ///////// Adapter
 
@@ -88,8 +92,8 @@ interface IOptionErrors {
 
     error WrappedShortAlreadyDeployed(uint256 shortTokenId);
 
-    error TokenIdNotShort(uint256 tokenId); // TODO consider using elsewhere, do one for
-        // other types also
+    // TODO or, consider using elsewhere, do one for other types also
+    error TokenIdNotShort(uint256 tokenId);
 
     error ShortAlreadyAssigned(uint256 shortTokenId);
 

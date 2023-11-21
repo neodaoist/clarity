@@ -15,36 +15,12 @@ interface IOption {
         BERMUDAN
     }
 
-    /// @dev Represents a time window in which an option can be exercised
-    /// @param exerciseTimestamp The first timestamp in this window on or after
-    /// which the
-    /// option can be exercised
-    /// @param expiryTimestamp The last timestamp in this window before or on
-    /// which the
-    /// option can be exercised
-    struct ExerciseWindow {
-        uint32 exerciseTimestamp; // max Sun Feb 07 2106 06:28:16 GMT+0000
-        uint32 expiryTimestamp; // ditto
-    }
-
     struct Option {
         address baseAsset;
         address quoteAsset;
-        ExerciseWindow exerciseWindow;
-        uint256 strikePrice;
+        uint32 expiry;
+        uint256 strike;
         OptionType optionType;
         ExerciseStyle exerciseStyle;
     }
-
-    /////////
-
-    function optionTokenId(
-        address baseAsset,
-        address quoteAsset,
-        uint32[] calldata exerciseWindow,
-        uint256 strikePrice,
-        bool isCall
-    ) external view returns (uint256 optionTokenId);
-
-    function option(uint256 optionTokenId) external view returns (Option memory option);
 }

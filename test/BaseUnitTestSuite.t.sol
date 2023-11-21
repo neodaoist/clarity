@@ -66,18 +66,15 @@ abstract contract BaseUnitTestSuite is Test {
     uint32 internal constant THU3 = DAWN + 20 days + 1 hours;
     uint32 internal constant THU4 = DAWN + 27 days + 1 hours;
 
-    uint32[][] internal americanExDailies;
-    uint32[][] internal americanExWeeklies;
-    uint32[][] internal americanExMonthlies;
-    uint32[][] internal americanExQuarterlies;
-    uint32[][] internal europeanExDailies;
-    uint32[][] internal europeanExWeeklies;
-    uint32[][] internal europeanExMonthlies;
-    uint32[][] internal europeanExQuarterlies;
-    uint32[] internal bermudanExEOW; // next 4 weeks
-    uint32[] internal bermudanExEOM; // next Oct, Nov, Dec, Jan
-    uint32[] internal bermudanExEOQ; // next Mar, Jun, Sep, Dec
-    uint32[] internal bermudanExEOY; // next 4 years
+    // uint32[] internal expiryDailies;
+    // uint32[] internal expiryWeeklies;
+    // uint32[] internal expiryMonthlies;
+    // uint32[] internal expiryQuarterlies;
+
+    uint32[] internal bermudanExpiriesFOW; // next 4 weeks
+    uint32[] internal bermudanExpiriesFOM; // next Oct, Nov, Dec, Jan
+    uint32[] internal bermudanExpiriesFOQ; // next Mar, Jun, Sep, Dec
+    uint32[] internal bermudanExpiriesFOY; // next 4 years
 
     uint256 internal constant NUM_TEST_EXERCISE_WINDOWS = 4;
 
@@ -142,37 +139,6 @@ abstract contract BaseUnitTestSuite is Test {
         holder1 = holders[0];
         holder2 = holders[1];
         holder3 = holders[2];
-
-        // make test exercise windows
-        // American
-        americanExWeeklies = new uint32[][](4);
-        americanExWeeklies[0] = new uint32[](2);
-        americanExWeeklies[1] = new uint32[](2);
-        americanExWeeklies[2] = new uint32[](2);
-        americanExWeeklies[3] = new uint32[](2);
-        americanExWeeklies[0][0] = DAWN + 1 seconds;
-        americanExWeeklies[0][1] = FRI1;
-        americanExWeeklies[1][0] = FRI1 + 1 seconds;
-        americanExWeeklies[1][1] = FRI2;
-        americanExWeeklies[2][0] = FRI2 + 1 seconds;
-        americanExWeeklies[2][1] = FRI3;
-        americanExWeeklies[3][0] = FRI3 + 1 seconds;
-        americanExWeeklies[3][1] = FRI4;
-
-        // European
-        europeanExWeeklies = new uint32[][](4);
-        europeanExWeeklies[0] = new uint32[](2);
-        europeanExWeeklies[1] = new uint32[](2);
-        europeanExWeeklies[2] = new uint32[](2);
-        europeanExWeeklies[3] = new uint32[](2);
-        europeanExWeeklies[0][0] = FRI1 - 1 hours;
-        europeanExWeeklies[0][1] = FRI1;
-        europeanExWeeklies[1][0] = FRI2 - 1 hours;
-        europeanExWeeklies[1][1] = FRI2;
-        europeanExWeeklies[2][0] = FRI3 - 1 hours;
-        europeanExWeeklies[2][1] = FRI3;
-        europeanExWeeklies[3][0] = FRI4 - 1 hours;
-        europeanExWeeklies[3][1] = FRI4;
     }
 
     ///////// Actor Helpers
@@ -280,8 +246,8 @@ abstract contract BaseUnitTestSuite is Test {
     function assertEq(IOption.Option memory a, IOption.Option memory b) internal {
         assertEq(a.baseAsset, b.baseAsset);
         assertEq(a.quoteAsset, b.quoteAsset);
-        assertEq(a.exerciseWindow, b.exerciseWindow);
-        assertEq(a.strikePrice, b.strikePrice);
+        assertEq(a.expiry, b.expiry);
+        assertEq(a.strike, b.strike);
         assertEq(a.optionType, b.optionType);
         assertEq(a.exerciseStyle, b.exerciseStyle);
     }
@@ -291,8 +257,8 @@ abstract contract BaseUnitTestSuite is Test {
     {
         assertEq(a.baseAsset, b.baseAsset, err);
         assertEq(a.quoteAsset, b.quoteAsset, err);
-        assertEq(a.exerciseWindow, b.exerciseWindow, err);
-        assertEq(a.strikePrice, b.strikePrice, err);
+        assertEq(a.expiry, b.expiry);
+        assertEq(a.strike, b.strike, err);
         assertEq(a.optionType, b.optionType, err);
         assertEq(a.exerciseStyle, b.exerciseStyle, err);
     }
@@ -328,37 +294,6 @@ abstract contract BaseUnitTestSuite is Test {
         internal
     {
         if (a != b) {
-            emit log_named_string("Error", err);
-            assertEq(a, b);
-        }
-    }
-
-    function assertEq(IOption.ExerciseWindow memory a, IOption.ExerciseWindow memory b)
-        internal
-    {
-        if (a.exerciseTimestamp != b.exerciseTimestamp) {
-            emit log("Error: a == b not satisfied [ExerciseWindow.exerciseTimestamp]");
-            emit log_named_uint("      Left", a.exerciseTimestamp);
-            emit log_named_uint("     Right", b.exerciseTimestamp);
-            fail();
-        }
-        if (a.expiryTimestamp != b.expiryTimestamp) {
-            emit log("Error: a == b not satisfied [ExerciseWindow.expiryTimestamp]");
-            emit log_named_uint("      Left", a.expiryTimestamp);
-            emit log_named_uint("     Right", b.expiryTimestamp);
-            fail();
-        }
-    }
-
-    function assertEq(
-        IOption.ExerciseWindow memory a,
-        IOption.ExerciseWindow memory b,
-        string memory err
-    ) internal {
-        if (
-            a.exerciseTimestamp != b.exerciseTimestamp
-                || a.expiryTimestamp != b.expiryTimestamp
-        ) {
             emit log_named_string("Error", err);
             assertEq(a, b);
         }
