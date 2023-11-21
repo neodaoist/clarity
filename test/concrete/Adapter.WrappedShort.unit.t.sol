@@ -35,9 +35,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         vm.stopPrank();
@@ -76,14 +81,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
-            optionTokenIds[i] = clarity.writeNewCall(
-                address(WETHLIKE),
-                address(FRAXLIKE),
-                FRI1,
-                (1750 + i) * 10 ** 18,
-                true,
-                10e6
-            );
+            optionTokenIds[i] = clarity.writeNewCall({
+                baseAsset: address(WETHLIKE),
+                quoteAsset: address(FRAXLIKE),
+                expiry: FRI1,
+                strike: (1750 + i) * 10 ** 18,
+                allowEarlyExercise: true,
+                optionAmount: 10e6
+            });
             shortTokenIds[i] = optionTokenIds[i].longToShort();
             wrappedShorts[i] =
                 ClarityWrappedShort(factory.deployWrappedShort(shortTokenIds[i]));
@@ -147,9 +152,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
@@ -168,9 +178,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
     function testRevert_wrapShorts_whenAmountZero() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         vm.stopPrank();
@@ -184,9 +199,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
     function testRevert_wrapShorts_whenOptionExpired() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         vm.stopPrank();
@@ -209,9 +229,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
@@ -233,9 +258,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
     function testRevert_wrapShorts_whenCallerHoldsInsufficientShorts() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         vm.stopPrank();
@@ -256,9 +286,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
 
@@ -280,9 +315,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
@@ -326,14 +366,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         for (uint256 i = 0; i < numOptions; i++) {
-            optionTokenIds[i] = clarity.writeNewCall(
-                address(WETHLIKE),
-                address(FRAXLIKE),
-                FRI1,
-                (1750 + i) * 10 ** 18,
-                true,
-                10e6
-            );
+            optionTokenIds[i] = clarity.writeNewCall({
+                baseAsset: address(WETHLIKE),
+                quoteAsset: address(FRAXLIKE),
+                expiry: FRI1,
+                strike: (1750 + i) * 10 ** 18,
+                allowEarlyExercise: true,
+                optionAmount: 10e6
+            });
             shortTokenIds[i] = optionTokenIds[i].longToShort();
             wrappedShorts[i] =
                 ClarityWrappedShort(factory.deployWrappedShort(shortTokenIds[i]));
@@ -413,9 +453,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
@@ -436,9 +481,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);
@@ -457,9 +507,14 @@ contract WrappedShortTest is BaseUnitTestSuite {
         // Given
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(FRAXLIKE), FRI1, 1750e18, true, 10e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(FRAXLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 10e6
+        });
         uint256 shortTokenId = optionTokenId.longToShort();
         wrappedShort = ClarityWrappedShort(factory.deployWrappedShort(shortTokenId));
         clarity.approve(address(wrappedShort), shortTokenId, type(uint256).max);

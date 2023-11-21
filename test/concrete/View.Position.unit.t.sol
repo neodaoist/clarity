@@ -19,9 +19,14 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_tokenType() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
         vm.stopPrank();
 
         assertEq(
@@ -67,9 +72,14 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function testRevert_tokenType_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
         vm.stopPrank();
 
         // Then
@@ -89,9 +99,14 @@ contract PositionViewTest is BaseUnitTestSuite {
         // Given writer1 writes 1 options
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 1e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
         vm.stopPrank();
 
         // And writer2 writes 0.25 options
@@ -141,9 +156,14 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_whenTokenTypeIsShort() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 17e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 17e6
+        });
 
         // When
         (IPosition.Position memory position, int160 magnitude) =
@@ -160,9 +180,14 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_whenTokenTypeIsAssignedShort() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 17e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 17e6
+        });
 
         // When
         (IPosition.Position memory position, int160 magnitude) =
@@ -180,9 +205,14 @@ contract PositionViewTest is BaseUnitTestSuite {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        oti1 = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0.15e6
-        );
+        oti1 = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0.15e6
+        });
         vm.stopPrank();
 
         // And writer2 writes 0.35 options of oti1
@@ -290,9 +320,14 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function testRevert_position_whenOptionExistsButInvalidTokenType() public {
         vm.startPrank(writer);
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 0
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
         vm.stopPrank();
 
         // Then

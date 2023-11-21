@@ -19,9 +19,14 @@ contract NetOffTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1750e18, true, 1e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1750e18,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
         vm.stopPrank();
 
         // pre net off
@@ -91,9 +96,14 @@ contract NetOffTest is BaseUnitTestSuite {
     function testRevert_netOff_whenDontHoldSufficientLongs() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), FRI1, 1750e18, true, 1e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
         clarity.transfer(holder, optionTokenId, 0.1e6);
 
         vm.expectRevert(
@@ -109,9 +119,14 @@ contract NetOffTest is BaseUnitTestSuite {
     function testRevert_netOff_whenDontHoldSufficientShorts() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        uint256 optionTokenId = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), FRI1, 1750e18, true, 1e6
-        );
+        uint256 optionTokenId = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1750e6,
+            allowEarlyExercise: true,
+            optionAmount: 1e6
+        });
         clarity.transfer(holder, LibPosition.longToShort(optionTokenId), 0.1e6);
 
         vm.expectRevert(

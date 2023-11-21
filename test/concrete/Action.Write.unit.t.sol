@@ -1937,30 +1937,71 @@ contract WriteTest is BaseUnitTestSuite {
 
         vm.startPrank(writer);
         uint256[] memory optionTokenIds = new uint256[](8);
-        optionTokenIds[0] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
-        );
-        optionTokenIds[1] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
-        );
-        optionTokenIds[2] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
-        );
-        optionTokenIds[3] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
-        );
-        optionTokenIds[4] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI4, 1700e18, true, 0
-        );
-        optionTokenIds[5] = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), FRI1, 1675e6, true, 0
-        );
-        optionTokenIds[6] = clarity.writeNewCall(
-            address(WBTCLIKE), address(LUSDLIKE), FRI2, 21_001e18, true, 0
-        );
-        optionTokenIds[7] = clarity.writeNewPut(
-            address(WBTCLIKE), address(USDCLIKE), FRI2, 21_001e6, true, 0
-        );
+        optionTokenIds[0] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[1] = clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[2] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1725e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[3] = clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1725e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[4] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI4,
+            strike: 1700e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[5] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1675e6,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[6] = clarity.writeNewCall({
+            baseAsset: address(WBTCLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI2,
+            strike: 21_001e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[7] = clarity.writeNewPut({
+            baseAsset: address(WBTCLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI2,
+            strike: 21_001e6,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+
         uint64[] memory optionAmounts = new uint64[](8);
         optionAmounts[0] = 1.25e6;
         optionAmounts[1] = 0.000001e6;
@@ -2101,30 +2142,71 @@ contract WriteTest is BaseUnitTestSuite {
     function testEvent_batchWriteExisting_OptionsWritten() public {
         vm.startPrank(writer);
         uint256[] memory optionTokenIds = new uint256[](8);
-        optionTokenIds[0] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
-        );
-        optionTokenIds[1] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1700e18, true, 0
-        );
-        optionTokenIds[2] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
-        );
-        optionTokenIds[3] = clarity.writeNewPut(
-            address(WETHLIKE), address(LUSDLIKE), FRI1, 1725e18, true, 0
-        );
-        optionTokenIds[4] = clarity.writeNewCall(
-            address(WETHLIKE), address(LUSDLIKE), FRI4, 1700e18, true, 0
-        );
-        optionTokenIds[5] = clarity.writeNewCall(
-            address(WETHLIKE), address(USDCLIKE), FRI1, 1675e6, true, 0
-        );
-        optionTokenIds[6] = clarity.writeNewCall(
-            address(WBTCLIKE), address(LUSDLIKE), FRI2, 21_001e18, true, 0
-        );
-        optionTokenIds[7] = clarity.writeNewPut(
-            address(WBTCLIKE), address(USDCLIKE), FRI2, 21_001e6, true, 0
-        );
+        optionTokenIds[0] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[1] = clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1700e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[2] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1725e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[3] = clarity.writeNewPut({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI1,
+            strike: 1725e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[4] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI4,
+            strike: 1700e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[5] = clarity.writeNewCall({
+            baseAsset: address(WETHLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI1,
+            strike: 1675e6,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[6] = clarity.writeNewCall({
+            baseAsset: address(WBTCLIKE),
+            quoteAsset: address(LUSDLIKE),
+            expiry: FRI2,
+            strike: 21_001e18,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        optionTokenIds[7] = clarity.writeNewPut({
+            baseAsset: address(WBTCLIKE),
+            quoteAsset: address(USDCLIKE),
+            expiry: FRI2,
+            strike: 21_001e6,
+            allowEarlyExercise: true,
+            optionAmount: 0
+        });
+        
         uint64[] memory optionAmounts = new uint64[](8);
         optionAmounts[0] = 1.25e6;
         optionAmounts[1] = 0.000001e6;
