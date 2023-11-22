@@ -311,40 +311,6 @@ contract ClarityMarkets is
         magnitude = int160(int256(longBalance) - int256(shortBalance));
     }
 
-    /// @notice Returns the amount of options that can be netted off for a given token
-    /// holder and option
-    /// @param _optionTokenId The token id of the option
-    /// @return optionAmount The amount of options that can be netted off
-    function positionNettableAmount(uint256 _optionTokenId)
-        external
-        pure
-        returns (uint64 optionAmount)
-    {
-        revert("not yet impl"); // TODO
-    }
-
-    /// @notice Returns the amount of underlying asset that can be redeemed for a given
-    /// token holder and option
-    /// @param shortTokenId The token id of the short
-    /// @return writeAssetAmount The amount of write asset that can be redeemed
-    /// @return writeAssetWhen The timestamp on or after which the write asset can be
-    /// redeemed
-    /// @return exerciseAssetAmount The amount of exercise asset that can be redeemed
-    /// @return exerciseAssetWhen The timestamp on or after which the exercise asset can
-    /// be redeemed
-    function positionRedeemableAmount(uint256 shortTokenId)
-        external
-        view
-        returns (
-            uint64 writeAssetAmount,
-            uint32 writeAssetWhen,
-            uint64 exerciseAssetAmount,
-            uint32 exerciseAssetWhen
-        )
-    {
-        revert("not yet impl"); // TODO
-    }
-
     // ERC6909 Rebasing
 
     /// @notice Returns the total supply of a given token id
@@ -1053,11 +1019,13 @@ contract ClarityMarkets is
         // Track the clearing liabilities
         address writeAsset = optionStored.writeAsset;
         address exerciseAsset = optionStored.exerciseAsset;
+
+        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
         uint256 fullAmountForExercise =
             uint256(optionStored.exerciseAmount) * optionAmount;
-        uint256 fullAmountForWrite = uint256(optionStored.writeAmount) * optionAmount;
-        _incrementClearingLiability(exerciseAsset, fullAmountForExercise);
+
         _decrementClearingLiability(writeAsset, fullAmountForWrite);
+        _incrementClearingLiability(exerciseAsset, fullAmountForExercise);
 
         ///////// Interactions
         // Transfer in the exercise asset
@@ -1136,6 +1104,7 @@ contract ClarityMarkets is
 
         // Track the clearing liabilities
         address exerciseAsset = optionStored.exerciseAsset;
+
         if (writeAssetRedeemed > 0) {
             _decrementClearingLiability(writeAsset, writeAssetRedeemed);
         }

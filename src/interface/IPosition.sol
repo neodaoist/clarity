@@ -25,19 +25,4 @@ interface IPosition {
         external
         view
         returns (Position memory position, int160 magnitude);
-
-    function positionNettableAmount(uint256 tokenId)
-        external
-        view
-        returns (uint64 amount);
-
-    function positionRedeemableAmount(uint256 tokenId)
-        external
-        view
-        returns (
-            uint64 writeAssetAmount,
-            uint32 writeAssetWhen,
-            uint64 exerciseAssetAmount,
-            uint32 exerciseAssetWhen
-        );
 }

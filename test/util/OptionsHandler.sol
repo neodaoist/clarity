@@ -18,6 +18,9 @@ import {console2} from "forge-std/console2.sol";
 // Test Contracts
 import {MockERC20} from "./MockERC20.sol";
 
+// Interfaces
+import {IOption} from "../../src/interface/option/IOption.sol";
+
 // Contract Under Test
 import "../../src/ClarityMarkets.sol";
 
@@ -131,7 +134,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // }
     }
 
-    // TODO refactor to rationalize test utilities and inheritance
+    // TODO refactor to DRY up unit test utilities and LibMath functions
+
     function scaleUpAssetAmount(IERC20 token, uint256 amount)
         internal
         view
@@ -140,7 +144,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return amount * (10 ** token.decimals());
     }
 
-    function scaleUpFullWriteAmountCall(IERC20 token, uint256 amount)
+    function scaleUpBaseAssetAmountForOption(IERC20 token, uint256 amount)
         internal
         view
         returns (uint256)
@@ -148,7 +152,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return amount * (10 ** (token.decimals() - CONTRACT_SCALAR));
     }
 
-    function scaleUpFullWriteAmountPut(uint256 amount) internal pure returns (uint256) {
+    function scaleDownQuoteAssetAmountForOption(uint256 amount)
+        internal
+        pure
+        returns (uint256)
+    {
         return amount / (10 ** CONTRACT_SCALAR);
     }
 
@@ -178,8 +186,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.startPrank(currentActor);
         IERC20 baseAsset = baseAssets.at(baseAssetIndex);
 
-        uint256 fullAmountForWrite = scaleUpFullWriteAmountCall(baseAsset, optionAmount);
-        deal(address(baseAsset), currentActor, fullAmountForWrite);
+        uint256 writeAssetAmount =
+            scaleUpBaseAssetAmountForOption(baseAsset, optionAmount);
+        deal(address(baseAsset), currentActor, writeAssetAmount);
 
         baseAsset.approve(address(clarity), type(uint256).max);
 
@@ -197,7 +206,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _options.add(optionTokenId);
 
         // track ghost variables
-        ghost_clearingLiabilityFor[address(baseAsset)] += fullAmountForWrite;
+        ghost_clearingLiabilityFor[address(baseAsset)] += writeAssetAmount;
 
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
@@ -229,8 +238,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.startPrank(currentActor);
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
-        uint256 fullAmountForWrite = scaleUpFullWriteAmountPut(strike * optionAmount);
-        deal(address(quoteAsset), currentActor, fullAmountForWrite);
+        uint256 writeAssetAmount =
+            scaleDownQuoteAssetAmountForOption(strike * optionAmount);
+        deal(address(quoteAsset), currentActor, writeAssetAmount);
 
         quoteAsset.approve(address(clarity), type(uint256).max);
 
@@ -248,7 +258,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _options.add(optionTokenId);
 
         // track ghost variables
-        ghost_clearingLiabilityFor[address(quoteAsset)] += fullAmountForWrite;
+        ghost_clearingLiabilityFor[address(quoteAsset)] += writeAssetAmount;
 
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
@@ -257,13 +267,21 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         ghost_shortOwnersOf[optionTokenId].push(currentActor);
     }
 
-    function writeExistingCall() external {}
+    function writeExistingCall() external {
+        // TODO
+    }
 
-    function writeExistingPut() external {}
+    function writeExistingPut() external {
+        // TODO
+    }
 
-    function batchWriteCalls() external {}
+    function batchWriteCalls() external {
+        // TODO
+    }
 
-    function batchWritePuts() external {}
+    function batchWritePuts() external {
+        // TODO
+    }
 
     // Transfer
 
@@ -303,6 +321,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
         uint256 shortTokenId = optionTokenId.longToShort();
 
+        // don't attempt to transfer already-assigned shorts
+        vm.assume(clarity.totalSupply(optionTokenId.longToAssignedShort()) == 0);
+
         // set sender
         ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
         address sender = ghost_shortOwnersOf[optionTokenId][ownerIndex];
@@ -326,15 +347,98 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Net Off
 
-    function netOff() external {}
+    function netOff() external {
+        // TODO
+    }
 
     // Exercise
 
-    function exerciseLong() external {}
+    function exerciseLongs(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
+        external
+        countCall("exerciseLongs")
+    {
+        // set option token id
+        uint256 optionTokenId = _options.at(optionIndex % _options.count());
+
+        // set holder
+        ownerIndex = ownerIndex % ghost_longOwnersOf[optionTokenId].length;
+        address holder = ghost_longOwnersOf[optionTokenId][ownerIndex];
+
+        // bind option amount
+        optionAmount = bound(optionAmount, 1, clarity.balanceOf(holder, optionTokenId));
+
+        // get option info
+        IOption.Option memory option = clarity.option(optionTokenId);
+
+        // warp into exercise window, if necessary
+        if (option.exerciseStyle == IOption.ExerciseStyle.EUROPEAN) {
+            vm.warp(option.expiry); // TODO improve time injection
+        }
+
+        // set call vs. put specifics
+        IERC20 writeAsset;
+        IERC20 exerciseAsset;
+        uint256 writeAssetAmount;
+        uint256 exerciseAssetAmount;
+
+        if (option.optionType == IOption.OptionType.CALL) {
+            writeAsset = IERC20(option.baseAsset);
+            exerciseAsset = IERC20(option.quoteAsset);
+            writeAssetAmount = scaleUpBaseAssetAmountForOption(writeAsset, optionAmount);
+            exerciseAssetAmount =
+                scaleDownQuoteAssetAmountForOption(option.strike * optionAmount);
+        } else {
+            writeAsset = IERC20(option.quoteAsset);
+            exerciseAsset = IERC20(option.baseAsset);
+            writeAssetAmount =
+                scaleDownQuoteAssetAmountForOption(option.strike * optionAmount);
+            exerciseAssetAmount =
+                scaleUpBaseAssetAmountForOption(exerciseAsset, optionAmount);
+        }
+
+        // deal asset, approve clearinghouse, exercise options
+        deal(address(exerciseAsset), holder, exerciseAssetAmount);
+        vm.startPrank(holder);
+        exerciseAsset.approve(address(clarity), exerciseAssetAmount);
+        clarity.exerciseLongs(optionTokenId, uint64(optionAmount));
+        vm.stopPrank();
+
+        // track ghost variables
+        ghost_clearingLiabilityFor[address(writeAsset)] -= writeAssetAmount;
+        ghost_clearingLiabilityFor[address(exerciseAsset)] += exerciseAssetAmount;
+
+        ghost_longSumFor[optionTokenId] -= optionAmount;
+        ghost_shortSumFor[optionTokenId] -= optionAmount;
+        ghost_assignedShortSumFor[optionTokenId] += optionAmount;
+
+        // if holder has no more options, swap and pop from long owners array
+        if (clarity.balanceOf(holder, optionTokenId) == 0) {
+            uint256 lastIndex = ghost_longOwnersOf[optionTokenId].length - 1;
+            address lastElement = ghost_longOwnersOf[optionTokenId][lastIndex];
+            ghost_longOwnersOf[optionTokenId][ownerIndex] = lastElement;
+            ghost_longOwnersOf[optionTokenId].pop();
+        }
+        // if a given writer has no more shorts, swap and pop from short owners array
+        for (uint256 i = 0; i < ghost_shortOwnersOf[optionTokenId].length; i++) {
+            uint256 shortBalance = clarity.balanceOf(
+                ghost_shortOwnersOf[optionTokenId][i], optionTokenId.longToShort()
+            );
+            if (shortBalance == 0) {
+                uint256 lastIndex = ghost_shortOwnersOf[optionTokenId].length - 1;
+                address lastElement = ghost_shortOwnersOf[optionTokenId][lastIndex];
+                ghost_shortOwnersOf[optionTokenId][i] = lastElement;
+                ghost_shortOwnersOf[optionTokenId].pop();
+            }
+        }
+    }
 
     // Redeem
 
-    function redeemShort() external {}
+    function redeemShorts() external {
+        // TODO
+    }
+
+    // Util
 
     function callSummary() external view {
         console2.log("Call summary:");
@@ -343,6 +447,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         console2.log("writeNewPut", calls["writeNewPut"]);
         console2.log("transferLongs", calls["transferLongs"]);
         console2.log("transferShorts", calls["transferShorts"]);
+        console2.log("exerciseLongs", calls["exerciseLongs"]);
     }
 
     ///////// Actors
