@@ -22,7 +22,7 @@ runs = 100
 
 [invariant]
 runs = 10
-depth = 100
+depth = 500
 max_test_rejects = 1_000_000
 call_override = false
 fail_on_revert = false
