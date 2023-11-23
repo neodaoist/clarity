@@ -686,30 +686,21 @@ contract ClarityMarkets is
             revert OptionAlreadyExists(_optionTokenId);
         }
 
-        // Check that the exercise window is valid
-        // if (exerciseWindow.length != 2) {
-        //     revert ExerciseWindowMispaired();
-        // }
-        // if (exerciseWindow[0] == exerciseWindow[1]) {
-        //     revert ExerciseWindowZeroTime(exerciseWindow[0], exerciseWindow[1]);
-        // }
-        // if (exerciseWindow[0] > exerciseWindow[1]) {
-        //     revert ExerciseWindowMisordered(exerciseWindow[0], exerciseWindow[1]);
-        // }
+        // Check that the expiry is valid
         if (expiry <= block.timestamp) {
-            revert ExerciseWindowExpiryPast(expiry);
+            revert ExpiryPast(expiry);
         }
         // Not possible with strongly typed input args
         if (expiry > MAXIMUM_EXPIRY) {
-            revert ExerciseWindowExpiryTooFarInFuture(expiry);
+            revert ExpiryTooFarInFuture(expiry);
         }
 
-        // Check that strike price is valid
+        // Check that strike is valid
         if (strike < MINIMUM_STRIKE) {
-            revert StrikePriceTooSmall(strike);
+            revert StrikeTooSmall(strike);
         }
         if (strike > MAXIMUM_STRIKE) {
-            revert StrikePriceTooLarge(strike);
+            revert StrikeTooLarge(strike);
         }
 
         // Check that option amount does not exceed max writable

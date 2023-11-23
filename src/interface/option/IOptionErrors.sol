@@ -25,13 +25,13 @@ interface IOptionErrors {
 
     error ExerciseWindowMisordered(uint32 exerciseTimestamp, uint32 expiryTimestamp);
 
-    error ExerciseWindowExpiryPast(uint32 expiryTimestamp);
+    error ExpiryPast(uint32 expiryTimestamp);
 
-    error ExerciseWindowExpiryTooFarInFuture(uint32 expiryTimestamp);
+    error ExpiryTooFarInFuture(uint32 expiryTimestamp);
 
-    error StrikePriceTooSmall(uint256 strike);
+    error StrikeTooSmall(uint256 strike);
 
-    error StrikePriceTooLarge(uint256 strike);
+    error StrikeTooLarge(uint256 strike);
 
     error OptionExpired(uint256 optionTokenId, uint32 expiryTimestamp);
 
