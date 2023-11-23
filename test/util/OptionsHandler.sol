@@ -50,6 +50,10 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     // Ghost Variables
     mapping(address => uint256) public ghost_clearingLiabilityFor;
 
+    mapping(uint256 => uint256) public ghost_amountWrittenFor;
+    mapping(uint256 => uint256) public ghost_amountNettedOffFor;
+    mapping(uint256 => uint256) public ghost_amountExercisedFor;
+
     mapping(uint256 => uint256) public ghost_longSumFor;
     mapping(uint256 => uint256) public ghost_shortSumFor;
     mapping(uint256 => uint256) public ghost_assignedShortSumFor;
@@ -192,6 +196,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // track ghost variables
         ghost_clearingLiabilityFor[address(baseAsset)] += writeAssetAmount;
 
+        ghost_amountWrittenFor[optionTokenId] += optionAmount;
+
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
 
@@ -244,6 +250,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // track ghost variables
         ghost_clearingLiabilityFor[address(quoteAsset)] += writeAssetAmount;
 
+        ghost_amountWrittenFor[optionTokenId] += optionAmount;
+
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
 
@@ -291,6 +299,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // track ghost variables
         ghost_clearingLiabilityFor[address(writeAsset)] += writeAssetAmount;
+
+        ghost_amountWrittenFor[optionTokenId] += optionAmount;
 
         ghost_longSumFor[optionTokenId] += optionAmount;
         ghost_shortSumFor[optionTokenId] += optionAmount;
@@ -426,6 +436,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // track ghost variables
         ghost_clearingLiabilityFor[address(writeAsset)] -= writeAssetAmount;
         ghost_clearingLiabilityFor[address(exerciseAsset)] += exerciseAssetAmount;
+
+        ghost_amountExercisedFor[optionTokenId] += optionAmount;
 
         ghost_longSumFor[optionTokenId] -= optionAmount;
         ghost_shortSumFor[optionTokenId] -= optionAmount;
