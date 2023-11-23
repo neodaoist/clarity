@@ -96,6 +96,21 @@ contract ClarityMarketsInvariantTest is Test {
         }
     }
 
+    function invariantC1_totalSupplyOfLongsEqTotalSupplyOfShorts() public {
+        console2.log("invariantC1_totalSupplyOfLongsEqTotalSupplyOfShorts");
+
+        for (uint256 i = 0; i < handler.optionsCount(); i++) {
+            uint256 optionTokenId = handler.optionTokenIdAt(i);
+            uint256 shortTokenId = optionTokenId.longToShort();
+
+            assertEq(
+                clarity.totalSupply(optionTokenId),
+                clarity.totalSupply(shortTokenId),
+                "totalSupplyOfLongsEqTotalSupplyOfShorts"
+            );
+        }
+    }
+
     function invariantUtil_callSummary() public view {
         handler.callSummary();
     }
