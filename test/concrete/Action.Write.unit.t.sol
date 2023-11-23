@@ -605,11 +605,9 @@ contract WriteTest is BaseUnitTestSuite {
     //     });
     // }
 
-    function testRevert_writeNewCall_whenExerciseWindowExpiryPast() public {
+    function testRevert_writeNewCall_whenExpiryPast() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
-            )
+            abi.encodeWithSelector(IOptionErrors.ExpiryPast.selector, DAWN - 1 days)
         );
 
         vm.prank(writer);
@@ -623,9 +621,9 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeNewCall_whenStrikePriceTooSmall() public {
+    function testRevert_writeNewCall_whenStrikeTooSmall() public {
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
+            abi.encodeWithSelector(IOptionErrors.StrikeTooSmall.selector, 1e6 - 1)
         );
 
         vm.prank(writer);
@@ -639,11 +637,11 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeNewCall_whenStrikePriceTooLarge() public {
+    function testRevert_writeNewCall_whenStrikeTooLarge() public {
         uint256 tooLarge = ((2 ** 64 - 1) * 1e6) + 1;
 
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.StrikePriceTooLarge.selector, tooLarge)
+            abi.encodeWithSelector(IOptionErrors.StrikeTooLarge.selector, tooLarge)
         );
 
         vm.prank(writer);
@@ -1303,11 +1301,9 @@ contract WriteTest is BaseUnitTestSuite {
     //     });
     // }
 
-    function testRevert_writeNewPut_whenExerciseWindowExpiryPast() public {
+    function testRevert_writeNewPut_whenExpiryPast() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.ExerciseWindowExpiryPast.selector, DAWN - 1 days
-            )
+            abi.encodeWithSelector(IOptionErrors.ExpiryPast.selector, DAWN - 1 days)
         );
 
         vm.prank(writer);
@@ -1321,9 +1317,9 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeNewPut_whenStrikePriceTooSmall() public {
+    function testRevert_writeNewPut_whenStrikeTooSmall() public {
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.StrikePriceTooSmall.selector, 1e6 - 1)
+            abi.encodeWithSelector(IOptionErrors.StrikeTooSmall.selector, 1e6 - 1)
         );
 
         vm.prank(writer);
@@ -1337,11 +1333,11 @@ contract WriteTest is BaseUnitTestSuite {
         });
     }
 
-    function testRevert_writeNewPut_whenStrikePriceTooLarge() public {
+    function testRevert_writeNewPut_whenStrikeTooLarge() public {
         uint256 tooLarge = ((2 ** 64 - 1) * 1e6) + 1;
 
         vm.expectRevert(
-            abi.encodeWithSelector(IOptionErrors.StrikePriceTooLarge.selector, tooLarge)
+            abi.encodeWithSelector(IOptionErrors.StrikeTooLarge.selector, tooLarge)
         );
 
         vm.prank(writer);

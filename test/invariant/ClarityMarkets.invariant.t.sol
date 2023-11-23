@@ -33,12 +33,16 @@ contract ClarityMarketsInvariantTest is Test {
         handler = new OptionsHandler(clarity);
 
         // target contracts
-        bytes4[] memory selectors = new bytes4[](5);
+        bytes4[] memory selectors = new bytes4[](6);
+        // Write
         selectors[0] = OptionsHandler.writeNewCall.selector;
         selectors[1] = OptionsHandler.writeNewPut.selector;
-        selectors[2] = OptionsHandler.transferLongs.selector;
-        selectors[3] = OptionsHandler.transferShorts.selector;
-        selectors[4] = OptionsHandler.exerciseLongs.selector;
+        selectors[2] = OptionsHandler.writeExisting.selector;
+        // Transfer
+        selectors[3] = OptionsHandler.transferLongs.selector;
+        selectors[4] = OptionsHandler.transferShorts.selector;
+        // Exercise
+        selectors[5] = OptionsHandler.exerciseLongs.selector;
 
         targetSelector(FuzzSelector({addr: address(handler), selectors: selectors}));
         targetContract(address(handler));
