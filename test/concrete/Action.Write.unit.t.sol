@@ -607,9 +607,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function testRevert_writeNewCall_whenExpiryPast() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.ExpiryPast.selector, DAWN - 1 days
-            )
+            abi.encodeWithSelector(IOptionErrors.ExpiryPast.selector, DAWN - 1 days)
         );
 
         vm.prank(writer);
@@ -1305,9 +1303,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function testRevert_writeNewPut_whenExpiryPast() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IOptionErrors.ExpiryPast.selector, DAWN - 1 days
-            )
+            abi.encodeWithSelector(IOptionErrors.ExpiryPast.selector, DAWN - 1 days)
         );
 
         vm.prank(writer);

@@ -832,7 +832,6 @@ contract ClarityMarkets is
         }
 
         // Check that amount is not greater than the remaining writable amount
-        // (not DRY with remainingWritableAmount() but is more gas efficient)
         if (optionAmount > (MAXIMUM_WRITABLE - optionStored.optionState.amountWritten)) {
             revert WriteAmountTooLarge(optionAmount);
         }
