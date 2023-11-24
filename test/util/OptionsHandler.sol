@@ -36,17 +36,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     // Contract Under Test
     ClarityMarkets private clarity;
 
-    // Collection Helpers
-    AssetSet private baseAssets;
-    AssetSet private quoteAssets;
-
-    ActorSet private _actors;
-    address private currentActor;
-
-    OptionSet private _options;
-
-    mapping(bytes32 => uint256) private calls;
-
     // Ghost Variables
     mapping(address => uint256) public ghost_clearingLiabilityFor;
 
@@ -61,7 +50,19 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     mapping(uint256 => address[]) public ghost_longOwnersOf;
     mapping(uint256 => address[]) public ghost_shortOwnersOf;
 
+    mapping(bytes32 => uint256) private calls;
+
+    // Actors
+
+    ActorSet private _actors;
+
+    address private currentActor;
+
     // Assets
+
+    AssetSet private baseAssets;
+    AssetSet private quoteAssets;
+
     // volatile
     IERC20 private WETHLIKE;
     IERC20 private WBTCLIKE;
@@ -74,6 +75,16 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     IERC20 private USDTLIKE;
 
     uint8 private constant CONTRACT_SCALAR = 6;
+
+    // Options
+
+    OptionSet private _options;
+
+    // Time
+
+    uint32 private currentTime;
+
+    uint32 private constant DAWN = 1;
 
     // Modifiers
 
@@ -90,7 +101,17 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _;
     }
 
+    modifier requireOpenInterest() {
+        vm.assume(calls["writeNewCall"] > 0 || calls["writeNewPut"] > 0);
+
+        _;
+    }
+
+    // Contructor
+
     constructor(ClarityMarkets _clarity) {
+        vm.warp(DAWN);
+
         clarity = _clarity;
 
         // deploy test assets
@@ -170,7 +191,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // bind strike price
         strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
 
-        // deal asset, approve clearinghouse, write options
+        // deal asset, approve clearinghouse, and write options
         vm.startPrank(currentActor);
         IERC20 baseAsset = baseAssets.at(baseAssetIndex);
 
@@ -224,7 +245,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
         strike = strike - (strike % (10 ** CONTRACT_SCALAR));
 
-        // deal asset, approve clearinghouse, write options
+        // deal asset, approve clearinghouse, and write options
         vm.startPrank(currentActor);
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
@@ -263,6 +284,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         createActor
         countCall("writeExisting")
+        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -319,6 +341,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         createActor
         countCall("transferLongs")
+        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -346,6 +369,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         createActor
         countCall("transferShorts")
+        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -386,6 +410,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     function exerciseLongs(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
         external
         countCall("exerciseLongs")
+        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -401,7 +426,13 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         IOption.Option memory option = clarity.option(optionTokenId);
 
         // warp into exercise window, if necessary
-        if (option.exerciseStyle == IOption.ExerciseStyle.EUROPEAN) {
+        if (
+            block.timestamp > option.expiry
+                || (
+                    option.exerciseStyle == IOption.ExerciseStyle.EUROPEAN
+                        && block.timestamp < option.expiry - 1 days
+                )
+        ) {
             vm.warp(option.expiry); // TODO improve time injection
         }
 
@@ -426,7 +457,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
                 scaleUpBaseAssetAmountForOption(exerciseAsset, optionAmount);
         }
 
-        // deal asset, approve clearinghouse, exercise options
+        // deal asset, approve clearinghouse, and exercise options
         deal(address(exerciseAsset), holder, exerciseAssetAmount);
         vm.startPrank(holder);
         exerciseAsset.approve(address(clarity), exerciseAssetAmount);
@@ -466,8 +497,63 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Redeem
 
-    function redeemShorts() external {
-        // TODO
+    function redeemShorts(uint256 optionIndex, uint256 ownerIndex)
+        external
+        countCall("exerciseLongs")
+        requireOpenInterest
+    {
+        // set option token id
+        uint256 optionTokenId = _options.at(optionIndex % _options.count());
+        uint256 shortTokenId = optionTokenId.longToShort();
+
+        // set writer
+        ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
+        address writer = ghost_shortOwnersOf[optionTokenId][ownerIndex];
+
+        // track balances
+        uint256 shortBalance = clarity.balanceOf(writer, shortTokenId);
+        uint256 assignedBalance =
+            clarity.balanceOf(writer, optionTokenId.longToAssignedShort());
+
+        // get option info
+        IOption.Option memory option = clarity.option(optionTokenId);
+
+        // warp after expiry, if necessary
+        if (block.timestamp <= option.expiry) {
+            vm.warp(option.expiry + 1 seconds); // TODO improve time injection
+        }
+
+        // set call vs. put specifics
+        IERC20 writeAsset;
+        IERC20 exerciseAsset;
+
+        if (option.optionType == IOption.OptionType.CALL) {
+            writeAsset = IERC20(option.baseAsset);
+            exerciseAsset = IERC20(option.quoteAsset);
+        } else {
+            writeAsset = IERC20(option.quoteAsset);
+            exerciseAsset = IERC20(option.baseAsset);
+        }
+
+        // redeem shorts
+        vm.startPrank(writer);
+        (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
+            clarity.redeemShorts(shortTokenId);
+        vm.stopPrank();
+
+        // track ghost variables
+        ghost_clearingLiabilityFor[address(writeAsset)] -= writeAssetRedeemed;
+        ghost_clearingLiabilityFor[address(exerciseAsset)] -= exerciseAssetRedeemed;
+
+        ghost_shortSumFor[optionTokenId] -= shortBalance;
+
+        // if a writer has no more shorts, swap and pop from short owners array
+        if (clarity.balanceOf(writer, shortTokenId) == 0) {
+            uint256 lastIndex = ghost_shortOwnersOf[optionTokenId].length - 1;
+            address lastElement = ghost_shortOwnersOf[optionTokenId][lastIndex];
+            ghost_shortOwnersOf[optionTokenId][ownerIndex] = lastElement;
+            ghost_shortOwnersOf[optionTokenId].pop();
+        }
     }
 
     // Util
@@ -479,11 +565,16 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         console2.log("writeNewCall", calls["writeNewCall"]);
         console2.log("writeNewPut", calls["writeNewPut"]);
         console2.log("writeExisting", calls["writeExisting"]);
+        console2.log("writeBatch", calls["writeBatch"]);
         // Transfer
         console2.log("transferLongs", calls["transferLongs"]);
         console2.log("transferShorts", calls["transferShorts"]);
+        // Net Off
+        console2.log("netOff", calls["netOff"]);
         // Exercise
         console2.log("exerciseLongs", calls["exerciseLongs"]);
+        // Redeem
+        console2.log("redeemShorts", calls["redeemShorts"]);
     }
 
     ///////// Actors

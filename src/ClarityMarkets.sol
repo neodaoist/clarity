@@ -92,6 +92,7 @@ contract ClarityMarkets is
         uint64 amountWritten;
         uint64 amountNettedOff;
         uint64 amountExercised;
+        uint64 amountRedeemed;
     }
 
     /// @dev Storage struct for the symbol and decimals of an ERC20 asset
@@ -337,12 +338,15 @@ contract ClarityMarkets is
             TokenType _tokenType = tokenId.tokenType();
             uint256 amountExercised = optionStored.optionState.amountExercised;
 
-            // If long or short, total supply is amount written minus amount netted off
-            // minus amount exercised
-            if (_tokenType == TokenType.LONG || _tokenType == TokenType.SHORT) {
+            // If long, equals amount written - netted off - exercised
+            if (_tokenType == TokenType.LONG) {
                 amount = amountWritten - amountNettedOff - amountExercised;
+            } else if (_tokenType == TokenType.SHORT) {
+                // If short, equals amount written - netted off - exercised - redeemed
+                amount = amountWritten - amountNettedOff - amountExercised
+                    - optionStored.optionState.amountRedeemed;
             } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-                // If assigned short, total supply is amount exercised
+                // If assigned short, equals amount exercised
                 amount = amountExercised;
             } else {
                 revert(); // should be unreachable
@@ -722,7 +726,8 @@ contract ClarityMarkets is
             optionState: OptionState({
                 amountWritten: optionAmount,
                 amountNettedOff: 0,
-                amountExercised: 0
+                amountExercised: 0,
+                amountRedeemed: 0
             })
         });
 
