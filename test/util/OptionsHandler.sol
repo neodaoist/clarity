@@ -169,6 +169,14 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return amount / (10 ** CONTRACT_SCALAR);
     }
 
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
     ///////// Actions
 
     // Write
@@ -401,8 +409,63 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Net Off
 
-    function netOff() external {
-        // TODO
+    function netOff(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
+        external
+        countCall("netOff")
+    {
+        // set option token id
+        uint256 optionTokenId = _options.at(optionIndex % _options.count());
+        uint256 shortTokenId = optionTokenId.longToShort();
+
+        // set writer
+        ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
+        address writer = ghost_shortOwnersOf[optionTokenId][ownerIndex];
+
+        uint256 longBalance = clarity.balanceOf(writer, optionTokenId);
+        uint256 shortBalance = clarity.balanceOf(writer, shortTokenId);
+
+        vm.assume(longBalance > 0);
+
+        // bind option amount
+        optionAmount = bound(optionAmount, 1, min(longBalance, shortBalance));
+
+        // set call vs. put specifics
+        IOption.Option memory option = clarity.option(optionTokenId);
+        address writeAssetAddress = (option.optionType == IOption.OptionType.CALL)
+            ? clarity.option(optionTokenId).baseAsset
+            : clarity.option(optionTokenId).quoteAsset;
+
+        // net off position
+        vm.prank(writer);
+        uint256 writeAssetReturned = clarity.netOff(optionTokenId, uint64(optionAmount));
+
+        // track ghost variables
+        ghost_clearingLiabilityFor[writeAssetAddress] -= writeAssetReturned;
+
+        ghost_amountNettedOffFor[optionTokenId] += optionAmount;
+
+        ghost_longSumFor[optionTokenId] -= optionAmount;
+        ghost_shortSumFor[optionTokenId] -= optionAmount;
+
+        // if writer has no more shorts, swap and pop from short owners array
+        if (clarity.balanceOf(writer, shortTokenId) == 0) {
+            uint256 lastIndex = ghost_shortOwnersOf[optionTokenId].length - 1;
+            address lastElement = ghost_shortOwnersOf[optionTokenId][lastIndex];
+            ghost_shortOwnersOf[optionTokenId][ownerIndex] = lastElement;
+            ghost_shortOwnersOf[optionTokenId].pop();
+        }
+        // if writer has no more longs, find, then swap and pop from long owners array
+        if (clarity.balanceOf(writer, optionTokenId) == 0) {
+            for (uint256 i = 0; i < ghost_longOwnersOf[optionTokenId].length; i++) {
+                if (ghost_longOwnersOf[optionTokenId][i] == writer) {
+                    uint256 lastIndex = ghost_longOwnersOf[optionTokenId].length - 1;
+                    address lastElement = ghost_longOwnersOf[optionTokenId][lastIndex];
+                    ghost_longOwnersOf[optionTokenId][i] = lastElement;
+                    ghost_longOwnersOf[optionTokenId].pop();
+                    break;
+                }
+            }
+        }
     }
 
     // Exercise
