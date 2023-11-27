@@ -11,9 +11,9 @@ For all token ids in the domain:
 ## Options Invariants
 For all options in the domain:
 - Invariant: C1 - Total supply of longs is equal to total supply of unassigned shorts
-- Invariant: C2 - Amount written is greater than or equal to amount netted off plus amount exercised
+- Invariant: C2 - Amount written is greater than or equal to amount netted plus amount exercised
 - Invariant: C3 - Amount exercised is equal to total supply of assigned shorts
-- Invariant: C4 - Amount written minus amount netted off is equal to total supply of unassigned shorts plus total supply of assigned shorts
+- Invariant: C4 - Amount written minus amount netted is equal to total supply of unassigned shorts plus total supply of assigned shorts
 
 ## Futures Invariants
 soon ™️

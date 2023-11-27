@@ -40,7 +40,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     mapping(address => uint256) public ghost_clearingLiabilityFor;
 
     mapping(uint256 => uint256) public ghost_amountWrittenFor;
-    mapping(uint256 => uint256) public ghost_amountNettedOffFor;
+    mapping(uint256 => uint256) public ghost_amountNettedFor;
     mapping(uint256 => uint256) public ghost_amountExercisedFor;
 
     mapping(uint256 => uint256) public ghost_longSumFor;
@@ -437,12 +437,13 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // net off position
         vm.prank(writer);
-        uint256 writeAssetReturned = clarity.netOffsetting(optionTokenId, uint64(optionAmount));
+        uint256 writeAssetReturned =
+            clarity.netOffsetting(optionTokenId, uint64(optionAmount));
 
         // track ghost variables
         ghost_clearingLiabilityFor[writeAssetAddress] -= writeAssetReturned;
 
-        ghost_amountNettedOffFor[optionTokenId] += optionAmount;
+        ghost_amountNettedFor[optionTokenId] += optionAmount;
 
         ghost_longSumFor[optionTokenId] -= optionAmount;
         ghost_shortSumFor[optionTokenId] -= optionAmount;

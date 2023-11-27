@@ -29,7 +29,7 @@ contract TransferTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
         assertOptionBalances(
             writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
         );
@@ -42,7 +42,7 @@ contract TransferTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
         assertOptionBalances(
             writer, optionTokenId, 0.25e6, 1e6, 0, "writer option balances after transfer"
         );
@@ -66,7 +66,7 @@ contract TransferTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
         assertOptionBalances(
             writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
         );
@@ -79,7 +79,7 @@ contract TransferTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId.longToShort(), 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
         assertOptionBalances(
             writer, optionTokenId, 1e6, 0.25e6, 0, "writer option balances after transfer"
         );

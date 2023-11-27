@@ -115,15 +115,15 @@ contract ClarityMarketsInvariantTest is Test {
         }
     }
 
-    function invariant_C2_amountWrittenGteAmountNettedOffPlusAmountExercised() public {
+    function invariant_C2_amountWrittenGteAmountNettedPlusAmountExercised() public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
 
             assertGe(
                 handler.ghost_amountWrittenFor(optionTokenId),
-                handler.ghost_amountNettedOffFor(optionTokenId)
+                handler.ghost_amountNettedFor(optionTokenId)
                     + handler.ghost_amountExercisedFor(optionTokenId),
-                "amountWrittenGteAmountNettedOffPlusAmountExercised"
+                "amountWrittenGteAmountNettedPlusAmountExercised"
             );
         }
     }
@@ -141,7 +141,7 @@ contract ClarityMarketsInvariantTest is Test {
         }
     }
 
-    function invariant_C4_amountWrittenMinusAmountNettedOffEqTotalSupplyOfShortsPlusTotalSupplyOfAssignedShorts(
+    function invariant_C4_amountWrittenMinusAmountNettedEqTotalSupplyOfShortsPlusTotalSupplyOfAssignedShorts(
     ) public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
@@ -150,10 +150,10 @@ contract ClarityMarketsInvariantTest is Test {
 
             assertEq(
                 handler.ghost_amountWrittenFor(optionTokenId)
-                    - handler.ghost_amountNettedOffFor(optionTokenId),
+                    - handler.ghost_amountNettedFor(optionTokenId),
                 clarity.totalSupply(shortTokenId)
                     + clarity.totalSupply(assignedShortTokenId),
-                "amountWrittenMinusAmountNettedOffEqTotalSupplyOfShortsPlusTotalSupplyOfAssignedShorts"
+                "amountWrittenMinusAmountNettedEqTotalSupplyOfShortsPlusTotalSupplyOfAssignedShorts"
             );
         }
     }

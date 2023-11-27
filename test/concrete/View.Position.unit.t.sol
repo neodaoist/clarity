@@ -286,7 +286,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         assertEq(magnitude3, 2.3e6, "holder1 magnitude");
 
         // check overall market
-        assertTotalSupplies(oti1, 2.3e6, 0.2e6, "total supplies after exercise");
+        assertTotalSupplies(oti1, 2.3e6, 2.3e6, 0.2e6, "total supplies after exercise");
         assertEq(
             magnitude1 + magnitude2,
             magnitude3 * -1,
@@ -296,7 +296,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     // TODO writer givenTransferred
 
-    // TODO writer givenNettedOff
+    // TODO writer givenNetted
 
     // TODO writer givenExercised
 

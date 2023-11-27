@@ -31,7 +31,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
 
         // pre checks
         // option balances
-        assertTotalSupplies(optionTokenId, 1e6, 0, "total supplies before exercise");
+        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supplies before exercise");
         assertOptionBalances(
             writer, optionTokenId, 0.4e6, 1e6, 0, "writer option balances before exercise"
         );
@@ -73,7 +73,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         // Then
         // option balances
         assertTotalSupplies(
-            optionTokenId, 0.45e6, 0.55e6, "total supplies after exercise"
+            optionTokenId, 0.45e6, 0.45e6, 0.55e6, "total supplies after exercise"
         );
         assertOptionBalances(
             writer,

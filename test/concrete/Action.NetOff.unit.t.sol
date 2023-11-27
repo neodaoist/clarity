@@ -13,7 +13,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
     // function netOffsetting(uint256 _optionTokenId, uint64 optionsAmount)
     //     external
     //     override
-    //     returns (uint128 writeAssetNettedOff);
+    //     returns (uint128 writeAssetNetted);
 
     function test_netOffsetting() public {
         uint256 writerWethBalance = WETHLIKE.balanceOf(writer);
@@ -43,15 +43,12 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
         // When writer nets off their full position
         vm.prank(writer);
-        uint128 writeAssetNettedOff = clarity.netOffsetting(optionTokenId, 1e6);
+        uint128 writeAssetNetted = clarity.netOffsetting(optionTokenId, 1e6);
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "writer after net off");
         assertAssetBalance(
-            writer,
-            WETHLIKE,
-            writerWethBalance + writeAssetNettedOff,
-            "writer after net off"
+            writer, WETHLIKE, writerWethBalance + writeAssetNetted, "writer after net off"
         );
         assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer after net off");
     }
@@ -60,7 +57,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
     // Events
 
-    function testEvent_netOffsetting_OptionsNettedOff() public {
+    function testEvent_netOffsetting_OptionsNetted() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -73,7 +70,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
         });
 
         vm.expectEmit(true, true, true, true);
-        emit IOptionEvents.OptionsNettedOff(writer, optionTokenId, 0.999998e6);
+        emit IOptionEvents.OptionsNetted(writer, optionTokenId, 0.999998e6);
 
         clarity.netOffsetting(optionTokenId, 0.999998e6);
     }
@@ -127,7 +124,8 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IOptionErrors.CanOnlyCallNetOffsettingForLongs.selector, assignedShortTokenId
+                IOptionErrors.CanOnlyCallNetOffsettingForLongs.selector,
+                assignedShortTokenId
             )
         );
 
