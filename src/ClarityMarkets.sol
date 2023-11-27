@@ -374,7 +374,7 @@ contract ClarityMarkets is
     }
 
     /// @dev Returns the balance of a given token id for a given owner, called by
-    /// balanceOf(), position(), netOff(), exerciseLongs(), and redeemShorts() -- being
+    /// balanceOf(), position(), netOffsetting(), exerciseOption(), and redeemCollateral() -- being
     /// separate from balanceOf() allows gas savings by not repeatedly checking
     /// that the option exists
     /// @param owner The owner of the token
@@ -880,7 +880,7 @@ contract ClarityMarkets is
         }
     }
 
-    // Net Off
+    // Net
 
     /// @notice Nets off the caller's position for a given option, burning the specified
     /// held amount of long and short tokens and returning the concomitant amount of the
@@ -888,7 +888,7 @@ contract ClarityMarkets is
     /// @param _optionTokenId The token id of the option
     /// @param optionAmount The amount of options to net off
     /// @return writeAssetReturned The amount of write asset returned to the caller
-    function netOff(uint256 _optionTokenId, uint64 optionAmount)
+    function netOffsetting(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
         returns (uint128 writeAssetReturned)
@@ -896,7 +896,7 @@ contract ClarityMarkets is
         ///////// Function Requirements
         // Check that the exercise amount is not zero
         if (optionAmount == 0) {
-            revert NetOffAmountZero();
+            revert NetOffsettingAmountZero();
         }
 
         // Check that the option exists
@@ -908,7 +908,7 @@ contract ClarityMarkets is
 
         // Check that the token type is a long
         if (_optionTokenId.tokenType() != TokenType.LONG) {
-            revert CanOnlyCallNetOffForLongs(_optionTokenId);
+            revert CanOnlyCallNetOffsettingForLongs(_optionTokenId);
         }
 
         // Check that not expired, otherwise they can just redeem
@@ -960,7 +960,7 @@ contract ClarityMarkets is
     /// transferring out the concomitant amount of the write asset
     /// @param _optionTokenId The token id of the option
     /// @param optionAmount The amount of options to exercise
-    function exerciseLongs(uint256 _optionTokenId, uint64 optionAmount)
+    function exerciseOption(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
     {
@@ -1046,7 +1046,7 @@ contract ClarityMarkets is
     /// assigned options
     /// TODO add info about timing and restrictions
     /// @param shortTokenId The token id of the short token
-    function redeemShorts(uint256 shortTokenId)
+    function redeemCollateral(uint256 shortTokenId)
         external
         override
         returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed)
@@ -1054,7 +1054,7 @@ contract ClarityMarkets is
         ///////// Function Requirements
         // Check that the token type is a short
         if (shortTokenId.tokenType() != TokenType.SHORT) {
-            revert CanOnlyRedeemShorts(shortTokenId);
+            revert CanOnlyRedeemCollateral(shortTokenId);
         }
 
         // Check that the option exists
@@ -1155,7 +1155,7 @@ contract ClarityMarkets is
     ///////// FREI-PI
 
     /// @dev Increments the clearing liability for a ERC20 given asset, called by
-    /// _writeOptions() and exerciseLongs()
+    /// _writeOptions() and exerciseOption()
     /// @param asset The asset to increment the clearing liability for
     /// @param amount The amount to increment the clearing liability by
     function _incrementClearingLiability(address asset, uint256 amount) internal {
@@ -1163,7 +1163,7 @@ contract ClarityMarkets is
     }
 
     /// @dev Decrements the clearing liability for a given ERC20 asset, called by
-    /// netOff(), exerciseLongs() and redeemShorts()
+    /// netOffsetting(), exerciseOption() and redeemCollateral()
     /// @param asset The asset to decrement the clearing liability for
     /// @param amount The amount to decrement the clearing liability by
     function _decrementClearingLiability(address asset, uint256 amount) internal {
@@ -1172,7 +1172,7 @@ contract ClarityMarkets is
 
     /// @dev Verifies that the clearing liabilities can be met for a given ERC20 asset
     /// pair, called by all functions which transfer in or out ERC20 assets --
-    /// _writeNew(), writeExisting(), netOff(), exerciseLongs(), and redeemShorts()
+    /// _writeNew(), writeExisting(), netOffsetting(), exerciseOption(), and redeemCollateral()
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
         assert(
             IERC20Minimal(writeAsset).balanceOf(address(this))

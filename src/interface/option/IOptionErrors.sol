@@ -6,7 +6,7 @@ interface IOptionErrors {
 
     ///////// Views
 
-    /// @dev Also used in Net Off, Exercise, and Redeem
+    /// @dev Also used in Net, Exercise, and Redeem
     error OptionDoesNotExist(uint256 optionTokenId);
 
     error InvalidTokenType(uint256 tokenId);
@@ -53,11 +53,11 @@ interface IOptionErrors {
 
     error CanOnlyTransferShortIfUnassigned();
 
-    ///////// Net Off
+    ///////// Net
 
-    error NetOffAmountZero();
+    error NetOffsettingAmountZero();
 
-    error CanOnlyCallNetOffForLongs(uint256 tokenId);
+    error CanOnlyCallNetOffsettingForLongs(uint256 tokenId);
 
     /// @dev Also used in ERC20Factory and ClarityWrappedLong
     error InsufficientLongBalance(uint256 optionTokenId, uint256 optionBalance);
@@ -84,7 +84,7 @@ interface IOptionErrors {
     error EarlyRedemptionOnlyIfFullyAssigned();
 
     // TODO reframe to standardize with other errors
-    error CanOnlyRedeemShorts(uint256 tokenId);
+    error CanOnlyRedeemCollateral(uint256 tokenId);
 
     ///////// Adapter
 

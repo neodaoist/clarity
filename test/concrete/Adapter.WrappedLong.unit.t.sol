@@ -490,7 +490,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     }
 
     /////////
-    // function exerciseLongs(uint256 amount) external;
+    // function exerciseOption(uint256 amount) external;
 
     // TODO
 }

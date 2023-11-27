@@ -8,9 +8,9 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
     /////////
 
     /////////
-    // function exerciseLongs(uint256 _optionTokenId, uint64 optionsAmount) external
+    // function exerciseOption(uint256 _optionTokenId, uint64 optionsAmount) external
 
-    function test_exerciseLongs_givenEuropean() public {
+    function test_exerciseOption_givenEuropean() public {
         uint256 startingBalanceD18 = scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE);
 
         // Given Writer writes 1 European call option
@@ -67,7 +67,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         // When Holder exercises 0.5 options
         vm.startPrank(holder);
         FRAXLIKE.approve(address(clarity), startingBalanceD18);
-        clarity.exerciseLongs(optionTokenId, 0.55e6);
+        clarity.exerciseOption(optionTokenId, 0.55e6);
         vm.stopPrank();
 
         // Then
@@ -147,7 +147,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
             )
         );
 
-        clarity.exerciseLongs(optionTokenId, 0.55e6);
+        clarity.exerciseOption(optionTokenId, 0.55e6);
         vm.stopPrank();
     }
 
@@ -184,7 +184,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
             )
         );
 
-        clarity.exerciseLongs(optionTokenId, 0.55e6);
+        clarity.exerciseOption(optionTokenId, 0.55e6);
         vm.stopPrank();
     }
 }

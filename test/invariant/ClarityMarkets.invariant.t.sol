@@ -41,12 +41,12 @@ contract ClarityMarketsInvariantTest is Test {
         // Transfer
         selectors[3] = OptionsHandler.transferLongs.selector;
         selectors[4] = OptionsHandler.transferShorts.selector;
-        // Net Off
-        selectors[5] = OptionsHandler.netOff.selector;
+        // Net
+        selectors[5] = OptionsHandler.netOffsetting.selector;
         // Exercise
-        selectors[6] = OptionsHandler.exerciseLongs.selector;
+        selectors[6] = OptionsHandler.exerciseOption.selector;
         // Redeem
-        selectors[7] = OptionsHandler.redeemShorts.selector;
+        selectors[7] = OptionsHandler.redeemCollateral.selector;
 
         targetSelector(FuzzSelector({addr: address(handler), selectors: selectors}));
         targetContract(address(handler));

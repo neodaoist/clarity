@@ -522,7 +522,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
         vm.warp(FRI1 - 1 seconds);
 
         FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
-        clarity.exerciseLongs(optionTokenId, 0.000001e6);
+        clarity.exerciseOption(optionTokenId, 0.000001e6);
         vm.stopPrank();
 
         // Then

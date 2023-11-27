@@ -407,11 +407,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // TODO add allowances and operators, using transferFrom()
 
-    // Net Off
+    // Net
 
-    function netOff(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
+    function netOffsetting(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
         external
-        countCall("netOff")
+        countCall("netOffsetting")
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -437,7 +437,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // net off position
         vm.prank(writer);
-        uint256 writeAssetReturned = clarity.netOff(optionTokenId, uint64(optionAmount));
+        uint256 writeAssetReturned = clarity.netOffsetting(optionTokenId, uint64(optionAmount));
 
         // track ghost variables
         ghost_clearingLiabilityFor[writeAssetAddress] -= writeAssetReturned;
@@ -470,9 +470,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Exercise
 
-    function exerciseLongs(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
+    function exerciseOption(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
         external
-        countCall("exerciseLongs")
+        countCall("exerciseOption")
         requireOpenInterest
     {
         // set option token id
@@ -524,7 +524,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         deal(address(exerciseAsset), holder, exerciseAssetAmount);
         vm.startPrank(holder);
         exerciseAsset.approve(address(clarity), exerciseAssetAmount);
-        clarity.exerciseLongs(optionTokenId, uint64(optionAmount));
+        clarity.exerciseOption(optionTokenId, uint64(optionAmount));
         vm.stopPrank();
 
         // track ghost variables
@@ -560,9 +560,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Redeem
 
-    function redeemShorts(uint256 optionIndex, uint256 ownerIndex)
+    function redeemCollateral(uint256 optionIndex, uint256 ownerIndex)
         external
-        countCall("exerciseLongs")
+        countCall("exerciseOption")
         requireOpenInterest
     {
         // set option token id
@@ -601,7 +601,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // redeem shorts
         vm.startPrank(writer);
         (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed) =
-            clarity.redeemShorts(shortTokenId);
+            clarity.redeemCollateral(shortTokenId);
         vm.stopPrank();
 
         // track ghost variables
@@ -632,12 +632,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // Transfer
         console2.log("transferLongs", calls["transferLongs"]);
         console2.log("transferShorts", calls["transferShorts"]);
-        // Net Off
-        console2.log("netOff", calls["netOff"]);
+        // Net
+        console2.log("netOffsetting", calls["netOffsetting"]);
         // Exercise
-        console2.log("exerciseLongs", calls["exerciseLongs"]);
+        console2.log("exerciseOption", calls["exerciseOption"]);
         // Redeem
-        console2.log("redeemShorts", calls["redeemShorts"]);
+        console2.log("redeemCollateral", calls["redeemCollateral"]);
     }
 
     ///////// Actors

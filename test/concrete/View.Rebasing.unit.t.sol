@@ -185,7 +185,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
             vm.stopPrank();
 
             // When
@@ -220,7 +220,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
             vm.stopPrank();
 
             // When
@@ -254,7 +254,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountWritten);
+            clarity.netOffsetting(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
@@ -287,7 +287,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -323,12 +323,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -364,12 +364,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -407,7 +407,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -443,12 +443,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -485,7 +485,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountWritten);
+            clarity.exerciseOption(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
@@ -686,7 +686,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
             vm.stopPrank();
 
             // When
@@ -723,7 +723,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
             vm.stopPrank();
 
             // When
@@ -757,7 +757,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountWritten);
+            clarity.netOffsetting(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
@@ -792,7 +792,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -830,12 +830,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -873,12 +873,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -918,7 +918,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -956,12 +956,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNettedOff);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -998,7 +998,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountWritten);
+            clarity.exerciseOption(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When

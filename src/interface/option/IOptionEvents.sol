@@ -23,7 +23,7 @@ interface IOptionEvents {
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
     );
 
-    ///////// Net Off
+    ///////// Net
 
     event OptionsNettedOff(
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
