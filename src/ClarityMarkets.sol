@@ -271,51 +271,65 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(tokenId);
         }
 
-        // Generate the token ids for the option, short, and assigned short
-        uint256 _optionTokenId;
-        uint256 shortTokenId;
-        uint256 assignedShortTokenId;
-
+        // Check that token type is valid (implicitly)
         TokenType _tokenType = tokenId.tokenType();
 
-        if (_tokenType == TokenType.LONG) {
-            _optionTokenId = tokenId;
-            shortTokenId = tokenId.longToShort();
-            assignedShortTokenId = tokenId.longToAssignedShort();
-        } else if (_tokenType == TokenType.SHORT) {
-            _optionTokenId = tokenId.shortToLong();
-            shortTokenId = tokenId;
-            assignedShortTokenId = tokenId.shortToAssignedShort();
-        } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-            _optionTokenId = tokenId.assignedShortToLong();
-            shortTokenId = tokenId.assignedShortToShort();
-            assignedShortTokenId = tokenId;
+        // Get the option state
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountNetted = optionStored.optionState.amountNetted;
+        uint256 amountExercised = optionStored.optionState.amountExercised;
+
+        // If never any open interest for this option, or everything written has
+        // been netted, all values in the position will be zero
+        if (amountWritten == 0 || amountWritten == amountNetted) {
+            _position = Position({amountLong: 0, amountShort: 0, amountAssignedShort: 0});
+            magnitude = 0;
         } else {
-            revert(); // should be unreachable
+            // Generate the token ids for the option, short, and assigned short
+            uint256 _optionTokenId;
+            uint256 shortTokenId;
+            uint256 assignedShortTokenId;
+
+            if (_tokenType == TokenType.LONG) {
+                _optionTokenId = tokenId;
+                shortTokenId = tokenId.longToShort();
+                assignedShortTokenId = tokenId.longToAssignedShort();
+            } else if (_tokenType == TokenType.SHORT) {
+                _optionTokenId = tokenId.shortToLong();
+                shortTokenId = tokenId;
+                assignedShortTokenId = tokenId.shortToAssignedShort();
+            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+                _optionTokenId = tokenId.assignedShortToLong();
+                shortTokenId = tokenId.assignedShortToShort();
+                assignedShortTokenId = tokenId;
+            } else {
+                revert(); // should be unreachable
+            }
+
+            // Determine the position
+            uint256 longBalance = internalBalanceOf[msg.sender][_optionTokenId];
+            uint256 shortBalance = _balanceOfShort(
+                msg.sender, shortTokenId, amountWritten, amountNetted, amountExercised
+            );
+            uint256 assignedShortBalance = _balanceOfAssignedShort(
+                msg.sender, shortTokenId, amountWritten, amountNetted, amountExercised
+            );
+
+            _position = Position({
+                amountLong: longBalance.safeCastTo64(),
+                amountShort: shortBalance.safeCastTo64(),
+                amountAssignedShort: assignedShortBalance.safeCastTo64()
+            });
+
+            // Calculate the magnitude
+            magnitude = int160(int256(longBalance) - int256(shortBalance));
         }
-
-        // Determine the position
-        OptionState storage optionState = optionStored.optionState;
-        uint256 longBalance = internalBalanceOf[msg.sender][_optionTokenId];
-        uint256 shortBalance = _balanceOfShort(msg.sender, shortTokenId, optionState);
-        uint256 assignedShortBalance =
-            _balanceOfAssignedShort(msg.sender, assignedShortTokenId, optionState);
-
-        _position = Position({
-            amountLong: longBalance.safeCastTo64(),
-            amountShort: shortBalance.safeCastTo64(),
-            amountAssignedShort: assignedShortBalance.safeCastTo64()
-        });
-
-        // Calculate the magnitude
-        magnitude = int160(int256(longBalance) - int256(shortBalance));
     }
 
-    // ERC6909 Rebasing
+    // ERC6909
 
     /// @notice Returns the total supply of a given token id
-    /// TODO explain token encoding
-    /// TODO explain rebasing
+    /// TODO explain token encoding and rebasing
     /// @param tokenId The token id of the token
     /// @return amount The total supply of the token
     function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
@@ -325,18 +339,20 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(tokenId);
         }
 
-        // Calculate the balance
+        // Check that token type is valid (implicitly)
+        TokenType _tokenType = tokenId.tokenType();
+
+        // Get the option state
         uint256 amountWritten = optionStored.optionState.amountWritten;
         uint256 amountNetted = optionStored.optionState.amountNetted;
+        uint256 amountExercised = optionStored.optionState.amountExercised;
+        uint256 amountRedeemed = optionStored.optionState.amountRedeemed;
 
-        // If never any open interest for this created option, or everything written has
-        // been netted, the total supply will be zero
+        // If never any open interest for this option, or everything written has
+        // been netted, any total supply will be zero
         if (amountWritten == 0 || amountWritten == amountNetted) {
             amount = 0;
         } else {
-            TokenType _tokenType = tokenId.tokenType();
-            uint256 amountExercised = optionStored.optionState.amountExercised;
-
             // If long, equals amount written - netted - exercised, unless
             // after expiry, in which case equals zero
             if (_tokenType == TokenType.LONG) {
@@ -346,12 +362,19 @@ contract ClarityMarkets is
                     amount = amountWritten - amountNetted - amountExercised;
                 }
             } else if (_tokenType == TokenType.SHORT) {
-                // If short, equals amount written - netted - exercised - redeemed
+                // If short, equals amount written - netted - exercised - proportion of
+                // redeemed that was unassigned
                 amount = amountWritten - amountNetted - amountExercised
-                    - optionStored.optionState.amountRedeemed;
+                    - _mulByProportionUnassigned(
+                        amountRedeemed, amountWritten, amountNetted, amountExercised
+                    );
             } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-                // If assigned short, equals amount exercised
-                amount = amountExercised;
+                // If assigned short, equals amount exercised - proportion of redeemed
+                // that was assigned
+                amount = amountExercised
+                    - _mulByProportionAssigned(
+                        amountRedeemed, amountWritten, amountNetted, amountExercised
+                    );
             } else {
                 revert(); // should be unreachable
             }
@@ -374,107 +397,118 @@ contract ClarityMarkets is
             revert OptionDoesNotExist(tokenId);
         }
 
+        // Check that token type is valid (implicitly)
         TokenType _tokenType = tokenId.tokenType();
-        if (_tokenType == TokenType.LONG) {
+
+        // Get the option state
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountNetted = optionStored.optionState.amountNetted;
+        uint256 amountExercised = optionStored.optionState.amountExercised;
+
+        // If never any open interest for this option, or everything written has
+        // been netted, any balance will be zero
+        if (amountWritten == 0 || amountWritten == amountNetted) {
+            amount = 0;
+        } else {
             // If long, the balance is the actual amount held by owner, unless
             // after expiry, in which case equals zero
-            if (block.timestamp > optionStored.expiry) {
-                amount = 0;
+            if (_tokenType == TokenType.LONG) {
+                if (block.timestamp > optionStored.expiry) {
+                    amount = 0;
+                } else {
+                    amount = internalBalanceOf[owner][tokenId];
+                }
+            } else if (_tokenType == TokenType.SHORT) {
+                // If short, the balance is their proportional share TODO
+                amount = _balanceOfShort(
+                    owner, tokenId, amountWritten, amountNetted, amountExercised
+                );
+            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+                // If assigned short, the balance is their proportional share TODO
+                amount = _balanceOfAssignedShort(
+                    owner,
+                    tokenId.assignedShortToShort(),
+                    amountWritten,
+                    amountNetted,
+                    amountExercised
+                );
             } else {
-                amount = internalBalanceOf[owner][tokenId];
+                revert(); // should be unreachable
             }
-        } else if (_tokenType == TokenType.SHORT) {
-            // If short short, the balance is their proportional share TODO
-            amount = _balanceOfShort(owner, tokenId, optionStored.optionState);
-        } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-            // If assigned short, the balance is their proportional share TODO
-            amount = _balanceOfAssignedShort(owner, tokenId, optionStored.optionState);
-        } else {
-            revert(); // should be unreachable
         }
     }
 
+    /// TODO
+    function _mulByProportionUnassigned(
+        uint256 input,
+        uint256 amountWritten,
+        uint256 amountNetted,
+        uint256 amountExercised
+    ) private pure returns (uint256 output) {
+        output = (input * (amountWritten - amountNetted - amountExercised))
+            / (amountWritten - amountNetted);
+    }
+
+    /// TODO
+    function _mulByProportionAssigned(
+        uint256 input,
+        uint256 amountWritten,
+        uint256 amountNetted,
+        uint256 amountExercised
+    ) private pure returns (uint256 output) {
+        output = (input * amountExercised) / (amountWritten - amountNetted);
+    }
+
     // TODO
-    /// @dev Returns the balance of a given short token id for a given owner, called by
-    /// balanceOf(), position(), netOffsetting(), exerciseOption(), and redeemCollateral()
-    /// -- being
-    /// separate from balanceOf() allows gas savings by not repeatedly checking
-    /// that the option exists
-    /// @param owner The owner of the token
-    /// @param tokenId The token id of the token
-    /// @param optionState The state of the option
-    /// @return amount The balance of the token for the owner
+    /// @dev Returns the balance of shorts for a given owner and option. Called
+    /// by views balanceOf() and position(), and actions netOffsetting() and
+    /// redeemCollateral().
     function _balanceOfShort(
         address owner,
         uint256 tokenId,
-        OptionState storage optionState
+        uint256 amountWritten,
+        uint256 amountNetted,
+        uint256 amountExercised
     ) private view returns (uint256 amount) {
-        // Calculate the balance
-        uint256 amountWritten = optionState.amountWritten;
-        uint256 amountNetted = optionState.amountNetted;
-
-        // If never any open interest for this created option, or everything written has
-        // been netted, all balances will be zero
-        // TODO bring this check earlier in client code to save gas
-        if (amountWritten == 0 || amountWritten == amountNetted) {
-            amount = 0;
-        } else {
-            uint256 amountExercised = optionState.amountExercised;
-
-            amount = (
-                internalBalanceOf[owner][tokenId]
-                    * (amountWritten - amountNetted - amountExercised)
-            ) / (amountWritten - amountNetted);
-        }
+        // Balance is their proportional share of the unassigned shorts
+        amount = _mulByProportionUnassigned(
+            internalBalanceOf[owner][tokenId],
+            amountWritten,
+            amountNetted,
+            amountExercised
+        );
     }
 
     // TODO
-    /// @dev Returns the balance of a given short token id for a given owner, called by
-    /// balanceOf(), position(), netOffsetting(), exerciseOption(), and redeemCollateral()
-    /// -- being
-    /// separate from balanceOf() allows gas savings by not repeatedly checking
-    /// that the option exists
-    /// @param owner The owner of the token
-    /// @param tokenId The token id of the token
-    /// @param optionState The state of the option
-    /// @return amount The balance of the token for the owner
+    /// @dev Returns the balance of assigned shorts for a given owner and option.
+    /// Called by views balanceOf() and position() and action redeemCollateral().
     function _balanceOfAssignedShort(
         address owner,
-        uint256 tokenId,
-        OptionState storage optionState
+        uint256 shortTokenId,
+        uint256 amountWritten,
+        uint256 amountNetted,
+        uint256 amountExercised
     ) private view returns (uint256 amount) {
-        // Calculate the balance
-        uint256 amountWritten = optionState.amountWritten;
-        uint256 amountNetted = optionState.amountNetted;
-
-        // If never any open interest for this created option, or everything written has
-        // been netted, all balances will be zero
-        if (amountWritten == 0 || amountWritten == amountNetted) {
-            amount = 0;
-        } else {
-            uint256 amountExercised = optionState.amountExercised;
-
-            // If assigned short, the balance is their proportional share of the
-            // assigned shorts
-            amount = (
-                internalBalanceOf[owner][tokenId.assignedShortToShort()] * amountExercised
-            ) / (amountWritten - amountNetted);
-        }
+        // Balance is their proportional share of the assigned shorts
+        amount = _mulByProportionAssigned(
+            internalBalanceOf[owner][shortTokenId],
+            amountWritten,
+            amountNetted,
+            amountExercised
+        );
     }
 
-    // ERC6909MetadataModified
+    // ERC6909Metadata
 
-    /// @notice The name/symbol for each token id
+    /// @notice The name for each token id
     /// TODO explain ticker scheme
     function names(uint256 tokenId) public view returns (string memory name) {
-        name =
-            tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
+        name = _generateFullTicker(tokenId);
     }
 
-    /// @notice The name/symbol for each token id
+    /// @notice The symbol for each token id
     function symbols(uint256 tokenId) public view returns (string memory symbol) {
-        symbol =
-            tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
+        symbol = _generateFullTicker(tokenId);
     }
 
     /// @notice The number of decimals for each token id (always equal to CONTRACT_SCALAR)
@@ -482,7 +516,16 @@ contract ClarityMarkets is
         amount = CONTRACT_SCALAR;
     }
 
-    // ERC6909MetadataURI
+    function _generateFullTicker(uint256 tokenId)
+        private
+        view
+        returns (string memory ticker)
+    {
+        ticker =
+            tickers[tokenId.idToHash()].tickerToFullTicker(tokenId.tokenType().toString());
+    }
+
+    // ERC6909ContentURI
 
     /// @notice The URI for each token id
     /// TODO explain JSON and SVG generation
@@ -958,22 +1001,31 @@ contract ClarityMarkets is
             revert OptionExpired(_optionTokenId, expiry);
         }
 
+        // Get the option state
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountNetted = optionStored.optionState.amountNetted;
+        uint256 amountExercised = optionStored.optionState.amountExercised;
+
         // Check that the caller holds sufficient longs and shorts to net off
-        OptionState storage optionState = optionStored.optionState;
         if (optionAmount > internalBalanceOf[msg.sender][_optionTokenId]) {
             revert InsufficientLongBalance(_optionTokenId, optionAmount);
         }
         if (
             optionAmount
-                > _balanceOfShort(msg.sender, _optionTokenId.longToShort(), optionState)
+                > _balanceOfShort(
+                    msg.sender,
+                    _optionTokenId.longToShort(),
+                    amountWritten,
+                    amountNetted,
+                    amountExercised
+                )
         ) {
             revert InsufficientShortBalance(_optionTokenId, optionAmount);
         }
 
         ///////// Effects
         // Update option state
-        uint64 amountNetted = optionStored.optionState.amountNetted;
-        optionStored.optionState.amountNetted = amountNetted + optionAmount;
+        optionStored.optionState.amountNetted = uint64(amountNetted) + optionAmount;
 
         // Burn the caller's longs and shorts
         _burn(msg.sender, _optionTokenId, optionAmount);
@@ -1113,12 +1165,17 @@ contract ClarityMarkets is
         }
 
         ///////// Effects
+        // Get the option state
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountNetted = optionStored.optionState.amountNetted;
+        uint256 amountExercised = optionStored.optionState.amountExercised;
+
         // Determine the assignment status
-        OptionState storage optionState = optionStored.optionState;
-        uint256 unassignedShortAmount =
-            _balanceOfShort(msg.sender, shortTokenId, optionState);
+        uint256 unassignedShortAmount = _balanceOfShort(
+            msg.sender, shortTokenId, amountWritten, amountNetted, amountExercised
+        );
         uint256 assignedShortAmount = _balanceOfAssignedShort(
-            msg.sender, shortTokenId.shortToAssignedShort(), optionState
+            msg.sender, shortTokenId, amountWritten, amountNetted, amountExercised
         );
 
         // If fully assigned, redeem exercise asset and skip option expiry check
@@ -1141,9 +1198,11 @@ contract ClarityMarkets is
         // Burn all the caller's (non-virtual-rebasing) shorts
         _burn(msg.sender, shortTokenId, nonVirtualShortBalance);
 
+        // Update the option state
+        optionStored.optionState.amountRedeemed += uint64(nonVirtualShortBalance);
+
         // Track the clearing liabilities
         address exerciseAsset = optionStored.exerciseAsset;
-
         if (writeAssetRedeemed > 0) {
             _decrementClearingLiability(writeAsset, writeAssetRedeemed);
         }

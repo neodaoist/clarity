@@ -16,9 +16,6 @@ contract RedeemTest is BaseUnitTestSuite {
     //     returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed);
 
     function testE2E_redeemCollateral() public {
-        // deal(address(FRAXLIKE), holder2, scaleUpAssetAmount(FRAXLIKE,
-        // STARTING_BALANCE));
-
         // Given Writer1 writes 5 options
         vm.startPrank(writer1);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
@@ -443,7 +440,7 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 2.25e6, 0, 0, "after redeem");
+        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 1700e18 * 2.25, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 0, "exerciseAssetRedeemed");
         assertAssetBalance(
