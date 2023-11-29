@@ -10,7 +10,10 @@ For all token ids in the domain:
 
 ## Options Invariants
 For all options in the domain:
-- Invariant: C1 - Total supply of longs is equal to total supply of unassigned shorts
+- Invariant: C1 - Total supply of longs is equal to total supply of unassigned shorts, before expiry
+- Invariant: C1a - Total supply of longs is zero, after expiry
+- Invariant: C1b - Total supply of unassigned shorts is equal to , after expiry
+- Invariant: C1c - Total supply of assigned shorts is zero, before expiry
 - Invariant: C2 - Amount written is greater than or equal to amount netted plus amount exercised
 - Invariant: C3 - Amount exercised is equal to total supply of assigned shorts
 - Invariant: C4 - Amount written minus amount netted is equal to total supply of unassigned shorts plus total supply of assigned shorts

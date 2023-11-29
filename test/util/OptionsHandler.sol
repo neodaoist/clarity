@@ -42,6 +42,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     mapping(uint256 => uint256) public ghost_amountWrittenFor;
     mapping(uint256 => uint256) public ghost_amountNettedFor;
     mapping(uint256 => uint256) public ghost_amountExercisedFor;
+    mapping(uint256 => uint256) public ghost_amountRedeemedFor;
 
     mapping(uint256 => uint256) public ghost_longSumFor;
     mapping(uint256 => uint256) public ghost_shortSumFor;
@@ -563,7 +564,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     function redeemCollateral(uint256 optionIndex, uint256 ownerIndex)
         external
-        countCall("exerciseOption")
+        countCall("redeemCollateral")
         requireOpenInterest
     {
         // set option token id
@@ -610,6 +611,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         ghost_clearingLiabilityFor[address(exerciseAsset)] -= exerciseAssetRedeemed;
 
         ghost_shortSumFor[optionTokenId] -= shortBalance;
+
+        // TODO track ghost_amountRedeemedFor
 
         // if a writer has no more shorts, swap and pop from short owners array
         if (clarity.balanceOf(writer, shortTokenId) == 0) {

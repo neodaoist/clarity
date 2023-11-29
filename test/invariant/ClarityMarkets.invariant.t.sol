@@ -82,21 +82,36 @@ contract ClarityMarketsInvariantTest is Test {
             uint256 shortTokenId = optionTokenId.longToShort();
             uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
 
-            // assertEq(
-            //     clarity.totalSupply(optionTokenId),
-            //     handler.ghost_longSumFor(optionTokenId),
-            //     "sumOfAllBalancesForTokenIdEqTotalSupply long"
-            // );
-            assertEq(
+            // long token type
+            IOption.Option memory option = clarity.option(optionTokenId);
+            if (block.timestamp <= option.expiry) {
+                assertEq(
+                    clarity.totalSupply(optionTokenId),
+                    handler.ghost_longSumFor(optionTokenId),
+                    "sumOfAllBalancesForTokenIdEqTotalSupply long, before expiry"
+                );
+            } else {
+                assertEq(
+                    clarity.totalSupply(optionTokenId),
+                    0,
+                    "sumOfAllBalancesForTokenIdEqTotalSupply long, after expiry"
+                );
+            }
+            
+            // short token type
+            assertApproxEqAbs(
                 clarity.totalSupply(shortTokenId),
                 handler.ghost_shortSumFor(optionTokenId),
+                1,
                 "sumOfAllBalancesForTokenIdEqTotalSupply short"
             );
-            // assertEq(
-            //     clarity.totalSupply(assignedShortTokenId),
-            //     handler.ghost_assignedShortSumFor(optionTokenId),
-            //     "sumOfAllBalancesForTokenIdEqTotalSupply assignedShort"
-            // );
+
+            // assigned short token type
+            assertEq(
+                clarity.totalSupply(assignedShortTokenId),
+                handler.ghost_assignedShortSumFor(optionTokenId),
+                "sumOfAllBalancesForTokenIdEqTotalSupply assignedShort"
+            );
         }
     }
 
