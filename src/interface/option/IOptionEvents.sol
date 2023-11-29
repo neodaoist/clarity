@@ -23,9 +23,9 @@ interface IOptionEvents {
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
     );
 
-    ///////// Net Off
+    ///////// Net
 
-    event OptionsNettedOff(
+    event OptionsNetted(
         address indexed caller, uint256 indexed optionTokenId, uint64 optionAmount
     );
 
@@ -37,5 +37,5 @@ interface IOptionEvents {
 
     ///////// Redeem
 
-    event ShortsRedeemed(address indexed caller, uint256 indexed shortTokenId);
+    event CollateralRedeemed(address indexed caller, uint256 indexed shortTokenId);
 }

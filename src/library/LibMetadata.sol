@@ -112,7 +112,7 @@ library LibMetadata {
             parameters.quoteAssetSymbol,
             '", "expiry": "',
             parameters.expiry, // TODO
-            '", "exerciseLongs_style": "',
+            '", "exerciseOption_style": "',
             parameters.exerciseStyle,
             '", "strike_price": "',
             parameters.strike

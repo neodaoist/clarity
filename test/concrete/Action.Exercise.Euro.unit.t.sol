@@ -8,9 +8,9 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
     /////////
 
     /////////
-    // function exerciseLongs(uint256 _optionTokenId, uint64 optionsAmount) external
+    // function exerciseOption(uint256 _optionTokenId, uint64 optionsAmount) external
 
-    function test_exerciseLongs_givenEuropean() public {
+    function test_exerciseOption_givenEuropean() public {
         uint256 startingBalanceD18 = scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE);
 
         // Given Writer writes 1 European call option
@@ -31,7 +31,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
 
         // pre checks
         // option balances
-        assertTotalSupplies(optionTokenId, 1e6, 0, "total supplies before exercise");
+        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supplies before exercise");
         assertOptionBalances(
             writer, optionTokenId, 0.4e6, 1e6, 0, "writer option balances before exercise"
         );
@@ -67,13 +67,13 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         // When Holder exercises 0.5 options
         vm.startPrank(holder);
         FRAXLIKE.approve(address(clarity), startingBalanceD18);
-        clarity.exerciseLongs(optionTokenId, 0.55e6);
+        clarity.exerciseOption(optionTokenId, 0.55e6);
         vm.stopPrank();
 
         // Then
         // option balances
         assertTotalSupplies(
-            optionTokenId, 0.45e6, 0.55e6, "total supplies after exercise"
+            optionTokenId, 0.45e6, 0.45e6, 0.55e6, "total supplies after exercise"
         );
         assertOptionBalances(
             writer,
@@ -147,7 +147,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
             )
         );
 
-        clarity.exerciseLongs(optionTokenId, 0.55e6);
+        clarity.exerciseOption(optionTokenId, 0.55e6);
         vm.stopPrank();
     }
 
@@ -184,7 +184,7 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
             )
         );
 
-        clarity.exerciseLongs(optionTokenId, 0.55e6);
+        clarity.exerciseOption(optionTokenId, 0.55e6);
         vm.stopPrank();
     }
 }

@@ -11,7 +11,7 @@ interface IWrappedShortEvents {
     event ClarityShortsUnwrapped(
         address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
     );
-    event ClarityShortsRedeemed(
+    event ClarityCollateralRedeemed(
         address indexed caller, uint256 indexed shortTokenId, uint64 optionAmount
     );
 }

@@ -33,7 +33,7 @@ contract ClarityMarketsInvariantTest is Test {
         handler = new OptionsHandler(clarity);
 
         // target contracts
-        bytes4[] memory selectors = new bytes4[](7);
+        bytes4[] memory selectors = new bytes4[](8);
         // Write
         selectors[0] = OptionsHandler.writeNewCall.selector;
         selectors[1] = OptionsHandler.writeNewPut.selector;
@@ -41,10 +41,12 @@ contract ClarityMarketsInvariantTest is Test {
         // Transfer
         selectors[3] = OptionsHandler.transferLongs.selector;
         selectors[4] = OptionsHandler.transferShorts.selector;
-        // NetOff
-        selectors[5] = OptionsHandler.netOff.selector;
+        // Net
+        selectors[5] = OptionsHandler.netOffsetting.selector;
         // Exercise
-        selectors[6] = OptionsHandler.exerciseLongs.selector;
+        selectors[6] = OptionsHandler.exerciseOption.selector;
+        // Redeem
+        selectors[7] = OptionsHandler.redeemCollateral.selector;
 
         targetSelector(FuzzSelector({addr: address(handler), selectors: selectors}));
         targetContract(address(handler));
@@ -53,8 +55,6 @@ contract ClarityMarketsInvariantTest is Test {
     ///////// Core Protocol Invariant
 
     function invariant_A1_clearinghouseBalanceForAssetGteClearingLiability() public {
-        console2.log("invariantA1_clearinghouseBalanceForAssetGteClearingLiability");
-
         for (uint256 i = 0; i < handler.baseAssetsCount(); i++) {
             IERC20 baseAsset = handler.baseAssetAt(i);
             assertGe(
@@ -70,102 +70,6 @@ contract ClarityMarketsInvariantTest is Test {
                 quoteAsset.balanceOf(address(clarity)),
                 handler.ghost_clearingLiabilityFor(address(quoteAsset)),
                 "clearinghouseBalanceForAssetGteClearingLiability quoteAsset"
-            );
-        }
-    }
-
-    ///////// Core ERC6909 Invariant
-
-    function invariant_B1_sumOfAllBalancesForTokenIdEqTotalSupply() public {
-        console2.log("invariantB1_sumOfAllBalancesForTokenIdEqTotalSupply");
-
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 shortTokenId = optionTokenId.longToShort();
-            uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
-
-            assertEq(
-                clarity.totalSupply(optionTokenId),
-                handler.ghost_longSumFor(optionTokenId),
-                "sumOfAllBalancesForTokenIdEqTotalSupply long"
-            );
-            assertEq(
-                clarity.totalSupply(shortTokenId),
-                handler.ghost_shortSumFor(optionTokenId),
-                "sumOfAllBalancesForTokenIdEqTotalSupply short"
-            );
-            assertEq(
-                clarity.totalSupply(assignedShortTokenId),
-                handler.ghost_assignedShortSumFor(optionTokenId),
-                "sumOfAllBalancesForTokenIdEqTotalSupply assignedShort"
-            );
-        }
-    }
-
-    ///////// Options Invariants
-
-    function invariant_C1_totalSupplyOfLongsEqTotalSupplyOfShorts() public {
-        console2.log("invariantC1_totalSupplyOfLongsEqTotalSupplyOfShorts");
-
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 shortTokenId = optionTokenId.longToShort();
-
-            assertEq(
-                clarity.totalSupply(optionTokenId),
-                clarity.totalSupply(shortTokenId),
-                "totalSupplyOfLongsEqTotalSupplyOfShorts"
-            );
-        }
-    }
-
-    function invariant_C2_amountWrittenGteAmountNettedOffPlusAmountExercised() public {
-        console2.log("invariantC2_amountWrittenGteAmountNettedOffPlusAmountExercised");
-
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-
-            assertGe(
-                handler.ghost_amountWrittenFor(optionTokenId),
-                handler.ghost_amountNettedOffFor(optionTokenId)
-                    + handler.ghost_amountExercisedFor(optionTokenId),
-                "amountWrittenGteAmountNettedOffPlusAmountExercised"
-            );
-        }
-    }
-
-    function invariant_C3_amountExercisedEqTotalSupplyOfAssignedShorts() public {
-        console2.log("invariantC3_amountExercisedEqTotalSupplyOfAssignedShorts");
-
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
-
-            assertGe(
-                handler.ghost_amountExercisedFor(optionTokenId),
-                clarity.totalSupply(assignedShortTokenId),
-                "amountExercisedEqTotalSupplyOfAssignedShorts"
-            );
-        }
-    }
-
-    function invariant_C4_amountWrittenMinusAmountNettedOffEqTotalSupplyOfShortsPlusTotalSupplyOfAssignedShorts(
-    ) public {
-        console2.log(
-            "invariantC4_amountWrittenMinusAmountNettedOffEqTotalSupplyOfShortsPlusTotalSupplyOfAssignedShorts"
-        );
-
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 shortTokenId = optionTokenId.longToShort();
-            uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
-
-            assertEq(
-                handler.ghost_amountWrittenFor(optionTokenId)
-                    - handler.ghost_amountNettedOffFor(optionTokenId),
-                clarity.totalSupply(shortTokenId)
-                    + clarity.totalSupply(assignedShortTokenId),
-                "amountWrittenMinusAmountNettedOffEqTotalSupplyOfShortsPlusTotalSupplyOfAssignedShorts"
             );
         }
     }

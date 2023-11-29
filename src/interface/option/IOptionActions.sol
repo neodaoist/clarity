@@ -8,7 +8,7 @@ interface IOptionActions {
     // function writeNewBermudanPut(address baseAsset, address quoteAsset, uint32[] calldata expiries, uint256 strike, uint64 optionAmount) external returns (uint256 optionTokenId);
     function writeExisting(uint256 optionTokenId, uint64 optionAmount) external;
     function batchWriteExisting( uint256[] calldata optionTokenIds, uint64[] calldata optionAmounts) external;
-    function netOff(uint256 optionTokenId, uint64 optionAmount) external returns (uint128 writeAssetReturned);
-    function exerciseLongs(uint256 optionTokenId, uint64 optionAmount) external;
-    function redeemShorts(uint256 optionTokenId) external returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed);
+    function netOffsetting(uint256 optionTokenId, uint64 optionAmount) external returns (uint128 writeAssetReturned);
+    function exerciseOption(uint256 optionTokenId, uint64 optionAmount) external;
+    function redeemCollateral(uint256 optionTokenId) external returns (uint128 writeAssetRedeemed, uint128 exerciseAssetRedeemed);
 }

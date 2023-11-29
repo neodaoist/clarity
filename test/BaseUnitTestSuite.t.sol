@@ -182,23 +182,24 @@ abstract contract BaseUnitTestSuite is Test {
 
     function assertTotalSupplies(
         uint256 optionTokenId,
-        uint256 expectedOI,
-        uint256 expectedAssignedShortTotalSupply,
+        uint256 expectedLong,
+        uint256 expectedShort,
+        uint256 expectedAssigned,
         string memory message
     ) internal {
         assertEq(
             clarity.totalSupply(optionTokenId),
-            expectedOI,
+            expectedLong,
             string.concat("long total supply ", message)
         );
         assertEq(
             clarity.totalSupply(optionTokenId.longToShort()),
-            expectedOI,
+            expectedShort,
             string.concat("short total supply ", message)
         );
         assertEq(
             clarity.totalSupply(optionTokenId.longToAssignedShort()),
-            expectedAssignedShortTotalSupply,
+            expectedAssigned,
             string.concat("assigned short total supply ", message)
         );
     }
@@ -206,24 +207,24 @@ abstract contract BaseUnitTestSuite is Test {
     function assertOptionBalances(
         address addr,
         uint256 optionTokenId,
-        uint256 expectedLongBalance,
-        uint256 expectedShortBalance,
-        uint256 expectedAssignedShortBalance,
+        uint256 expectedLong,
+        uint256 expectedShort,
+        uint256 expectedAssigned,
         string memory message
     ) internal {
         assertEq(
             clarity.balanceOf(addr, optionTokenId),
-            expectedLongBalance,
+            expectedLong,
             string.concat("long balance ", message)
         );
         assertEq(
             clarity.balanceOf(addr, optionTokenId.longToShort()),
-            expectedShortBalance,
+            expectedShort,
             string.concat("short balance ", message)
         );
         assertEq(
             clarity.balanceOf(addr, optionTokenId.longToAssignedShort()),
-            expectedAssignedShortBalance,
+            expectedAssigned,
             string.concat("assigned short balance ", message)
         );
     }

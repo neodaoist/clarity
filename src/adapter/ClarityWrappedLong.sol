@@ -105,7 +105,7 @@ contract ClarityWrappedLong is
         emit ClarityLongsUnwrapped(msg.sender, optionTokenId, optionAmount);
     }
 
-    function exerciseLongs(uint64 /*optionAmount*/ ) external pure {
+    function exerciseOption(uint64 /*optionAmount*/ ) external pure {
         revert("not yet impl");
     }
 }

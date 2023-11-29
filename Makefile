@@ -2,10 +2,10 @@ gas:
 	forge snapshot
 	forge test --nmc 'Fuzz|Invariant' --gas-report | sed -n '/|/,$$p' | sed '/^Ran /d' > .gas-report
 
-gas2:
+gass:
 	forge test --nmc 'Fuzz|Invariant' --gas-report | sed -n '/|/,$$p' | sed '/^Ran /d' > .gas-report2
 
-gas3:
+gasss:
 	forge test --nmc 'Fuzz|Invariant' --gas-report | sed -n '/|/,$$p' | sed '/^Ran /d' > .gas-report3
 
 cov:
@@ -19,3 +19,6 @@ invv:
 
 invvv:
 	forge test --mc Invariant -vvv
+
+testt:
+	forge test --nmc Invariant -vv

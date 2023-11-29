@@ -34,7 +34,7 @@ contract RebasingTest is BaseUnitTestSuite {
     //
     // Scenarios testing various writing, netting off, and exercising combinations:
     //
-    // Let W(o) be the amount written, N(o) the amount netted off, and X(o) the amount
+    // Let W(o) be the amount written, N(o) the amount netted, and X(o) the amount
     // exercised. For each valid combination of none, some, most, and all, we assert
     // the correctness of totalSupply() at the option level, and balanceOf() at the
     // position level. The scenarios are lettered A-J, and for each scenario we test
@@ -69,7 +69,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // totalSupply()
 
         // Then
-        assertTotalSupplies(optionTokenId, 0, 0, "given none written");
+        assertTotalSupplies(optionTokenId, 0, 0, 0, "given none written");
     }
 
     function test_totalSupply_whenSomeWritten() public {
@@ -89,7 +89,9 @@ contract RebasingTest is BaseUnitTestSuite {
         // When
         // totalSupply()
 
-        assertTotalSupplies(optionTokenId, SOME_WRITTEN, 0, "given some written");
+        assertTotalSupplies(
+            optionTokenId, SOME_WRITTEN, SOME_WRITTEN, 0, "given some written"
+        );
     }
 
     function test_totalSupply_whenManyWritten() public {
@@ -110,7 +112,9 @@ contract RebasingTest is BaseUnitTestSuite {
         // totalSupply()
 
         // Then
-        assertTotalSupplies(optionTokenId, MANY_WRITTEN, 0, "given many written");
+        assertTotalSupplies(
+            optionTokenId, MANY_WRITTEN, MANY_WRITTEN, 0, "given many written"
+        );
     }
 
     function test_totalSupply_whenMaxWritten() public {
@@ -131,15 +135,15 @@ contract RebasingTest is BaseUnitTestSuite {
         // totalSupply()
 
         // Then
-        assertTotalSupplies(optionTokenId, MAX_WRITTEN, 0, "given max written");
+        assertTotalSupplies(
+            optionTokenId, MAX_WRITTEN, MAX_WRITTEN, 0, "given max written"
+        );
     }
 
     // Scenario A is duplicative of the above 4 tests, but keeping those for clarity ;)
     // and illustrative purposes
 
-    function test_totalSupply_A_givenAnyWritten_andNoneNettedOff_andNoneExercised()
-        public
-    {
+    function test_totalSupply_A_givenAnyWritten_andNoneNetted_andNoneExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -154,38 +158,6 @@ contract RebasingTest is BaseUnitTestSuite {
                 allowEarlyExercise: true,
                 optionAmount: amountWritten
             });
-            vm.stopPrank();
-
-            // When
-            // totalSupply()
-
-            // Then
-            assertTotalSupplies(
-                optionTokenId, amountWritten, 0, "A: none netted off, none exercised"
-            );
-        }
-    }
-
-    function test_totalSupply_B_givenAnyWritten_andSomeNettedOff_andNoneExercised()
-        public
-    {
-        for (uint256 i = 0; i < writeGivens.length; i++) {
-            // Given
-            uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = amountWritten / 5;
-
-            vm.startPrank(writer);
-            WETHLIKE.approve(address(clarity), type(uint256).max);
-            uint256 optionTokenId = clarity.writeNewCall({
-                baseAsset: address(WETHLIKE),
-                quoteAsset: address(FRAXLIKE),
-                expiry: FRI1,
-                strike: (1900 + i) * 1e18, // unique option for each test
-                allowEarlyExercise: true,
-                optionAmount: amountWritten
-            });
-
-            clarity.netOff(optionTokenId, amountNettedOff);
             vm.stopPrank();
 
             // When
@@ -194,20 +166,19 @@ contract RebasingTest is BaseUnitTestSuite {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountNettedOff,
+                amountWritten,
+                amountWritten,
                 0,
-                "B: some netted off, none exercised"
+                "A: none netted, none exercised"
             );
         }
     }
 
-    function test_totalSupply_C_givenAnyWritten_andMostNettedOff_andNoneExercised()
-        public
-    {
+    function test_totalSupply_B_givenAnyWritten_andSomeNetted_andNoneExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = (amountWritten * 4) / 5;
+            uint64 amountNetted = amountWritten / 5;
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -220,7 +191,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
             vm.stopPrank();
 
             // When
@@ -229,16 +200,49 @@ contract RebasingTest is BaseUnitTestSuite {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountNettedOff,
+                amountWritten - amountNetted,
+                amountWritten - amountNetted,
                 0,
-                "C: most netted off, none exercised"
+                "B: some netted, none exercised"
             );
         }
     }
 
-    function test_totalSupply_D_givenAnyWritten_andAllNettedOff_andNoneExercised()
-        public
-    {
+    function test_totalSupply_C_givenAnyWritten_andMostNetted_andNoneExercised() public {
+        for (uint256 i = 0; i < writeGivens.length; i++) {
+            // Given
+            uint64 amountWritten = writeGivens[i];
+            uint64 amountNetted = (amountWritten * 4) / 5;
+
+            vm.startPrank(writer);
+            WETHLIKE.approve(address(clarity), type(uint256).max);
+            uint256 optionTokenId = clarity.writeNewCall({
+                baseAsset: address(WETHLIKE),
+                quoteAsset: address(FRAXLIKE),
+                expiry: FRI1,
+                strike: (1900 + i) * 1e18, // unique option for each test
+                allowEarlyExercise: true,
+                optionAmount: amountWritten
+            });
+
+            clarity.netOffsetting(optionTokenId, amountNetted);
+            vm.stopPrank();
+
+            // When
+            // totalSupply()
+
+            // Then
+            assertTotalSupplies(
+                optionTokenId,
+                amountWritten - amountNetted,
+                amountWritten - amountNetted,
+                0,
+                "C: most netted, none exercised"
+            );
+        }
+    }
+
+    function test_totalSupply_D_givenAnyWritten_andAllNetted_andNoneExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -254,20 +258,18 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountWritten);
+            clarity.netOffsetting(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
             // totalSupply()
 
             // Then
-            assertTotalSupplies(optionTokenId, 0, 0, "D: all netted off, none exercised");
+            assertTotalSupplies(optionTokenId, 0, 0, 0, "D: all netted, none exercised");
         }
     }
 
-    function test_totalSupply_E_givenAnyWritten_andNoneNettedOff_andSomeExercised()
-        public
-    {
+    function test_totalSupply_E_givenAnyWritten_andNoneNetted_andSomeExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -287,7 +289,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -297,19 +299,18 @@ contract RebasingTest is BaseUnitTestSuite {
             assertTotalSupplies(
                 optionTokenId,
                 amountWritten - amountExercised,
+                amountWritten - amountExercised,
                 amountExercised,
-                "E: none netted off, some exercised"
+                "E: none netted, some exercised"
             );
         }
     }
 
-    function test_totalSupply_F_givenAnyWritten_andSomeNettedOff_andSomeExercised()
-        public
-    {
+    function test_totalSupply_F_givenAnyWritten_andSomeNetted_andSomeExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = amountWritten / 5;
+            uint64 amountNetted = amountWritten / 5;
             uint64 amountExercised = amountWritten / 5;
 
             vm.startPrank(writer);
@@ -323,12 +324,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -337,20 +338,19 @@ contract RebasingTest is BaseUnitTestSuite {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountNettedOff - amountExercised,
+                amountWritten - amountNetted - amountExercised,
+                amountWritten - amountNetted - amountExercised,
                 amountExercised,
-                "F: some netted off, some exercised"
+                "F: some netted, some exercised"
             );
         }
     }
 
-    function test_totalSupply_G_givenAnyWritten_andMostNettedOff_andSomeExercised()
-        public
-    {
+    function test_totalSupply_G_givenAnyWritten_andMostNetted_andSomeExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = (amountWritten * 4) / 5;
+            uint64 amountNetted = (amountWritten * 4) / 5;
             uint64 amountExercised = amountWritten / 5;
 
             vm.startPrank(writer);
@@ -364,12 +364,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -378,16 +378,15 @@ contract RebasingTest is BaseUnitTestSuite {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountNettedOff - amountExercised,
+                amountWritten - amountNetted - amountExercised,
+                amountWritten - amountNetted - amountExercised,
                 amountExercised,
-                "G: most netted off, some exercised"
+                "G: most netted, some exercised"
             );
         }
     }
 
-    function test_totalSupply_H_givenAnyWritten_andNoneNettedOff_andMostExercised()
-        public
-    {
+    function test_totalSupply_H_givenAnyWritten_andNoneNetted_andMostExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -407,7 +406,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -417,19 +416,18 @@ contract RebasingTest is BaseUnitTestSuite {
             assertTotalSupplies(
                 optionTokenId,
                 amountWritten - amountExercised,
+                amountWritten - amountExercised,
                 amountExercised,
-                "H: none netted off, most exercised"
+                "H: none netted, most exercised"
             );
         }
     }
 
-    function test_totalSupply_I_givenAnyWritten_andSomeNettedOff_andMostExercised()
-        public
-    {
+    function test_totalSupply_I_givenAnyWritten_andSomeNetted_andMostExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = amountWritten / 5;
+            uint64 amountNetted = amountWritten / 5;
             uint64 amountExercised = (amountWritten * 4) / 5;
 
             vm.startPrank(writer);
@@ -443,12 +441,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -457,16 +455,15 @@ contract RebasingTest is BaseUnitTestSuite {
             // Then
             assertTotalSupplies(
                 optionTokenId,
-                amountWritten - amountNettedOff - amountExercised,
+                amountWritten - amountNetted - amountExercised,
+                amountWritten - amountNetted - amountExercised,
                 amountExercised,
-                "I: some netted off, most exercised"
+                "I: some netted, most exercised"
             );
         }
     }
 
-    function test_totalSupply_J_givenAnyWritten_andNoneNettedOff_andAllExercised()
-        public
-    {
+    function test_totalSupply_J_givenAnyWritten_andNoneNetted_andAllExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -485,7 +482,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountWritten);
+            clarity.exerciseOption(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
@@ -493,7 +490,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
-                optionTokenId, 0, amountWritten, "J: none netted off, all exercised"
+                optionTokenId, 0, 0, amountWritten, "J: none netted, all exercised"
             );
         }
     }
@@ -633,9 +630,7 @@ contract RebasingTest is BaseUnitTestSuite {
     // Scenario A is duplicative of the above 4 tests, but keeping those for clarity ;)
     // and illustrative purposes
 
-    function test_balanceOf_A_givenAnyWritten_andNoneNettedOff_andNoneExercised()
-        public
-    {
+    function test_balanceOf_A_givenAnyWritten_andNoneNetted_andNoneExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -662,18 +657,16 @@ contract RebasingTest is BaseUnitTestSuite {
                 amountWritten,
                 amountWritten,
                 0,
-                "A: none netted off, none exercised"
+                "A: none netted, none exercised"
             );
         }
     }
 
-    function test_balanceOf_B_givenAnyWritten_andSomeNettedOff_andNoneExercised()
-        public
-    {
+    function test_balanceOf_B_givenAnyWritten_andSomeNetted_andNoneExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = amountWritten / 5;
+            uint64 amountNetted = amountWritten / 5;
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -686,7 +679,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
             vm.stopPrank();
 
             // When
@@ -696,21 +689,19 @@ contract RebasingTest is BaseUnitTestSuite {
             assertOptionBalances(
                 writer,
                 optionTokenId,
-                amountWritten - amountNettedOff,
-                amountWritten - amountNettedOff,
+                amountWritten - amountNetted,
+                amountWritten - amountNetted,
                 0,
-                "B: some netted off, none exercised"
+                "B: some netted, none exercised"
             );
         }
     }
 
-    function test_balanceOf_C_givenAnyWritten_andMostNettedOff_andNoneExercised()
-        public
-    {
+    function test_balanceOf_C_givenAnyWritten_andMostNetted_andNoneExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = (amountWritten * 4) / 5;
+            uint64 amountNetted = (amountWritten * 4) / 5;
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -723,7 +714,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
             vm.stopPrank();
 
             // When
@@ -733,15 +724,15 @@ contract RebasingTest is BaseUnitTestSuite {
             assertOptionBalances(
                 writer,
                 optionTokenId,
-                amountWritten - amountNettedOff,
-                amountWritten - amountNettedOff,
+                amountWritten - amountNetted,
+                amountWritten - amountNetted,
                 0,
-                "C: most netted off, none exercised"
+                "C: most netted, none exercised"
             );
         }
     }
 
-    function test_balanceOf_D_givenAnyWritten_andAllNettedOff_andNoneExercised() public {
+    function test_balanceOf_D_givenAnyWritten_andAllNetted_andNoneExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -757,7 +748,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountWritten);
+            clarity.netOffsetting(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
@@ -765,14 +756,12 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
-                writer, optionTokenId, 0, 0, 0, "D: all netted off, none exercised"
+                writer, optionTokenId, 0, 0, 0, "D: all netted, none exercised"
             );
         }
     }
 
-    function test_balanceOf_E_givenAnyWritten_andNoneNettedOff_andSomeExercised()
-        public
-    {
+    function test_balanceOf_E_givenAnyWritten_andNoneNetted_andSomeExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -792,7 +781,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -805,18 +794,16 @@ contract RebasingTest is BaseUnitTestSuite {
                 amountWritten - amountExercised,
                 amountWritten - amountExercised,
                 amountExercised,
-                "E: none netted off, some exercised"
+                "E: none netted, some exercised"
             );
         }
     }
 
-    function test_balanceOf_F_givenAnyWritten_andSomeNettedOff_andSomeExercised()
-        public
-    {
+    function test_balanceOf_F_givenAnyWritten_andSomeNetted_andSomeExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = amountWritten / 5;
+            uint64 amountNetted = amountWritten / 5;
             uint64 amountExercised = amountWritten / 5;
 
             vm.startPrank(writer);
@@ -830,12 +817,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -845,21 +832,19 @@ contract RebasingTest is BaseUnitTestSuite {
             assertOptionBalances(
                 writer,
                 optionTokenId,
-                amountWritten - amountNettedOff - amountExercised,
-                amountWritten - amountNettedOff - amountExercised,
+                amountWritten - amountNetted - amountExercised,
+                amountWritten - amountNetted - amountExercised,
                 amountExercised,
-                "F: some netted off, some exercised"
+                "F: some netted, some exercised"
             );
         }
     }
 
-    function test_balanceOf_G_givenAnyWritten_andMostNettedOff_andSomeExercised()
-        public
-    {
+    function test_balanceOf_G_givenAnyWritten_andMostNetted_andSomeExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = (amountWritten * 4) / 5;
+            uint64 amountNetted = (amountWritten * 4) / 5;
             uint64 amountExercised = amountWritten / 5;
 
             vm.startPrank(writer);
@@ -873,12 +858,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -888,17 +873,15 @@ contract RebasingTest is BaseUnitTestSuite {
             assertOptionBalances(
                 writer,
                 optionTokenId,
-                amountWritten - amountNettedOff - amountExercised,
-                amountWritten - amountNettedOff - amountExercised,
+                amountWritten - amountNetted - amountExercised,
+                amountWritten - amountNetted - amountExercised,
                 amountExercised,
-                "G: most netted off, some exercised"
+                "G: most netted, some exercised"
             );
         }
     }
 
-    function test_balanceOf_H_givenAnyWritten_andNoneNettedOff_andMostExercised()
-        public
-    {
+    function test_balanceOf_H_givenAnyWritten_andNoneNetted_andMostExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -918,7 +901,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -931,18 +914,16 @@ contract RebasingTest is BaseUnitTestSuite {
                 amountWritten - amountExercised,
                 amountWritten - amountExercised,
                 amountExercised,
-                "H: none netted off, most exercised"
+                "H: none netted, most exercised"
             );
         }
     }
 
-    function test_balanceOf_I_givenAnyWritten_andSomeNettedOff_andMostExercised()
-        public
-    {
+    function test_balanceOf_I_givenAnyWritten_andSomeNetted_andMostExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNettedOff = amountWritten / 5;
+            uint64 amountNetted = amountWritten / 5;
             uint64 amountExercised = (amountWritten * 4) / 5;
 
             vm.startPrank(writer);
@@ -956,12 +937,12 @@ contract RebasingTest is BaseUnitTestSuite {
                 optionAmount: amountWritten
             });
 
-            clarity.netOff(optionTokenId, amountNettedOff);
+            clarity.netOffsetting(optionTokenId, amountNetted);
 
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountExercised);
+            clarity.exerciseOption(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -971,15 +952,15 @@ contract RebasingTest is BaseUnitTestSuite {
             assertOptionBalances(
                 writer,
                 optionTokenId,
-                amountWritten - amountNettedOff - amountExercised,
-                amountWritten - amountNettedOff - amountExercised,
+                amountWritten - amountNetted - amountExercised,
+                amountWritten - amountNetted - amountExercised,
                 amountExercised,
-                "I: some netted off, most exercised"
+                "I: some netted, most exercised"
             );
         }
     }
 
-    function test_balanceOf_J_givenAnyWritten_andNoneNettedOff_andAllExercised() public {
+    function test_balanceOf_J_givenAnyWritten_andNoneNetted_andAllExercised() public {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
@@ -998,7 +979,7 @@ contract RebasingTest is BaseUnitTestSuite {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseLongs(optionTokenId, amountWritten);
+            clarity.exerciseOption(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
@@ -1011,7 +992,7 @@ contract RebasingTest is BaseUnitTestSuite {
                 0,
                 0,
                 amountWritten,
-                "J: none netted off, all exercised"
+                "J: none netted, all exercised"
             );
         }
     }

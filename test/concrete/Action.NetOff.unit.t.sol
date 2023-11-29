@@ -4,18 +4,18 @@ pragma solidity 0.8.23;
 // Test Harness
 import "../BaseUnitTestSuite.t.sol";
 
-contract NetOffTest is BaseUnitTestSuite {
+contract NetOffsettingTest is BaseUnitTestSuite {
     /////////
 
     using LibPosition for uint256;
 
     /////////
-    // function netOff(uint256 _optionTokenId, uint64 optionsAmount)
+    // function netOffsetting(uint256 _optionTokenId, uint64 optionsAmount)
     //     external
     //     override
-    //     returns (uint128 writeAssetNettedOff);
+    //     returns (uint128 writeAssetNetted);
 
-    function test_netOff() public {
+    function test_netOffsetting() public {
         uint256 writerWethBalance = WETHLIKE.balanceOf(writer);
         uint256 writerLusdBalance = LUSDLIKE.balanceOf(writer);
 
@@ -43,15 +43,12 @@ contract NetOffTest is BaseUnitTestSuite {
 
         // When writer nets off their full position
         vm.prank(writer);
-        uint128 writeAssetNettedOff = clarity.netOff(optionTokenId, 1e6);
+        uint128 writeAssetNetted = clarity.netOffsetting(optionTokenId, 1e6);
 
         // Then
         assertOptionBalances(writer, optionTokenId, 0, 0, 0, "writer after net off");
         assertAssetBalance(
-            writer,
-            WETHLIKE,
-            writerWethBalance + writeAssetNettedOff,
-            "writer after net off"
+            writer, WETHLIKE, writerWethBalance + writeAssetNetted, "writer after net off"
         );
         assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer after net off");
     }
@@ -60,7 +57,7 @@ contract NetOffTest is BaseUnitTestSuite {
 
     // Events
 
-    function testEvent_netOff_OptionsNettedOff() public {
+    function testEvent_netOffsetting_OptionsNetted() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -73,14 +70,14 @@ contract NetOffTest is BaseUnitTestSuite {
         });
 
         vm.expectEmit(true, true, true, true);
-        emit IOptionEvents.OptionsNettedOff(writer, optionTokenId, 0.999998e6);
+        emit IOptionEvents.OptionsNetted(writer, optionTokenId, 0.999998e6);
 
-        clarity.netOff(optionTokenId, 0.999998e6);
+        clarity.netOffsetting(optionTokenId, 0.999998e6);
     }
 
     // Sad Paths
 
-    function testRevert_netOff_whenAmountZero() public {
+    function testRevert_netOffsetting_whenAmountZero() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -92,13 +89,13 @@ contract NetOffTest is BaseUnitTestSuite {
             optionAmount: 1e6
         });
 
-        vm.expectRevert(IOptionErrors.NetOffAmountZero.selector);
+        vm.expectRevert(IOptionErrors.NetOffsettingAmountZero.selector);
 
-        clarity.netOff(optionTokenId, 0);
+        clarity.netOffsetting(optionTokenId, 0);
         vm.stopPrank();
     }
 
-    function testRevert_netOff_whenOptionDoesNotExist() public {
+    function testRevert_netOffsetting_whenOptionDoesNotExist() public {
         uint256 nonExistentOptionTokenId = 456;
 
         vm.expectRevert(
@@ -108,10 +105,10 @@ contract NetOffTest is BaseUnitTestSuite {
         );
 
         vm.prank(writer);
-        clarity.netOff(nonExistentOptionTokenId, 1e6);
+        clarity.netOffsetting(nonExistentOptionTokenId, 1e6);
     }
 
-    function testRevert_netOff_whenTokenTypeIsAssignedShort() public {
+    function testRevert_netOffsetting_whenTokenTypeIsAssignedShort() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -127,14 +124,15 @@ contract NetOffTest is BaseUnitTestSuite {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IOptionErrors.CanOnlyCallNetOffForLongs.selector, assignedShortTokenId
+                IOptionErrors.CanOnlyCallNetOffsettingForLongs.selector,
+                assignedShortTokenId
             )
         );
 
-        clarity.netOff(assignedShortTokenId, 1e6);
+        clarity.netOffsetting(assignedShortTokenId, 1e6);
     }
 
-    function testRevert_netOff_givenOptionIsExpired() public {
+    function testRevert_netOffsetting_givenOptionIsExpired() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -154,10 +152,10 @@ contract NetOffTest is BaseUnitTestSuite {
             )
         );
 
-        clarity.netOff(optionTokenId, 1e6);
+        clarity.netOffsetting(optionTokenId, 1e6);
     }
 
-    function testRevert_netOff_givenDontHoldSufficientLongs() public {
+    function testRevert_netOffsetting_givenDontHoldSufficientLongs() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -176,11 +174,11 @@ contract NetOffTest is BaseUnitTestSuite {
             )
         );
 
-        clarity.netOff(optionTokenId, 1e6);
+        clarity.netOffsetting(optionTokenId, 1e6);
         vm.stopPrank();
     }
 
-    function testRevert_netOff_givenDontHoldSufficientShorts() public {
+    function testRevert_netOffsetting_givenDontHoldSufficientShorts() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
         uint256 optionTokenId = clarity.writeNewCall({
@@ -199,7 +197,7 @@ contract NetOffTest is BaseUnitTestSuite {
             )
         );
 
-        clarity.netOff(optionTokenId, 1e6);
+        clarity.netOffsetting(optionTokenId, 1e6);
         vm.stopPrank();
     }
 }

@@ -115,7 +115,7 @@ contract ClarityWrappedShort is
         emit ClarityShortsUnwrapped(msg.sender, shortTokenId, shortAmount);
     }
 
-    function redeemShorts(uint64 /*shortAmount*/ ) external pure {
+    function redeemCollateral(uint64 /*shortAmount*/ ) external pure {
         revert("not yet impl");
     }
 }

@@ -9,7 +9,7 @@
         "base_asset": "WETH",
         "quote_asset": "FRAX",
         "expiry": "1697788800",
-        "exerciseLongs_style": "American",
+        "exerciseOption_style": "American",
         "strike_price": "1950"
     }
 }
