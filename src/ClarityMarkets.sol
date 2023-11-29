@@ -1277,6 +1277,7 @@ contract ClarityMarkets is
     /// @return amountSkimmed The amount of the asset that was skimmed
     function skim(address asset) external returns (uint256 amountSkimmed) {
         ///////// Function Requirements
+        // Check there is something to skim
         amountSkimmed = skimmable(asset);
         if (amountSkimmed == 0) {
             revert NothingSkimmable(asset);
@@ -1286,6 +1287,7 @@ contract ClarityMarkets is
         // None -- no Clarity state changes
 
         ///////// Interactions
+        // Transfer out the skimmable amount of the asset
         SafeTransferLib.safeTransfer(ERC20(asset), msg.sender, amountSkimmed);
 
         ///////// Protocol Invariant
