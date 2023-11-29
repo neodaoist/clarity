@@ -86,6 +86,10 @@ interface IOptionErrors {
     // TODO reframe to standardize with other errors
     error CanOnlyRedeemCollateral(uint256 tokenId);
 
+    ///////// Skim
+
+    error NothingSkimmable(address asset);
+
     ///////// Adapter
 
     error WrappedLongAlreadyDeployed(uint256 optionTokenId);

@@ -1,7 +1,7 @@
 | src/ClarityMarkets.sol:ClarityMarkets contract |                 |        |        |        |         |
 |------------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                                | Deployment Size |        |        |        |         |
-| 4282339                                        | 21419           |        |        |        |         |
+| 4323590                                        | 21625           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
 | CONTRACT_SCALAR                                | 272             | 272    | 272    | 272    | 10      |
 | MAXIMUM_EXPIRY                                 | 315             | 315    | 315    | 315    | 2       |
@@ -18,14 +18,16 @@
 | optionTokenId                                  | 2088            | 2487   | 2088   | 4084   | 5       |
 | position                                       | 687             | 3368   | 3274   | 5274   | 10      |
 | redeemCollateral                               | 506             | 9281   | 11782  | 16977  | 20      |
+| skim                                           | 1680            | 4686   | 4686   | 7693   | 2       |
+| skimmable                                      | 1607            | 1607   | 1607   | 1607   | 6       |
 | tokenType                                      | 382             | 1074   | 757    | 2717   | 5       |
-| tokenURI                                       | 252778          | 253152 | 253008 | 254492 | 18      |
+| tokenURI                                       | 252774          | 253150 | 253008 | 254492 | 18      |
 | totalSupply                                    | 982             | 1498   | 1493   | 2637   | 288     |
 | transfer                                       | 885             | 12719  | 4517   | 26417  | 65      |
 | transferFrom                                   | 1224            | 26525  | 29084  | 29236  | 55      |
 | writeExisting                                  | 472             | 17037  | 16439  | 124739 | 3045    |
-| writeNewCall                                   | 969             | 209683 | 208402 | 314400 | 262     |
-| writeNewPut                                    | 1013            | 178253 | 210782 | 309644 | 60      |
+| writeNewCall                                   | 969             | 209842 | 208402 | 314400 | 265     |
+| writeNewPut                                    | 1013            | 185183 | 210782 | 309644 | 66      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |

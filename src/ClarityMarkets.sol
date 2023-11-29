@@ -1265,17 +1265,34 @@ contract ClarityMarkets is
     /// @notice Returns the amount of a given asset that the clearinghouse holds which can
     /// be skimmed by a caller, above and beyond the current clearing liabilities
     /// @param asset The ERC20 asset to check
-    /// @return amount The amount of the asset that can be skimmed
-    function skimmable(address asset) external view returns (uint256 amount) {
-        revert("not yet impl"); // TODO
+    /// @return amountSkimmable The amount of the asset that can be skimmed
+    function skimmable(address asset) public view returns (uint256 amountSkimmable) {
+        amountSkimmable =
+            IERC20Minimal(asset).balanceOf(address(this)) - clearingLiabilities[asset];
     }
 
     /// @notice Skims a given amount of a given asset from the clearinghouse, above and
     /// beyond the current clearing liabilities, transferring this amount to the caller
     /// @param asset The ERC20 asset to skim
-    /// @return amount The amount of the asset that was skimmed
-    function skim(address asset) external returns (uint256 amount) {
-        revert("not yet impl"); // TODO
+    /// @return amountSkimmed The amount of the asset that was skimmed
+    function skim(address asset) external returns (uint256 amountSkimmed) {
+        ///////// Function Requirements
+        amountSkimmed = skimmable(asset);
+        if (amountSkimmed == 0) {
+            revert NothingSkimmable(asset);
+        }
+
+        ///////// Effects
+        // None -- no Clarity state changes
+
+        ///////// Interactions
+        SafeTransferLib.safeTransfer(ERC20(asset), msg.sender, amountSkimmed);
+
+        ///////// Protocol Invariant
+        // Not checking -- outside of ERC20 assets which can update their balances
+        // asynchronously, we are guaranteed the clearinghouse balance for the skimmed
+        // asset is exactly equal to the clearing liability for that asset once this
+        // function finishes execution.
     }
 
     ///////// Clarity Callback
@@ -1287,19 +1304,19 @@ contract ClarityMarkets is
 
     ///////// FREI-PI
 
-    /// @dev Increments the clearing liability for a ERC20 given asset, called by
-    /// _writeOptions() and exerciseOption()
+    /// @dev Increments the clearing liability for a ERC20 given asset. Called by
+    /// _writeOptions() and exerciseOption().
     /// @param asset The asset to increment the clearing liability for
     /// @param amount The amount to increment the clearing liability by
-    function _incrementClearingLiability(address asset, uint256 amount) internal {
+    function _incrementClearingLiability(address asset, uint256 amount) private {
         clearingLiabilities[asset] += amount;
     }
 
-    /// @dev Decrements the clearing liability for a given ERC20 asset, called by
-    /// netOffsetting(), exerciseOption() and redeemCollateral()
+    /// @dev Decrements the clearing liability for a given ERC20 asset. Called by
+    /// netOffsetting(), exerciseOption() and redeemCollateral().
     /// @param asset The asset to decrement the clearing liability for
     /// @param amount The amount to decrement the clearing liability by
-    function _decrementClearingLiability(address asset, uint256 amount) internal {
+    function _decrementClearingLiability(address asset, uint256 amount) private {
         clearingLiabilities[asset] -= amount;
     }
 

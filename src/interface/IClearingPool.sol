@@ -2,6 +2,6 @@
 pragma solidity 0.8.23;
 
 interface IClearingPool {
-    function skimmable(address asset) external view returns (uint256 amount);
-    function skim(address asset) external returns (uint256 amount);
+    function skimmable(address asset) external view returns (uint256 amountSkimmable);
+    function skim(address asset) external returns (uint256 amountSkimmed);
 }
