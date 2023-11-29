@@ -12,8 +12,8 @@ interface IOption {
     enum ExerciseStyle {
         AMERICAN,
         EUROPEAN
-        // BERMUDAN
     }
+    // BERMUDAN
 
     struct Option {
         address baseAsset;

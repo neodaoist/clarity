@@ -419,12 +419,14 @@ contract ClarityMarkets is
                     amount = internalBalanceOf[owner][tokenId];
                 }
             } else if (_tokenType == TokenType.SHORT) {
-                // If short, the balance is their proportional share TODO
+                // If short, the balance is the owner's proportional share of
+                // unassigned shorts
                 amount = _balanceOfShort(
                     owner, tokenId, amountWritten, amountNetted, amountExercised
                 );
             } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-                // If assigned short, the balance is their proportional share TODO
+                // If assigned short, the balance is the owner's proportional
+                // share of assigned shorts
                 amount = _balanceOfAssignedShort(
                     owner,
                     tokenId.assignedShortToShort(),
@@ -438,7 +440,14 @@ contract ClarityMarkets is
         }
     }
 
-    /// TODO
+    /// @dev Multiplies a given value (either a balance or a total supply) by the
+    /// proportion of the open interest that has Not been exercised/assigned.
+    /// Called by view totalSupply() and private view _balanceOfShort().
+    /// @param input The value to multiply
+    /// @param amountWritten The amount of options written
+    /// @param amountNetted The amount of options netted
+    /// @param amountExercised The amount of options exercised
+    /// @return output The calculated value
     function _mulByProportionUnassigned(
         uint256 input,
         uint256 amountWritten,
@@ -449,7 +458,14 @@ contract ClarityMarkets is
             / (amountWritten - amountNetted);
     }
 
-    /// TODO
+    /// @dev Multiplies a given value (either a balance or a total supply) by the
+    /// proportion of the open interest that has been exercised/assigned.
+    /// Called by view totalSupply() and private view _balanceOfAssignedShort().
+    /// @param input The value to multiply
+    /// @param amountWritten The amount of options written
+    /// @param amountNetted The amount of options netted
+    /// @param amountExercised The amount of options exercised
+    /// @return output The calculated value
     function _mulByProportionAssigned(
         uint256 input,
         uint256 amountWritten,
@@ -459,10 +475,15 @@ contract ClarityMarkets is
         output = (input * amountExercised) / (amountWritten - amountNetted);
     }
 
-    // TODO
     /// @dev Returns the balance of shorts for a given owner and option. Called
     /// by views balanceOf() and position(), and actions netOffsetting() and
     /// redeemCollateral().
+    /// @param owner The owner of the token
+    /// @param tokenId The token id of the token
+    /// @param amountWritten The amount of options written for this option
+    /// @param amountNetted The amount of options netted for this option
+    /// @param amountExercised The amount of options exercised for this option
+    /// @return amount The balance of the unassigned short for the owner
     function _balanceOfShort(
         address owner,
         uint256 tokenId,
@@ -479,9 +500,14 @@ contract ClarityMarkets is
         );
     }
 
-    // TODO
     /// @dev Returns the balance of assigned shorts for a given owner and option.
     /// Called by views balanceOf() and position() and action redeemCollateral().
+    /// @param owner The owner of the token
+    /// @param shortTokenId The token id of the short token
+    /// @param amountWritten The amount of options written for this option
+    /// @param amountNetted The amount of options netted for this option
+    /// @param amountExercised The amount of options exercised for this option
+    /// @return amount The balance of the assigned short for the owner
     function _balanceOfAssignedShort(
         address owner,
         uint256 shortTokenId,
@@ -516,6 +542,10 @@ contract ClarityMarkets is
         amount = CONTRACT_SCALAR;
     }
 
+    /// @dev Generates the full ticker for a given token id, from the short stored ticker.
+    /// Called by views names() and symbols().
+    /// @param tokenId The token id of the token
+    /// @return ticker The full ticker for the token
     function _generateFullTicker(uint256 tokenId)
         private
         view

@@ -80,6 +80,11 @@ contract RedeemTest is BaseUnitTestSuite {
         assertOptionBalances(holder1, optionTokenId, 0, 0, 0, "holder1 after expiry");
         assertOptionBalances(holder2, optionTokenId, 0, 0, 0, "holder2 after expiry");
 
+        uint256 wethBalance1 = WETHLIKE.balanceOf(writer1);
+        uint256 fraxBalance1 = FRAXLIKE.balanceOf(writer1);
+        uint256 wethBalance2 = WETHLIKE.balanceOf(writer2);
+        uint256 fraxBalance2 = FRAXLIKE.balanceOf(writer2);
+
         // When Writer1 redeems collateral
         vm.prank(writer1);
         (uint128 writeAssetRedeemed1, uint128 exerciseAssetRedeemed1) =
@@ -91,7 +96,14 @@ contract RedeemTest is BaseUnitTestSuite {
         assertOptionBalances(writer2, optionTokenId, 0, 4e6, 1e6, "writer2 after redeem1");
         assertOptionBalances(holder1, optionTokenId, 0, 0, 0, "holder1 after redeem1");
         assertOptionBalances(holder2, optionTokenId, 0, 0, 0, "holder2 after redeem1");
-        // TODO add asset checks
+        assertEq(writeAssetRedeemed1, 1e18 * 4, "writeAssetRedeemed");
+        assertEq(exerciseAssetRedeemed1, 2050e18, "exerciseAssetRedeemed");
+        assertAssetBalance(
+            writer1, WETHLIKE, wethBalance1 + writeAssetRedeemed1, "after redeem"
+        );
+        assertAssetBalance(
+            writer, FRAXLIKE, fraxBalance1 + exerciseAssetRedeemed1, "after redeem"
+        );
 
         // When Writer2 redeems collateral
         vm.prank(writer2);
@@ -104,7 +116,14 @@ contract RedeemTest is BaseUnitTestSuite {
         assertOptionBalances(writer2, optionTokenId, 0, 0, 0, "writer2 after redeem2");
         assertOptionBalances(holder1, optionTokenId, 0, 0, 0, "holder1 after redeem2");
         assertOptionBalances(holder2, optionTokenId, 0, 0, 0, "holder2 after redeem2");
-        // TODO add asset checks
+        assertEq(writeAssetRedeemed2, 1e18 * 4, "writeAssetRedeemed");
+        assertEq(exerciseAssetRedeemed2, 2050e18, "exerciseAssetRedeemed");
+        assertAssetBalance(
+            writer1, WETHLIKE, wethBalance2 + writeAssetRedeemed2, "after redeem"
+        );
+        assertAssetBalance(
+            writer, FRAXLIKE, fraxBalance2 + exerciseAssetRedeemed2, "after redeem"
+        );
     }
 
     // Core scenarios, where caller holds at least 1 short token:
