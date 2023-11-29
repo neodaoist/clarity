@@ -957,7 +957,7 @@ contract ClarityMarkets is
 
         ///////// Effects
         // Update the option state
-        uint64 amountWritten = optionStored.optionState.amountWritten; // gas optimization
+        uint64 amountWritten = optionStored.optionState.amountWritten;
         optionStored.optionState.amountWritten = amountWritten + optionAmount;
 
         // Write the options
