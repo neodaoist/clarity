@@ -2,12 +2,11 @@
 
 ## Core Protocol Invariant
 For all ERC20 assets in the domain:
-- Invariant: A1 - Clearinghouse asset balance is greater than or equal to total clearing liabilities
-    for that asset
+- Invariant: A1 - Clearinghouse asset balance is greater than or equal to total clearing liabilities for that asset
 
-## Token Invariants
+## User Balance Invariants
 For all token ids in the domain:
-- Invariant: B1 - Total supply is equal to sum of all balances for that token id
+- Invariant: B1 - Sum of all balances is equal to total supply of that token id
 
 ## Options Supply and State Invariants
 For all options in the domain:
@@ -17,12 +16,10 @@ For all options in the domain:
     the product of redeemed and proportion options unassigned
 - Invariant: C3 - Total supply of assigned shorts is equal to amount exercised minus the product of
     redeemed and proportion of options assigned
-- Invariant: C4 - Amount written is greater than or equal to amount netted plus amount exercised plus
-    amount redeemed
-- Invariant: C5 - Amount netted is less than or equal to amount written
-- Invariant: C6 - Amount exercised is less than or equal to amount written minus amount netted
-- Invariant: C7 - Amount redeemed is less than or equal to amount written minus amount netted
-- Invariant: C8 - Amount written minus netted minus redeemed is equal to total supply of unassigned
+- Invariant: C4 - Amount netted is less than or equal to amount written
+- Invariant: C5 - Amount exercised is less than or equal to amount written minus amount netted
+- Invariant: C6 - Amount redeemed is less than or equal to amount written minus amount netted
+- Invariant: C7 - Amount written minus netted minus redeemed is equal to total supply of unassigned
     shorts plus total supply of assigned shorts
 
 ## Futures Supply and State Invariants
