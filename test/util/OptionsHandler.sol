@@ -102,10 +102,15 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _;
     }
 
-    modifier requireOpenInterest() {
-        vm.assume(calls["writeNewCall"] > 0 || calls["writeNewPut"] > 0);
+    // Helpers
 
-        _;
+    function _requireOpenInterest(uint256 optionTokenId) private view {
+        vm.assume(ghost_amountWrittenFor[optionTokenId] > 0);
+        vm.assume(
+            ghost_amountWrittenFor[optionTokenId]
+                > ghost_amountExercisedFor[optionTokenId]
+                    + ghost_amountNettedFor[optionTokenId]
+        );
     }
 
     // Contructor
@@ -293,7 +298,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         createActor
         countCall("writeExisting")
-        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -307,6 +311,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // get option info
         IOption.Option memory option = clarity.option(optionTokenId);
+
+        // check for open interest
+        _requireOpenInterest(optionTokenId);
 
         // set call vs. put specifics
         IERC20 writeAsset;
@@ -350,7 +357,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         createActor
         countCall("transferLongs")
-        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -361,6 +367,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // bind option amount
         optionAmount = bound(optionAmount, 1, clarity.balanceOf(sender, optionTokenId));
+
+        // check for open interest
+        _requireOpenInterest(optionTokenId);
 
         // transfer options to current actor
         vm.prank(sender);
@@ -378,7 +387,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         createActor
         countCall("transferShorts")
-        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -393,6 +401,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // bind option amount
         optionAmount = bound(optionAmount, 1, clarity.balanceOf(sender, shortTokenId));
+
+        // check for open interest
+        _requireOpenInterest(optionTokenId);
 
         // transfer options to current actor
         vm.prank(sender);
@@ -436,6 +447,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             ? clarity.option(optionTokenId).baseAsset
             : clarity.option(optionTokenId).quoteAsset;
 
+        // check for open interest
+        _requireOpenInterest(optionTokenId);
+
         // net off position
         vm.prank(writer);
         uint256 writeAssetReturned =
@@ -475,7 +489,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     function exerciseOption(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
         external
         countCall("exerciseOption")
-        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -489,6 +502,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // get option info
         IOption.Option memory option = clarity.option(optionTokenId);
+
+        // check for open interest
+        _requireOpenInterest(optionTokenId);
 
         // warp into exercise window, if necessary
         if (
@@ -565,7 +581,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     function redeemCollateral(uint256 optionIndex, uint256 ownerIndex)
         external
         countCall("redeemCollateral")
-        requireOpenInterest
     {
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
@@ -575,7 +590,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
         address writer = ghost_shortOwnersOf[optionTokenId][ownerIndex];
 
-        // track balances
+        // track balances, before redeem
         uint256 shortBalance = clarity.balanceOf(writer, shortTokenId);
         uint256 assignedBalance =
             clarity.balanceOf(writer, optionTokenId.longToAssignedShort());
@@ -591,7 +606,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // set call vs. put specifics
         IERC20 writeAsset;
         IERC20 exerciseAsset;
-
         if (option.optionType == IOption.OptionType.CALL) {
             writeAsset = IERC20(option.baseAsset);
             exerciseAsset = IERC20(option.quoteAsset);
@@ -611,8 +625,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         ghost_clearingLiabilityFor[address(exerciseAsset)] -= exerciseAssetRedeemed;
 
         ghost_shortSumFor[optionTokenId] -= shortBalance;
+        ghost_assignedShortSumFor[optionTokenId] -= assignedBalance;
 
-        // TODO track ghost_amountRedeemedFor
+        ghost_amountRedeemedFor[optionTokenId] += (shortBalance + assignedBalance);
 
         // if a writer has no more shorts, swap and pop from short owners array
         if (clarity.balanceOf(writer, shortTokenId) == 0) {
@@ -621,6 +636,14 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             ghost_shortOwnersOf[optionTokenId][ownerIndex] = lastElement;
             ghost_shortOwnersOf[optionTokenId].pop();
         }
+    }
+
+    function sendExtra() external {
+        // TODO
+    }
+
+    function skim() external {
+        // TODO
     }
 
     // Util
@@ -642,34 +665,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         console2.log("exerciseOption", calls["exerciseOption"]);
         // Redeem
         console2.log("redeemCollateral", calls["redeemCollateral"]);
+        // Skim
+        console2.log("skim", calls["skim"]);
     }
 
-    ///////// Actors
-
-    // TODO WIP
-
-    // function actorsCount() external view returns (uint256) {
-    //     return _actors.actors.length;
-    // }
-
-    // function actors() external view returns (address[] memory) {
-    //     return _actors.actors;
-    // }
-
-    // function forEachActor(function(address) external func) public {
-    //     _actors.forEach(func);
-    // }
-
-    // function reduceActors(
-    //     uint256 acc,
-    //     function(uint256,address) external returns (uint256) func
-    // ) public returns (uint256) {
-    //     return _actors.reduce(acc, func);
-    // }
-
     // ///////// Assets
-
-    // TODO WIP
 
     function baseAssetsCount() external view returns (uint256) {
         return baseAssets.assets.length;
@@ -686,17 +686,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     function quoteAssetAt(uint256 index) external view returns (IERC20) {
         return quoteAssets.at(index);
     }
-
-    // function forEachAsset(function(IERC20) external func) public {
-    //     _assets.forEach(func);
-    // }
-
-    // function reduceAssets(
-    //     uint256 acc,
-    //     function(uint256,IERC20) external returns (uint256) func
-    // ) public returns (uint256) {
-    //     return _assets.reduce(acc, func);
-    // }
 
     ///////// Options
 
