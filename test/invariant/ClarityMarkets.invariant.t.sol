@@ -8,7 +8,7 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {OptionsHandler} from "../util/OptionsHandler.sol";
 
 // External Test Helpers
-import {Test, console2, stdError} from "forge-std/Test.sol";
+import {Test, console2, stdError, stdStorage, StdStorage} from "forge-std/Test.sol";
 
 // Interfaces
 import {IOption} from "../../src/interface/option/IOption.sol";
@@ -18,6 +18,8 @@ import "../../src/ClarityMarkets.sol";
 
 contract ClarityMarketsInvariantTest is Test {
     /////////
+
+    using stdStorage for StdStorage;
 
     using LibPosition for uint256;
 
@@ -266,7 +268,7 @@ contract ClarityMarketsInvariantTest is Test {
         }
     }
 
-    ///////// Logs
+    ///////// Logging
 
     function invariant_util_callSummary() public view {
         handler.callSummary();

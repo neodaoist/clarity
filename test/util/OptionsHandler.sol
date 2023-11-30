@@ -31,63 +31,71 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     using Actors for ActorSet;
     using Options for OptionSet;
 
+    using LibMath for uint8;
+    using LibMath for uint256;
+
     using LibPosition for uint256;
 
     // Contract Under Test
     ClarityMarkets private clarity;
 
-    // Ghost Variables
+    ///////// Ghost Variables
+
+    // Clearing Liabilities
     mapping(address => uint256) public ghost_clearingLiabilityFor;
 
+    // Option States
     mapping(uint256 => uint256) public ghost_amountWrittenFor;
     mapping(uint256 => uint256) public ghost_amountNettedFor;
     mapping(uint256 => uint256) public ghost_amountExercisedFor;
     mapping(uint256 => uint256) public ghost_amountRedeemedFor;
 
+    // Token Types
     mapping(uint256 => uint256) public ghost_longSumFor;
     mapping(uint256 => uint256) public ghost_shortSumFor;
     mapping(uint256 => uint256) public ghost_assignedShortSumFor;
 
+    // Owners
     mapping(uint256 => address[]) public ghost_longOwnersOf;
     mapping(uint256 => address[]) public ghost_shortOwnersOf;
 
+    // Logging
     mapping(bytes32 => uint256) private calls;
 
-    // Actors
+    ///////// Actors
 
     ActorSet private _actors;
 
     address private currentActor;
 
-    // Assets
+    ///////// Assets
 
     AssetSet private baseAssets;
     AssetSet private quoteAssets;
 
-    // volatile
+    // Volatile / Base Assets
     IERC20 private WETHLIKE;
     IERC20 private WBTCLIKE;
     IERC20 private LINKLIKE;
     IERC20 private PEPELIKE;
-    // stable
+
+    // Stable / Quote Assets
     IERC20 private LUSDLIKE;
     IERC20 private FRAXLIKE;
     IERC20 private USDCLIKE;
     IERC20 private USDTLIKE;
 
-    uint8 private constant CONTRACT_SCALAR = 6;
-
-    // Options
+    ///////// Options
 
     OptionSet private _options;
 
-    // Time
+    ///////// Time
 
     uint32 private currentTime;
 
     uint32 private constant DAWN = 1;
 
-    // Modifiers
+    ///////// Modifiers
 
     modifier createActor() {
         currentActor = msg.sender;
@@ -102,18 +110,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _;
     }
 
-    // Helpers
-
-    function _requireOpenInterest(uint256 optionTokenId) private view {
-        vm.assume(ghost_amountWrittenFor[optionTokenId] > 0);
-        vm.assume(
-            ghost_amountWrittenFor[optionTokenId]
-                > ghost_amountExercisedFor[optionTokenId]
-                    + ghost_amountNettedFor[optionTokenId]
-        );
-    }
-
-    // Contructor
+    ///////// Construction
 
     constructor(ClarityMarkets _clarity) {
         vm.warp(DAWN);
@@ -149,40 +146,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         quoteAssets.add(USDTLIKE);
     }
 
-    // TODO refactor to DRY up unit test utilities and LibMath functions
-
-    function scaleUpAssetAmount(IERC20 token, uint256 amount)
-        internal
-        view
-        returns (uint256)
-    {
-        return amount * (10 ** token.decimals());
-    }
-
-    function scaleUpBaseAssetAmountForOption(IERC20 token, uint256 amount)
-        internal
-        view
-        returns (uint256)
-    {
-        return amount * (10 ** (token.decimals() - CONTRACT_SCALAR));
-    }
-
-    function scaleDownQuoteAssetAmountForOption(uint256 amount)
-        internal
-        pure
-        returns (uint256)
-    {
-        return amount / (10 ** CONTRACT_SCALAR);
-    }
-
-    function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a > b ? a : b;
-    }
-
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a < b ? a : b;
-    }
-
     ///////// Actions
 
     // Write
@@ -209,8 +172,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.startPrank(currentActor);
         IERC20 baseAsset = baseAssets.at(baseAssetIndex);
 
-        uint256 writeAssetAmount =
-            scaleUpBaseAssetAmountForOption(baseAsset, optionAmount);
+        uint256 writeAssetAmount = baseAsset.decimals().oneClearingUnit() * optionAmount;
         deal(address(baseAsset), currentActor, writeAssetAmount);
 
         baseAsset.approve(address(clarity), writeAssetAmount);
@@ -257,14 +219,14 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // bind strike price and round to nearest million
         strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
-        strike = strike - (strike % (10 ** CONTRACT_SCALAR));
+        strike = strike - (strike % (10 ** clarity.CONTRACT_SCALAR()));
 
         // deal asset, approve clearinghouse, and write options
         vm.startPrank(currentActor);
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
         uint256 writeAssetAmount =
-            scaleDownQuoteAssetAmountForOption(strike * optionAmount);
+            strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
         deal(address(quoteAsset), currentActor, writeAssetAmount);
 
         quoteAsset.approve(address(clarity), writeAssetAmount);
@@ -321,11 +283,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         if (option.optionType == IOption.OptionType.CALL) {
             writeAsset = IERC20(option.baseAsset);
-            writeAssetAmount = scaleUpBaseAssetAmountForOption(writeAsset, optionAmount);
+            writeAssetAmount = writeAsset.decimals().oneClearingUnit() * optionAmount;
         } else {
             writeAsset = IERC20(option.quoteAsset);
             writeAssetAmount =
-                scaleDownQuoteAssetAmountForOption(option.strike * optionAmount);
+                option.strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
         }
 
         // deal asset, approve clearinghouse, and write options
@@ -526,16 +488,16 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         if (option.optionType == IOption.OptionType.CALL) {
             writeAsset = IERC20(option.baseAsset);
             exerciseAsset = IERC20(option.quoteAsset);
-            writeAssetAmount = scaleUpBaseAssetAmountForOption(writeAsset, optionAmount);
+            writeAssetAmount = writeAsset.decimals().oneClearingUnit() * optionAmount;
             exerciseAssetAmount =
-                scaleDownQuoteAssetAmountForOption(option.strike * optionAmount);
+                option.strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
         } else {
             writeAsset = IERC20(option.quoteAsset);
             exerciseAsset = IERC20(option.baseAsset);
             writeAssetAmount =
-                scaleDownQuoteAssetAmountForOption(option.strike * optionAmount);
+                option.strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
             exerciseAssetAmount =
-                scaleUpBaseAssetAmountForOption(exerciseAsset, optionAmount);
+                exerciseAsset.decimals().oneClearingUnit() * optionAmount;
         }
 
         // deal asset, approve clearinghouse, and exercise options
@@ -669,7 +631,28 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         console2.log("skim", calls["skim"]);
     }
 
-    // ///////// Assets
+    ///////// Checks
+
+    function _requireOpenInterest(uint256 optionTokenId) private view {
+        vm.assume(ghost_amountWrittenFor[optionTokenId] > 0);
+        vm.assume(
+            ghost_amountWrittenFor[optionTokenId]
+                > ghost_amountExercisedFor[optionTokenId]
+                    + ghost_amountNettedFor[optionTokenId]
+        );
+    }
+
+    ///////// Helper Functions
+
+    function max(uint256 a, uint256 b) private pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    function min(uint256 a, uint256 b) private pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    ///////// Assets
 
     function baseAssetsCount() external view returns (uint256) {
         return baseAssets.assets.length;
