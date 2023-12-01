@@ -1,31 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import {stdStorage, StdStorage} from "forge-std/Test.sol";
-import {LibPosition} from "../../src/library/LibPosition.sol";
+// Test Fixture
 import "../BaseUnitTestSuite.t.sol";
 
 contract StateChangesTest is BaseUnitTestSuite {
     /////////
 
-    using stdStorage for StdStorage;
-
     using LibPosition for uint256;
-
-    function getInternalOptionState(bytes32 slot)
-        internal
-        view
-        returns (uint64, uint64, uint64, uint64)
-    {
-        bytes32 state = vm.load(address(clarity), slot);
-
-        return (
-            uint64(uint256(state)),
-            uint64(uint256(state >> 64)),
-            uint64(uint256(state >> 128)),
-            uint64(uint256(state >> 192))
-        );
-    }
 
     function test_stateChanges() public {
         vm.startPrank(writer);
@@ -50,11 +32,16 @@ contract StateChangesTest is BaseUnitTestSuite {
 
         (uint64 w, uint64 n, uint64 x, uint64 r) = getInternalOptionState(writes[5]);
 
-        console2.log("Amount written", w);
-        console2.log("Amount netted", n);
-        console2.log("Amount exercised", x);
-        console2.log("Amount redeemed", r);
-        
+        assertEq(w, 1e6);
+        assertEq(n, 0.5e6);
+        assertEq(x, 0.45e6);
+        assertEq(r, 0.5e6);
+
+        // console2.log("Amount written", w);
+        // console2.log("Amount netted", n);
+        // console2.log("Amount exercised", x);
+        // console2.log("Amount redeemed", r);
+
         // console2.log(reads.length);
         // console2.log(writes.length);
 
@@ -133,7 +120,7 @@ contract StateChangesTest is BaseUnitTestSuite {
         // 0x4743af99d74bc9527f04d4a794f0718d207b154212be76625538e9a1aa8b8908
         // 4. Increment Exercise Asset Clearing Liability
         // 0x6bce9b592bcd9632b463383792a5ec3de1f8ec3cf8b2cd967d5e59ac275b6b4b
-        // 
+        //
         // (1. External -- Exercise Asset ERC20 Transfer)
         // (2. External -- Write Asset ERC20 Transfer)
     }

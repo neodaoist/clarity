@@ -21,7 +21,7 @@ import {MockERC20} from "./MockERC20.sol";
 // Interfaces
 import {IOption} from "../../src/interface/option/IOption.sol";
 
-// Contract Under Test
+// Contracts
 import "../../src/ClarityMarkets.sol";
 
 contract OptionsHandler is CommonBase, StdCheats, StdUtils {
@@ -36,31 +36,27 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     using LibPosition for uint256;
 
-    // Contract Under Test
     ClarityMarkets private clarity;
 
     ///////// Ghost Variables
 
-    // Clearing Liabilities
-    mapping(address => uint256) public ghost_clearingLiabilityFor;
+    // Clearinghouse Internal State
+    mapping(uint256 => bytes32) private ghost_optionStateSlotFor;
 
-    // Option States
-    mapping(uint256 => uint256) public ghost_amountWrittenFor;
-    mapping(uint256 => uint256) public ghost_amountNettedFor;
-    mapping(uint256 => uint256) public ghost_amountExercisedFor;
-    mapping(uint256 => uint256) public ghost_amountRedeemedFor;
-
-    // Token Types
-    mapping(uint256 => uint256) public ghost_longSumFor;
-    mapping(uint256 => uint256) public ghost_shortSumFor;
-    mapping(uint256 => uint256) public ghost_assignedShortSumFor;
+    // Logging
+    mapping(bytes32 => uint256) private calls;
 
     // Owners
     mapping(uint256 => address[]) public ghost_longOwnersOf;
     mapping(uint256 => address[]) public ghost_shortOwnersOf;
 
-    // Logging
-    mapping(bytes32 => uint256) private calls;
+    // Clearing Liabilities // TODO replace with actual
+    mapping(address => uint256) public ghost_clearingLiabilityFor;
+
+    // Token Types // TODO replace with actual
+    mapping(uint256 => uint256) public ghost_longSumFor;
+    mapping(uint256 => uint256) public ghost_shortSumFor;
+    mapping(uint256 => uint256) public ghost_assignedShortSumFor;
 
     ///////// Actors
 
@@ -146,6 +142,23 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         quoteAssets.add(USDTLIKE);
     }
 
+    // TODO refactor
+
+    function getInternalOptionState(bytes32 slot)
+        public
+        view
+        returns (uint64, uint64, uint64, uint64)
+    {
+        bytes32 state = vm.load(address(clarity), slot);
+
+        return (
+            uint64(uint256(state)),
+            uint64(uint256(state >> 64)),
+            uint64(uint256(state >> 128)),
+            uint64(uint256(state >> 192))
+        );
+    }
+
     ///////// Actions
 
     // Write
@@ -172,10 +185,14 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.startPrank(currentActor);
         IERC20 baseAsset = baseAssets.at(baseAssetIndex);
 
-        uint256 writeAssetAmount = baseAsset.decimals().oneClearingUnit() * optionAmount;
+        uint256 writeAssetAmount =
+            uint256(baseAsset.decimals().oneClearingUnit()) * uint256(optionAmount);
         deal(address(baseAsset), currentActor, writeAssetAmount);
 
         baseAsset.approve(address(clarity), writeAssetAmount);
+
+        // begin recording storage accesses
+        vm.record();
 
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(baseAsset),
@@ -190,16 +207,20 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // track object sets
         _options.add(optionTokenId);
 
+        // save OptionState and XYZ storage slots
+        (, bytes32[] memory writes) = vm.accesses(address(clarity));
+        ghost_optionStateSlotFor[optionTokenId] = writes[5];
+
         // track ghost variables
-        ghost_clearingLiabilityFor[address(baseAsset)] += writeAssetAmount;
+        if (optionAmount > 0) {
+            ghost_clearingLiabilityFor[address(baseAsset)] += writeAssetAmount;
 
-        ghost_amountWrittenFor[optionTokenId] += optionAmount;
+            ghost_longSumFor[optionTokenId] += optionAmount;
+            ghost_shortSumFor[optionTokenId] += optionAmount;
 
-        ghost_longSumFor[optionTokenId] += optionAmount;
-        ghost_shortSumFor[optionTokenId] += optionAmount;
-
-        ghost_longOwnersOf[optionTokenId].push(currentActor);
-        ghost_shortOwnersOf[optionTokenId].push(currentActor);
+            ghost_longOwnersOf[optionTokenId].push(currentActor);
+            ghost_shortOwnersOf[optionTokenId].push(currentActor);
+        }
     }
 
     function writeNewPut(
@@ -226,10 +247,13 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
         uint256 writeAssetAmount =
-            strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
+            uint256(strike.actualScaledDownToClearingStrikeUnit()) * uint256(optionAmount);
         deal(address(quoteAsset), currentActor, writeAssetAmount);
 
         quoteAsset.approve(address(clarity), writeAssetAmount);
+
+        // begin recording storage accesses
+        vm.record();
 
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(baseAssets.at(baseAssetIndex)),
@@ -244,16 +268,20 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // track object sets
         _options.add(optionTokenId);
 
+        // save OptionState and XYZ storage slots
+        (, bytes32[] memory writes) = vm.accesses(address(clarity));
+        ghost_optionStateSlotFor[optionTokenId] = writes[5];
+
         // track ghost variables
-        ghost_clearingLiabilityFor[address(quoteAsset)] += writeAssetAmount;
+        if (optionAmount > 0) {
+            ghost_clearingLiabilityFor[address(quoteAsset)] += writeAssetAmount;
 
-        ghost_amountWrittenFor[optionTokenId] += optionAmount;
+            ghost_longSumFor[optionTokenId] += optionAmount;
+            ghost_shortSumFor[optionTokenId] += optionAmount;
 
-        ghost_longSumFor[optionTokenId] += optionAmount;
-        ghost_shortSumFor[optionTokenId] += optionAmount;
-
-        ghost_longOwnersOf[optionTokenId].push(currentActor);
-        ghost_shortOwnersOf[optionTokenId].push(currentActor);
+            ghost_longOwnersOf[optionTokenId].push(currentActor);
+            ghost_shortOwnersOf[optionTokenId].push(currentActor);
+        }
     }
 
     function writeExisting(uint256 optionIndex, uint256 optionAmount)
@@ -261,6 +289,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         createActor
         countCall("writeExisting")
     {
+        _requireOptions();
+
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
 
@@ -283,11 +313,13 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         if (option.optionType == IOption.OptionType.CALL) {
             writeAsset = IERC20(option.baseAsset);
-            writeAssetAmount = writeAsset.decimals().oneClearingUnit() * optionAmount;
+            writeAssetAmount =
+                uint256(writeAsset.decimals().oneClearingUnit()) * uint256(optionAmount);
         } else {
             writeAsset = IERC20(option.quoteAsset);
-            writeAssetAmount =
-                option.strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
+            writeAssetAmount = uint256(
+                option.strike.actualScaledDownToClearingStrikeUnit()
+            ) * uint256(optionAmount);
         }
 
         // deal asset, approve clearinghouse, and write options
@@ -298,15 +330,15 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.stopPrank();
 
         // track ghost variables
-        ghost_clearingLiabilityFor[address(writeAsset)] += writeAssetAmount;
+        if (optionAmount > 0) {
+            ghost_clearingLiabilityFor[address(writeAsset)] += writeAssetAmount;
 
-        ghost_amountWrittenFor[optionTokenId] += optionAmount;
+            ghost_longSumFor[optionTokenId] += optionAmount;
+            ghost_shortSumFor[optionTokenId] += optionAmount;
 
-        ghost_longSumFor[optionTokenId] += optionAmount;
-        ghost_shortSumFor[optionTokenId] += optionAmount;
-
-        ghost_longOwnersOf[optionTokenId].push(currentActor);
-        ghost_shortOwnersOf[optionTokenId].push(currentActor);
+            ghost_longOwnersOf[optionTokenId].push(currentActor);
+            ghost_shortOwnersOf[optionTokenId].push(currentActor);
+        }
     }
 
     function batchWrite() external {
@@ -320,8 +352,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         createActor
         countCall("transferLongs")
     {
+        _requireOptions();
+
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
+
+        _requireLongOwnersOf(optionTokenId);
 
         // set sender
         ownerIndex = ownerIndex % ghost_longOwnersOf[optionTokenId].length;
@@ -334,8 +370,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _requireOpenInterest(optionTokenId);
 
         // transfer options to current actor
-        vm.prank(sender);
+        vm.startPrank(sender);
         clarity.transfer(currentActor, optionTokenId, optionAmount);
+        vm.stopPrank();
 
         // track ghost variables
         if (clarity.balanceOf(sender, optionTokenId) == 0) {
@@ -350,12 +387,16 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         createActor
         countCall("transferShorts")
     {
+        _requireOptions();
+
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
         uint256 shortTokenId = optionTokenId.longToShort();
 
         // don't attempt to transfer already-assigned shorts
         vm.assume(clarity.totalSupply(optionTokenId.longToAssignedShort()) == 0);
+
+        _requireShortOwnersOf(optionTokenId);
 
         // set sender
         ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
@@ -368,8 +409,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _requireOpenInterest(optionTokenId);
 
         // transfer options to current actor
-        vm.prank(sender);
+        vm.startPrank(sender);
         clarity.transfer(currentActor, shortTokenId, optionAmount);
+        vm.stopPrank();
 
         // track ghost variables
         if (clarity.balanceOf(sender, shortTokenId) == 0) {
@@ -387,9 +429,13 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         countCall("netOffsetting")
     {
+        _requireOptions();
+
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
         uint256 shortTokenId = optionTokenId.longToShort();
+
+        _requireShortOwnersOf(optionTokenId);
 
         // set writer
         ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
@@ -413,14 +459,13 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         _requireOpenInterest(optionTokenId);
 
         // net off position
-        vm.prank(writer);
+        vm.startPrank(writer);
         uint256 writeAssetReturned =
             clarity.netOffsetting(optionTokenId, uint64(optionAmount));
+        vm.stopPrank();
 
         // track ghost variables
         ghost_clearingLiabilityFor[writeAssetAddress] -= writeAssetReturned;
-
-        ghost_amountNettedFor[optionTokenId] += optionAmount;
 
         ghost_longSumFor[optionTokenId] -= optionAmount;
         ghost_shortSumFor[optionTokenId] -= optionAmount;
@@ -452,8 +497,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         countCall("exerciseOption")
     {
+        _requireOptions();
+
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
+
+        _requireLongOwnersOf(optionTokenId);
 
         // set holder
         ownerIndex = ownerIndex % ghost_longOwnersOf[optionTokenId].length;
@@ -488,16 +537,19 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         if (option.optionType == IOption.OptionType.CALL) {
             writeAsset = IERC20(option.baseAsset);
             exerciseAsset = IERC20(option.quoteAsset);
-            writeAssetAmount = writeAsset.decimals().oneClearingUnit() * optionAmount;
-            exerciseAssetAmount =
-                option.strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
+            writeAssetAmount =
+                uint256(writeAsset.decimals().oneClearingUnit()) * uint256(optionAmount);
+            exerciseAssetAmount = uint256(
+                option.strike.actualScaledDownToClearingStrikeUnit()
+            ) * uint256(optionAmount);
         } else {
             writeAsset = IERC20(option.quoteAsset);
             exerciseAsset = IERC20(option.baseAsset);
-            writeAssetAmount =
-                option.strike.actualScaledDownToClearingStrikeUnit() * optionAmount;
-            exerciseAssetAmount =
-                exerciseAsset.decimals().oneClearingUnit() * optionAmount;
+            writeAssetAmount = uint256(
+                option.strike.actualScaledDownToClearingStrikeUnit()
+            ) * uint256(optionAmount);
+            exerciseAssetAmount = uint256(exerciseAsset.decimals().oneClearingUnit())
+                * uint256(optionAmount);
         }
 
         // deal asset, approve clearinghouse, and exercise options
@@ -510,8 +562,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // track ghost variables
         ghost_clearingLiabilityFor[address(writeAsset)] -= writeAssetAmount;
         ghost_clearingLiabilityFor[address(exerciseAsset)] += exerciseAssetAmount;
-
-        ghost_amountExercisedFor[optionTokenId] += optionAmount;
 
         ghost_longSumFor[optionTokenId] -= optionAmount;
         ghost_shortSumFor[optionTokenId] -= optionAmount;
@@ -544,9 +594,13 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         external
         countCall("redeemCollateral")
     {
+        _requireOptions();
+
         // set option token id
         uint256 optionTokenId = _options.at(optionIndex % _options.count());
         uint256 shortTokenId = optionTokenId.longToShort();
+
+        _requireShortOwnersOf(optionTokenId);
 
         // set writer
         ownerIndex = ownerIndex % ghost_shortOwnersOf[optionTokenId].length;
@@ -588,8 +642,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         ghost_shortSumFor[optionTokenId] -= shortBalance;
         ghost_assignedShortSumFor[optionTokenId] -= assignedBalance;
-
-        ghost_amountRedeemedFor[optionTokenId] += (shortBalance + assignedBalance);
 
         // if a writer has no more shorts, swap and pop from short owners array
         if (clarity.balanceOf(writer, shortTokenId) == 0) {
@@ -634,12 +686,19 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     ///////// Checks
 
     function _requireOpenInterest(uint256 optionTokenId) private view {
-        vm.assume(ghost_amountWrittenFor[optionTokenId] > 0);
-        vm.assume(
-            ghost_amountWrittenFor[optionTokenId]
-                > ghost_amountExercisedFor[optionTokenId]
-                    + ghost_amountNettedFor[optionTokenId]
-        );
+        vm.assume(clarity.totalSupply(optionTokenId) > 0);
+    }
+
+    function _requireOptions() private view {
+        vm.assume(_options.count() > 0);
+    }
+
+    function _requireLongOwnersOf(uint256 optionTokenId) private view {
+        vm.assume(ghost_longOwnersOf[optionTokenId].length > 0);
+    }
+
+    function _requireShortOwnersOf(uint256 optionTokenId) private view {
+        vm.assume(ghost_shortOwnersOf[optionTokenId].length > 0);
     }
 
     ///////// Helper Functions
@@ -684,6 +743,14 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         returns (uint256 optionTokenId)
     {
         return _options.at(index);
+    }
+
+    function optionState(uint256 optionTokenId)
+        external
+        view
+        returns (uint256 written, uint256 netted, uint256 exercised, uint256 redeemed)
+    {
+        return getInternalOptionState(ghost_optionStateSlotFor[optionTokenId]);
     }
 
     // function forEachOption(function(uint256) external func) public {

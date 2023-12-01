@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-// Test Harness
+// Test Fixture
 import "../BaseUnitTestSuite.t.sol";
 
 contract TransferTest is BaseUnitTestSuite {

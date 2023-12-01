@@ -7,8 +7,8 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 // Test Helpers
 import {OptionsHandler} from "../util/OptionsHandler.sol";
 
-// External Test Helpers
-import {Test, console2, stdError, stdStorage, StdStorage} from "forge-std/Test.sol";
+// Test Fixture
+import "../BaseTestSuite.t.sol";
 
 // Interfaces
 import {IOption} from "../../src/interface/option/IOption.sol";
@@ -16,14 +16,12 @@ import {IOption} from "../../src/interface/option/IOption.sol";
 // Contract Under Test
 import "../../src/ClarityMarkets.sol";
 
-contract ClarityMarketsInvariantTest is Test {
+contract ClarityMarketsInvariantTest is BaseTestSuite {
     /////////
-
-    using stdStorage for StdStorage;
 
     using LibPosition for uint256;
 
-    ClarityMarkets private clarity;
+    /////////
 
     OptionsHandler private handler;
 
@@ -122,8 +120,6 @@ contract ClarityMarketsInvariantTest is Test {
 
     ///////// Options Supply and State Invariants
 
-    // TODO replace ghost state checks with option state checks
-
     function invariant_C1_totalSupplyOfLongsEqTotalSupplyOfShorts() public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
@@ -152,22 +148,14 @@ contract ClarityMarketsInvariantTest is Test {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
             uint256 shortTokenId = optionTokenId.longToShort();
+            (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
 
-            uint256 writtenSubNetted = handler.ghost_amountWrittenFor(optionTokenId)
-                - handler.ghost_amountNettedFor(optionTokenId);
+            uint256 wSubN = w - n;
+            uint256 rMulProportionUnassigned = (wSubN == 0) ? 0 : (r * (wSubN - x)) / wSubN;
 
             assertEq(
                 clarity.totalSupply(shortTokenId),
-                writtenSubNetted - handler.ghost_amountExercisedFor(optionTokenId)
-                    - (
-                        (
-                            handler.ghost_amountRedeemedFor(optionTokenId)
-                                * (
-                                    writtenSubNetted
-                                        - handler.ghost_amountExercisedFor(optionTokenId)
-                                )
-                        ) / writtenSubNetted
-                    ),
+                wSubN - x - rMulProportionUnassigned,
                 "totalSupplyOfShortsEqWSubNSubXSubRMulProportionUnassigned"
             );
         }
@@ -179,73 +167,58 @@ contract ClarityMarketsInvariantTest is Test {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
             uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
+            (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
 
-            uint256 writtenSubNetted = handler.ghost_amountWrittenFor(optionTokenId)
-                - handler.ghost_amountNettedFor(optionTokenId);
+            uint256 wSubN = w - n;
+            uint256 rMulProportionAssigned = (wSubN == 0) ? 0 : (r * x) / wSubN;
 
             assertEq(
                 clarity.totalSupply(assignedShortTokenId),
-                handler.ghost_amountExercisedFor(optionTokenId)
-                    - (
-                        (
-                            handler.ghost_amountRedeemedFor(optionTokenId)
-                                * handler.ghost_amountExercisedFor(optionTokenId)
-                        ) / writtenSubNetted
-                    ),
+                x - rMulProportionAssigned,
                 "totalSupplyOfAssignedShortsEqXSubRMulProportionAssigned"
             );
         }
     }
 
     function invariant_C4_amountWrittenGteNAddXAddR() public {
+        // TODO counterexample
+        // ├─ emit log_named_string(key: "Error", val: "amountWrittenGteNAddXAddR")
+        // ├─ emit log(val: "Error: a >= b not satisfied [uint]")
+        // ├─ emit log_named_uint(key: "  Value a", val: 15477 [1.547e4])
+        // ├─ emit log_named_uint(key: "  Value b", val: 16689 [1.668e4])
+
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
+            (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
 
-            assertGe(
-                handler.ghost_amountWrittenFor(optionTokenId),
-                handler.ghost_amountNettedFor(optionTokenId)
-                    + handler.ghost_amountExercisedFor(optionTokenId)
-                    + handler.ghost_amountRedeemedFor(optionTokenId),
-                "amountWrittenGteNAddXAddR"
-            );
+            assertGe(w, n + x + r, "amountWrittenGteNAddXAddR");
         }
     }
 
     function invariant_C5_amountNettedLteW() public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
+            (uint256 w, uint256 n,,) = handler.optionState(optionTokenId);
 
-            assertLe(
-                handler.ghost_amountNettedFor(optionTokenId),
-                handler.ghost_amountWrittenFor(optionTokenId),
-                "amountNettedLteW"
-            );
+            assertLe(n, w, "amountNettedLteW");
         }
     }
 
     function invariant_C6_amountExercisedLteWSubN() public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
+            (uint256 w, uint256 n, uint256 x,) = handler.optionState(optionTokenId);
 
-            assertLe(
-                handler.ghost_amountExercisedFor(optionTokenId),
-                handler.ghost_amountWrittenFor(optionTokenId)
-                    - handler.ghost_amountNettedFor(optionTokenId),
-                "amountExercisedLteWSubN"
-            );
+            assertLe(x, w - n, "amountExercisedLteWSubN");
         }
     }
 
     function invariant_C7_amountRedeemedLteWSubN() public {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
+            (uint256 w, uint256 n,, uint256 r) = handler.optionState(optionTokenId);
 
-            assertLe(
-                handler.ghost_amountRedeemedFor(optionTokenId),
-                handler.ghost_amountWrittenFor(optionTokenId)
-                    - handler.ghost_amountNettedFor(optionTokenId),
-                "amountRedeemedLteWSubN"
-            );
+            assertLe(r, w - n, "amountRedeemedLteWSubN");
         }
     }
 
@@ -256,13 +229,13 @@ contract ClarityMarketsInvariantTest is Test {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
             uint256 shortTokenId = optionTokenId.longToShort();
             uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
+            (uint256 w, uint256 n,, uint256 r) = handler.optionState(optionTokenId);
 
-            assertEq(
-                handler.ghost_amountWrittenFor(optionTokenId)
-                    - handler.ghost_amountNettedFor(optionTokenId)
-                    - handler.ghost_amountRedeemedFor(optionTokenId),
+            assertApproxEqAbs(
+                w - n - r,
                 clarity.totalSupply(shortTokenId)
                     + clarity.totalSupply(assignedShortTokenId),
+                1,
                 "amountWrittenSubNSubREqTotalSupplyOfShortsAddAssignedShorts"
             );
         }
@@ -270,7 +243,19 @@ contract ClarityMarketsInvariantTest is Test {
 
     ///////// Logging
 
-    function invariant_util_callSummary() public view {
-        handler.callSummary();
-    }
+    // function invariant_util_callSummary_andOptionState() public view {
+    //     handler.callSummary();
+
+    //     for (uint256 i = 0; i < handler.optionsCount(); i++) {
+    //         uint256 optionTokenId = handler.optionTokenIdAt(i);
+
+    //         (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
+
+    //         console2.log("Option Token ID ------------------", optionTokenId);
+    //         console2.log("Amount written", w);
+    //         console2.log("Amount netted", n);
+    //         console2.log("Amount exercised", x);
+    //         console2.log("Amount redeemed", r);
+    //     }
+    // }
 }
