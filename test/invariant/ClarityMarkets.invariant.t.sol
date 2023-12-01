@@ -148,10 +148,12 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
             uint256 shortTokenId = optionTokenId.longToShort();
-            (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
+            (uint256 w, uint256 n, uint256 x, uint256 r) =
+                handler.optionState(optionTokenId);
 
             uint256 wSubN = w - n;
-            uint256 rMulProportionUnassigned = (wSubN == 0) ? 0 : (r * (wSubN - x)) / wSubN;
+            uint256 rMulProportionUnassigned =
+                (wSubN == 0) ? 0 : (r * (wSubN - x)) / wSubN;
 
             assertEq(
                 clarity.totalSupply(shortTokenId),
@@ -167,7 +169,8 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
             uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
-            (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
+            (uint256 w, uint256 n, uint256 x, uint256 r) =
+                handler.optionState(optionTokenId);
 
             uint256 wSubN = w - n;
             uint256 rMulProportionAssigned = (wSubN == 0) ? 0 : (r * x) / wSubN;
@@ -189,7 +192,8 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
 
         for (uint256 i = 0; i < handler.optionsCount(); i++) {
             uint256 optionTokenId = handler.optionTokenIdAt(i);
-            (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
+            (uint256 w, uint256 n, uint256 x, uint256 r) =
+                handler.optionState(optionTokenId);
 
             assertGe(w, n + x + r, "amountWrittenGteNAddXAddR");
         }
@@ -249,7 +253,8 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
     //     for (uint256 i = 0; i < handler.optionsCount(); i++) {
     //         uint256 optionTokenId = handler.optionTokenIdAt(i);
 
-    //         (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
+    //         (uint256 w, uint256 n, uint256 x, uint256 r) =
+    // handler.optionState(optionTokenId);
 
     //         console2.log("Option Token ID ------------------", optionTokenId);
     //         console2.log("Amount written", w);
