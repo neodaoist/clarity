@@ -163,75 +163,16 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Write
 
-    function writeNewCall(
+    function writeNew(
         uint256 baseAssetIndex,
         uint256 quoteAssetIndex,
         uint32 expiry,
         uint256 strike,
         bool allowEarlyExercise,
-        uint64 optionAmount
-    ) external createActor countCall("writeNewCall") {
+        uint64 optionAmount,
+        bool isCall
+    ) external createActor countCall("writeNew") {
         // set assets
-        baseAssetIndex = baseAssetIndex % baseAssets.count();
-        quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
-
-        // bind expiry
-        vm.assume(expiry > 1);
-
-        // bind strike price
-        strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
-
-        // deal asset, approve clearinghouse, and write options
-        vm.startPrank(currentActor);
-        IERC20 baseAsset = baseAssets.at(baseAssetIndex);
-
-        uint256 writeAssetAmount =
-            uint256(baseAsset.decimals().oneClearingUnit()) * uint256(optionAmount);
-        deal(address(baseAsset), currentActor, writeAssetAmount);
-
-        baseAsset.approve(address(clarity), writeAssetAmount);
-
-        // begin recording storage accesses
-        vm.record();
-
-        uint256 optionTokenId = clarity.writeNewCall({
-            baseAsset: address(baseAsset),
-            quoteAsset: address(quoteAssets.at(quoteAssetIndex)),
-            expiry: expiry,
-            strike: strike,
-            allowEarlyExercise: allowEarlyExercise,
-            optionAmount: optionAmount
-        });
-        vm.stopPrank();
-
-        // track object sets
-        _options.add(optionTokenId);
-
-        // save OptionState and XYZ storage slots
-        (, bytes32[] memory writes) = vm.accesses(address(clarity));
-        ghost_optionStateSlotFor[optionTokenId] = writes[5];
-
-        // track ghost variables
-        if (optionAmount > 0) {
-            ghost_clearingLiabilityFor[address(baseAsset)] += writeAssetAmount;
-
-            ghost_longSumFor[optionTokenId] += optionAmount;
-            ghost_shortSumFor[optionTokenId] += optionAmount;
-
-            ghost_longOwnersOf[optionTokenId].push(currentActor);
-            ghost_shortOwnersOf[optionTokenId].push(currentActor);
-        }
-    }
-
-    function writeNewPut(
-        uint256 baseAssetIndex,
-        uint256 quoteAssetIndex,
-        uint32 expiry,
-        uint256 strike,
-        bool allowEarlyExercise,
-        uint64 optionAmount
-    ) external createActor countCall("writeNewPut") {
-        // bind assets
         baseAssetIndex = baseAssetIndex % baseAssets.count();
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
@@ -244,25 +185,38 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // deal asset, approve clearinghouse, and write options
         vm.startPrank(currentActor);
+        IERC20 baseAsset = baseAssets.at(baseAssetIndex);
         IERC20 quoteAsset = quoteAssets.at(quoteAssetIndex);
 
-        uint256 writeAssetAmount =
-            uint256(strike.actualScaledDownToClearingStrikeUnit()) * uint256(optionAmount);
-        deal(address(quoteAsset), currentActor, writeAssetAmount);
+        uint256 writeAssetAmount = isCall
+            ? uint256(baseAsset.decimals().oneClearingUnit()) * uint256(optionAmount)
+            : uint256(strike.actualScaledDownToClearingStrikeUnit()) * uint256(optionAmount);
 
-        quoteAsset.approve(address(clarity), writeAssetAmount);
+        deal(address(baseAsset), currentActor, writeAssetAmount);
+
+        baseAsset.approve(address(clarity), writeAssetAmount);
 
         // begin recording storage accesses
         vm.record();
 
-        uint256 optionTokenId = clarity.writeNewPut({
-            baseAsset: address(baseAssets.at(baseAssetIndex)),
-            quoteAsset: address(quoteAsset),
-            expiry: expiry,
-            strike: strike,
-            allowEarlyExercise: allowEarlyExercise,
-            optionAmount: optionAmount
-        });
+        uint256 optionTokenId = isCall
+            ? clarity.writeNewCall({
+                baseAsset: address(baseAsset),
+                quoteAsset: address(quoteAssets.at(quoteAssetIndex)),
+                expiry: expiry,
+                strike: strike,
+                allowEarlyExercise: allowEarlyExercise,
+                optionAmount: optionAmount
+            })
+            : clarity.writeNewPut({
+                baseAsset: address(baseAssets.at(baseAssetIndex)),
+                quoteAsset: address(quoteAsset),
+                expiry: expiry,
+                strike: strike,
+                allowEarlyExercise: allowEarlyExercise,
+                optionAmount: optionAmount
+            });
+
         vm.stopPrank();
 
         // track object sets
@@ -274,7 +228,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
         // track ghost variables
         if (optionAmount > 0) {
-            ghost_clearingLiabilityFor[address(quoteAsset)] += writeAssetAmount;
+            ghost_clearingLiabilityFor[address(baseAsset)] += writeAssetAmount;
 
             ghost_longSumFor[optionTokenId] += optionAmount;
             ghost_shortSumFor[optionTokenId] += optionAmount;
@@ -666,8 +620,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         console2.log("Call summary:");
         console2.log("-------------------");
         // Write
-        console2.log("writeNewCall", calls["writeNewCall"]);
-        console2.log("writeNewPut", calls["writeNewPut"]);
+        console2.log("writeNew", calls["writeNew"]);
         console2.log("writeExisting", calls["writeExisting"]);
         console2.log("writeBatch", calls["writeBatch"]);
         // Transfer

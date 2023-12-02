@@ -12,8 +12,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
     uint64 internal constant SOME_WRITTEN = 10.000001e6;
     uint64 internal constant MANY_WRITTEN = 6_000_000e6;
-    uint64 internal constant MAX_WRITTEN = 1_800_000_000_000e6; // max writable on any
-        // option contract
+    uint64 internal MAX_WRITTEN;
 
     uint64[] internal writeGivens;
 
@@ -25,6 +24,7 @@ contract RebasingTest is BaseUnitTestSuite {
         deal(address(FRAXLIKE), writer, type(uint256).max);
 
         // setup write givens for use in Scenarios A-J
+        MAX_WRITTEN = clarity.MAXIMUM_WRITABLE();
         writeGivens.push(SOME_WRITTEN);
         writeGivens.push(MANY_WRITTEN);
         writeGivens.push(MAX_WRITTEN);
@@ -212,7 +212,7 @@ contract RebasingTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNetted = (amountWritten * 4) / 5;
+            uint64 amountNetted = uint64((uint256(amountWritten) * 4) / 5);
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -350,7 +350,7 @@ contract RebasingTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNetted = (amountWritten * 4) / 5;
+            uint64 amountNetted = uint64((uint256(amountWritten) * 4) / 5);
             uint64 amountExercised = amountWritten / 5;
 
             vm.startPrank(writer);
@@ -390,7 +390,7 @@ contract RebasingTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountExercised = (amountWritten * 4) / 5;
+            uint64 amountExercised = uint64((uint256(amountWritten) * 4) / 5);
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -428,7 +428,7 @@ contract RebasingTest is BaseUnitTestSuite {
             // Given
             uint64 amountWritten = writeGivens[i];
             uint64 amountNetted = amountWritten / 5;
-            uint64 amountExercised = (amountWritten * 4) / 5;
+            uint64 amountExercised = uint64((uint256(amountWritten) * 4) / 5);
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -701,7 +701,7 @@ contract RebasingTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNetted = (amountWritten * 4) / 5;
+            uint64 amountNetted = uint64((uint256(amountWritten) * 4) / 5);
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -844,7 +844,7 @@ contract RebasingTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountNetted = (amountWritten * 4) / 5;
+            uint64 amountNetted = uint64((uint256(amountWritten) * 4) / 5);
             uint64 amountExercised = amountWritten / 5;
 
             vm.startPrank(writer);
@@ -885,7 +885,7 @@ contract RebasingTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < writeGivens.length; i++) {
             // Given
             uint64 amountWritten = writeGivens[i];
-            uint64 amountExercised = (amountWritten * 4) / 5;
+            uint64 amountExercised = uint64((uint256(amountWritten) * 4) / 5);
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
@@ -924,7 +924,7 @@ contract RebasingTest is BaseUnitTestSuite {
             // Given
             uint64 amountWritten = writeGivens[i];
             uint64 amountNetted = amountWritten / 5;
-            uint64 amountExercised = (amountWritten * 4) / 5;
+            uint64 amountExercised = uint64((uint256(amountWritten) * 4) / 5);
 
             vm.startPrank(writer);
             WETHLIKE.approve(address(clarity), type(uint256).max);
