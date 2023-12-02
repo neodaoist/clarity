@@ -33,7 +33,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 expectedOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -61,7 +61,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         uint256 expectedOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -89,7 +89,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 expectedOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -117,7 +117,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         uint256 expectedOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -180,7 +180,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -208,7 +208,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -236,7 +236,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -264,7 +264,7 @@ contract OptionViewTest is BaseUnitTestSuite {
         expiries[0] = FRI1;
 
         vm.startPrank(writer);
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),

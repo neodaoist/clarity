@@ -23,7 +23,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -102,7 +102,7 @@ contract WriteTest is BaseUnitTestSuite {
 
         // WETH-LUSD 1
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -198,7 +198,7 @@ contract WriteTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
+        WBTCLIKE.approve(address(clarity), type(uint256).max);
         oti4 = clarity.writeNewCall({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -273,7 +273,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function test_writeNewCall_whenFarInFutureButValidExpiry() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
@@ -288,7 +288,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function test_writeNewCall_whenLargeButValidStrikePrice() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
@@ -303,12 +303,12 @@ contract WriteTest is BaseUnitTestSuite {
 
     function test_writeNewCall_whenAmountAtLimitOfMaximumWritable() public {
         // need moar WETH to write massive amount of calls
-        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+        deal(address(WETHLIKE), writer, 2e36);
 
         uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
@@ -325,7 +325,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function testEvent_writeNewCall_OptionCreated() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
 
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
@@ -361,7 +361,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function testEvent_writeNewCall_OptionsWritten() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
 
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
@@ -508,7 +508,7 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeNewCall_givenOptionAlreadyExists() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -611,10 +611,10 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeNewCall_givenInsufficientAssetApproval() public {
         address brokeWriter = address(0xB0B0);
         vm.deal(brokeWriter, 10 ether);
-        deal(address(WETHLIKE), scaleUpAssetAmount(WETHLIKE, 1));
+        deal(address(WETHLIKE), 1e18);
 
         vm.startPrank(brokeWriter);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 1) - 1);
+        WETHLIKE.approve(address(clarity), 1e18 - 1);
 
         // solmate ERC20 revert
         vm.expectRevert("TRANSFER_FROM_FAILED");
@@ -643,7 +643,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -722,7 +722,7 @@ contract WriteTest is BaseUnitTestSuite {
 
         // WETH-LUSD 1
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -822,7 +822,7 @@ contract WriteTest is BaseUnitTestSuite {
         lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
+        WBTCLIKE.approve(address(clarity), type(uint256).max);
         oti4 = clarity.writeNewPut({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -856,7 +856,7 @@ contract WriteTest is BaseUnitTestSuite {
         wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         oti5 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -901,7 +901,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function test_writeNewPut_whenFarInFutureButValidExpiry() public {
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
@@ -916,10 +916,10 @@ contract WriteTest is BaseUnitTestSuite {
 
     function test_writeNewPut_whenLargeButValidStrikePrice() public {
         // need moar LUSD to write put with massive strike
-        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000));
+        deal(address(LUSDLIKE), writer, 2e36);
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
@@ -934,12 +934,12 @@ contract WriteTest is BaseUnitTestSuite {
 
     function test_writeNewPut_whenAmountAtLimitOfMaximumWritable() public {
         // need moar LUSD to write massive amount of puts
-        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+        deal(address(LUSDLIKE), writer, 2e36);
 
         uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
@@ -956,7 +956,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function testEvent_writeNewPut_OptionCreated() public {
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
 
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
@@ -992,7 +992,7 @@ contract WriteTest is BaseUnitTestSuite {
 
     function testEvent_writeNewPut_OptionsWritten() public {
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
 
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
@@ -1139,7 +1139,7 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeNewPut_givenOptionAlreadyExists() public {
         // Given
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -1242,10 +1242,10 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeNewPut_givenInsufficientAssetApproval() public {
         address brokeWriter = address(0xB0B0);
         vm.deal(brokeWriter, 10 ether);
-        deal(address(LUSDLIKE), scaleUpAssetAmount(LUSDLIKE, 1700));
+        deal(address(LUSDLIKE), 1700e18);
 
         vm.startPrank(brokeWriter);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1700) - 1);
+        LUSDLIKE.approve(address(clarity), 1700e18 - 1);
 
         // solmate ERC20 revert
         vm.expectRevert("TRANSFER_FROM_FAILED");
@@ -1277,7 +1277,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, 1.25e6);
         vm.stopPrank();
 
@@ -1294,7 +1294,7 @@ contract WriteTest is BaseUnitTestSuite {
         public
     {
         // need moar WETH to write massive amount of calls
-        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+        deal(address(WETHLIKE), writer, 2e36);
 
         uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
 
@@ -1307,7 +1307,7 @@ contract WriteTest is BaseUnitTestSuite {
             allowEarlyExercise: true,
             optionAmount: 0
         });
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeExisting(optionTokenId, maximumAmount);
         vm.stopPrank();
@@ -1321,7 +1321,7 @@ contract WriteTest is BaseUnitTestSuite {
         public
     {
         // need moar WETH to write massive amount of calls
-        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+        deal(address(WETHLIKE), writer, 2e36);
 
         uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
 
@@ -1334,7 +1334,7 @@ contract WriteTest is BaseUnitTestSuite {
             allowEarlyExercise: true,
             optionAmount: 0
         });
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, 10e6);
         // no revert
         clarity.writeExisting(optionTokenId, maximumAmount - 10e6);
@@ -1359,7 +1359,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, 1.35e6);
         vm.stopPrank();
 
@@ -1378,7 +1378,7 @@ contract WriteTest is BaseUnitTestSuite {
         public
     {
         // need moar LUSD to write massive amount of puts
-        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+        deal(address(LUSDLIKE), writer, 2e36);
 
         uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
 
@@ -1391,7 +1391,7 @@ contract WriteTest is BaseUnitTestSuite {
             allowEarlyExercise: true,
             optionAmount: 0
         });
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         // no revert
         clarity.writeExisting(optionTokenId, maximumAmount);
         vm.stopPrank();
@@ -1405,7 +1405,7 @@ contract WriteTest is BaseUnitTestSuite {
         public
     {
         // need moar LUSD to write massive amount of puts
-        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+        deal(address(LUSDLIKE), writer, 2e36);
 
         uint64 maximumAmount = clarity.MAXIMUM_WRITABLE();
 
@@ -1418,7 +1418,7 @@ contract WriteTest is BaseUnitTestSuite {
             allowEarlyExercise: true,
             optionAmount: 0
         });
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, 10e6);
         // no revert
         clarity.writeExisting(optionTokenId, maximumAmount - 10e6);
@@ -1442,7 +1442,7 @@ contract WriteTest is BaseUnitTestSuite {
             optionAmount: 0
         });
 
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
 
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
@@ -1472,7 +1472,7 @@ contract WriteTest is BaseUnitTestSuite {
             optionAmount: 0
         });
 
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
 
         uint248 instrumentHash = LibOption.paramsToHash({
             baseAsset: address(WETHLIKE),
@@ -1513,7 +1513,7 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeExisting_givenCall_whenSubsequentAmountGreaterThanMaximumWritable(
     ) public {
         // need moar WETH to write massive amount of calls
-        deal(address(WETHLIKE), writer, scaleUpAssetAmount(WETHLIKE, 2e18));
+        deal(address(WETHLIKE), writer, 2e36);
 
         uint64 halfTooMuch = clarity.MAXIMUM_WRITABLE() / 2;
 
@@ -1526,7 +1526,7 @@ contract WriteTest is BaseUnitTestSuite {
             allowEarlyExercise: true,
             optionAmount: 0
         });
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 2e18));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, halfTooMuch);
         clarity.writeExisting(optionTokenId, halfTooMuch);
 
@@ -1606,10 +1606,10 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeExisting_givenCall_andInsufficientAssetApproval() public {
         address brokeWriter = address(0xB0B0);
         vm.deal(brokeWriter, 10 ether);
-        deal(address(WETHLIKE), scaleUpAssetAmount(WETHLIKE, 1));
+        deal(address(WETHLIKE), 1e18);
 
         vm.startPrank(brokeWriter);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, 1) - 1);
+        WETHLIKE.approve(address(clarity), 1e18 - 1);
 
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
@@ -1647,7 +1647,7 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeExisting_givenPut_whenSubsequentAmountGreaterThanMaximumWritable(
     ) public {
         // need moar LUSD to write massive amount of puts
-        deal(address(LUSDLIKE), writer, scaleUpAssetAmount(LUSDLIKE, 2e18));
+        deal(address(LUSDLIKE), writer, 2e36);
 
         uint64 halfTooMuch = clarity.MAXIMUM_WRITABLE() / 2;
 
@@ -1660,7 +1660,7 @@ contract WriteTest is BaseUnitTestSuite {
             allowEarlyExercise: true,
             optionAmount: 0
         });
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 2e18));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, halfTooMuch);
         clarity.writeExisting(optionTokenId, halfTooMuch);
 
@@ -1740,10 +1740,10 @@ contract WriteTest is BaseUnitTestSuite {
     function testRevert_writeExisting_givenPut_andInsufficientAssetApproval() public {
         address brokeWriter = address(0xB0B0);
         vm.deal(brokeWriter, 10 ether);
-        deal(address(LUSDLIKE), scaleUpAssetAmount(LUSDLIKE, 1700));
+        deal(address(LUSDLIKE), 1700e18);
 
         vm.startPrank(brokeWriter);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, 1700) - 1);
+        WETHLIKE.approve(address(clarity), 1700e18 - 1);
 
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
@@ -1783,7 +1783,7 @@ contract WriteTest is BaseUnitTestSuite {
         uint64[] memory optionAmounts = new uint64[](1);
         optionAmounts[0] = 1.25e6;
 
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
 
         clarity.batchWriteExisting(optionTokenIds, optionAmounts);
         vm.stopPrank();
@@ -1882,10 +1882,10 @@ contract WriteTest is BaseUnitTestSuite {
         optionAmounts[6] = 1.222222e6;
         optionAmounts[7] = 0.999999e6;
 
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
+        WBTCLIKE.approve(address(clarity), type(uint256).max);
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
+        USDCLIKE.approve(address(clarity), type(uint256).max);
 
         clarity.batchWriteExisting(optionTokenIds, optionAmounts);
         vm.stopPrank();
@@ -2029,18 +2029,13 @@ contract WriteTest is BaseUnitTestSuite {
         );
 
         // check ERC20 balances
-        uint256 expectedWethBalance = wethBalance
-            - (uint256(scaleDownOptionAmount(1e18)) * optionAmounts[0])
-            - (uint256(scaleDownOptionAmount(1e18)) * optionAmounts[2])
-            - (uint256(scaleDownOptionAmount(1e18)) * optionAmounts[4])
-            - (uint256(scaleDownOptionAmount(1e18)) * optionAmounts[5]);
-        uint256 expectedWbtcBalance =
-            wbtcBalance - (scaleDownOptionAmount(1e8) * optionAmounts[6]);
-        uint256 expectedLusdBalance = lusdBalance
-            - (uint256(scaleDownOptionAmount(1700e18)) * optionAmounts[1])
-            - (uint256(scaleDownOptionAmount(1725e18)) * optionAmounts[3]);
-        uint256 expectedUsdcBalance =
-            usdcBalance - (scaleDownOptionAmount(21_001e6) * optionAmounts[7]);
+        uint256 expectedWethBalance = wethBalance - (1e12 * uint256(optionAmounts[0]))
+            - (1e12 * uint256(optionAmounts[2])) - (1e12 * uint256(optionAmounts[4]))
+            - (1e12 * uint256(optionAmounts[5]));
+        uint256 expectedWbtcBalance = wbtcBalance - (1e2 * uint256(optionAmounts[6]));
+        uint256 expectedLusdBalance = lusdBalance - (1700e12 * uint256(optionAmounts[1]))
+            - (1725e12 * uint256(optionAmounts[3]));
+        uint256 expectedUsdcBalance = usdcBalance - (21_001 * uint256(optionAmounts[7]));
         assertAssetBalance(WETHLIKE, writer, expectedWethBalance, "after write");
         assertAssetBalance(WBTCLIKE, writer, expectedWbtcBalance, "after write");
         assertAssetBalance(LUSDLIKE, writer, expectedLusdBalance, "after write");
@@ -2127,10 +2122,10 @@ contract WriteTest is BaseUnitTestSuite {
         optionAmounts[6] = 1.222222e6;
         optionAmounts[7] = 0.999999e6;
 
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
-        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
+        WBTCLIKE.approve(address(clarity), type(uint256).max);
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
+        USDCLIKE.approve(address(clarity), type(uint256).max);
 
         for (uint256 i = 0; i < optionTokenIds.length; i++) {
             vm.expectEmit(true, true, true, true);

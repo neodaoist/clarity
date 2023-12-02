@@ -18,7 +18,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function test_tokenType() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -98,7 +98,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position() public {
         // Given writer1 writes 1 options
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -111,7 +111,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
         // And writer2 writes 0.25 options
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, 0.25e6);
         vm.stopPrank();
 
@@ -155,7 +155,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function test_position_whenTokenTypeIsShort() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -179,7 +179,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function test_position_whenTokenTypeIsAssignedShort() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -204,7 +204,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_writer_givenAssigned() public {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -217,7 +217,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
         // And writer2 writes 0.35 options of oti1
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(oti1, 0.35e6);
         vm.stopPrank();
 
@@ -237,7 +237,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.warp(FRI1 - 1 seconds);
 
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 0.2e6);
         vm.stopPrank();
 

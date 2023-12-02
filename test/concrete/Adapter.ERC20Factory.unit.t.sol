@@ -49,7 +49,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function test_deployWrappedLong() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -92,7 +92,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
 
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         for (uint256 i = 0; i < numOptions; i++) {
             optionTokenIds[i] = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
@@ -147,7 +147,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testEvent_deployWrappedLong() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -192,7 +192,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
 
     function testRevert_deployWrappedLong_whenWrapperAlreadyDeployed() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -216,7 +216,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
 
     function testRevert_deployWrappedLong_whenOptionExpired() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -249,7 +249,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function test_deployWrappedShort() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -294,7 +294,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
 
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         for (uint256 i = 0; i < numOptions; i++) {
             optionTokenIds[i] = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
@@ -351,7 +351,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testEvent_deployWrappedShort() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -378,7 +378,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testRevert_deployWrappedShort_whenTokenTypeIsLong() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -401,7 +401,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testRevert_deployWrappedShort_whenTokenTypeIsAssignedShort() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -449,7 +449,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testRevert_deployWrappedShort_whenWrapperAlreadyDeployed() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -477,7 +477,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testRevert_deployWrappedShort_whenOptionExpired() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -508,7 +508,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
     function testRevert_deployWrappedShort_whenShortHasBeenAssigned() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -521,7 +521,7 @@ contract ERC20FactoryTest is BaseUnitTestSuite {
 
         vm.warp(FRI1 - 1 seconds);
 
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 0.000001e6);
         vm.stopPrank();
 

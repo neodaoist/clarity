@@ -17,7 +17,7 @@ contract TransferTest is BaseUnitTestSuite {
     function test_transfer_whenLong() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -54,7 +54,7 @@ contract TransferTest is BaseUnitTestSuite {
     function test_transfer_whenShort() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -104,7 +104,7 @@ contract TransferTest is BaseUnitTestSuite {
     function testRevert_transfer_whenAssignedShortToken() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -126,7 +126,7 @@ contract TransferTest is BaseUnitTestSuite {
     function testRevert_transfer_whenShort_givenOptionIsAssigned() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -140,7 +140,7 @@ contract TransferTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         // exercise
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 0.000001e6);
         vm.stopPrank();
 

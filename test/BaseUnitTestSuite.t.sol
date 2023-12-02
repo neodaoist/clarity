@@ -103,12 +103,12 @@ abstract contract BaseUnitTestSuite is BaseTestSuite {
                 deal(
                     address(assets[j]),
                     writers[i],
-                    scaleUpAssetAmount(assets[j], STARTING_BALANCE)
+                    STARTING_BALANCE * (10 ** assets[j].decimals())
                 );
                 deal(
                     address(assets[j]),
                     holders[i],
-                    scaleUpAssetAmount(assets[j], STARTING_BALANCE)
+                    STARTING_BALANCE * (10 ** assets[j].decimals())
                 );
             }
         }
@@ -129,19 +129,5 @@ abstract contract BaseUnitTestSuite is BaseTestSuite {
         vm.label(addr, name);
 
         return addr;
-    }
-
-    ///////// Asset Helpers
-
-    function scaleUpAssetAmount(IERC20 token, uint256 amount)
-        internal
-        view
-        returns (uint256)
-    {
-        return amount * (10 ** token.decimals());
-    }
-
-    function scaleDownOptionAmount(uint256 amount) internal view returns (uint64) {
-        return SafeCastLib.safeCastTo64(amount / (10 ** clarity.CONTRACT_SCALAR()));
     }
 }

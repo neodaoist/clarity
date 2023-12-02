@@ -33,7 +33,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -46,7 +46,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // And writer2 writes 0.35 options of oti1
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(oti1, 0.35e6);
         vm.stopPrank();
 
@@ -163,7 +163,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // Given writer1 writes 1.25 options of oti1
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -176,7 +176,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // And writer2 writes 0.25 options of oti1
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(oti1, 0.25e6);
         vm.stopPrank();
 

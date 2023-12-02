@@ -368,7 +368,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_tokenURI_long() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -401,7 +401,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI, expectedCall, "tokenURI initial long call");
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -436,7 +436,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_tokenURI_short() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -473,7 +473,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI, expectedCall, "tokenURI initial short call");
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -512,7 +512,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_tokenURI_assigned() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -550,7 +550,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI, expectedCall, "tokenURI initial assigned call");
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -591,7 +591,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         // 3NOV23 (1698998400)
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -626,7 +626,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI, expectedCall, "tokenURI different expiry 1 call");
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -665,7 +665,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         // 8NOV23 (1699434000)
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId2 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -700,7 +700,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI2, expectedCall2, "tokenURI different expiry 2 call");
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionTokenId2 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -739,7 +739,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         // 20APR24 (1713600000)
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId3 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -774,7 +774,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI3, expectedCall3, "tokenURI different expiry 3 call");
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionTokenId3 = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -811,7 +811,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_tokenURI_differentExerciseStyle() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -846,7 +846,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI, expectedCall, "tokenURI different exercise style call");
 
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -883,7 +883,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_tokenURI_differentStrike() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -918,7 +918,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI, expectedCall, "tokenURI different strike call");
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -955,7 +955,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_tokenURI_differentAssets() public {
         vm.startPrank(writer);
-        WBTCLIKE.approve(address(clarity), scaleUpAssetAmount(WBTCLIKE, STARTING_BALANCE));
+        WBTCLIKE.approve(address(clarity), type(uint256).max);
         uint256 callOptionTokenId = clarity.writeNewCall({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -990,7 +990,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
         assertEq(callTokenURI, expectedCall, "tokenURI different assets call");
 
         vm.startPrank(writer);
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         uint256 putOptionToken = clarity.writeNewPut({
             baseAsset: address(WBTCLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -1030,7 +1030,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_assetStorage_whenCall() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -1054,7 +1054,7 @@ contract LibMetadataTest is BaseUnitTestSuite {
 
     function test_assetStorage_whenPut() public {
         vm.startPrank(writer);
-        USDCLIKE.approve(address(clarity), scaleUpAssetAmount(USDCLIKE, STARTING_BALANCE));
+        USDCLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),

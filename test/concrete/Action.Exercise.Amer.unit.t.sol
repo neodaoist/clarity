@@ -19,7 +19,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
         uint256 holderLusdBalance = LUSDLIKE.balanceOf(holder);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -50,7 +50,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 0.8e6);
         vm.stopPrank();
 
@@ -88,7 +88,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     {
         // When holder1 exercises 0.1 options of oti1
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 0.1e6);
         vm.stopPrank();
 
@@ -131,7 +131,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     {
         // When holder1 exercises 0.15 options of oti1
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 0.15e6);
         vm.stopPrank();
 
@@ -177,7 +177,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 0.2e6);
         vm.stopPrank();
 
@@ -221,7 +221,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     {
         // When holder1 exercises 0.5 options of oti1
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 0.5e6);
         vm.stopPrank();
 
@@ -265,7 +265,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     {
         // When holder1 exercises 1 options of oti1
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 1e6);
         vm.stopPrank();
 
@@ -309,7 +309,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     {
         // When holder1 exercises 2.5 options of oti1
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 2.5e6);
         vm.stopPrank();
 
@@ -341,8 +341,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
     // withComplexBackground {
     //     // When holder1 exercises 2.45 options of oti1
     //     vm.startPrank(holder1);
-    //     LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE,
-    // STARTING_BALANCE));
+    //     LUSDLIKE.approve(address(clarity), type(uint256).max);
     //     clarity.exerciseOption(oti1, 2.45e6);
     //     vm.stopPrank();
 
@@ -387,13 +386,13 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
         uint256 numWrites = 3000;
         uint256 optionAmountWritten;
 
-        deal(address(LUSDLIKE), holder, scaleUpAssetAmount(LUSDLIKE, 1_000_000_000_000));
+        deal(address(LUSDLIKE), holder, 1e30);
 
         uint256 holderWethBalance = WETHLIKE.balanceOf(holder);
         uint256 holderLusdBalance = LUSDLIKE.balanceOf(holder);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -439,9 +438,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
 
         vm.warp(FRI1 - 1 seconds);
         vm.startPrank(holder);
-        LUSDLIKE.approve(
-            address(clarity), scaleUpAssetAmount(LUSDLIKE, 1_000_000_000_000)
-        );
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, uint64(optionAmountWritten));
         vm.stopPrank();
 
@@ -461,13 +458,13 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
         assertAssetBalance(
             WETHLIKE,
             holder,
-            holderWethBalance + scaleDownOptionAmount(1e18) * optionAmountWritten,
+            holderWethBalance + 1e12 * optionAmountWritten,
             "holder after exercise"
         );
         assertAssetBalance(
             LUSDLIKE,
             holder,
-            holderLusdBalance - scaleDownOptionAmount(1700e18) * optionAmountWritten,
+            holderLusdBalance - 1700e12 * optionAmountWritten,
             "holder after exercise"
         );
     }
@@ -476,7 +473,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
 
     function testEvent_exerciseOption_OptionsExercised() public withSimpleBackground {
         vm.startPrank(holder);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
 
         vm.expectEmit(true, true, true, true);
         emit IOptionEvents.OptionsExercised(holder, oti1, 1.000005e6);
@@ -505,7 +502,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
 
     function testRevert_exerciseOption_whenOptionTokenIdNotLong() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -538,7 +535,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
 
     function testRevert_exerciseOption_givenAfterExpiry() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -563,7 +560,7 @@ contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
 
     function testRevert_exerciseOption_whenExerciseAmountExceedsLongBalance() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
