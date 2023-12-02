@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
-contract RedeemTest is BaseUnitTestSuite {
+contract RedeemTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;
@@ -18,7 +18,7 @@ contract RedeemTest is BaseUnitTestSuite {
     function testE2E_redeemCollateral() public {
         // Given Writer1 writes 5 options
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -31,7 +31,7 @@ contract RedeemTest is BaseUnitTestSuite {
 
         // And Writer2 writes 5 options
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, 5e6);
         vm.stopPrank();
 
@@ -48,37 +48,61 @@ contract RedeemTest is BaseUnitTestSuite {
         clarity.transfer(holder2, optionTokenId, 2e6);
 
         // pre checks (before exercise)
-        assertTotalSupplies(optionTokenId, 10e6, 10e6, 0, "before exercise");
-        assertOptionBalances(writer1, optionTokenId, 0, 5e6, 0, "writer1 before exercise");
-        assertOptionBalances(writer2, optionTokenId, 0, 5e6, 0, "writer2 before exercise");
-        assertOptionBalances(holder1, optionTokenId, 8e6, 0, 0, "holder1 before exercise");
-        assertOptionBalances(holder2, optionTokenId, 2e6, 0, 0, "holder2 before exercise");
+        assertTotalSupplies(clarity, optionTokenId, 10e6, 10e6, 0, "before exercise");
+        assertOptionBalances(
+            clarity, writer1, optionTokenId, 0, 5e6, 0, "writer1 before exercise"
+        );
+        assertOptionBalances(
+            clarity, writer2, optionTokenId, 0, 5e6, 0, "writer2 before exercise"
+        );
+        assertOptionBalances(
+            clarity, holder1, optionTokenId, 8e6, 0, 0, "holder1 before exercise"
+        );
+        assertOptionBalances(
+            clarity, holder2, optionTokenId, 2e6, 0, 0, "holder2 before exercise"
+        );
 
         // And time warps to at expiry
         vm.warp(FRI1);
 
         // And Holder2 exercises 2 options
         vm.startPrank(holder2);
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 2e6);
         vm.stopPrank();
 
         // pre checks (before expiry)
-        assertTotalSupplies(optionTokenId, 8e6, 8e6, 2e6, "before expiry");
-        assertOptionBalances(writer1, optionTokenId, 0, 4e6, 1e6, "writer1 before expiry");
-        assertOptionBalances(writer2, optionTokenId, 0, 4e6, 1e6, "writer2 before expiry");
-        assertOptionBalances(holder1, optionTokenId, 8e6, 0, 0, "holder1 before expiry");
-        assertOptionBalances(holder2, optionTokenId, 0, 0, 0, "holder2 before expiry");
+        assertTotalSupplies(clarity, optionTokenId, 8e6, 8e6, 2e6, "before expiry");
+        assertOptionBalances(
+            clarity, writer1, optionTokenId, 0, 4e6, 1e6, "writer1 before expiry"
+        );
+        assertOptionBalances(
+            clarity, writer2, optionTokenId, 0, 4e6, 1e6, "writer2 before expiry"
+        );
+        assertOptionBalances(
+            clarity, holder1, optionTokenId, 8e6, 0, 0, "holder1 before expiry"
+        );
+        assertOptionBalances(
+            clarity, holder2, optionTokenId, 0, 0, 0, "holder2 before expiry"
+        );
 
         // And time warps to after expiry
         vm.warp(FRI1 + 1 seconds);
 
         // pre checks (after expiry)
-        assertTotalSupplies(optionTokenId, 0, 8e6, 2e6, "after expiry");
-        assertOptionBalances(writer1, optionTokenId, 0, 4e6, 1e6, "writer1 after expiry");
-        assertOptionBalances(writer2, optionTokenId, 0, 4e6, 1e6, "writer2 after expiry");
-        assertOptionBalances(holder1, optionTokenId, 0, 0, 0, "holder1 after expiry");
-        assertOptionBalances(holder2, optionTokenId, 0, 0, 0, "holder2 after expiry");
+        assertTotalSupplies(clarity, optionTokenId, 0, 8e6, 2e6, "after expiry");
+        assertOptionBalances(
+            clarity, writer1, optionTokenId, 0, 4e6, 1e6, "writer1 after expiry"
+        );
+        assertOptionBalances(
+            clarity, writer2, optionTokenId, 0, 4e6, 1e6, "writer2 after expiry"
+        );
+        assertOptionBalances(
+            clarity, holder1, optionTokenId, 0, 0, 0, "holder1 after expiry"
+        );
+        assertOptionBalances(
+            clarity, holder2, optionTokenId, 0, 0, 0, "holder2 after expiry"
+        );
 
         uint256 wethBalance1 = WETHLIKE.balanceOf(writer1);
         uint256 fraxBalance1 = FRAXLIKE.balanceOf(writer1);
@@ -91,18 +115,26 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertTotalSupplies(optionTokenId, 0, 4e6, 1e6, "after redeem1");
-        assertOptionBalances(writer1, optionTokenId, 0, 0, 0, "writer1 after redeem1");
-        assertOptionBalances(writer2, optionTokenId, 0, 4e6, 1e6, "writer2 after redeem1");
-        assertOptionBalances(holder1, optionTokenId, 0, 0, 0, "holder1 after redeem1");
-        assertOptionBalances(holder2, optionTokenId, 0, 0, 0, "holder2 after redeem1");
+        assertTotalSupplies(clarity, optionTokenId, 0, 4e6, 1e6, "after redeem1");
+        assertOptionBalances(
+            clarity, writer1, optionTokenId, 0, 0, 0, "writer1 after redeem1"
+        );
+        assertOptionBalances(
+            clarity, writer2, optionTokenId, 0, 4e6, 1e6, "writer2 after redeem1"
+        );
+        assertOptionBalances(
+            clarity, holder1, optionTokenId, 0, 0, 0, "holder1 after redeem1"
+        );
+        assertOptionBalances(
+            clarity, holder2, optionTokenId, 0, 0, 0, "holder2 after redeem1"
+        );
         assertEq(writeAssetRedeemed1, 1e18 * 4, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed1, 2050e18, "exerciseAssetRedeemed");
         assertAssetBalance(
-            writer1, WETHLIKE, wethBalance1 + writeAssetRedeemed1, "after redeem"
+            WETHLIKE, writer1, wethBalance1 + writeAssetRedeemed1, "after redeem"
         );
         assertAssetBalance(
-            writer, FRAXLIKE, fraxBalance1 + exerciseAssetRedeemed1, "after redeem"
+            FRAXLIKE, writer1, fraxBalance1 + exerciseAssetRedeemed1, "after redeem"
         );
 
         // When Writer2 redeems collateral
@@ -111,18 +143,26 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertTotalSupplies(optionTokenId, 0, 0, 0, "after redeem2");
-        assertOptionBalances(writer1, optionTokenId, 0, 0, 0, "writer1 after redeem2");
-        assertOptionBalances(writer2, optionTokenId, 0, 0, 0, "writer2 after redeem2");
-        assertOptionBalances(holder1, optionTokenId, 0, 0, 0, "holder1 after redeem2");
-        assertOptionBalances(holder2, optionTokenId, 0, 0, 0, "holder2 after redeem2");
+        assertTotalSupplies(clarity, optionTokenId, 0, 0, 0, "after redeem2");
+        assertOptionBalances(
+            clarity, writer1, optionTokenId, 0, 0, 0, "writer1 after redeem2"
+        );
+        assertOptionBalances(
+            clarity, writer2, optionTokenId, 0, 0, 0, "writer2 after redeem2"
+        );
+        assertOptionBalances(
+            clarity, holder1, optionTokenId, 0, 0, 0, "holder1 after redeem2"
+        );
+        assertOptionBalances(
+            clarity, holder2, optionTokenId, 0, 0, 0, "holder2 after redeem2"
+        );
         assertEq(writeAssetRedeemed2, 1e18 * 4, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed2, 2050e18, "exerciseAssetRedeemed");
         assertAssetBalance(
-            writer1, WETHLIKE, wethBalance2 + writeAssetRedeemed2, "after redeem"
+            WETHLIKE, writer1, wethBalance2 + writeAssetRedeemed2, "after redeem"
         );
         assertAssetBalance(
-            writer, FRAXLIKE, fraxBalance2 + exerciseAssetRedeemed2, "after redeem"
+            FRAXLIKE, writer1, fraxBalance2 + exerciseAssetRedeemed2, "after redeem"
         );
     }
 
@@ -142,7 +182,7 @@ contract RedeemTest is BaseUnitTestSuite {
     {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -169,7 +209,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -181,10 +221,12 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks, before expiry
-        assertTotalSupplies(optionTokenId, 2.25e6, 2.25e6, 0, "before expiry");
-        assertOptionBalances(writer, optionTokenId, 2.25e6, 2.25e6, 0, "before expiry");
-        assertAssetBalance(writer, WETHLIKE, wethBalance - (1e18 * 2.25), "before expiry");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance, "before expiry");
+        assertTotalSupplies(clarity, optionTokenId, 2.25e6, 2.25e6, 0, "before expiry");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 2.25e6, 2.25e6, 0, "before expiry"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance - (1e18 * 2.25), "before expiry");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "before expiry");
 
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -192,8 +234,8 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1 + 1 seconds);
 
         // pre checks, after expiry (longs go to 0, bc open interest is all expired)
-        assertTotalSupplies(optionTokenId, 0, 2.25e6, 0, "after expiry");
-        assertOptionBalances(writer, optionTokenId, 0, 2.25e6, 0, "after expiry");
+        assertTotalSupplies(clarity, optionTokenId, 0, 2.25e6, 0, "after expiry");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 2.25e6, 0, "after expiry");
 
         // When
         vm.prank(writer);
@@ -201,21 +243,21 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertTotalSupplies(optionTokenId, 0, 0, 0, "after redeem");
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertTotalSupplies(clarity, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 1e18 * 2.25, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 0, "exerciseAssetRedeemed");
         assertAssetBalance(
-            writer, WETHLIKE, wethBalance + writeAssetRedeemed, "after redeem"
+            WETHLIKE, writer, wethBalance + writeAssetRedeemed, "after redeem"
         );
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance, "after redeem");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after redeem");
     }
 
     function testRevert_redeemCollateral_C_shortCall_beforeOrOnExpiry_givenPartiallyAssigned(
     ) public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -230,7 +272,7 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 1.05e6);
         vm.stopPrank();
 
@@ -250,7 +292,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -265,14 +307,16 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 0, 1.2e6, 1.05e6, "before redeem");
-        assertAssetBalance(writer, WETHLIKE, wethBalance - (1e18 * 2.25), "before redeem");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance, "before redeem");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 1.2e6, 1.05e6, "before redeem"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance - (1e18 * 2.25), "before redeem");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "before redeem");
 
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -285,14 +329,14 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 1e18 * 1.2, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1700e18 * 1.05, "exerciseAssetRedeemed");
         assertAssetBalance(
-            writer, WETHLIKE, wethBalance + writeAssetRedeemed, "after redeem"
+            WETHLIKE, writer, wethBalance + writeAssetRedeemed, "after redeem"
         );
         assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem"
+            LUSDLIKE, writer, lusdBalance + exerciseAssetRedeemed, "after redeem"
         );
     }
 
@@ -304,7 +348,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -319,14 +363,16 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 0, 0, 2.25e6, "before redeem");
-        assertAssetBalance(writer, WETHLIKE, wethBalance - (1e18 * 2.25), "before redeem");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance, "before redeem");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 0, 2.25e6, "before redeem"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance - (1e18 * 2.25), "before redeem");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "before redeem");
 
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -337,12 +383,12 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 0, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1700e18 * 2.25, "exerciseAssetRedeemed");
-        assertAssetBalance(writer, WETHLIKE, wethBalance, "after redeem");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after redeem");
         assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem"
+            LUSDLIKE, writer, lusdBalance + exerciseAssetRedeemed, "after redeem"
         );
     }
 
@@ -352,7 +398,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 lusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -367,14 +413,16 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 0, 0, 2.25e6, "before redeem");
-        assertAssetBalance(writer, WETHLIKE, wethBalance - (1e18 * 2.25), "before redeem");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance, "before redeem");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 0, 2.25e6, "before redeem"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance - (1e18 * 2.25), "before redeem");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "before redeem");
 
         wethBalance = WETHLIKE.balanceOf(writer);
         lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -387,12 +435,12 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 0, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1700e18 * 2.25, "exerciseAssetRedeemed");
-        assertAssetBalance(writer, WETHLIKE, wethBalance, "after redeem");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after redeem");
         assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance + exerciseAssetRedeemed, "after redeem"
+            LUSDLIKE, writer, lusdBalance + exerciseAssetRedeemed, "after redeem"
         );
     }
 
@@ -403,7 +451,7 @@ contract RedeemTest is BaseUnitTestSuite {
     {
         // Given
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -430,7 +478,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -442,11 +490,13 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 2.25e6, 2.25e6, 0, "before redeem");
-        assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance - (1700e18 * 2.25), "before redeem"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 2.25e6, 2.25e6, 0, "before redeem"
         );
-        assertAssetBalance(writer, WETHLIKE, wethBalance, "before redeem");
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (1700e18 * 2.25), "before redeem"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "before redeem");
 
         lusdBalance = LUSDLIKE.balanceOf(writer);
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -459,20 +509,20 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 1700e18 * 2.25, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 0, "exerciseAssetRedeemed");
         assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance + writeAssetRedeemed, "after redeem"
+            LUSDLIKE, writer, lusdBalance + writeAssetRedeemed, "after redeem"
         );
-        assertAssetBalance(writer, WETHLIKE, wethBalance, "after redeem");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after redeem");
     }
 
     function testRevert_redeemCollateral_C_shortPut_beforeOrOnExpiry_givenPartiallyAssigned(
     ) public {
         // Given
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -487,7 +537,7 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 1.05e6);
         vm.stopPrank();
 
@@ -507,7 +557,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -522,16 +572,18 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 0, 1.2e6, 1.05e6, "before redeem");
-        assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance - (1700e18 * 2.25), "before redeem"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 1.2e6, 1.05e6, "before redeem"
         );
-        assertAssetBalance(writer, WETHLIKE, wethBalance, "before redeem");
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (1700e18 * 2.25), "before redeem"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "before redeem");
 
         lusdBalance = LUSDLIKE.balanceOf(writer);
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -544,14 +596,14 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 1700e18 * 1.2, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1e18 * 1.05, "exerciseAssetRedeemed");
         assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance + writeAssetRedeemed, "after redeem"
+            LUSDLIKE, writer, lusdBalance + writeAssetRedeemed, "after redeem"
         );
         assertAssetBalance(
-            writer, WETHLIKE, wethBalance + exerciseAssetRedeemed, "after redeem"
+            WETHLIKE, writer, wethBalance + exerciseAssetRedeemed, "after redeem"
         );
     }
 
@@ -563,7 +615,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -578,16 +630,18 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 0, 0, 2.25e6, "before redeem");
-        assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance - (1700e18 * 2.25), "before redeem"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 0, 2.25e6, "before redeem"
         );
-        assertAssetBalance(writer, WETHLIKE, wethBalance, "before redeem");
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (1700e18 * 2.25), "before redeem"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "before redeem");
 
         lusdBalance = LUSDLIKE.balanceOf(writer);
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -598,12 +652,12 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 0, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1e18 * 2.25, "exerciseAssetRedeemed");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance, "after redeem");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after redeem");
         assertAssetBalance(
-            writer, WETHLIKE, wethBalance + exerciseAssetRedeemed, "after redeem"
+            WETHLIKE, writer, wethBalance + exerciseAssetRedeemed, "after redeem"
         );
     }
 
@@ -613,7 +667,7 @@ contract RedeemTest is BaseUnitTestSuite {
         uint256 wethBalance = WETHLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -628,16 +682,18 @@ contract RedeemTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         vm.startPrank(holder);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 0, 0, 2.25e6, "before redeem");
-        assertAssetBalance(
-            writer, LUSDLIKE, lusdBalance - (1700e18 * 2.25), "before redeem"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 0, 2.25e6, "before redeem"
         );
-        assertAssetBalance(writer, WETHLIKE, wethBalance, "before redeem");
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (1700e18 * 2.25), "before redeem"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "before redeem");
 
         lusdBalance = LUSDLIKE.balanceOf(writer);
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -650,12 +706,12 @@ contract RedeemTest is BaseUnitTestSuite {
             clarity.redeemCollateral(optionTokenId.longToShort());
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "after redeem");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "after redeem");
         assertEq(writeAssetRedeemed, 0, "writeAssetRedeemed");
         assertEq(exerciseAssetRedeemed, 1e18 * 2.25, "exerciseAssetRedeemed");
-        assertAssetBalance(writer, LUSDLIKE, lusdBalance, "after redeem");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after redeem");
         assertAssetBalance(
-            writer, WETHLIKE, wethBalance + exerciseAssetRedeemed, "after redeem"
+            WETHLIKE, writer, wethBalance + exerciseAssetRedeemed, "after redeem"
         );
     }
 
@@ -666,7 +722,7 @@ contract RedeemTest is BaseUnitTestSuite {
     function testEvent_redeemCollateral_call_CollateralRedeemed() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 shortTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -690,7 +746,7 @@ contract RedeemTest is BaseUnitTestSuite {
     function testEvent_redeemCollateral_put_CollateralRedeemed() public {
         // Given
         vm.startPrank(writer);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         uint256 shortTokenId = clarity.writeNewPut({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -716,7 +772,7 @@ contract RedeemTest is BaseUnitTestSuite {
     function testRevert_redeemCollateral_whenLongToken() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 longTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -742,7 +798,7 @@ contract RedeemTest is BaseUnitTestSuite {
     function testRevert_redeemCollateral_whenAssignedShortToken() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 longTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -792,7 +848,7 @@ contract RedeemTest is BaseUnitTestSuite {
     function testRevert_redeemCollateral_whenShortBalanceZero() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 shortTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),

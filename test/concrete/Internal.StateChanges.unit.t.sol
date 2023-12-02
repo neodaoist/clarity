@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
-contract StateChangesTest is BaseUnitTestSuite {
+contract StateChangesTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;
@@ -30,7 +30,12 @@ contract StateChangesTest is BaseUnitTestSuite {
 
         (, bytes32[] memory writes) = vm.accesses(address(clarity));
 
-        (uint64 w, uint64 n, uint64 x, uint64 r) = getInternalOptionState(writes[5]);
+        bytes32 state = vm.load(address(clarity), writes[5]);
+
+        uint64 w = uint64(uint256(state));
+        uint64 n = uint64(uint256(state >> 64));
+        uint64 x = uint64(uint256(state >> 128));
+        uint64 r = uint64(uint256(state >> 192));
 
         assertEq(w, 1e6);
         assertEq(n, 0.5e6);
@@ -124,4 +129,10 @@ contract StateChangesTest is BaseUnitTestSuite {
         // (1. External -- Exercise Asset ERC20 Transfer)
         // (2. External -- Write Asset ERC20 Transfer)
     }
+
+    function getInternalOptionState(bytes32 slot)
+        public
+        view
+        returns (uint64, uint64, uint64, uint64)
+    {}
 }

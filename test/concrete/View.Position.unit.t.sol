@@ -2,13 +2,13 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Views Under Test
 import {IOption} from "../../src/interface/option/IOption.sol";
 import {IPosition} from "../../src/interface/IPosition.sol";
 
-contract PositionViewTest is BaseUnitTestSuite {
+contract PositionViewTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;
@@ -18,7 +18,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function test_tokenType() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -98,7 +98,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position() public {
         // Given writer1 writes 1 options
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -111,7 +111,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
         // And writer2 writes 0.25 options
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(optionTokenId, 0.25e6);
         vm.stopPrank();
 
@@ -155,7 +155,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function test_position_whenTokenTypeIsShort() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -179,7 +179,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
     function test_position_whenTokenTypeIsAssignedShort() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -204,7 +204,7 @@ contract PositionViewTest is BaseUnitTestSuite {
     function test_position_writer_givenAssigned() public {
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -217,7 +217,7 @@ contract PositionViewTest is BaseUnitTestSuite {
 
         // And writer2 writes 0.35 options of oti1
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(oti1, 0.35e6);
         vm.stopPrank();
 
@@ -237,7 +237,7 @@ contract PositionViewTest is BaseUnitTestSuite {
         vm.warp(FRI1 - 1 seconds);
 
         vm.startPrank(holder1);
-        LUSDLIKE.approve(address(clarity), scaleUpAssetAmount(LUSDLIKE, STARTING_BALANCE));
+        LUSDLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(oti1, 0.2e6);
         vm.stopPrank();
 
@@ -286,7 +286,9 @@ contract PositionViewTest is BaseUnitTestSuite {
         assertEq(magnitude3, 2.3e6, "holder1 magnitude");
 
         // check overall market
-        assertTotalSupplies(oti1, 2.3e6, 2.3e6, 0.2e6, "total supplies after exercise");
+        assertTotalSupplies(
+            clarity, oti1, 2.3e6, 2.3e6, 0.2e6, "total supplies after exercise"
+        );
         assertEq(
             magnitude1 + magnitude2,
             magnitude3 * -1,
@@ -344,28 +346,4 @@ contract PositionViewTest is BaseUnitTestSuite {
         // When
         clarity.position(optionTokenId | 3);
     }
-
-    /////////
-    // function positionNettableAmount(uint256 optionTokenId)
-    //     external
-    //     view
-    //     returns (uint64 amount);
-
-    // TODO
-
-    // Sad Paths
-
-    // TODO
-
-    /////////
-    // function positionRedeemableAmount(uint256 optionTokenId)
-    //     external
-    //     view
-    //     returns (uint64 amount, uint32 when);
-
-    // TODO
-
-    // Sad Paths
-
-    // TODO
 }

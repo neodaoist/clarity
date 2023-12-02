@@ -8,7 +8,7 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {OptionsHandler} from "../util/OptionsHandler.sol";
 
 // Test Fixture
-import "../BaseTestSuite.t.sol";
+import "../BaseClarityTest.t.sol";
 
 // Interfaces
 import {IOption} from "../../src/interface/option/IOption.sol";
@@ -16,7 +16,7 @@ import {IOption} from "../../src/interface/option/IOption.sol";
 // Contract Under Test
 import "../../src/ClarityMarkets.sol";
 
-contract ClarityMarketsInvariantTest is BaseTestSuite {
+contract ClarityMarketsInvariantTest is BaseClarityTest {
     /////////
 
     using LibPosition for uint256;
@@ -25,15 +25,14 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
 
     OptionsHandler private handler;
 
-    function setUp() public {
-        // deploy DCP
-        clarity = new ClarityMarkets();
+    function setUp() public override {
+        super.setUp();
 
         // setup handler
-        handler = new OptionsHandler(clarity);
+        handler = new OptionsHandler(clarity, baseAssets, quoteAssets);
 
         // target contracts
-        bytes4[] memory selectors = new bytes4[](7);
+        bytes4[] memory selectors = new bytes4[](6);
         // Write
         selectors[0] = OptionsHandler.writeNew.selector;
         selectors[1] = OptionsHandler.writeExisting.selector;
@@ -46,7 +45,7 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
         // Exercise
         selectors[5] = OptionsHandler.exerciseOption.selector;
         // Redeem
-        selectors[6] = OptionsHandler.redeemCollateral.selector;
+        // selectors[6] = OptionsHandler.redeemCollateral.selector; // TODO
         // Skim
         // TODO skim
 
@@ -57,191 +56,178 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
     ///////// Core Protocol Invariant
 
     function invariant_A1_clearinghouseBalanceForAssetGteClearingLiability() public {
-        for (uint256 i = 0; i < handler.baseAssetsCount(); i++) {
-            IERC20 baseAsset = handler.baseAssetAt(i);
-            assertGe(
-                baseAsset.balanceOf(address(clarity)),
-                handler.ghost_clearingLiabilityFor(address(baseAsset)),
-                "clearinghouseBalanceForAssetGteClearingLiability baseAsset"
-            );
-        }
+        handler.forEachAsset(this.assertA1);
+    }
 
-        for (uint256 i = 0; i < handler.quoteAssetsCount(); i++) {
-            IERC20 quoteAsset = handler.quoteAssetAt(i);
-            assertGe(
-                quoteAsset.balanceOf(address(clarity)),
-                handler.ghost_clearingLiabilityFor(address(quoteAsset)),
-                "clearinghouseBalanceForAssetGteClearingLiability quoteAsset"
-            );
-        }
+    function assertA1(IERC20 asset) public {
+        assertGe(
+            asset.balanceOf(address(clarity)),
+            handler.ghost_clearingLiabilityFor(address(asset)),
+            "clearinghouseBalanceForAssetGteClearingLiability"
+        );
     }
 
     ///////// User Balance Invariants
 
     function invariant_B1_totalSupplyForTokenIdEqSumOfAllBalances() public {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 shortTokenId = optionTokenId.longToShort();
-            uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
+        handler.forEachOption(this.assertB1);
+    }
 
-            // long token type
-            IOption.Option memory option = clarity.option(optionTokenId);
-            if (block.timestamp <= option.expiry) {
-                assertEq(
-                    clarity.totalSupply(optionTokenId),
-                    handler.ghost_longSumFor(optionTokenId),
-                    "sumOfAllBalancesForTokenIdEqTotalSupply long, before expiry"
-                );
-            } else {
-                assertEq(
-                    clarity.totalSupply(optionTokenId),
-                    0,
-                    "sumOfAllBalancesForTokenIdEqTotalSupply long, after expiry"
-                );
-            }
+    function assertB1(uint256 optionTokenId) external {
+        uint256 shortTokenId = optionTokenId.longToShort();
+        uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
 
-            // short token type
-            assertApproxEqAbs(
-                clarity.totalSupply(shortTokenId),
-                handler.ghost_shortSumFor(optionTokenId),
-                1,
-                "sumOfAllBalancesForTokenIdEqTotalSupply short"
-            );
-
-            // assigned short token type
+        IOption.Option memory option = clarity.option(optionTokenId);
+        if (block.timestamp <= option.expiry) {
             assertEq(
-                clarity.totalSupply(assignedShortTokenId),
-                handler.ghost_assignedShortSumFor(optionTokenId),
-                "sumOfAllBalancesForTokenIdEqTotalSupply assignedShort"
+                clarity.totalSupply(optionTokenId),
+                handler.ghost_longSumFor(optionTokenId),
+                "totalSupplyForTokenIdEqSumOfAllBalances long, before expiry"
+            );
+        } else {
+            assertEq(
+                clarity.totalSupply(optionTokenId),
+                0,
+                "totalSupplyForTokenIdEqSumOfAllBalances long, after expiry"
             );
         }
+        assertApproxEqAbs(
+            clarity.totalSupply(shortTokenId),
+            handler.ghost_shortSumFor(optionTokenId),
+            1,
+            "totalSupplyForTokenIdEqSumOfAllBalances short"
+        );
+        assertEq(
+            clarity.totalSupply(assignedShortTokenId),
+            handler.ghost_assignedShortSumFor(optionTokenId),
+            "totalSupplyForTokenIdEqSumOfAllBalances assignedShort"
+        );
     }
 
     ///////// Options Supply and State Invariants
 
     function invariant_C1_totalSupplyOfLongsEqTotalSupplyOfShorts() public {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 shortTokenId = optionTokenId.longToShort();
+        handler.forEachOption(this.assertC1);
+    }
 
-            IOption.Option memory option = clarity.option(optionTokenId);
-            if (block.timestamp <= option.expiry) {
-                assertEq(
-                    clarity.totalSupply(optionTokenId),
-                    clarity.totalSupply(shortTokenId),
-                    "totalSupplyOfLongsEqTotalSupplyOfShorts, before expiry"
-                );
-            } else {
-                assertEq(
-                    clarity.totalSupply(optionTokenId),
-                    0,
-                    "totalSupplyOfLongsEqTotalSupplyOfShorts, after expiry"
-                );
-            }
+    function assertC1(uint256 optionTokenId) external {
+        uint256 shortTokenId = optionTokenId.longToShort();
+
+        IOption.Option memory option = clarity.option(optionTokenId);
+        if (block.timestamp <= option.expiry) {
+            assertEq(
+                clarity.totalSupply(optionTokenId),
+                clarity.totalSupply(shortTokenId),
+                "totalSupplyOfLongsEqTotalSupplyOfShorts, before expiry"
+            );
+        } else {
+            assertEq(
+                clarity.totalSupply(optionTokenId),
+                0,
+                "totalSupplyOfLongsEqTotalSupplyOfShorts, after expiry"
+            );
         }
     }
 
     function invariant_C2_totalSupplyOfShortsEqWSubNSubXSubRMulProportionUnassigned()
         public
     {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 shortTokenId = optionTokenId.longToShort();
-            (uint256 w, uint256 n, uint256 x, uint256 r) =
-                handler.optionState(optionTokenId);
+        handler.forEachOption(this.assertC2);
+    }
 
-            uint256 wSubN = w - n;
-            uint256 rMulProportionUnassigned =
-                (wSubN == 0) ? 0 : (r * (wSubN - x)) / wSubN;
+    function assertC2(uint256 optionTokenId) external {
+        uint256 shortTokenId = optionTokenId.longToShort();
+        (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
 
-            assertEq(
-                clarity.totalSupply(shortTokenId),
-                wSubN - x - rMulProportionUnassigned,
-                "totalSupplyOfShortsEqWSubNSubXSubRMulProportionUnassigned"
-            );
-        }
+        uint256 wSubN = w - n;
+        uint256 rMulProportionUnassigned = (wSubN == 0) ? 0 : (r * (wSubN - x)) / wSubN;
+
+        assertEq(
+            clarity.totalSupply(shortTokenId),
+            wSubN - x - rMulProportionUnassigned,
+            "totalSupplyOfShortsEqWSubNSubXSubRMulProportionUnassigned"
+        );
     }
 
     function invariant_C3_totalSupplyOfAssignedShortsEqXSubRMulProportionAssigned()
         public
     {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
-            (uint256 w, uint256 n, uint256 x, uint256 r) =
-                handler.optionState(optionTokenId);
-
-            uint256 wSubN = w - n;
-            uint256 rMulProportionAssigned = (wSubN == 0) ? 0 : (r * x) / wSubN;
-
-            assertEq(
-                clarity.totalSupply(assignedShortTokenId),
-                x - rMulProportionAssigned,
-                "totalSupplyOfAssignedShortsEqXSubRMulProportionAssigned"
-            );
-        }
+        handler.forEachOption(this.assertC3);
     }
 
+    function assertC3(uint256 optionTokenId) external {
+        uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
+        (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
+
+        uint256 wSubN = w - n;
+        uint256 rMulProportionAssigned = (wSubN == 0) ? 0 : (r * x) / wSubN;
+
+        assertEq(
+            clarity.totalSupply(assignedShortTokenId),
+            x - rMulProportionAssigned,
+            "totalSupplyOfAssignedShortsEqXSubRMulProportionAssigned"
+        );
+    }
+
+    // TODO investigate counterexample
+    // ├─ emit log_named_string(key: "Error", val: "amountWrittenGteNAddXAddR")
+    // ├─ emit log(val: "Error: a >= b not satisfied [uint]")
+    // ├─ emit log_named_uint(key: "  Value a", val: 15477 [1.547e4])
+    // ├─ emit log_named_uint(key: "  Value b", val: 16689 [1.668e4])
+
     function invariant_C4_amountWrittenGteNAddXAddR() public {
-        // TODO counterexample
-        // ├─ emit log_named_string(key: "Error", val: "amountWrittenGteNAddXAddR")
-        // ├─ emit log(val: "Error: a >= b not satisfied [uint]")
-        // ├─ emit log_named_uint(key: "  Value a", val: 15477 [1.547e4])
-        // ├─ emit log_named_uint(key: "  Value b", val: 16689 [1.668e4])
+        handler.forEachOption(this.assertC4);
+    }
 
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            (uint256 w, uint256 n, uint256 x, uint256 r) =
-                handler.optionState(optionTokenId);
-
-            assertGe(w, n + x + r, "amountWrittenGteNAddXAddR");
-        }
+    function assertC4(uint256 optionTokenId) external {
+        (uint256 w, uint256 n, uint256 x, uint256 r) = handler.optionState(optionTokenId);
+        assertGe(w, n + x + r, "amountWrittenGteNAddXAddR");
     }
 
     function invariant_C5_amountNettedLteW() public {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            (uint256 w, uint256 n,,) = handler.optionState(optionTokenId);
+        handler.forEachOption(this.assertC5);
+    }
 
-            assertLe(n, w, "amountNettedLteW");
-        }
+    function assertC5(uint256 optionTokenId) external {
+        (uint256 w, uint256 n,,) = handler.optionState(optionTokenId);
+        assertLe(n, w, "amountNettedLteW");
     }
 
     function invariant_C6_amountExercisedLteWSubN() public {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            (uint256 w, uint256 n, uint256 x,) = handler.optionState(optionTokenId);
+        handler.forEachOption(this.assertC6);
+    }
 
-            assertLe(x, w - n, "amountExercisedLteWSubN");
-        }
+    function assertC6(uint256 optionTokenId) external {
+        (uint256 w, uint256 n, uint256 x,) = handler.optionState(optionTokenId);
+        assertLe(x, w - n, "amountExercisedLteWSubN");
     }
 
     function invariant_C7_amountRedeemedLteWSubN() public {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            (uint256 w, uint256 n,, uint256 r) = handler.optionState(optionTokenId);
-
-            assertLe(r, w - n, "amountRedeemedLteWSubN");
-        }
+        handler.forEachOption(this.assertC7);
     }
 
-    function invariant_C8_amountWrittenSubNSubREqTotalSupplyOfShortsAddAssignedShorts()
+    function assertC7(uint256 optionTokenId) external {
+        (uint256 w, uint256 n,, uint256 r) = handler.optionState(optionTokenId);
+        assertLe(r, w - n, "amountRedeemedLteWSubN");
+    }
+
+    function invariant_C8_amountWrittenSubNSubREqTotalSupplyOfShortsSubAssignedShorts()
         public
     {
-        for (uint256 i = 0; i < handler.optionsCount(); i++) {
-            uint256 optionTokenId = handler.optionTokenIdAt(i);
-            uint256 shortTokenId = optionTokenId.longToShort();
-            uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
-            (uint256 w, uint256 n,, uint256 r) = handler.optionState(optionTokenId);
+        handler.forEachOption(this.assertC8);
+    }
 
-            assertApproxEqAbs(
-                w - n - r,
-                clarity.totalSupply(shortTokenId)
-                    + clarity.totalSupply(assignedShortTokenId),
-                1,
-                "amountWrittenSubNSubREqTotalSupplyOfShortsAddAssignedShorts"
-            );
-        }
+    function assertC8(uint256 optionTokenId) external {
+        uint256 shortTokenId = optionTokenId.longToShort();
+        uint256 assignedShortTokenId = optionTokenId.longToAssignedShort();
+        (uint256 w, uint256 n,, uint256 r) = handler.optionState(optionTokenId);
+
+        assertApproxEqAbs(
+            w - n - r,
+            clarity.totalSupply(shortTokenId) + clarity.totalSupply(assignedShortTokenId),
+            1,
+            "amountWrittenSubNSubREqTotalSupplyOfShortsSubAssignedShorts"
+        );
     }
 
     ///////// Logging

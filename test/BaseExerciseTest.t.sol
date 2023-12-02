@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "./BaseUnitTestSuite.t.sol";
+import "./BaseUnitTest.t.sol";
 
-abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
+abstract contract BaseExerciseTest is BaseUnitTest {
     /////////
 
     // state variables to avoid stack too deep
@@ -33,7 +33,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // Given writer1 writes 0.15 options of oti1
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -46,7 +46,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // And writer2 writes 0.35 options of oti1
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(oti1, 0.35e6);
         vm.stopPrank();
 
@@ -149,12 +149,6 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
         _;
     }
 
-    modifier withMediumBackground(uint256 writes) {
-        // TODO
-
-        _;
-    }
-
     modifier withComplexBackground() {
         writer1WethBalance = WETHLIKE.balanceOf(writer1);
         writer1LusdBalance = LUSDLIKE.balanceOf(writer1);
@@ -169,7 +163,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // Given writer1 writes 1.25 options of oti1
         vm.startPrank(writer1);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         oti1 = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -182,7 +176,7 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
 
         // And writer2 writes 0.25 options of oti1
         vm.startPrank(writer2);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         clarity.writeExisting(oti1, 0.25e6);
         vm.stopPrank();
 

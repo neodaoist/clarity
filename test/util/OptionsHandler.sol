@@ -36,6 +36,8 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     using LibPosition for uint256;
 
+    ///////// Contract Under Test
+
     ClarityMarkets private clarity;
 
     ///////// Ghost Variables
@@ -61,25 +63,12 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     ///////// Actors
 
     ActorSet private _actors;
-
     address private currentActor;
 
     ///////// Assets
 
     AssetSet private baseAssets;
     AssetSet private quoteAssets;
-
-    // Volatile / Base Assets
-    IERC20 private WETHLIKE;
-    IERC20 private WBTCLIKE;
-    IERC20 private LINKLIKE;
-    IERC20 private PEPELIKE;
-
-    // Stable / Quote Assets
-    IERC20 private LUSDLIKE;
-    IERC20 private FRAXLIKE;
-    IERC20 private USDCLIKE;
-    IERC20 private USDTLIKE;
 
     ///////// Options
 
@@ -88,8 +77,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     ///////// Time
 
     uint32 private currentTime;
-
-    uint32 private constant DAWN = 1;
 
     ///////// Modifiers
 
@@ -108,55 +95,16 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     ///////// Construction
 
-    constructor(ClarityMarkets _clarity) {
-        vm.warp(DAWN);
-
+    constructor(ClarityMarkets _clarity, IERC20[] memory base, IERC20[] memory quote) {
         clarity = _clarity;
 
-        // deploy test assets
-        WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETHLIKE", 18)));
-        WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTCLIKE", 8)));
-        LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINKLIKE", 18)));
-        PEPELIKE = IERC20(address(new MockERC20("PEPE Like", "PEPELIKE", 18)));
-        LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
-        FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
-        USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
-        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18)));
-        vm.label(address(WETHLIKE), "WETHLIKE");
-        vm.label(address(WBTCLIKE), "WBTCLIKE");
-        vm.label(address(LINKLIKE), "LINKLIKE");
-        vm.label(address(PEPELIKE), "PEPELIKE");
-        vm.label(address(LUSDLIKE), "LUSDLIKE");
-        vm.label(address(FRAXLIKE), "FRAXLIKE");
-        vm.label(address(USDCLIKE), "USDCLIKE");
-        vm.label(address(USDTLIKE), "USDTLIKE"); // TODO add Tether idiosyncrasies
-
         // setup test assets
-        baseAssets.add(WETHLIKE);
-        baseAssets.add(WBTCLIKE);
-        baseAssets.add(LINKLIKE);
-        baseAssets.add(PEPELIKE);
-        quoteAssets.add(LUSDLIKE);
-        quoteAssets.add(FRAXLIKE);
-        quoteAssets.add(USDCLIKE);
-        quoteAssets.add(USDTLIKE);
-    }
-
-    // TODO refactor
-
-    function getInternalOptionState(bytes32 slot)
-        public
-        view
-        returns (uint64, uint64, uint64, uint64)
-    {
-        bytes32 state = vm.load(address(clarity), slot);
-
-        return (
-            uint64(uint256(state)),
-            uint64(uint256(state >> 64)),
-            uint64(uint256(state >> 128)),
-            uint64(uint256(state >> 192))
-        );
+        for (uint256 i = 0; i < base.length; i++) {
+            baseAssets.add(base[i]);
+        }
+        for (uint256 i = 0; i < quote.length; i++) {
+            quoteAssets.add(quote[i]);
+        }
     }
 
     ///////// Actions
@@ -166,7 +114,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     function writeNew(
         uint256 baseAssetIndex,
         uint256 quoteAssetIndex,
-        uint32 expiry,
+        uint256 expiry,
         uint256 strike,
         bool allowEarlyExercise,
         uint64 optionAmount,
@@ -177,7 +125,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
         // bind expiry
-        vm.assume(expiry > 1);
+        expiry = bound(expiry, 1_697_788_800, type(uint32).max - 1 days);
 
         // bind strike price and round to nearest million
         strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
@@ -203,7 +151,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             ? clarity.writeNewCall({
                 baseAsset: address(baseAsset),
                 quoteAsset: address(quoteAssets.at(quoteAssetIndex)),
-                expiry: expiry,
+                expiry: uint32(expiry),
                 strike: strike,
                 allowEarlyExercise: allowEarlyExercise,
                 optionAmount: optionAmount
@@ -211,7 +159,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             : clarity.writeNewPut({
                 baseAsset: address(baseAssets.at(baseAssetIndex)),
                 quoteAsset: address(quoteAsset),
-                expiry: expiry,
+                expiry: uint32(expiry),
                 strike: strike,
                 allowEarlyExercise: allowEarlyExercise,
                 optionAmount: optionAmount
@@ -614,7 +562,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // TODO
     }
 
-    // Util
+    // Logging
 
     function callSummary() external view {
         console2.log("Call summary:");
@@ -656,6 +604,21 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     ///////// Helper Functions
 
+    function getInternalOptionState(bytes32 slot)
+        private
+        view
+        returns (uint64, uint64, uint64, uint64)
+    {
+        bytes32 state = vm.load(address(clarity), slot);
+
+        return (
+            uint64(uint256(state)),
+            uint64(uint256(state >> 64)),
+            uint64(uint256(state >> 128)),
+            uint64(uint256(state >> 192))
+        );
+    }
+
     function max(uint256 a, uint256 b) private pure returns (uint256) {
         return a > b ? a : b;
     }
@@ -664,39 +627,26 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return a < b ? a : b;
     }
 
+    ///////// Actors
+
+    // TODO
+
+    // function reduceActors(
+    //     uint256 acc,
+    //     uint256 tokenId,
+    //     function(uint256,address,uint256) external returns (uint256) func
+    // ) external returns (uint256) {
+    //     return _options.reduce(currentActor, tokenId, acc, func);
+    // }
+
     ///////// Assets
 
-    function baseAssetsCount() external view returns (uint256) {
-        return baseAssets.assets.length;
-    }
-
-    function baseAssetAt(uint256 index) external view returns (IERC20) {
-        return baseAssets.at(index);
-    }
-
-    function quoteAssetsCount() external view returns (uint256) {
-        return quoteAssets.assets.length;
-    }
-
-    function quoteAssetAt(uint256 index) external view returns (IERC20) {
-        return quoteAssets.at(index);
+    function forEachAsset(function(IERC20) external func) external {
+        baseAssets.forEach(func);
+        quoteAssets.forEach(func);
     }
 
     ///////// Options
-
-    // TODO WIP
-
-    function optionsCount() external view returns (uint256) {
-        return _options.count();
-    }
-
-    function optionTokenIdAt(uint256 index)
-        external
-        view
-        returns (uint256 optionTokenId)
-    {
-        return _options.at(index);
-    }
 
     function optionState(uint256 optionTokenId)
         external
@@ -706,15 +656,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return getInternalOptionState(ghost_optionStateSlotFor[optionTokenId]);
     }
 
-    // function forEachOption(function(uint256) external func) public {
-    //     _options.forEach(func);
-    // }
-
-    // function reduceOptions(
-    //     uint256 acc,
-    //     uint256 tokenId,
-    //     function(uint256,address,uint256) external returns (uint256) func
-    // ) public returns (uint256) {
-    //     return _options.reduce(currentActor, tokenId, acc, func);
-    // }
+    function forEachOption(function(uint256) external func) external {
+        _options.forEach(func);
+    }
 }

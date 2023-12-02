@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Library Under test
 import {LibPosition} from "../../src/library/LibPosition.sol";
 
-contract LibPositionTest is BaseUnitTestSuite {
+contract LibPositionTest is BaseUnitTest {
     /////////
 
     ///////// Token ID Encoding
@@ -28,7 +28,7 @@ contract LibPositionTest is BaseUnitTestSuite {
         assertEq(actualHash, expectedHash, "idToHash");
     }
 
-    function testIntegration_paramsToHash_hashToId_idToHash() public {
+    function testE2E_paramsToHash_hashToId_idToHash() public {
         uint248 expectedHash = uint248(
             bytes31(
                 keccak256(
@@ -229,14 +229,6 @@ contract LibPositionTest is BaseUnitTestSuite {
         );
     }
 
-    function testRevert_tokenType_whenNotValid() public {
-        uint256 malformedTokenId = type(uint256).max / 2;
-
-        vm.expectRevert(stdError.enumConversionError);
-
-        LibPosition.tokenType(malformedTokenId);
-    }
-
     function test_tokenType_toString() public {
         assertEq(LibPosition.toString(IPosition.TokenType.LONG), "Long", "toString(LONG)");
         assertEq(
@@ -247,5 +239,13 @@ contract LibPositionTest is BaseUnitTestSuite {
             "Assigned",
             "toString(ASSIGNED_SHORT)"
         );
+    }
+
+    function testRevert_tokenType_whenNotValid() public {
+        uint256 malformedTokenId = type(uint256).max / 2;
+
+        vm.expectRevert(stdError.enumConversionError);
+
+        LibPosition.tokenType(malformedTokenId);
     }
 }

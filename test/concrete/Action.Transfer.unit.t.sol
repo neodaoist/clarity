@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
-contract TransferTest is BaseUnitTestSuite {
+contract TransferTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;
@@ -17,7 +17,7 @@ contract TransferTest is BaseUnitTestSuite {
     function test_transfer_whenLong() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -29,12 +29,12 @@ contract TransferTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "before transfer");
         assertOptionBalances(
-            writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "writer before transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0, 0, 0, "holder option balances before transfer"
+            clarity, holder, optionTokenId, 0, 0, 0, "holder before transfer"
         );
 
         // When
@@ -42,19 +42,19 @@ contract TransferTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "after transfer");
         assertOptionBalances(
-            writer, optionTokenId, 0.25e6, 1e6, 0, "writer option balances after transfer"
+            clarity, writer, optionTokenId, 0.25e6, 1e6, 0, "writer after transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0.75e6, 0, 0, "holder option balances after transfer"
+            clarity, holder, optionTokenId, 0.75e6, 0, 0, "holder after transfer"
         );
     }
 
     function test_transfer_whenShort() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -66,12 +66,12 @@ contract TransferTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "before transfer");
         assertOptionBalances(
-            writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "writer before transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0, 0, 0, "holder option balances before transfer"
+            clarity, holder, optionTokenId, 0, 0, 0, "holder before transfer"
         );
 
         // When
@@ -79,12 +79,12 @@ contract TransferTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId.longToShort(), 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "after transfer");
         assertOptionBalances(
-            writer, optionTokenId, 1e6, 0.25e6, 0, "writer option balances after transfer"
+            clarity, writer, optionTokenId, 1e6, 0.25e6, 0, "writer after transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0, 0.75e6, 0, "holder option balances after transfer"
+            clarity, holder, optionTokenId, 0, 0.75e6, 0, "holder after transfer"
         );
     }
 
@@ -104,7 +104,7 @@ contract TransferTest is BaseUnitTestSuite {
     function testRevert_transfer_whenAssignedShortToken() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -126,7 +126,7 @@ contract TransferTest is BaseUnitTestSuite {
     function testRevert_transfer_whenShort_givenOptionIsAssigned() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(FRAXLIKE),
@@ -140,7 +140,7 @@ contract TransferTest is BaseUnitTestSuite {
         vm.warp(FRI1);
 
         // exercise
-        FRAXLIKE.approve(address(clarity), scaleUpAssetAmount(FRAXLIKE, STARTING_BALANCE));
+        FRAXLIKE.approve(address(clarity), type(uint256).max);
         clarity.exerciseOption(optionTokenId, 0.000001e6);
         vm.stopPrank();
 

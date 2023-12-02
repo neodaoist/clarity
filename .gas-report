@@ -3,15 +3,14 @@
 | Deployment Cost                                | Deployment Size |        |        |        |         |
 | 4323590                                        | 21625           |        |        |        |         |
 | Function Name                                  | min             | avg    | median | max    | # calls |
-| CONTRACT_SCALAR                                | 272             | 272    | 272    | 272    | 10      |
 | MAXIMUM_EXPIRY                                 | 315             | 315    | 315    | 315    | 2       |
-| MAXIMUM_WRITABLE                               | 317             | 317    | 317    | 317    | 8       |
+| MAXIMUM_WRITABLE                               | 317             | 317    | 317    | 317    | 38      |
 | approve                                        | 25011           | 25011  | 25011  | 25011  | 55      |
 | assetMetadataStorage                           | 642             | 642    | 642    | 642    | 4       |
 | balanceOf                                      | 1041            | 1875   | 1808   | 3900   | 1083    |
-| batchWriteExisting                             | 875             | 351424 | 123585 | 819882 | 5       |
+| batchWriteExisting                             | 875             | 350282 | 123249 | 817194 | 5       |
 | decimals                                       | 395             | 395    | 395    | 395    | 22      |
-| exerciseOption                                 | 494             | 37785  | 49682  | 67238  | 68      |
+| exerciseOption                                 | 494             | 37683  | 49682  | 66902  | 68      |
 | names                                          | 2372            | 2396   | 2421   | 2421   | 109     |
 | netOffsetting                                  | 497             | 14345  | 16921  | 16921  | 45      |
 | option                                         | 2269            | 2279   | 2269   | 2796   | 216     |
@@ -25,9 +24,9 @@
 | totalSupply                                    | 982             | 1498   | 1493   | 2637   | 288     |
 | transfer                                       | 885             | 12719  | 4517   | 26417  | 65      |
 | transferFrom                                   | 1224            | 26525  | 29084  | 29236  | 55      |
-| writeExisting                                  | 472             | 17037  | 16439  | 124739 | 3045    |
-| writeNewCall                                   | 969             | 210057 | 208402 | 314400 | 266     |
-| writeNewPut                                    | 1013            | 185183 | 210782 | 309644 | 66      |
+| writeExisting                                  | 472             | 16702  | 16103  | 124403 | 3045    |
+| writeNewCall                                   | 969             | 209861 | 208402 | 314064 | 266     |
+| writeNewPut                                    | 1013            | 185015 | 210446 | 309308 | 66      |
 
 
 | src/adapter/ClarityERC20Factory.sol:ClarityERC20Factory contract |                 |         |         |         |         |

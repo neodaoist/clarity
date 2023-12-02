@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
-contract RebasingTest is BaseUnitTestSuite {
+contract RebasingTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;
@@ -69,7 +69,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // totalSupply()
 
         // Then
-        assertTotalSupplies(optionTokenId, 0, 0, 0, "given none written");
+        assertTotalSupplies(clarity, optionTokenId, 0, 0, 0, "given none written");
     }
 
     function test_totalSupply_whenSomeWritten() public {
@@ -90,7 +90,7 @@ contract RebasingTest is BaseUnitTestSuite {
         // totalSupply()
 
         assertTotalSupplies(
-            optionTokenId, SOME_WRITTEN, SOME_WRITTEN, 0, "given some written"
+            clarity, optionTokenId, SOME_WRITTEN, SOME_WRITTEN, 0, "given some written"
         );
     }
 
@@ -113,7 +113,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
         // Then
         assertTotalSupplies(
-            optionTokenId, MANY_WRITTEN, MANY_WRITTEN, 0, "given many written"
+            clarity, optionTokenId, MANY_WRITTEN, MANY_WRITTEN, 0, "given many written"
         );
     }
 
@@ -136,7 +136,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
         // Then
         assertTotalSupplies(
-            optionTokenId, MAX_WRITTEN, MAX_WRITTEN, 0, "given max written"
+            clarity, optionTokenId, MAX_WRITTEN, MAX_WRITTEN, 0, "given max written"
         );
     }
 
@@ -165,6 +165,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten,
                 amountWritten,
@@ -199,6 +200,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten - amountNetted,
                 amountWritten - amountNetted,
@@ -233,6 +235,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten - amountNetted,
                 amountWritten - amountNetted,
@@ -265,7 +268,9 @@ contract RebasingTest is BaseUnitTestSuite {
             // totalSupply()
 
             // Then
-            assertTotalSupplies(optionTokenId, 0, 0, 0, "D: all netted, none exercised");
+            assertTotalSupplies(
+                clarity, optionTokenId, 0, 0, 0, "D: all netted, none exercised"
+            );
         }
     }
 
@@ -297,6 +302,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten - amountExercised,
                 amountWritten - amountExercised,
@@ -337,6 +343,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten - amountNetted - amountExercised,
                 amountWritten - amountNetted - amountExercised,
@@ -377,6 +384,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten - amountNetted - amountExercised,
                 amountWritten - amountNetted - amountExercised,
@@ -414,6 +422,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten - amountExercised,
                 amountWritten - amountExercised,
@@ -454,6 +463,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
+                clarity,
                 optionTokenId,
                 amountWritten - amountNetted - amountExercised,
                 amountWritten - amountNetted - amountExercised,
@@ -490,7 +500,12 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertTotalSupplies(
-                optionTokenId, 0, 0, amountWritten, "J: none netted, all exercised"
+                clarity,
+                optionTokenId,
+                0,
+                0,
+                amountWritten,
+                "J: none netted, all exercised"
             );
         }
     }
@@ -556,7 +571,9 @@ contract RebasingTest is BaseUnitTestSuite {
         // balanceOf(writer, tokenId)
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "given none written");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 0, 0, "given none written"
+        );
     }
 
     function test_balanceOf_whenSomeWritten() public {
@@ -577,7 +594,13 @@ contract RebasingTest is BaseUnitTestSuite {
         // balanceOf(writer, tokenId)
 
         assertOptionBalances(
-            writer, optionTokenId, SOME_WRITTEN, SOME_WRITTEN, 0, "given some written"
+            clarity,
+            writer,
+            optionTokenId,
+            SOME_WRITTEN,
+            SOME_WRITTEN,
+            0,
+            "given some written"
         );
     }
 
@@ -600,7 +623,13 @@ contract RebasingTest is BaseUnitTestSuite {
 
         // Then
         assertOptionBalances(
-            writer, optionTokenId, MANY_WRITTEN, MANY_WRITTEN, 0, "given many written"
+            clarity,
+            writer,
+            optionTokenId,
+            MANY_WRITTEN,
+            MANY_WRITTEN,
+            0,
+            "given many written"
         );
     }
 
@@ -623,7 +652,13 @@ contract RebasingTest is BaseUnitTestSuite {
 
         // Then
         assertOptionBalances(
-            writer, optionTokenId, MAX_WRITTEN, MAX_WRITTEN, 0, "given max written"
+            clarity,
+            writer,
+            optionTokenId,
+            MAX_WRITTEN,
+            MAX_WRITTEN,
+            0,
+            "given max written"
         );
     }
 
@@ -652,6 +687,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten,
@@ -687,6 +723,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten - amountNetted,
@@ -722,6 +759,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten - amountNetted,
@@ -756,7 +794,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
-                writer, optionTokenId, 0, 0, 0, "D: all netted, none exercised"
+                clarity, writer, optionTokenId, 0, 0, 0, "D: all netted, none exercised"
             );
         }
     }
@@ -789,6 +827,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten - amountExercised,
@@ -830,6 +869,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten - amountNetted - amountExercised,
@@ -871,6 +911,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten - amountNetted - amountExercised,
@@ -909,6 +950,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten - amountExercised,
@@ -950,6 +992,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 amountWritten - amountNetted - amountExercised,
@@ -987,6 +1030,7 @@ contract RebasingTest is BaseUnitTestSuite {
 
             // Then
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenId,
                 0,
@@ -1037,4 +1081,6 @@ contract RebasingTest is BaseUnitTestSuite {
         vm.prank(writer);
         clarity.balanceOf(writer, assignedShortTokenId);
     }
+
+    // TODO add redeem scenarios
 }

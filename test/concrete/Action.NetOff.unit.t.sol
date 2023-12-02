@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
-contract NetOffsettingTest is BaseUnitTestSuite {
+contract NetOffsettingTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;
@@ -20,7 +20,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
         uint256 writerLusdBalance = LUSDLIKE.balanceOf(writer);
 
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -32,11 +32,13 @@ contract NetOffsettingTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre net off
-        assertOptionBalances(writer, optionTokenId, 1e6, 1e6, 0, "writer before net off");
-        assertAssetBalance(
-            writer, WETHLIKE, writerWethBalance - (1e18 * 1), "writer before net off"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "writer before net off"
         );
-        assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer before net off");
+        assertAssetBalance(
+            WETHLIKE, writer, writerWethBalance - (1e18 * 1), "writer before net off"
+        );
+        assertAssetBalance(LUSDLIKE, writer, writerLusdBalance, "writer before net off");
 
         writerWethBalance = WETHLIKE.balanceOf(writer);
         writerLusdBalance = LUSDLIKE.balanceOf(writer);
@@ -46,11 +48,13 @@ contract NetOffsettingTest is BaseUnitTestSuite {
         uint128 writeAssetNetted = clarity.netOffsetting(optionTokenId, 1e6);
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "writer after net off");
-        assertAssetBalance(
-            writer, WETHLIKE, writerWethBalance + writeAssetNetted, "writer after net off"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 0, 0, "writer after net off"
         );
-        assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer after net off");
+        assertAssetBalance(
+            WETHLIKE, writer, writerWethBalance + writeAssetNetted, "writer after net off"
+        );
+        assertAssetBalance(LUSDLIKE, writer, writerLusdBalance, "writer after net off");
     }
 
     // TODO add more
@@ -59,7 +63,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
     function testEvent_netOffsetting_OptionsNetted() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -79,7 +83,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
     function testRevert_netOffsetting_whenAmountZero() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -110,7 +114,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
     function testRevert_netOffsetting_whenTokenTypeIsAssignedShort() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -134,7 +138,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
     function testRevert_netOffsetting_givenOptionIsExpired() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(LUSDLIKE),
@@ -157,7 +161,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
     function testRevert_netOffsetting_givenDontHoldSufficientLongs() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -180,7 +184,7 @@ contract NetOffsettingTest is BaseUnitTestSuite {
 
     function testRevert_netOffsetting_givenDontHoldSufficientShorts() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),

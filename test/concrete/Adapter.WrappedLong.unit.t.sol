@@ -2,7 +2,7 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Interfaces
 import {IWrappedLongEvents} from "../../src/interface/adapter/IWrappedLongEvents.sol";
@@ -13,7 +13,7 @@ import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 // Contract Under Test
 import {ClarityWrappedLong} from "../../src/adapter/ClarityWrappedLong.sol";
 
-contract WrappedLongTest is BaseUnitTestSuite {
+contract WrappedLongTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;
@@ -34,7 +34,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function test_wrapLongs() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -47,9 +47,11 @@ contract WrappedLongTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 10e6, 10e6, 0, "writer before wrap");
         assertOptionBalances(
-            address(wrappedLong), optionTokenId, 0, 0, 0, "wrapper before wrap"
+            clarity, writer, optionTokenId, 10e6, 10e6, 0, "writer before wrap"
+        );
+        assertOptionBalances(
+            clarity, address(wrappedLong), optionTokenId, 0, 0, 0, "wrapper before wrap"
         );
 
         // When writer wraps 8 options
@@ -60,9 +62,11 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
         // Then
         // check option balances
-        assertOptionBalances(writer, optionTokenId, 2e6, 10e6, 0, "writer after wrap");
         assertOptionBalances(
-            address(wrappedLong), optionTokenId, 8e6, 0, 0, "wrapper after wrap"
+            clarity, writer, optionTokenId, 2e6, 10e6, 0, "writer after wrap"
+        );
+        assertOptionBalances(
+            clarity, address(wrappedLong), optionTokenId, 8e6, 0, 0, "wrapper after wrap"
         );
 
         // check wrapper balance
@@ -77,7 +81,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         for (uint256 i = 0; i < numOptions; i++) {
             optionTokenIds[i] = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
@@ -93,9 +97,10 @@ contract WrappedLongTest is BaseUnitTestSuite {
             // pre checks
             // check option balances
             assertOptionBalances(
-                writer, optionTokenIds[i], 10e6, 10e6, 0, "writer before wrap"
+                clarity, writer, optionTokenIds[i], 10e6, 10e6, 0, "writer before wrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedLongs[i]),
                 optionTokenIds[i],
                 0,
@@ -116,9 +121,16 @@ contract WrappedLongTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < numOptions; i++) {
             // check option balances
             assertOptionBalances(
-                writer, optionTokenIds[i], i * 10 ** 6, 10e6, 0, "writer after wrap"
+                clarity,
+                writer,
+                optionTokenIds[i],
+                i * 10 ** 6,
+                10e6,
+                0,
+                "writer after wrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedLongs[i]),
                 optionTokenIds[i],
                 (10 - i) * 10 ** 6,
@@ -148,7 +160,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function testEvent_wrapLongs() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -173,7 +185,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
     function testRevert_wrapLongs_whenAmountZero() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -193,7 +205,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
     function testRevert_wrapLongs_whenOptionExpired() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -221,7 +233,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
     function testRevert_wrapLongs_whenCallerHoldsInsufficientLongs() public {
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -248,7 +260,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -276,7 +288,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function test_unwrapLongs() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -292,9 +304,17 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
         // pre checks
         // check option balances
-        assertOptionBalances(writer, optionTokenId, 2e6, 10e6, 0, "writer before unwrap");
         assertOptionBalances(
-            address(wrappedLong), optionTokenId, 8e6, 0, 0, "wrapper before unwrap"
+            clarity, writer, optionTokenId, 2e6, 10e6, 0, "writer before unwrap"
+        );
+        assertOptionBalances(
+            clarity,
+            address(wrappedLong),
+            optionTokenId,
+            8e6,
+            0,
+            0,
+            "wrapper before unwrap"
         );
 
         // check wrapper balance
@@ -307,9 +327,17 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
         // Then
         // check option balances
-        assertOptionBalances(writer, optionTokenId, 7e6, 10e6, 0, "writer after unwrap");
         assertOptionBalances(
-            address(wrappedLong), optionTokenId, 3e6, 0, 0, "wrapper after unwrap"
+            clarity, writer, optionTokenId, 7e6, 10e6, 0, "writer after unwrap"
+        );
+        assertOptionBalances(
+            clarity,
+            address(wrappedLong),
+            optionTokenId,
+            3e6,
+            0,
+            0,
+            "wrapper after unwrap"
         );
 
         // check wrapper balance
@@ -324,7 +352,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
 
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         for (uint256 i = 0; i < numOptions; i++) {
             optionTokenIds[i] = clarity.writeNewCall({
                 baseAsset: address(WETHLIKE),
@@ -344,9 +372,16 @@ contract WrappedLongTest is BaseUnitTestSuite {
             // pre checks
             // check option balances
             assertOptionBalances(
-                writer, optionTokenIds[i], i * 10 ** 6, 10e6, 0, "writer before unwrap"
+                clarity,
+                writer,
+                optionTokenIds[i],
+                i * 10 ** 6,
+                10e6,
+                0,
+                "writer before unwrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedLongs[i]),
                 optionTokenIds[i],
                 (10 - i) * 10 ** 6,
@@ -376,6 +411,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < numOptions; i++) {
             // check option balances
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenIds[i],
                 10e6 - (i * 10 ** 5),
@@ -384,6 +420,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
                 "writer after unwrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedLongs[i]),
                 optionTokenIds[i],
                 i * 10 ** 5,
@@ -411,7 +448,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function testEvent_unwrapLongs() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -438,7 +475,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function testRevert_unwrapLongs_whenAmountZero() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
@@ -463,7 +500,7 @@ contract WrappedLongTest is BaseUnitTestSuite {
     function testRevert_unwrapLongs_whenCallerHoldsInsufficientWrappedLongs() public {
         // Given
         vm.startPrank(writer);
-        WETHLIKE.approve(address(clarity), scaleUpAssetAmount(WETHLIKE, STARTING_BALANCE));
+        WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
             baseAsset: address(WETHLIKE),
             quoteAsset: address(USDCLIKE),
