@@ -1,15 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-// External Test Interfaces
-import {IERC20} from "forge-std/interfaces/IERC20.sol";
-
-// External Test Helpers
-import {Test, console2, stdError} from "forge-std/Test.sol";
-
-// Test Contracts
-import {MockERC20} from "./util/MockERC20.sol";
-
 // Test Fixture
 import "./BaseClarityTest.t.sol";
 
@@ -31,26 +22,10 @@ abstract contract BaseUnitTest is BaseClarityTest {
     address internal holder2;
     address internal holder3;
 
-    uint256 internal constant NUM_TEST_ACTORS = 3;
-
-    // Assets
-    // volatile
-    IERC20 internal WETHLIKE;
-    IERC20 internal WBTCLIKE;
-    IERC20 internal LINKLIKE;
-    IERC20 internal PEPELIKE;
-    // stable
-    IERC20 internal FRAXLIKE;
-    IERC20 internal LUSDLIKE;
-    IERC20 internal USDCLIKE;
-    IERC20 internal USDTLIKE;
-
-    uint256 internal constant NUM_TEST_ASSETS = 8;
-
     // Time
     uint32 internal constant FRI1 = DAWN + 7 days;
     uint32 internal constant FRI2 = DAWN + 14 days;
-    uint32 internal constant FRI3 = DAWN + 21 days + 1 hours; // shakes fist, darn you DST
+    uint32 internal constant FRI3 = DAWN + 21 days + 1 hours; // DST
     uint32 internal constant FRI4 = DAWN + 28 days + 1 hours;
     uint32 internal constant THU1 = DAWN + 6 days;
     uint32 internal constant THU2 = DAWN + 13 days;
@@ -67,42 +42,36 @@ abstract contract BaseUnitTest is BaseClarityTest {
     function setUp() public virtual override {
         super.setUp();
 
-        // deploy test assets
-        WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETH", 18)));
-        WBTCLIKE = IERC20(address(new MockERC20("WBTC Like", "WBTC", 8)));
-        LINKLIKE = IERC20(address(new MockERC20("LINK Like", "LINK", 18)));
-        PEPELIKE = IERC20(address(new MockERC20("PEPE Like", "PEPE", 18)));
-        FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAX", 18)));
-        LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSD", 18)));
-        USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDC", 6)));
-        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDT", 18)));
-
         // make test actors and mint 1e6 of each asset
-        address[] memory writers = new address[](NUM_TEST_ACTORS);
-        address[] memory holders = new address[](NUM_TEST_ACTORS);
-        IERC20[] memory assets = new IERC20[](NUM_TEST_ASSETS);
-        assets[0] = WETHLIKE;
-        assets[1] = WBTCLIKE;
-        assets[2] = LINKLIKE;
-        assets[3] = PEPELIKE;
-        assets[4] = FRAXLIKE;
-        assets[5] = LUSDLIKE;
-        assets[6] = USDCLIKE;
-        assets[7] = USDTLIKE;
-        for (uint256 i = 0; i < NUM_TEST_ACTORS; i++) {
+        address[] memory writers = new address[](3);
+        address[] memory holders = new address[](3);
+        for (uint256 i = 0; i < 3; i++) {
             writers[i] = makeAddress(string(abi.encodePacked("writer", i + 1)));
             holders[i] = makeAddress(string(abi.encodePacked("holder", i + 1)));
 
-            for (uint256 j = 0; j < NUM_TEST_ASSETS; j++) {
+            for (uint256 j = 0; j < baseAssets.length; j++) {
                 deal(
-                    address(assets[j]),
+                    address(baseAssets[j]),
                     writers[i],
-                    1_000_000 * (10 ** assets[j].decimals())
+                    1e6 * (10 ** baseAssets[j].decimals())
                 );
                 deal(
-                    address(assets[j]),
+                    address(baseAssets[j]),
                     holders[i],
-                    1_000_000 * (10 ** assets[j].decimals())
+                    1e6 * (10 ** baseAssets[j].decimals())
+                );
+            }
+
+            for (uint256 j = 0; j < quoteAssets.length; j++) {
+                deal(
+                    address(quoteAssets[j]),
+                    writers[i],
+                    1e6 * (10 ** quoteAssets[j].decimals())
+                );
+                deal(
+                    address(quoteAssets[j]),
+                    holders[i],
+                    1e6 * (10 ** quoteAssets[j].decimals())
                 );
             }
         }

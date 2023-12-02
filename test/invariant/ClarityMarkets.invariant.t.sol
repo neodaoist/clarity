@@ -29,7 +29,7 @@ contract ClarityMarketsInvariantTest is BaseClarityTest {
         super.setUp();
 
         // setup handler
-        handler = new OptionsHandler(clarity);
+        handler = new OptionsHandler(clarity, baseAssets, quoteAssets);
 
         // target contracts
         bytes4[] memory selectors = new bytes4[](6);
