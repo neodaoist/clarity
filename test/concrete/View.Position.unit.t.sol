@@ -238,7 +238,7 @@ contract PositionViewTest is BaseUnitTest {
 
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(oti1, 0.2e6);
+        clarity.exerciseOptions(oti1, 0.2e6);
         vm.stopPrank();
 
         // Then

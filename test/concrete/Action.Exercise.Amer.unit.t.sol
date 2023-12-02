@@ -10,9 +10,9 @@ contract AmericanExerciseTest is BaseExerciseTest {
     using LibPosition for uint256;
 
     /////////
-    // function exerciseOption(uint256 _optionTokenId, uint64 optionsAmount) external
+    // function exerciseOptions(uint256 _optionTokenId, uint64 optionsAmount) external
 
-    function test_exerciseOption() public {
+    function test_exerciseOptions() public {
         uint256 writerWethBalance = WETHLIKE.balanceOf(writer);
         uint256 writerLusdBalance = LUSDLIKE.balanceOf(writer);
         uint256 holderWethBalance = WETHLIKE.balanceOf(holder);
@@ -51,7 +51,7 @@ contract AmericanExerciseTest is BaseExerciseTest {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 0.8e6);
+        clarity.exerciseOptions(optionTokenId, 0.8e6);
         vm.stopPrank();
 
         // Then
@@ -82,14 +82,14 @@ contract AmericanExerciseTest is BaseExerciseTest {
 
     // Happy path, Simple background, Scenarios A-F
 
-    function test_exerciseOption_whenSimpleA_andOneHolderExercisesLessThanWrite1()
+    function test_exerciseOptions_whenSimpleA_andOneHolderExercisesLessThanWrite1()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(oti1, 0.1e6);
+        clarity.exerciseOptions(oti1, 0.1e6);
         vm.stopPrank();
 
         // Then
@@ -125,14 +125,14 @@ contract AmericanExerciseTest is BaseExerciseTest {
         );
     }
 
-    function test_exerciseOption_whenSimpleB_andOneHolderExercisesEqualToWrite1()
+    function test_exerciseOptions_whenSimpleB_andOneHolderExercisesEqualToWrite1()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.15 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(oti1, 0.15e6);
+        clarity.exerciseOptions(oti1, 0.15e6);
         vm.stopPrank();
 
         // Then
@@ -171,14 +171,14 @@ contract AmericanExerciseTest is BaseExerciseTest {
         );
     }
 
-    function test_exerciseOption_whenSimpleC_andOneHolderExercisesLessThanWrite2()
+    function test_exerciseOptions_whenSimpleC_andOneHolderExercisesLessThanWrite2()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.2 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(oti1, 0.2e6);
+        clarity.exerciseOptions(oti1, 0.2e6);
         vm.stopPrank();
 
         // Then
@@ -215,14 +215,14 @@ contract AmericanExerciseTest is BaseExerciseTest {
         );
     }
 
-    function test_exerciseOption_whenSimpleD_andOneHolderExercisesEqualToWrite2()
+    function test_exerciseOptions_whenSimpleD_andOneHolderExercisesEqualToWrite2()
         public
         withSimpleBackground
     {
         // When holder1 exercises 0.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(oti1, 0.5e6);
+        clarity.exerciseOptions(oti1, 0.5e6);
         vm.stopPrank();
 
         // Then
@@ -259,14 +259,14 @@ contract AmericanExerciseTest is BaseExerciseTest {
         );
     }
 
-    function test_exerciseOption_whenSimpleE_andOneHolderExercisesLessThanWrite3()
+    function test_exerciseOptions_whenSimpleE_andOneHolderExercisesLessThanWrite3()
         public
         withSimpleBackground
     {
         // When holder1 exercises 1 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(oti1, 1e6);
+        clarity.exerciseOptions(oti1, 1e6);
         vm.stopPrank();
 
         // Then
@@ -303,14 +303,14 @@ contract AmericanExerciseTest is BaseExerciseTest {
         );
     }
 
-    function test_exerciseOption_whenSimpleF_andOneHolderExercisesEqualToWrite3()
+    function test_exerciseOptions_whenSimpleF_andOneHolderExercisesEqualToWrite3()
         public
         withSimpleBackground
     {
         // When holder1 exercises 2.5 options of oti1
         vm.startPrank(holder1);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(oti1, 2.5e6);
+        clarity.exerciseOptions(oti1, 2.5e6);
         vm.stopPrank();
 
         // Then
@@ -337,12 +337,12 @@ contract AmericanExerciseTest is BaseExerciseTest {
 
     // TODO complex exercise scenarios
 
-    // function test_exerciseOption_many_whenComplex_AndOneHolderExercisesAllOnce() public
+    // function test_exerciseOptions_many_whenComplex_AndOneHolderExercisesAllOnce() public
     // withComplexBackground {
     //     // When holder1 exercises 2.45 options of oti1
     //     vm.startPrank(holder1);
     //     LUSDLIKE.approve(address(clarity), type(uint256).max);
-    //     clarity.exerciseOption(oti1, 2.45e6);
+    //     clarity.exerciseOptions(oti1, 2.45e6);
     //     vm.stopPrank();
 
     //     // Then
@@ -382,7 +382,7 @@ contract AmericanExerciseTest is BaseExerciseTest {
     //     );
     // }
 
-    function test_exerciseOption_upperBounds() public {
+    function test_exerciseOptions_upperBounds() public {
         uint256 numWrites = 3000;
         uint256 optionAmountWritten;
 
@@ -439,7 +439,7 @@ contract AmericanExerciseTest is BaseExerciseTest {
         vm.warp(FRI1 - 1 seconds);
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, uint64(optionAmountWritten));
+        clarity.exerciseOptions(optionTokenId, uint64(optionAmountWritten));
         vm.stopPrank();
 
         // check option balances
@@ -471,36 +471,36 @@ contract AmericanExerciseTest is BaseExerciseTest {
 
     // Events
 
-    function testEvent_exerciseOption_OptionsExercised() public withSimpleBackground {
+    function testEvent_exerciseOptions_OptionsExercised() public withSimpleBackground {
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
 
         vm.expectEmit(true, true, true, true);
         emit IOptionEvents.OptionsExercised(holder, oti1, 1.000005e6);
 
-        clarity.exerciseOption(oti1, 1.000005e6);
+        clarity.exerciseOptions(oti1, 1.000005e6);
         vm.stopPrank();
     }
 
     // Sad Paths
 
-    function testRevert_exerciseOption_whenExerciseAmountZero() public {
+    function testRevert_exerciseOptions_whenExerciseAmountZero() public {
         vm.expectRevert(IOptionErrors.ExerciseAmountZero.selector);
 
         vm.prank(holder);
-        clarity.exerciseOption(123, 0);
+        clarity.exerciseOptions(123, 0);
     }
 
-    function testRevert_exerciseOption_whenOptionDoesNotExist() public {
+    function testRevert_exerciseOptions_whenOptionDoesNotExist() public {
         vm.expectRevert(
             abi.encodeWithSelector(IOptionErrors.OptionDoesNotExist.selector, 123)
         );
 
         vm.prank(holder);
-        clarity.exerciseOption(123, 1e6);
+        clarity.exerciseOptions(123, 1e6);
     }
 
-    function testRevert_exerciseOption_whenOptionTokenIdNotLong() public {
+    function testRevert_exerciseOptions_whenOptionTokenIdNotLong() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
@@ -521,7 +521,7 @@ contract AmericanExerciseTest is BaseExerciseTest {
             )
         );
 
-        clarity.exerciseOption(shortTokenId, 1e6);
+        clarity.exerciseOptions(shortTokenId, 1e6);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -529,11 +529,11 @@ contract AmericanExerciseTest is BaseExerciseTest {
             )
         );
 
-        clarity.exerciseOption(assignedShortTokenId, 1e6);
+        clarity.exerciseOptions(assignedShortTokenId, 1e6);
         vm.stopPrank();
     }
 
-    function testRevert_exerciseOption_givenAfterExpiry() public {
+    function testRevert_exerciseOptions_givenAfterExpiry() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
@@ -555,10 +555,10 @@ contract AmericanExerciseTest is BaseExerciseTest {
         );
 
         vm.prank(writer);
-        clarity.exerciseOption(optionTokenId, 1e6);
+        clarity.exerciseOptions(optionTokenId, 1e6);
     }
 
-    function testRevert_exerciseOption_whenExerciseAmountExceedsLongBalance() public {
+    function testRevert_exerciseOptions_whenExerciseAmountExceedsLongBalance() public {
         vm.startPrank(writer);
         WETHLIKE.approve(address(clarity), type(uint256).max);
         uint256 optionTokenId = clarity.writeNewCall({
@@ -580,7 +580,7 @@ contract AmericanExerciseTest is BaseExerciseTest {
         );
 
         vm.prank(writer);
-        clarity.exerciseOption(optionTokenId, 1.000001e6);
+        clarity.exerciseOptions(optionTokenId, 1.000001e6);
     }
 
     // TODO revert on too much decimal precision

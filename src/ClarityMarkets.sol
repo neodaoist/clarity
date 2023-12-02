@@ -9,7 +9,7 @@ import {IClearingPool} from "./interface/IClearingPool.sol";
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
 import {IPosition} from "./interface/IPosition.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
-import {IERC6909MetadataURI} from "./interface/token/IERC6909MetadataURI.sol";
+import {IERC6909ContentURI} from "./interface/token/IERC6909ContentURI.sol";
 
 // External Interfaces
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
@@ -29,6 +29,8 @@ import {ERC6909Rebasing} from "./token/ERC6909Rebasing.sol";
 
 // External Contracts
 import {ERC20} from "solmate/tokens/ERC20.sol";
+
+// NOTE 🚧 Under Construction 🚧
 
 /// @title Clarity.markets
 ///
@@ -112,8 +114,7 @@ contract ClarityMarkets is
         uint64 exerciseAmount;
     }
 
-    /// @dev Memory struct to avoid stack too deep, when writing a derivative on a new
-    /// ERC20 asset
+    /// @dev Memory struct to avoid stack too deep, when writing a derivative on a new ERC20 asset
     struct AssetMetadataInfo {
         string baseSymbol;
         uint8 baseDecimals;
@@ -152,29 +153,24 @@ contract ClarityMarkets is
     /// @dev The information and state for each option
     mapping(uint248 => OptionStorage) private optionStorage;
 
-    /// @dev The symbol and decimals of each ERC20 asset for which a derivative has been
-    /// written
+    /// @dev The symbol and decimals of each ERC20 asset for which a derivative has been written
     mapping(address => AssetMetadataStorage) public assetMetadataStorage; // TODO private
 
-    /// @dev The clearing liabilities of each ERC20 asset for which a derivative has been
-    /// written
+    /// @dev The clearing liabilities of each ERC20 asset for which a derivative has been written
     mapping(address => uint256) private clearingLiabilities;
 
     ///////// Views
 
     // Option
 
-    // / @notice Returns the token id for a given option, if it has been written already,
-    // / otherwise reverts
-    // / @param baseAsset The base asset of the option (typically the volatile asset in a
-    // / pair)
-    // / @param quoteAsset The quote asset of the option (the asset in which the strike
-    // / price is denominated)
-    // / @param exerciseWindow The timeframe(s) during which this option can be exercised,
-    // / inclusive
-    // / @param strike The strike price of the option, denominated in the quote asset
-    // / @param isCall Whether the option is a call or a put
-    // / @return _optionTokenId The token id of the option
+    /// @notice Returns the token id for a given option, if it has been written already, otherwise reverts
+    /// @param baseAsset The base asset of the option (typically the volatile asset in a pair)
+    /// @param quoteAsset The quote asset of the option (the asset in which the strike price is denominated)
+    /// @param expiries The timeframe(s) during which this option can be exercised, inclusive
+    /// @param strike The strike price of the option, denominated in the quote asset
+    /// @param optionType Whether the option is a call or a put
+    /// @param exerciseStyle Whether the option offers American or European exercise style
+    /// @return _optionTokenId The token id of the option
     function optionTokenId(
         address baseAsset,
         address quoteAsset,
@@ -202,8 +198,7 @@ contract ClarityMarkets is
         _optionTokenId = optionHash.hashToId();
     }
 
-    /// @notice Returns the core information of a given option, if it has been written,
-    /// otherwise reverts
+    /// @notice Returns the core information of a given option, if it has been written, otherwise reverts
     /// @param tokenId The token id of the option (accepts long, short, or assigned short)
     /// @return _option The core option information
     function option(uint256 tokenId) external view returns (Option memory _option) {
@@ -238,8 +233,7 @@ contract ClarityMarkets is
 
     // Position
 
-    /// @notice Returns the token type for a given token (either long, short, or assigned
-    /// short)
+    /// @notice Returns the token type for a given token (either long, short, or assigned short)
     /// @param tokenId The token id of the token
     /// @return _tokenType The token type of the token
     function tokenType(uint256 tokenId) external view returns (TokenType _tokenType) {
@@ -328,61 +322,8 @@ contract ClarityMarkets is
 
     // ERC6909
 
-    /// @notice Returns the total supply of a given token id
-    /// TODO explain token encoding and rebasing
-    /// @param tokenId The token id of the token
-    /// @return amount The total supply of the token
-    function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
-        // Check that the option exists
-        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
-        if (optionStored.writeAsset == address(0)) {
-            revert OptionDoesNotExist(tokenId);
-        }
-
-        // Check that token type is valid (implicitly)
-        TokenType _tokenType = tokenId.tokenType();
-
-        // Get the option state
-        uint256 amountWritten = optionStored.optionState.amountWritten;
-        uint256 amountNetted = optionStored.optionState.amountNetted;
-        uint256 amountExercised = optionStored.optionState.amountExercised;
-        uint256 amountRedeemed = optionStored.optionState.amountRedeemed;
-
-        // If never any open interest for this option, or everything written has
-        // been netted, any total supply will be zero
-        if (amountWritten == 0 || amountWritten == amountNetted) {
-            amount = 0;
-        } else {
-            // If long, equals amount written - netted - exercised, unless
-            // after expiry, in which case equals zero
-            if (_tokenType == TokenType.LONG) {
-                if (block.timestamp > optionStored.expiry) {
-                    amount = 0;
-                } else {
-                    amount = amountWritten - amountNetted - amountExercised;
-                }
-            } else if (_tokenType == TokenType.SHORT) {
-                // If short, equals amount written - netted - exercised - proportion of
-                // redeemed that was unassigned
-                amount = amountWritten - amountNetted - amountExercised
-                    - _mulByProportionUnassigned(
-                        amountRedeemed, amountWritten, amountNetted, amountExercised
-                    );
-            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
-                // If assigned short, equals amount exercised - proportion of redeemed
-                // that was assigned
-                amount = amountExercised
-                    - _mulByProportionAssigned(
-                        amountRedeemed, amountWritten, amountNetted, amountExercised
-                    );
-            } else {
-                revert(); // should be unreachable
-            }
-        }
-    }
-
     /// @notice Returns the balance of a given token id for a given owner
-    /// TODO explain rebasing
+    /// @dev TODO explain rebasing
     /// @param owner The owner of the token
     /// @param tokenId The token id of the token
     /// @return amount The balance of the token for the owner
@@ -434,6 +375,61 @@ contract ClarityMarkets is
                     amountNetted,
                     amountExercised
                 );
+            } else {
+                revert(); // should be unreachable
+            }
+        }
+    }
+
+    // ERC6909TokenSupply
+
+    /// @notice Returns the total supply of a given token id
+    /// @dev TODO explain rebasing
+    /// @param tokenId The token id of the token
+    /// @return amount The total supply of the token
+    function totalSupply(uint256 tokenId) public view returns (uint256 amount) {
+        // Check that the option exists
+        OptionStorage storage optionStored = optionStorage[tokenId.idToHash()];
+        if (optionStored.writeAsset == address(0)) {
+            revert OptionDoesNotExist(tokenId);
+        }
+
+        // Check that token type is valid (implicitly)
+        TokenType _tokenType = tokenId.tokenType();
+
+        // Get the option state
+        uint256 amountWritten = optionStored.optionState.amountWritten;
+        uint256 amountNetted = optionStored.optionState.amountNetted;
+        uint256 amountExercised = optionStored.optionState.amountExercised;
+        uint256 amountRedeemed = optionStored.optionState.amountRedeemed;
+
+        // If never any open interest for this option, or everything written has
+        // been netted, any total supply will be zero
+        if (amountWritten == 0 || amountWritten == amountNetted) {
+            amount = 0;
+        } else {
+            // If long, equals amount written - netted - exercised, unless
+            // after expiry, in which case equals zero
+            if (_tokenType == TokenType.LONG) {
+                if (block.timestamp > optionStored.expiry) {
+                    amount = 0;
+                } else {
+                    amount = amountWritten - amountNetted - amountExercised;
+                }
+            } else if (_tokenType == TokenType.SHORT) {
+                // If short, equals amount written - netted - exercised - proportion of
+                // redeemed that was unassigned
+                amount = amountWritten - amountNetted - amountExercised
+                    - _mulByProportionUnassigned(
+                        amountRedeemed, amountWritten, amountNetted, amountExercised
+                    );
+            } else if (_tokenType == TokenType.ASSIGNED_SHORT) {
+                // If assigned short, equals amount exercised - proportion of redeemed
+                // that was assigned
+                amount = amountExercised
+                    - _mulByProportionAssigned(
+                        amountRedeemed, amountWritten, amountNetted, amountExercised
+                    );
             } else {
                 revert(); // should be unreachable
             }
@@ -528,13 +524,13 @@ contract ClarityMarkets is
 
     /// @notice The name for each token id
     /// TODO explain ticker scheme
-    function names(uint256 tokenId) public view returns (string memory name) {
-        name = _generateFullTicker(tokenId);
+    function name(uint256 tokenId) public view returns (string memory _name) {
+        _name = _generateFullTicker(tokenId);
     }
 
     /// @notice The symbol for each token id
-    function symbols(uint256 tokenId) public view returns (string memory symbol) {
-        symbol = _generateFullTicker(tokenId);
+    function symbol(uint256 tokenId) public view returns (string memory _symbol) {
+        _symbol = _generateFullTicker(tokenId);
     }
 
     /// @notice The number of decimals for each token id (always equal to CONTRACT_SCALAR)
@@ -557,8 +553,12 @@ contract ClarityMarkets is
 
     // ERC6909ContentURI
 
+    function contractURI() external pure returns (string memory uri) {
+        // TODO
+    }
+
     /// @notice The URI for each token id
-    /// TODO explain JSON and SVG generation
+    /// @dev TODO explain JSON and SVG generation
     /// @param tokenId The token id of the token
     /// @return uri The URI for the token
     function tokenURI(uint256 tokenId) public view returns (string memory uri) {
@@ -676,13 +676,12 @@ contract ClarityMarkets is
 
     /// @notice Writes a new call option, minting long and short tokens for the writer
     /// TODO explain reverts and how to write for an option that already exists
-    /// @param baseAsset The base asset of the option (typically the volatile asset in a
-    /// pair)
-    /// @param quoteAsset The quote asset of the option (the asset in which the strike is
-    /// denominated)
-    /// @param expiry TODO
+    /// @dev TODO add info on rounding
+    /// @param baseAsset The base asset of the option (typically the volatile asset in a pair)
+    /// @param quoteAsset The quote asset of the option (the asset in which the strike is denominated)
+    /// @param expiry The timestamp up to and including, by which this option must be exercised
     /// @param strike The strike price of the option, denominated in the quote asset
-    /// @param allowEarlyExercise TODO
+    /// @param allowEarlyExercise Whether this option offers American (true) or European (false) exercise style
     /// @param optionAmount The amount of options to write
     /// @return _optionTokenId The token id of the option
     function writeNewCall(
@@ -706,14 +705,12 @@ contract ClarityMarkets is
 
     /// @notice Writes a new put option, minting long and short tokens for the writer
     /// TODO explain reverts and how to write for an option that already exists
-    /// TODO add info on rounding
-    /// @param baseAsset The base asset of the option (typically the volatile asset in a
-    /// pair)
-    /// @param quoteAsset The quote asset of the option (the asset in which the strike is
-    /// denominated)
-    /// @param expiry TODO
+    /// @dev TODO add info on rounding
+    /// @param baseAsset The base asset of the option (typically the volatile asset in a pair)
+    /// @param quoteAsset The quote asset of the option (the asset in which the strike is denominated)
+    /// @param expiry The timestamp up to and including, by which this option must be exercised
     /// @param strike The strike price of the option, denominated in the quote asset
-    /// @param allowEarlyExercise TODO
+    /// @param allowEarlyExercise Whether this option offers American (true) or European (false) exercise style
     /// @param optionAmount The amount of options to write
     /// @return _optionTokenId The token id of the option
     function writeNewPut(
@@ -751,7 +748,6 @@ contract ClarityMarkets is
         if (baseAsset == quoteAsset) {
             revert AssetsIdentical(baseAsset, quoteAsset);
         }
-        // TODO address the potential danger of unsafe external calls
         AssetMetadataInfo memory assetInfo = AssetMetadataInfo({
             baseSymbol: IERC20Minimal(baseAsset).symbol(),
             baseDecimals: IERC20Minimal(baseAsset).decimals(),
@@ -928,7 +924,7 @@ contract ClarityMarkets is
         emit OptionsWritten(msg.sender, _optionTokenId, optionAmount);
     }
 
-    /// @notice Writes a given amount for an already existing option
+    /// @notice Writes a given amount for a pre-existing option
     /// @param _optionTokenId The token id of the option
     /// @param optionAmount The amount of options to write
     function writeExisting(uint256 _optionTokenId, uint64 optionAmount) public override {
@@ -969,7 +965,7 @@ contract ClarityMarkets is
         _verifyAfter(writeAsset, optionStored.exerciseAsset);
     }
 
-    /// @notice Writes given amounts for multiple already existing options
+    /// @notice Writes given amounts for multiple pre-existing options
     /// @param optionTokenIds The token ids of the options
     /// @param optionAmounts The amounts of options to write
     function batchWriteExisting(
@@ -1083,7 +1079,7 @@ contract ClarityMarkets is
     /// transferring out the concomitant amount of the write asset
     /// @param _optionTokenId The token id of the option
     /// @param optionAmount The amount of options to exercise
-    function exerciseOption(uint256 _optionTokenId, uint64 optionAmount)
+    function exerciseOptions(uint256 _optionTokenId, uint64 optionAmount)
         external
         override
     {
@@ -1167,7 +1163,7 @@ contract ClarityMarkets is
     /// @notice Redeems the caller's shorts for a given option, burning the shorts and
     /// transferring out the write asset for unassigned options and the exercise asset for
     /// assigned options
-    /// TODO add info about timing and restrictions
+    /// @dev TODO add info about timing and restrictions
     /// @param shortTokenId The token id of the short token
     function redeemCollateral(uint256 shortTokenId)
         external
@@ -1307,7 +1303,7 @@ contract ClarityMarkets is
     ///////// FREI-PI
 
     /// @dev Increments the clearing liability for a ERC20 given asset. Called by
-    /// _writeOptions() and exerciseOption().
+    /// _writeOptions() and exerciseOptions().
     /// @param asset The asset to increment the clearing liability for
     /// @param amount The amount to increment the clearing liability by
     function _incrementClearingLiability(address asset, uint256 amount) private {
@@ -1315,7 +1311,7 @@ contract ClarityMarkets is
     }
 
     /// @dev Decrements the clearing liability for a given ERC20 asset. Called by
-    /// netOffsetting(), exerciseOption() and redeemCollateral().
+    /// netOffsetting(), exerciseOptions() and redeemCollateral().
     /// @param asset The asset to decrement the clearing liability for
     /// @param amount The amount to decrement the clearing liability by
     function _decrementClearingLiability(address asset, uint256 amount) private {
@@ -1324,7 +1320,7 @@ contract ClarityMarkets is
 
     /// @dev Verifies that the clearing liabilities can be met for a given ERC20 asset
     /// pair, called by all functions which transfer in or out ERC20 assets --
-    /// _writeNew(), writeExisting(), netOffsetting(), exerciseOption(), and
+    /// _writeNew(), writeExisting(), netOffsetting(), exerciseOptions(), and
     /// redeemCollateral()
     function _verifyAfter(address writeAsset, address exerciseAsset) internal view {
         assert(

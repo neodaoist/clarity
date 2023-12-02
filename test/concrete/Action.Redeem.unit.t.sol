@@ -68,7 +68,7 @@ contract RedeemTest is BaseUnitTest {
         // And Holder2 exercises 2 options
         vm.startPrank(holder2);
         FRAXLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 2e6);
+        clarity.exerciseOptions(optionTokenId, 2e6);
         vm.stopPrank();
 
         // pre checks (before expiry)
@@ -273,7 +273,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 1.05e6);
+        clarity.exerciseOptions(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // Then
@@ -308,7 +308,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 1.05e6);
+        clarity.exerciseOptions(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // pre checks
@@ -364,7 +364,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 2.25e6);
+        clarity.exerciseOptions(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
@@ -414,7 +414,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         LUSDLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 2.25e6);
+        clarity.exerciseOptions(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
@@ -538,7 +538,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 1.05e6);
+        clarity.exerciseOptions(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // Then
@@ -573,7 +573,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 1.05e6);
+        clarity.exerciseOptions(optionTokenId, 1.05e6);
         vm.stopPrank();
 
         // pre checks
@@ -631,7 +631,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 2.25e6);
+        clarity.exerciseOptions(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks
@@ -683,7 +683,7 @@ contract RedeemTest is BaseUnitTest {
 
         vm.startPrank(holder);
         WETHLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 2.25e6);
+        clarity.exerciseOptions(optionTokenId, 2.25e6);
         vm.stopPrank();
 
         // pre checks

@@ -527,7 +527,7 @@ contract WrappedLongTest is BaseUnitTest {
     }
 
     /////////
-    // function exerciseOption(uint256 amount) external;
+    // function exerciseOptions(uint256 amount) external;
 
     // TODO
 }

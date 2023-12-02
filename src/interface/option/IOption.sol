@@ -13,7 +13,6 @@ interface IOption {
         AMERICAN,
         EUROPEAN
     }
-    // BERMUDAN
 
     struct Option {
         address baseAsset;

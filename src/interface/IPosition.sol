@@ -10,7 +10,6 @@ interface IPosition {
         ASSIGNED_SHORT
     }
 
-    /// @notice Explain to an end user what this does
     struct Position {
         uint64 amountLong; // optionTokenId
         uint64 amountShort; // optionTokenId | 1

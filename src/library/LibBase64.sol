@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+/// From https://github.com/Brechtpd/base64
 /// [MIT License]
 /// @title LibBase64
 /// @notice Provides a function for encoding some bytes in base64

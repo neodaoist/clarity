@@ -294,7 +294,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -335,7 +335,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -376,7 +376,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -414,7 +414,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -455,7 +455,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -492,7 +492,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountWritten);
+            clarity.exerciseOptions(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When
@@ -819,7 +819,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -861,7 +861,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -903,7 +903,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -942,7 +942,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -984,7 +984,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountExercised);
+            clarity.exerciseOptions(optionTokenId, amountExercised);
             vm.stopPrank();
 
             // When
@@ -1022,7 +1022,7 @@ contract RebasingTest is BaseUnitTest {
             vm.warp(FRI1 - 1 seconds);
 
             FRAXLIKE.approve(address(clarity), type(uint256).max);
-            clarity.exerciseOption(optionTokenId, amountWritten);
+            clarity.exerciseOptions(optionTokenId, amountWritten);
             vm.stopPrank();
 
             // When

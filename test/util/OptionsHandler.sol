@@ -395,9 +395,9 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Exercise
 
-    function exerciseOption(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
+    function exerciseOptions(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
         external
-        countCall("exerciseOption")
+        countCall("exerciseOptions")
     {
         _requireOptions();
 
@@ -458,7 +458,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         deal(address(exerciseAsset), holder, exerciseAssetAmount);
         vm.startPrank(holder);
         exerciseAsset.approve(address(clarity), exerciseAssetAmount);
-        clarity.exerciseOption(optionTokenId, uint64(optionAmount));
+        clarity.exerciseOptions(optionTokenId, uint64(optionAmount));
         vm.stopPrank();
 
         // track ghost variables
@@ -577,7 +577,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         // Net
         console2.log("netOffsetting", calls["netOffsetting"]);
         // Exercise
-        console2.log("exerciseOption", calls["exerciseOption"]);
+        console2.log("exerciseOptions", calls["exerciseOptions"]);
         // Redeem
         console2.log("redeemCollateral", calls["redeemCollateral"]);
         // Skim

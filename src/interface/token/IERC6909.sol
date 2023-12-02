@@ -5,11 +5,6 @@ pragma solidity 0.8.23;
 import {IERC165} from "./IERC165.sol";
 
 interface IERC6909 is IERC165 {
-    /// @notice The total supply of each id.
-    /// @param id The id of the token.
-    /// @return amount The total supply of the token.
-    function totalSupply(uint256 id) external view returns (uint256 amount);
-
     /// @notice Owner balance of an id.
     /// @param owner The address of the owner.
     /// @param id The id of the token.
