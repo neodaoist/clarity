@@ -34,12 +34,12 @@ jobs:
 
       - name: Run Forge tests
         run: |
-          forge test --nmc Invariant -vvv
+          forge test -vvv
         id: test
 
       - name: Run Forge coverage
         run: |
-          forge coverage --nmc Invariant --report summary --report lcov
+          forge coverage --report summary --report lcov
 
       - name: Filter coverage files
         run: |
