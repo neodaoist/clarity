@@ -11,7 +11,7 @@ contract EuropeanExerciseTest is BaseExerciseTest {
     // function exerciseOption(uint256 _optionTokenId, uint64 optionsAmount) external
 
     function test_exerciseOption_givenEuropean() public {
-        uint256 startingBalanceD18 = STARTING_BALANCE * 1e18;
+        uint256 startingBalanceD18 = 1e24;
 
         // Given Writer writes 1 European call option
         vm.startPrank(writer);
@@ -97,7 +97,7 @@ contract EuropeanExerciseTest is BaseExerciseTest {
     // Sad Paths
 
     function testRevert_exercise_GivenEuropean_andBeforeExerciseWindow() public {
-        uint256 startingBalanceD18 = STARTING_BALANCE * 1e18;
+        uint256 startingBalanceD18 = 1e24;
 
         // Given Writer writes 1 European call option
         vm.startPrank(writer);
@@ -134,7 +134,7 @@ contract EuropeanExerciseTest is BaseExerciseTest {
     }
 
     function testRevert_exercise_GivenEuropean_andAfterExerciseWindow() public {
-        uint256 startingBalanceD18 = STARTING_BALANCE * 1e18;
+        uint256 startingBalanceD18 = 1e24;
 
         // Given Writer writes 1 European call option
         vm.startPrank(writer);

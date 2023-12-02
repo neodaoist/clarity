@@ -46,10 +46,8 @@ abstract contract BaseUnitTest is BaseClarityTest {
     IERC20 internal USDTLIKE;
 
     uint256 internal constant NUM_TEST_ASSETS = 8;
-    uint256 internal constant STARTING_BALANCE = 1_000_000;
 
     // Time
-    uint32 internal constant DAWN = 1_697_788_800; // Fri Oct 20 2023 08:00:00 GMT+0000
     uint32 internal constant FRI1 = DAWN + 7 days;
     uint32 internal constant FRI2 = DAWN + 14 days;
     uint32 internal constant FRI3 = DAWN + 21 days + 1 hours; // shakes fist, darn you DST
@@ -66,12 +64,8 @@ abstract contract BaseUnitTest is BaseClarityTest {
     uint256 internal oti4;
     uint256 internal oti5;
 
-    function setUp() public virtual {
-        // dawn
-        vm.warp(DAWN);
-
-        // deploy DCP
-        clarity = new ClarityMarkets();
+    function setUp() public virtual override {
+        super.setUp();
 
         // deploy test assets
         WETHLIKE = IERC20(address(new MockERC20("WETH Like", "WETH", 18)));
@@ -83,7 +77,7 @@ abstract contract BaseUnitTest is BaseClarityTest {
         USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDC", 6)));
         USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDT", 18)));
 
-        // make test actors and mint assets
+        // make test actors and mint 1e6 of each asset
         address[] memory writers = new address[](NUM_TEST_ACTORS);
         address[] memory holders = new address[](NUM_TEST_ACTORS);
         IERC20[] memory assets = new IERC20[](NUM_TEST_ASSETS);
@@ -103,12 +97,12 @@ abstract contract BaseUnitTest is BaseClarityTest {
                 deal(
                     address(assets[j]),
                     writers[i],
-                    STARTING_BALANCE * (10 ** assets[j].decimals())
+                    1_000_000 * (10 ** assets[j].decimals())
                 );
                 deal(
                     address(assets[j]),
                     holders[i],
-                    STARTING_BALANCE * (10 ** assets[j].decimals())
+                    1_000_000 * (10 ** assets[j].decimals())
                 );
             }
         }

@@ -25,9 +25,8 @@ contract ClarityMarketsInvariantTest is BaseClarityTest {
 
     OptionsHandler private handler;
 
-    function setUp() public {
-        // deploy DCP
-        clarity = new ClarityMarkets();
+    function setUp() public override {
+        super.setUp();
 
         // setup handler
         handler = new OptionsHandler(clarity);

@@ -13,8 +13,21 @@ import "../src/ClarityMarkets.sol";
 abstract contract BaseClarityTest is Test, Assertions {
     /////////
 
+    // Time
+    uint32 internal constant DAWN = 1_697_788_800; // Fri Oct 20 2023 08:00:00 GMT+0000
+
     // Contract Under Test
     ClarityMarkets internal clarity;
+
+    ///////// Setup
+
+    function setUp() public virtual {
+        // dawn
+        vm.warp(DAWN);
+
+        // deploy DCP
+        clarity = new ClarityMarkets();
+    }
 
     ///////// Internal State Helpers
 

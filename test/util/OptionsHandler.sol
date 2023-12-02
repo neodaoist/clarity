@@ -89,8 +89,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     uint32 private currentTime;
 
-    uint32 private constant DAWN = 1;
-
     ///////// Modifiers
 
     modifier createActor() {
@@ -109,8 +107,6 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     ///////// Construction
 
     constructor(ClarityMarkets _clarity) {
-        vm.warp(DAWN);
-
         clarity = _clarity;
 
         // deploy test assets
@@ -121,7 +117,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         LUSDLIKE = IERC20(address(new MockERC20("LUSD Like", "LUSDLIKE", 18)));
         FRAXLIKE = IERC20(address(new MockERC20("FRAX Like", "FRAXLIKE", 18)));
         USDCLIKE = IERC20(address(new MockERC20("USDC Like", "USDCLIKE", 6)));
-        USDTLIKE = IERC20(address(new MockERC20("USDT Like", "USDTLIKE", 18)));
+        USDTLIKE = IERC20(address(new MockERC20("DAI Like", "DAILIKE", 18)));
         vm.label(address(WETHLIKE), "WETHLIKE");
         vm.label(address(WBTCLIKE), "WBTCLIKE");
         vm.label(address(LINKLIKE), "LINKLIKE");
@@ -129,7 +125,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         vm.label(address(LUSDLIKE), "LUSDLIKE");
         vm.label(address(FRAXLIKE), "FRAXLIKE");
         vm.label(address(USDCLIKE), "USDCLIKE");
-        vm.label(address(USDTLIKE), "USDTLIKE"); // TODO add Tether idiosyncrasies
+        vm.label(address(USDTLIKE), "DAILIKE");
 
         // setup test assets
         baseAssets.add(WETHLIKE);
@@ -166,7 +162,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     function writeNew(
         uint256 baseAssetIndex,
         uint256 quoteAssetIndex,
-        uint32 expiry,
+        uint256 expiry,
         uint256 strike,
         bool allowEarlyExercise,
         uint64 optionAmount,
@@ -177,7 +173,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         quoteAssetIndex = quoteAssetIndex % quoteAssets.count();
 
         // bind expiry
-        vm.assume(expiry > 1);
+        expiry = bound(expiry, 1_697_788_800, type(uint32).max - 1 days);
 
         // bind strike price and round to nearest million
         strike = bound(strike, clarity.MINIMUM_STRIKE(), clarity.MAXIMUM_STRIKE());
@@ -203,7 +199,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             ? clarity.writeNewCall({
                 baseAsset: address(baseAsset),
                 quoteAsset: address(quoteAssets.at(quoteAssetIndex)),
-                expiry: expiry,
+                expiry: uint32(expiry),
                 strike: strike,
                 allowEarlyExercise: allowEarlyExercise,
                 optionAmount: optionAmount
@@ -211,7 +207,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
             : clarity.writeNewPut({
                 baseAsset: address(baseAssets.at(baseAssetIndex)),
                 quoteAsset: address(quoteAsset),
-                expiry: expiry,
+                expiry: uint32(expiry),
                 strike: strike,
                 allowEarlyExercise: allowEarlyExercise,
                 optionAmount: optionAmount
