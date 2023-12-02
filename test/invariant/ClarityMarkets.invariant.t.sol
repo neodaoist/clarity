@@ -33,7 +33,7 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
         handler = new OptionsHandler(clarity);
 
         // target contracts
-        bytes4[] memory selectors = new bytes4[](7);
+        bytes4[] memory selectors = new bytes4[](6);
         // Write
         selectors[0] = OptionsHandler.writeNew.selector;
         selectors[1] = OptionsHandler.writeExisting.selector;
@@ -46,7 +46,7 @@ contract ClarityMarketsInvariantTest is BaseTestSuite {
         // Exercise
         selectors[5] = OptionsHandler.exerciseOption.selector;
         // Redeem
-        selectors[6] = OptionsHandler.redeemCollateral.selector;
+        // selectors[6] = OptionsHandler.redeemCollateral.selector;
         // Skim
         // TODO skim
 

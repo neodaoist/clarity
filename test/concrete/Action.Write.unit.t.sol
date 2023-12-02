@@ -46,12 +46,12 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(optionTokenId), expected, "option stored");
 
         // check balances
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supplies");
-        assertOptionBalances(writer, optionTokenId, 1e6, 1e6, 0, "option balances");
-        assertEq(
-            WETHLIKE.balanceOf(writer), wethBalance - 1e18, "WETH balance after write"
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "total supplies");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "option balances"
         );
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
+        assertAssetBalance(WETHLIKE, writer, wethBalance - 1e18, "after write");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write");
     }
 
     function test_writeNewCall_zero() public {
@@ -80,10 +80,10 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(optionTokenId), expected, "option stored");
 
         // no change
-        assertTotalSupplies(optionTokenId, 0, 0, 0, "total supplies");
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "option balances");
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
+        assertTotalSupplies(clarity, optionTokenId, 0, 0, 0, "total supplies");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "option balances");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write");
     }
 
     function test_writeNewCall_many() public {
@@ -125,14 +125,12 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti1), expected, "option 1 stored");
 
         // check balances
-        assertTotalSupplies(oti1, 0.0275e6, 0.0275e6, 0, "total supplies 1");
-        assertOptionBalances(writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 balances");
-        assertEq(
-            WETHLIKE.balanceOf(writer),
-            wethBalance - 0.0275e18,
-            "WETH balance after write 1"
+        assertTotalSupplies(clarity, oti1, 0.0275e6, 0.0275e6, 0, "total supplies 1");
+        assertOptionBalances(
+            clarity, writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 balances"
         );
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write 1");
+        assertAssetBalance(WETHLIKE, writer, wethBalance - 0.0275e18, "after write 1");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write 1");
 
         // WETH-LUSD 2
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -160,12 +158,10 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti2), expected, "option 2 stored");
 
         // check balances
-        assertTotalSupplies(oti2, 17e6, 17e6, 0, "total supplies 2");
-        assertOptionBalances(writer, oti2, 17e6, 17e6, 0, "option 2 balances");
-        assertEq(
-            WETHLIKE.balanceOf(writer), wethBalance - 17e18, "WETH balance after write 2"
-        );
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write 2");
+        assertTotalSupplies(clarity, oti2, 17e6, 17e6, 0, "total supplies 2");
+        assertOptionBalances(clarity, writer, oti2, 17e6, 17e6, 0, "option 2 balances");
+        assertAssetBalance(WETHLIKE, writer, wethBalance - 17e18, "after write 2");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write 2");
 
         // WETH-LUSD 3
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -193,12 +189,10 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti3), expected, "option 3 stored");
 
         // check balances
-        assertTotalSupplies(oti3, 1e6, 1e6, 0, "total supplies 3");
-        assertOptionBalances(writer, oti3, 1e6, 1e6, 0, "option 3 balances");
-        assertEq(
-            WETHLIKE.balanceOf(writer), wethBalance - 1e18, "WETH balance after write 3"
-        );
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write 3");
+        assertTotalSupplies(clarity, oti3, 1e6, 1e6, 0, "total supplies 3");
+        assertOptionBalances(clarity, writer, oti3, 1e6, 1e6, 0, "option 3 balances");
+        assertAssetBalance(WETHLIKE, writer, wethBalance - 1e18, "after write 3");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write 3");
 
         // WBTC-LUSD
         lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -227,12 +221,10 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti4), expected, "option 4 stored");
 
         // check balances
-        assertTotalSupplies(oti4, 10e6, 10e6, 0, "total supplies 4");
-        assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 balances");
-        assertEq(
-            WBTCLIKE.balanceOf(writer), wbtcBalance - 10e8, "WBTC balance after write 4"
-        );
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write 4");
+        assertTotalSupplies(clarity, oti4, 10e6, 10e6, 0, "total supplies 4");
+        assertOptionBalances(clarity, writer, oti4, 10e6, 10e6, 0, "option 4 balances");
+        assertAssetBalance(WBTCLIKE, writer, wbtcBalance - 10e8, "after write 4");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write 4");
 
         // WETH-USDC
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -259,20 +251,24 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti5), expected, "option 5 stored");
 
         // check balances
-        assertTotalSupplies(oti5, 1e6, 1e6, 0, "total supplies 5");
-        assertOptionBalances(writer, oti5, 1e6, 1e6, 0, "option 5 balances");
-        assertEq(
-            WETHLIKE.balanceOf(writer), wethBalance - 1e18, "WETH balance after write 5"
-        );
-        assertEq(USDCLIKE.balanceOf(writer), usdcBalance, "USDC balance after write 5");
+        assertTotalSupplies(clarity, oti5, 1e6, 1e6, 0, "total supplies 5");
+        assertOptionBalances(clarity, writer, oti5, 1e6, 1e6, 0, "option 5 balances");
+        assertAssetBalance(WETHLIKE, writer, wethBalance - 1e18, "after write 5");
+        assertAssetBalance(USDCLIKE, writer, usdcBalance, "after write 5");
 
         // check previous option balances did not change
         assertOptionBalances(
-            writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances"
+            clarity, writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances"
         );
-        assertOptionBalances(writer, oti2, 17e6, 17e6, 0, "option 2 final balances");
-        assertOptionBalances(writer, oti3, 1e6, 1e6, 0, "option 3 final balances");
-        assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
+        assertOptionBalances(
+            clarity, writer, oti2, 17e6, 17e6, 0, "option 2 final balances"
+        );
+        assertOptionBalances(
+            clarity, writer, oti3, 1e6, 1e6, 0, "option 3 final balances"
+        );
+        assertOptionBalances(
+            clarity, writer, oti4, 10e6, 10e6, 0, "option 4 final balances"
+        );
     }
 
     function test_writeNewCall_whenFarInFutureButValidExpiry() public {
@@ -523,9 +519,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
         vm.stopPrank();
 
-        assertTotalSupplies(
-            optionTokenId, 1e6, 1e6, 0, "total supplies before second write"
-        );
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "before second write");
 
         // Then
         vm.expectRevert(
@@ -672,12 +666,12 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(optionTokenId), expected, "option stored");
 
         // check balances
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supplies");
-        assertOptionBalances(writer, optionTokenId, 1e6, 1e6, 0, "option balances");
-        assertEq(
-            LUSDLIKE.balanceOf(writer), lusdBalance - 1700e18, "LUSD balance after write"
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "total supplies");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "option balances"
         );
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance - 1700e18, "after write");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write");
     }
 
     function test_writeNewPut_zero() public {
@@ -706,10 +700,10 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(optionTokenId), expected, "option stored");
 
         // no change
-        assertTotalSupplies(optionTokenId, 0, 0, 0, "total supplies");
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "option balances");
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
+        assertTotalSupplies(clarity, optionTokenId, 0, 0, 0, "total supplies");
+        assertOptionBalances(clarity, writer, optionTokenId, 0, 0, 0, "option balances");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write");
     }
 
     function test_writeNewPut_many() public {
@@ -751,14 +745,14 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti1), expected, "option 1 stored");
 
         // check balances
-        assertTotalSupplies(oti1, 0.0275e6, 0.0275e6, 0, "total supplies 1");
-        assertOptionBalances(writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 balances");
-        assertEq(
-            LUSDLIKE.balanceOf(writer),
-            lusdBalance - (1700e18 * 0.0275),
-            "LUSD balance after write 1"
+        assertTotalSupplies(clarity, oti1, 0.0275e6, 0.0275e6, 0, "total supplies 1");
+        assertOptionBalances(
+            clarity, writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 balances"
         );
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write 1");
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (1700e18 * 0.0275), "after write 1"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write 1");
 
         // WETH-LUSD 2
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -786,14 +780,12 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti2), expected, "option 2 stored");
 
         // check balances
-        assertTotalSupplies(oti2, 17e6, 17e6, 0, "total supplies 2");
-        assertOptionBalances(writer, oti2, 17e6, 17e6, 0, "option 2 balances");
-        assertEq(
-            LUSDLIKE.balanceOf(writer),
-            lusdBalance - (1750e18 * 17),
-            "LUSD balance after write 2"
+        assertTotalSupplies(clarity, oti2, 17e6, 17e6, 0, "total supplies 2");
+        assertOptionBalances(clarity, writer, oti2, 17e6, 17e6, 0, "option 2 balances");
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (1750e18 * 17), "after write 2"
         );
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write 2");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write 2");
 
         // WETH-LUSD 3
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -821,14 +813,10 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti3), expected, "option 3 stored");
 
         // check balances
-        assertTotalSupplies(oti3, 1e6, 1e6, 0, "total supplies 3");
-        assertOptionBalances(writer, oti3, 1e6, 1e6, 0, "option 3 balances");
-        assertEq(
-            LUSDLIKE.balanceOf(writer),
-            lusdBalance - 1700e18,
-            "LUSD balance after write 3"
-        );
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write 3");
+        assertTotalSupplies(clarity, oti3, 1e6, 1e6, 0, "total supplies 3");
+        assertOptionBalances(clarity, writer, oti3, 1e6, 1e6, 0, "option 3 balances");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance - 1700e18, "after write 3");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write 3");
 
         // WBTC-LUSD
         lusdBalance = LUSDLIKE.balanceOf(writer);
@@ -857,14 +845,12 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti4), expected, "option 4 stored");
 
         // check balances
-        assertTotalSupplies(oti4, 10e6, 10e6, 0, "total supplies 4");
-        assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 balances");
-        assertEq(
-            LUSDLIKE.balanceOf(writer),
-            lusdBalance - (20_000e18 * 10),
-            "LUSD balance after write 4"
+        assertTotalSupplies(clarity, oti4, 10e6, 10e6, 0, "total supplies 4");
+        assertOptionBalances(clarity, writer, oti4, 10e6, 10e6, 0, "option 4 balances");
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (20_000e18 * 10), "after write 4"
         );
-        assertEq(WBTCLIKE.balanceOf(writer), wbtcBalance, "WBTC balance after write 4");
+        assertAssetBalance(WBTCLIKE, writer, wbtcBalance, "after write 4");
 
         // WETH-USDC
         wethBalance = WETHLIKE.balanceOf(writer);
@@ -893,20 +879,24 @@ contract WriteTest is BaseUnitTestSuite {
         assertEq(clarity.option(oti5), expected, "option 5 stored");
 
         // check balances
-        assertTotalSupplies(oti5, 1e6, 1e6, 0, "total supplies 5");
-        assertOptionBalances(writer, oti5, 1e6, 1e6, 0, "option 5 balances");
-        assertEq(
-            USDCLIKE.balanceOf(writer), usdcBalance - 1800e6, "USDC balance after write"
-        );
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
+        assertTotalSupplies(clarity, oti5, 1e6, 1e6, 0, "total supplies 5");
+        assertOptionBalances(clarity, writer, oti5, 1e6, 1e6, 0, "option 5 balances");
+        assertAssetBalance(USDCLIKE, writer, usdcBalance - 1800e6, "after write 5");
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write 5");
 
         // check previous option balances did not change
         assertOptionBalances(
-            writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances"
+            clarity, writer, oti1, 0.0275e6, 0.0275e6, 0, "option 1 final balances"
         );
-        assertOptionBalances(writer, oti2, 17e6, 17e6, 0, "option 2 final balances");
-        assertOptionBalances(writer, oti3, 1e6, 1e6, 0, "option 3 final balances");
-        assertOptionBalances(writer, oti4, 10e6, 10e6, 0, "option 4 final balances");
+        assertOptionBalances(
+            clarity, writer, oti2, 17e6, 17e6, 0, "option 2 final balances"
+        );
+        assertOptionBalances(
+            clarity, writer, oti3, 1e6, 1e6, 0, "option 3 final balances"
+        );
+        assertOptionBalances(
+            clarity, writer, oti4, 10e6, 10e6, 0, "option 4 final balances"
+        );
     }
 
     function test_writeNewPut_whenFarInFutureButValidExpiry() public {
@@ -1160,9 +1150,7 @@ contract WriteTest is BaseUnitTestSuite {
         });
         vm.stopPrank();
 
-        assertTotalSupplies(
-            optionTokenId, 1e6, 1e6, 0, "total supplies before second write"
-        );
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "before second write");
 
         // Then
         vm.expectRevert(
@@ -1294,14 +1282,12 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // check balances
-        assertTotalSupplies(optionTokenId, 1.25e6, 1.25e6, 0, "total supplies");
-        assertOptionBalances(writer, optionTokenId, 1.25e6, 1.25e6, 0, "option balances");
-        assertEq(
-            WETHLIKE.balanceOf(writer),
-            wethBalance - (1e18 * 1.25),
-            "WETH balance after write"
+        assertTotalSupplies(clarity, optionTokenId, 1.25e6, 1.25e6, 0, "total supplies");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 1.25e6, 1.25e6, 0, "option balances"
         );
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
+        assertAssetBalance(WETHLIKE, writer, wethBalance - (1e18 * 1.25), "after write");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write");
     }
 
     function test_writeExisting_givenCall_whenInitialAmountAtLimitOfMaximumWritable()
@@ -1327,7 +1313,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         assertTotalSupplies(
-            optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
+            clarity, optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
         );
     }
 
@@ -1355,7 +1341,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         assertTotalSupplies(
-            optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
+            clarity, optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
         );
     }
 
@@ -1378,14 +1364,14 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // check balances
-        assertTotalSupplies(optionTokenId, 1.35e6, 1.35e6, 0, "total supplies");
-        assertOptionBalances(writer, optionTokenId, 1.35e6, 1.35e6, 0, "option balances");
-        assertEq(WETHLIKE.balanceOf(writer), wethBalance, "WETH balance after write");
-        assertEq(
-            LUSDLIKE.balanceOf(writer),
-            lusdBalance - (1700e18 * 1.35),
-            "LUSD balance after write"
+        assertTotalSupplies(clarity, optionTokenId, 1.35e6, 1.35e6, 0, "total supplies");
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 1.35e6, 1.35e6, 0, "option balances"
         );
+        assertAssetBalance(
+            LUSDLIKE, writer, lusdBalance - (1700e18 * 1.35), "after write"
+        );
+        assertAssetBalance(WETHLIKE, writer, wethBalance, "after write");
     }
 
     function test_writeExisting_givenPut_whenInitialAmountAtLimitOfMaximumWritable()
@@ -1411,7 +1397,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         assertTotalSupplies(
-            optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
+            clarity, optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
         );
     }
 
@@ -1439,7 +1425,7 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         assertTotalSupplies(
-            optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
+            clarity, optionTokenId, maximumAmount, maximumAmount, 0, "total supplies"
         );
     }
 
@@ -1803,16 +1789,14 @@ contract WriteTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // check balances
-        assertTotalSupplies(optionTokenIds[0], 1.25e6, 1.25e6, 0, "total supplies");
+        assertTotalSupplies(
+            clarity, optionTokenIds[0], 1.25e6, 1.25e6, 0, "total supplies"
+        );
         assertOptionBalances(
-            writer, optionTokenIds[0], 1.25e6, 1.25e6, 0, "option balances"
+            clarity, writer, optionTokenIds[0], 1.25e6, 1.25e6, 0, "option balances"
         );
-        assertEq(
-            WETHLIKE.balanceOf(writer),
-            wethBalance - (1e18 * 1.25),
-            "WETH balance after write"
-        );
-        assertEq(LUSDLIKE.balanceOf(writer), lusdBalance, "LUSD balance after write");
+        assertAssetBalance(WETHLIKE, writer, wethBalance - (1e18 * 1.25), "after write");
+        assertAssetBalance(LUSDLIKE, writer, lusdBalance, "after write");
     }
 
     function test_batchWriteExisting_many() public {
@@ -1908,6 +1892,7 @@ contract WriteTest is BaseUnitTestSuite {
 
         // check Clarity balances
         assertTotalSupplies(
+            clarity,
             optionTokenIds[0],
             optionAmounts[0],
             optionAmounts[0],
@@ -1915,6 +1900,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 1 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[0],
             optionAmounts[0],
@@ -1923,6 +1909,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 1 balances"
         );
         assertTotalSupplies(
+            clarity,
             optionTokenIds[1],
             optionAmounts[1],
             optionAmounts[1],
@@ -1930,6 +1917,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 2 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[1],
             optionAmounts[1],
@@ -1938,6 +1926,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 2 balances"
         );
         assertTotalSupplies(
+            clarity,
             optionTokenIds[2],
             optionAmounts[2],
             optionAmounts[2],
@@ -1945,6 +1934,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 3 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[2],
             optionAmounts[2],
@@ -1953,6 +1943,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 3 balances"
         );
         assertTotalSupplies(
+            clarity,
             optionTokenIds[3],
             optionAmounts[3],
             optionAmounts[3],
@@ -1960,6 +1951,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 4 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[3],
             optionAmounts[3],
@@ -1968,6 +1960,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 4 balances"
         );
         assertTotalSupplies(
+            clarity,
             optionTokenIds[4],
             optionAmounts[4],
             optionAmounts[4],
@@ -1975,6 +1968,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 5 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[4],
             optionAmounts[4],
@@ -1983,6 +1977,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 5 balances"
         );
         assertTotalSupplies(
+            clarity,
             optionTokenIds[5],
             optionAmounts[5],
             optionAmounts[5],
@@ -1990,6 +1985,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 6 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[5],
             optionAmounts[5],
@@ -1998,6 +1994,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 6 balances"
         );
         assertTotalSupplies(
+            clarity,
             optionTokenIds[6],
             optionAmounts[6],
             optionAmounts[6],
@@ -2005,6 +2002,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 7 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[6],
             optionAmounts[6],
@@ -2013,6 +2011,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 7 balances"
         );
         assertTotalSupplies(
+            clarity,
             optionTokenIds[7],
             optionAmounts[7],
             optionAmounts[7],
@@ -2020,6 +2019,7 @@ contract WriteTest is BaseUnitTestSuite {
             "option 8 total supplies"
         );
         assertOptionBalances(
+            clarity,
             writer,
             optionTokenIds[7],
             optionAmounts[7],
@@ -2041,18 +2041,10 @@ contract WriteTest is BaseUnitTestSuite {
             - (uint256(scaleDownOptionAmount(1725e18)) * optionAmounts[3]);
         uint256 expectedUsdcBalance =
             usdcBalance - (scaleDownOptionAmount(21_001e6) * optionAmounts[7]);
-        assertEq(
-            WETHLIKE.balanceOf(writer), expectedWethBalance, "WETH balance after write"
-        );
-        assertEq(
-            WBTCLIKE.balanceOf(writer), expectedWbtcBalance, "WBTC balance after write"
-        );
-        assertEq(
-            LUSDLIKE.balanceOf(writer), expectedLusdBalance, "LUSD balance after write"
-        );
-        assertEq(
-            USDCLIKE.balanceOf(writer), expectedUsdcBalance, "USDC balance after write"
-        );
+        assertAssetBalance(WETHLIKE, writer, expectedWethBalance, "after write");
+        assertAssetBalance(WBTCLIKE, writer, expectedWbtcBalance, "after write");
+        assertAssetBalance(LUSDLIKE, writer, expectedLusdBalance, "after write");
+        assertAssetBalance(USDCLIKE, writer, expectedUsdcBalance, "after write");
     }
 
     // Events

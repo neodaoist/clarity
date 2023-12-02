@@ -32,11 +32,13 @@ contract NetOffsettingTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre net off
-        assertOptionBalances(writer, optionTokenId, 1e6, 1e6, 0, "writer before net off");
-        assertAssetBalance(
-            writer, WETHLIKE, writerWethBalance - (1e18 * 1), "writer before net off"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "writer before net off"
         );
-        assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer before net off");
+        assertAssetBalance(
+            WETHLIKE, writer, writerWethBalance - (1e18 * 1), "writer before net off"
+        );
+        assertAssetBalance(LUSDLIKE, writer, writerLusdBalance, "writer before net off");
 
         writerWethBalance = WETHLIKE.balanceOf(writer);
         writerLusdBalance = LUSDLIKE.balanceOf(writer);
@@ -46,11 +48,13 @@ contract NetOffsettingTest is BaseUnitTestSuite {
         uint128 writeAssetNetted = clarity.netOffsetting(optionTokenId, 1e6);
 
         // Then
-        assertOptionBalances(writer, optionTokenId, 0, 0, 0, "writer after net off");
-        assertAssetBalance(
-            writer, WETHLIKE, writerWethBalance + writeAssetNetted, "writer after net off"
+        assertOptionBalances(
+            clarity, writer, optionTokenId, 0, 0, 0, "writer after net off"
         );
-        assertAssetBalance(writer, LUSDLIKE, writerLusdBalance, "writer after net off");
+        assertAssetBalance(
+            WETHLIKE, writer, writerWethBalance + writeAssetNetted, "writer after net off"
+        );
+        assertAssetBalance(LUSDLIKE, writer, writerLusdBalance, "writer after net off");
     }
 
     // TODO add more

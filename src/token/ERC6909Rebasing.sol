@@ -58,7 +58,8 @@ abstract contract ERC6909Rebasing is
 
     mapping(address => mapping(address => bool)) public isOperator;
 
-    // TODO add note here as well
+    // NOTE Clarity implements a partially virtual balanceOf() -- see more in
+    // ClarityMarkets.sol#totalSupply() and ClarityMarkets.sol#balanceOf(address)
 
     mapping(address => mapping(uint256 => uint256)) internal internalBalanceOf;
 

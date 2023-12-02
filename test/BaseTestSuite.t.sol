@@ -4,10 +4,13 @@ pragma solidity 0.8.23;
 // External Test Helpers
 import {Test, console2, stdError} from "forge-std/Test.sol";
 
+// Test Helpers
+import {Assertions} from "./util/Assertions.sol";
+
 // Contracts
 import "../src/ClarityMarkets.sol";
 
-abstract contract BaseTestSuite is Test {
+abstract contract BaseTestSuite is Test, Assertions {
     /////////
 
     // Contract Under Test

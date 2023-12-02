@@ -30,36 +30,33 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        // option balances
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supplies before exercise");
-        assertOptionBalances(
-            writer, optionTokenId, 0.4e6, 1e6, 0, "writer option balances before exercise"
+        assertTotalSupplies(
+            clarity, optionTokenId, 1e6, 1e6, 0, "total supplies before exercise"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0.6e6, 0, 0, "holder option balances before exercise"
+            clarity,
+            writer,
+            optionTokenId,
+            0.4e6,
+            1e6,
+            0,
+            "writer option balances before exercise"
         );
-
-        // asset balances
-        assertEq(
-            WETHLIKE.balanceOf(writer),
-            startingBalanceD18 - 1e18,
-            "writer WETHLIKE balance before exercise"
+        assertOptionBalances(
+            clarity,
+            holder,
+            optionTokenId,
+            0.6e6,
+            0,
+            0,
+            "holder option balances before exercise"
         );
-        assertEq(
-            FRAXLIKE.balanceOf(writer),
-            startingBalanceD18,
-            "writer FRAXLIKE balance before exercise"
+        assertAssetBalance(
+            WETHLIKE, writer, startingBalanceD18 - 1e18, "writer before exercise"
         );
-        assertEq(
-            WETHLIKE.balanceOf(holder),
-            startingBalanceD18,
-            "holder WETHLIKE balance before exercise"
-        );
-        assertEq(
-            FRAXLIKE.balanceOf(holder),
-            startingBalanceD18,
-            "holder FRAXLIKE balance before exercise"
-        );
+        assertAssetBalance(FRAXLIKE, writer, startingBalanceD18, "writer before exercise");
+        assertAssetBalance(WETHLIKE, holder, startingBalanceD18, "holder before exercise");
+        assertAssetBalance(FRAXLIKE, holder, startingBalanceD18, "holder before exercise");
 
         // And current time is within exercise window of option
         vm.warp(FRI2 - 1 days);
@@ -71,42 +68,27 @@ contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
         vm.stopPrank();
 
         // Then
-        // option balances
         assertTotalSupplies(
-            optionTokenId, 0.45e6, 0.45e6, 0.55e6, "total supplies after exercise"
+            clarity, optionTokenId, 0.45e6, 0.45e6, 0.55e6, "after exercise"
         );
         assertOptionBalances(
-            writer,
-            optionTokenId,
-            0.4e6,
-            0.45e6,
-            0.55e6,
-            "writer option balances after exercise"
+            clarity, writer, optionTokenId, 0.4e6, 0.45e6, 0.55e6, "writer after exercise"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0.05e6, 0, 0, "holder option balances after exercise"
+            clarity, holder, optionTokenId, 0.05e6, 0, 0, "holder after exercise"
         );
-
-        // asset balances
-        assertEq(
-            WETHLIKE.balanceOf(writer),
-            startingBalanceD18 - 1e18,
-            "writer WETHLIKE balance after exercise"
+        assertAssetBalance(
+            WETHLIKE, writer, startingBalanceD18 - 1e18, "writer after exercise"
         );
-        assertEq(
-            FRAXLIKE.balanceOf(writer),
-            startingBalanceD18,
-            "writer FRAXLIKE balance after exercise"
+        assertAssetBalance(FRAXLIKE, writer, startingBalanceD18, "writer after exercise");
+        assertAssetBalance(
+            WETHLIKE, holder, startingBalanceD18 + (1e18 * 0.55), "holder after exercise"
         );
-        assertEq(
-            WETHLIKE.balanceOf(holder),
-            startingBalanceD18 + (1e18 * 0.55),
-            "holder WETHLIKE balance after exercise"
-        );
-        assertEq(
-            FRAXLIKE.balanceOf(holder),
+        assertAssetBalance(
+            FRAXLIKE,
+            holder,
             startingBalanceD18 - (2000e18 * 0.55),
-            "holder FRAXLIKE balance after exercise"
+            "holder after exercise"
         );
     }
 

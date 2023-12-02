@@ -286,7 +286,9 @@ contract PositionViewTest is BaseUnitTestSuite {
         assertEq(magnitude3, 2.3e6, "holder1 magnitude");
 
         // check overall market
-        assertTotalSupplies(oti1, 2.3e6, 2.3e6, 0.2e6, "total supplies after exercise");
+        assertTotalSupplies(
+            clarity, oti1, 2.3e6, 2.3e6, 0.2e6, "total supplies after exercise"
+        );
         assertEq(
             magnitude1 + magnitude2,
             magnitude3 * -1,
@@ -344,28 +346,4 @@ contract PositionViewTest is BaseUnitTestSuite {
         // When
         clarity.position(optionTokenId | 3);
     }
-
-    /////////
-    // function positionNettableAmount(uint256 optionTokenId)
-    //     external
-    //     view
-    //     returns (uint64 amount);
-
-    // TODO
-
-    // Sad Paths
-
-    // TODO
-
-    /////////
-    // function positionRedeemableAmount(uint256 optionTokenId)
-    //     external
-    //     view
-    //     returns (uint64 amount, uint32 when);
-
-    // TODO
-
-    // Sad Paths
-
-    // TODO
 }

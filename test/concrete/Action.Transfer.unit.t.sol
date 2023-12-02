@@ -29,12 +29,12 @@ contract TransferTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "before transfer");
         assertOptionBalances(
-            writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "writer before transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0, 0, 0, "holder option balances before transfer"
+            clarity, holder, optionTokenId, 0, 0, 0, "holder before transfer"
         );
 
         // When
@@ -42,12 +42,12 @@ contract TransferTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId, 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "after transfer");
         assertOptionBalances(
-            writer, optionTokenId, 0.25e6, 1e6, 0, "writer option balances after transfer"
+            clarity, writer, optionTokenId, 0.25e6, 1e6, 0, "writer after transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0.75e6, 0, 0, "holder option balances after transfer"
+            clarity, holder, optionTokenId, 0.75e6, 0, 0, "holder after transfer"
         );
     }
 
@@ -66,12 +66,12 @@ contract TransferTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply before transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "before transfer");
         assertOptionBalances(
-            writer, optionTokenId, 1e6, 1e6, 0, "writer option balances before transfer"
+            clarity, writer, optionTokenId, 1e6, 1e6, 0, "writer before transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0, 0, 0, "holder option balances before transfer"
+            clarity, holder, optionTokenId, 0, 0, 0, "holder before transfer"
         );
 
         // When
@@ -79,12 +79,12 @@ contract TransferTest is BaseUnitTestSuite {
         clarity.transfer(holder, optionTokenId.longToShort(), 0.75e6);
 
         // Then
-        assertTotalSupplies(optionTokenId, 1e6, 1e6, 0, "total supply after transfer");
+        assertTotalSupplies(clarity, optionTokenId, 1e6, 1e6, 0, "after transfer");
         assertOptionBalances(
-            writer, optionTokenId, 1e6, 0.25e6, 0, "writer option balances after transfer"
+            clarity, writer, optionTokenId, 1e6, 0.25e6, 0, "writer after transfer"
         );
         assertOptionBalances(
-            holder, optionTokenId, 0, 0.75e6, 0, "holder option balances after transfer"
+            clarity, holder, optionTokenId, 0, 0.75e6, 0, "holder after transfer"
         );
     }
 

@@ -48,9 +48,9 @@ contract WrappedShortTest is BaseUnitTestSuite {
         vm.stopPrank();
 
         // pre checks
-        assertOptionBalances(writer, optionTokenId, 10e6, 10e6, 0, "before wrap");
+        assertOptionBalances(clarity, writer, optionTokenId, 10e6, 10e6, 0, "before wrap");
         assertOptionBalances(
-            address(wrappedShort), optionTokenId, 0, 0, 0, "wrapper before wrap"
+            clarity, address(wrappedShort), optionTokenId, 0, 0, 0, "wrapper before wrap"
         );
 
         // When writer wraps 8 options
@@ -61,9 +61,11 @@ contract WrappedShortTest is BaseUnitTestSuite {
 
         // Then
         // check option balances
-        assertOptionBalances(writer, optionTokenId, 10e6, 2e6, 0, "writer after wrap");
         assertOptionBalances(
-            address(wrappedShort), optionTokenId, 0, 8e6, 0, "wrapper after wrap"
+            clarity, writer, optionTokenId, 10e6, 2e6, 0, "writer after wrap"
+        );
+        assertOptionBalances(
+            clarity, address(wrappedShort), optionTokenId, 0, 8e6, 0, "wrapper after wrap"
         );
 
         // check wrapper balance
@@ -96,9 +98,10 @@ contract WrappedShortTest is BaseUnitTestSuite {
             // pre checks
             // check option balances
             assertOptionBalances(
-                writer, optionTokenIds[i], 10e6, 10e6, 0, "writer before wrap"
+                clarity, writer, optionTokenIds[i], 10e6, 10e6, 0, "writer before wrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedShorts[i]),
                 optionTokenIds[i],
                 0,
@@ -119,9 +122,16 @@ contract WrappedShortTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < numOptions; i++) {
             // check option balances
             assertOptionBalances(
-                writer, optionTokenIds[i], 10e6, i * 10 ** 6, 0, "writer after wrap"
+                clarity,
+                writer,
+                optionTokenIds[i],
+                10e6,
+                i * 10 ** 6,
+                0,
+                "writer after wrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedShorts[i]),
                 optionTokenIds[i],
                 0,
@@ -331,9 +341,17 @@ contract WrappedShortTest is BaseUnitTestSuite {
 
         // pre checks
         // check option balances
-        assertOptionBalances(writer, optionTokenId, 10e6, 2e6, 0, "writer before unwrap");
         assertOptionBalances(
-            address(wrappedShort), optionTokenId, 0, 8e6, 0, "wrapper before unwrap"
+            clarity, writer, optionTokenId, 10e6, 2e6, 0, "writer before unwrap"
+        );
+        assertOptionBalances(
+            clarity,
+            address(wrappedShort),
+            optionTokenId,
+            0,
+            8e6,
+            0,
+            "wrapper before unwrap"
         );
 
         // check wrapper balance
@@ -346,9 +364,17 @@ contract WrappedShortTest is BaseUnitTestSuite {
 
         // Then
         // check option balances
-        assertOptionBalances(writer, optionTokenId, 10e6, 7e6, 0, "writer after unwrap");
         assertOptionBalances(
-            address(wrappedShort), optionTokenId, 0, 3e6, 0, "wrapper after unwrap"
+            clarity, writer, optionTokenId, 10e6, 7e6, 0, "writer after unwrap"
+        );
+        assertOptionBalances(
+            clarity,
+            address(wrappedShort),
+            optionTokenId,
+            0,
+            3e6,
+            0,
+            "wrapper after unwrap"
         );
 
         // check wrapper balance
@@ -385,9 +411,16 @@ contract WrappedShortTest is BaseUnitTestSuite {
             // pre checks
             // check option balances
             assertOptionBalances(
-                writer, optionTokenIds[i], 10e6, i * 10 ** 6, 0, "writer before unwrap"
+                clarity,
+                writer,
+                optionTokenIds[i],
+                10e6,
+                i * 10 ** 6,
+                0,
+                "writer before unwrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedShorts[i]),
                 optionTokenIds[i],
                 0,
@@ -417,6 +450,7 @@ contract WrappedShortTest is BaseUnitTestSuite {
         for (uint256 i = 0; i < numOptions; i++) {
             // check option balances
             assertOptionBalances(
+                clarity,
                 writer,
                 optionTokenIds[i],
                 10e6,
@@ -425,6 +459,7 @@ contract WrappedShortTest is BaseUnitTestSuite {
                 "writer after unwrap"
             );
             assertOptionBalances(
+                clarity,
                 address(wrappedShorts[i]),
                 optionTokenIds[i],
                 0,

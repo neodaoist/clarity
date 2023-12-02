@@ -21,10 +21,6 @@ import {IOptionErrors} from "../src/interface/option/IOptionErrors.sol";
 abstract contract BaseUnitTestSuite is BaseTestSuite {
     /////////
 
-    using LibPosition for uint256;
-
-    /////////
-
     // Actors
     address internal writer;
     address internal writer1;
@@ -62,18 +58,6 @@ abstract contract BaseUnitTestSuite is BaseTestSuite {
     uint32 internal constant THU2 = DAWN + 13 days;
     uint32 internal constant THU3 = DAWN + 20 days + 1 hours;
     uint32 internal constant THU4 = DAWN + 27 days + 1 hours;
-
-    // uint32[] internal expiryDailies;
-    // uint32[] internal expiryWeeklies;
-    // uint32[] internal expiryMonthlies;
-    // uint32[] internal expiryQuarterlies;
-
-    uint32[] internal bermudanExpiriesFOW; // next 4 weeks
-    uint32[] internal bermudanExpiriesFOM; // next Oct, Nov, Dec, Jan
-    uint32[] internal bermudanExpiriesFOQ; // next Mar, Jun, Sep, Dec
-    uint32[] internal bermudanExpiriesFOY; // next 4 years
-
-    uint256 internal constant NUM_TEST_EXERCISE_WINDOWS = 4;
 
     // Options
     uint256 internal oti1;
@@ -157,161 +141,7 @@ abstract contract BaseUnitTestSuite is BaseTestSuite {
         return amount * (10 ** token.decimals());
     }
 
-    function scaleDownAssetAmount(IERC20 token, uint256 amount)
-        internal
-        view
-        returns (uint256)
-    {
-        return amount / (10 ** token.decimals());
-    }
-
-    function scaleUpOptionAmount(uint256 amount) internal view returns (uint64) {
-        return SafeCastLib.safeCastTo64(amount * (10 ** clarity.CONTRACT_SCALAR()));
-    }
-
     function scaleDownOptionAmount(uint256 amount) internal view returns (uint64) {
         return SafeCastLib.safeCastTo64(amount / (10 ** clarity.CONTRACT_SCALAR()));
-    }
-
-    ///////// Custom Multi Assertions
-
-    // Note be mindful not to add too many multi assertions and/or too much misdirection
-
-    function assertTotalSupplies(
-        uint256 optionTokenId,
-        uint256 expectedLong,
-        uint256 expectedShort,
-        uint256 expectedAssigned,
-        string memory message
-    ) internal {
-        assertEq(
-            clarity.totalSupply(optionTokenId),
-            expectedLong,
-            string.concat("long total supply ", message)
-        );
-        assertEq(
-            clarity.totalSupply(optionTokenId.longToShort()),
-            expectedShort,
-            string.concat("short total supply ", message)
-        );
-        assertEq(
-            clarity.totalSupply(optionTokenId.longToAssignedShort()),
-            expectedAssigned,
-            string.concat("assigned short total supply ", message)
-        );
-    }
-
-    function assertOptionBalances(
-        address addr,
-        uint256 optionTokenId,
-        uint256 expectedLong,
-        uint256 expectedShort,
-        uint256 expectedAssigned,
-        string memory message
-    ) internal {
-        assertEq(
-            clarity.balanceOf(addr, optionTokenId),
-            expectedLong,
-            string.concat("long balance ", message)
-        );
-        assertEq(
-            clarity.balanceOf(addr, optionTokenId.longToShort()),
-            expectedShort,
-            string.concat("short balance ", message)
-        );
-        assertEq(
-            clarity.balanceOf(addr, optionTokenId.longToAssignedShort()),
-            expectedAssigned,
-            string.concat("assigned short balance ", message)
-        );
-    }
-
-    function assertAssetBalance(
-        address addr,
-        IERC20 asset,
-        uint256 expectedBalance,
-        string memory message
-    ) internal {
-        assertEq(
-            asset.balanceOf(addr),
-            expectedBalance,
-            string.concat(asset.symbol(), " balance ", message)
-        );
-    }
-
-    ///////// Custom Type Assertions
-
-    function assertEq(IOption.Option memory a, IOption.Option memory b) internal {
-        assertEq(a.baseAsset, b.baseAsset);
-        assertEq(a.quoteAsset, b.quoteAsset);
-        assertEq(a.expiry, b.expiry);
-        assertEq(a.strike, b.strike);
-        assertEq(a.optionType, b.optionType);
-        assertEq(a.exerciseStyle, b.exerciseStyle);
-    }
-
-    function assertEq(IOption.Option memory a, IOption.Option memory b, string memory err)
-        internal
-    {
-        assertEq(a.baseAsset, b.baseAsset, err);
-        assertEq(a.quoteAsset, b.quoteAsset, err);
-        assertEq(a.expiry, b.expiry);
-        assertEq(a.strike, b.strike, err);
-        assertEq(a.optionType, b.optionType, err);
-        assertEq(a.exerciseStyle, b.exerciseStyle, err);
-    }
-
-    function assertEq(IOption.OptionType a, IOption.OptionType b) internal {
-        if (a != b) {
-            emit log("Error: a == b not satisfied [OptionType]");
-            emit log_named_uint("      Left", uint8(a));
-            emit log_named_uint("     Right", uint8(b));
-            fail();
-        }
-    }
-
-    function assertEq(IOption.OptionType a, IOption.OptionType b, string memory err)
-        internal
-    {
-        if (a != b) {
-            emit log_named_string("Error", err);
-            assertEq(a, b);
-        }
-    }
-
-    function assertEq(IOption.ExerciseStyle a, IOption.ExerciseStyle b) internal {
-        if (a != b) {
-            emit log("Error: a == b not satisfied [ExerciseStyle]");
-            emit log_named_uint("      Left", uint8(a));
-            emit log_named_uint("     Right", uint8(b));
-            fail();
-        }
-    }
-
-    function assertEq(IOption.ExerciseStyle a, IOption.ExerciseStyle b, string memory err)
-        internal
-    {
-        if (a != b) {
-            emit log_named_string("Error", err);
-            assertEq(a, b);
-        }
-    }
-
-    function assertEq(IPosition.TokenType a, IPosition.TokenType b) internal {
-        if (a != b) {
-            emit log("Error: a == b not satisfied [TokenType]");
-            emit log_named_uint("      Left", uint8(a));
-            emit log_named_uint("     Right", uint8(b));
-            fail();
-        }
-    }
-
-    function assertEq(IPosition.TokenType a, IPosition.TokenType b, string memory err)
-        internal
-    {
-        if (a != b) {
-            emit log_named_string("Error", err);
-            assertEq(a, b);
-        }
     }
 }

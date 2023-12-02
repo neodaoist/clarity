@@ -149,12 +149,6 @@ abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
         _;
     }
 
-    modifier withMediumBackground(uint256 writes) {
-        // TODO
-
-        _;
-    }
-
     modifier withComplexBackground() {
         writer1WethBalance = WETHLIKE.balanceOf(writer1);
         writer1LusdBalance = LUSDLIKE.balanceOf(writer1);
