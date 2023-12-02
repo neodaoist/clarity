@@ -605,7 +605,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
     ///////// Helper Functions
 
     function getInternalOptionState(bytes32 slot)
-        public
+        private
         view
         returns (uint64, uint64, uint64, uint64)
     {
@@ -627,39 +627,26 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return a < b ? a : b;
     }
 
+    ///////// Actors
+
+    // TODO
+
+    // function reduceActors(
+    //     uint256 acc,
+    //     uint256 tokenId,
+    //     function(uint256,address,uint256) external returns (uint256) func
+    // ) external returns (uint256) {
+    //     return _options.reduce(currentActor, tokenId, acc, func);
+    // }
+
     ///////// Assets
 
-    function baseAssetsCount() external view returns (uint256) {
-        return baseAssets.assets.length;
-    }
-
-    function baseAssetAt(uint256 index) external view returns (IERC20) {
-        return baseAssets.at(index);
-    }
-
-    function quoteAssetsCount() external view returns (uint256) {
-        return quoteAssets.assets.length;
-    }
-
-    function quoteAssetAt(uint256 index) external view returns (IERC20) {
-        return quoteAssets.at(index);
+    function forEachAsset(function(IERC20) external func) external {
+        baseAssets.forEach(func);
+        quoteAssets.forEach(func);
     }
 
     ///////// Options
-
-    // TODO WIP
-
-    function optionsCount() external view returns (uint256) {
-        return _options.count();
-    }
-
-    function optionTokenIdAt(uint256 index)
-        external
-        view
-        returns (uint256 optionTokenId)
-    {
-        return _options.at(index);
-    }
 
     function optionState(uint256 optionTokenId)
         external
@@ -669,15 +656,7 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
         return getInternalOptionState(ghost_optionStateSlotFor[optionTokenId]);
     }
 
-    // function forEachOption(function(uint256) external func) public {
-    //     _options.forEach(func);
-    // }
-
-    // function reduceOptions(
-    //     uint256 acc,
-    //     uint256 tokenId,
-    //     function(uint256,address,uint256) external returns (uint256) func
-    // ) public returns (uint256) {
-    //     return _options.reduce(currentActor, tokenId, acc, func);
-    // }
+    function forEachOption(function(uint256) external func) external {
+        _options.forEach(func);
+    }
 }
