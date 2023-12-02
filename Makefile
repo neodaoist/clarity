@@ -1,5 +1,5 @@
 gas:
-	forge snapshot
+	forge snapshot --nmc 'Fuzz|Invariant'
 	forge test --nmc 'Fuzz|Invariant' --gas-report | sed -n '/|/,$$p' | sed '/^Ran /d' > .gas-report
 
 gass:

@@ -845,7 +845,7 @@ contract ClarityMarkets is
             })
         });
 
-        // Store the base ticker
+        // Store the shortened ticker
         tickers[optionHash] = LibMetadata.paramsToTicker(
             assetInfo.baseSymbol,
             assetInfo.quoteSymbol,

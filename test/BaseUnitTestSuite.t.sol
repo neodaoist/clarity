@@ -10,23 +10,20 @@ import {Test, console2, stdError} from "forge-std/Test.sol";
 // Test Contracts
 import {MockERC20} from "./util/MockERC20.sol";
 
+// Test Fixture
+import "./BaseTestSuite.t.sol";
+
 // Interfaces
 import {IOption} from "../src/interface/option/IOption.sol";
 import {IOptionEvents} from "../src/interface/option/IOptionEvents.sol";
 import {IOptionErrors} from "../src/interface/option/IOptionErrors.sol";
 
-// Contract Under Test
-import "../src/ClarityMarkets.sol";
-
-abstract contract BaseUnitTestSuite is Test {
+abstract contract BaseUnitTestSuite is BaseTestSuite {
     /////////
 
     using LibPosition for uint256;
 
     /////////
-
-    // DCP
-    ClarityMarkets internal clarity;
 
     // Actors
     address internal writer;

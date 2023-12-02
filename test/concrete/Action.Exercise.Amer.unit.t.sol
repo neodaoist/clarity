@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-// Test Harness
+// Test Fixture
 import "../BaseExerciseUnitTestSuite.t.sol";
 
 contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
