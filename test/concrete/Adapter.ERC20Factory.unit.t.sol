@@ -67,7 +67,7 @@ contract ERC20FactoryTest is BaseUnitTest {
         // check deployed wrapped long
         wrappedLong = ClarityWrappedLong(wrappedLongAddress);
 
-        string memory expectedName = string.concat("w", clarity.names(optionTokenId));
+        string memory expectedName = string.concat("w", clarity.name(optionTokenId));
         assertEq(wrappedLong.name(), expectedName, "wrapper name");
         assertEq(wrappedLong.symbol(), expectedName, "wrapper symbol");
         assertEq(
@@ -113,7 +113,7 @@ contract ERC20FactoryTest is BaseUnitTest {
         for (uint256 i = 0; i < numOptions; i++) {
             // check deployed wrapper
             string memory expectedName =
-                string.concat("w", clarity.names(optionTokenIds[i]));
+                string.concat("w", clarity.name(optionTokenIds[i]));
             assertEq(wrappedLongs[i].name(), expectedName, "wrapper name");
             assertEq(wrappedLongs[i].symbol(), expectedName, "wrapper symbol");
             assertEq(
@@ -268,7 +268,7 @@ contract ERC20FactoryTest is BaseUnitTest {
         // check deployed wrapped long
         wrappedShort = ClarityWrappedShort(wrappedShortAddress);
 
-        string memory expectedName = string.concat("w", clarity.names(shortTokenId));
+        string memory expectedName = string.concat("w", clarity.name(shortTokenId));
         assertEq(wrappedShort.name(), expectedName, "wrapper name");
         assertEq(wrappedShort.symbol(), expectedName, "wrapper symbol");
         assertEq(
@@ -316,7 +316,7 @@ contract ERC20FactoryTest is BaseUnitTest {
         for (uint256 i = 0; i < numOptions; i++) {
             // check deployed wrapper
             string memory expectedName =
-                string.concat("w", clarity.names(shortTokenIds[i]));
+                string.concat("w", clarity.name(shortTokenIds[i]));
             assertEq(wrappedShorts[i].name(), expectedName, "wrapper name");
             assertEq(wrappedShorts[i].symbol(), expectedName, "wrapper symbol");
             assertEq(
@@ -522,7 +522,7 @@ contract ERC20FactoryTest is BaseUnitTest {
         vm.warp(FRI1 - 1 seconds);
 
         FRAXLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 0.000001e6);
+        clarity.exerciseOptions(optionTokenId, 0.000001e6);
         vm.stopPrank();
 
         // Then

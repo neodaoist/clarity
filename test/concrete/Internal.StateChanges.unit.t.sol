@@ -23,7 +23,7 @@ contract StateChangesTest is BaseUnitTest {
             optionAmount: 1e6
         });
         clarity.netOffsetting(optionTokenId, 0.5e6);
-        clarity.exerciseOption(optionTokenId, 0.45e6);
+        clarity.exerciseOptions(optionTokenId, 0.45e6);
         vm.warp(FRI1 + 1 seconds);
         clarity.redeemCollateral(optionTokenId.longToShort());
         vm.stopPrank();
@@ -103,7 +103,7 @@ contract StateChangesTest is BaseUnitTest {
         //
         // (1. External -- Write Asset ERC20 Transfer)
 
-        // exerciseOption()
+        // exerciseOptions()
         // 1. Update Option State
         // 0x35e50ad5316a07f423998518dec1bf9bff6be39bc580c77622ff4b474a489eb2
         // 2. Burn Longs

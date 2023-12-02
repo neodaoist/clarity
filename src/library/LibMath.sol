@@ -4,8 +4,6 @@ pragma solidity 0.8.23;
 // External Libraries
 import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
 
-// TODO add unit tests
-// TODO refactor to clarify names, messy, not DRY
 library LibMath {
     /////////
 

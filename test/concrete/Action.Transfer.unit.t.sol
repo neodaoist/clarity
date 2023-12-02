@@ -141,7 +141,7 @@ contract TransferTest is BaseUnitTest {
 
         // exercise
         FRAXLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 0.000001e6);
+        clarity.exerciseOptions(optionTokenId, 0.000001e6);
         vm.stopPrank();
 
         // Then

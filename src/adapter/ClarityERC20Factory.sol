@@ -45,9 +45,6 @@ contract ClarityERC20Factory is IERC20Factory {
             revert IOptionErrors.OptionDoesNotExist(optionTokenId);
         }
 
-        // Check that the style is not Bermudan
-        // TODO
-
         // Check that the option is not already wrapped
         if (wrapperFor[optionTokenId] != address(0)) {
             revert IOptionErrors.WrappedLongAlreadyDeployed(optionTokenId);
@@ -63,7 +60,7 @@ contract ClarityERC20Factory is IERC20Factory {
 
         ///////// Interactions
         // Deploy a new ClarityWrappedLong contract
-        string memory wrappedName = string.concat("w", clarity.names(optionTokenId));
+        string memory wrappedName = string.concat("w", clarity.name(optionTokenId));
         ClarityWrappedLong wrapper =
             new ClarityWrappedLong(clarity, optionTokenId, wrappedName);
         wrapperAddress = address(wrapper);
@@ -89,9 +86,6 @@ contract ClarityERC20Factory is IERC20Factory {
             revert IOptionErrors.OptionDoesNotExist(optionTokenId);
         }
 
-        // Check that the style is not Bermudan
-        // TODO
-
         // Check that the option is not already wrapped
         if (wrapperFor[shortTokenId] != address(0)) {
             revert IOptionErrors.WrappedShortAlreadyDeployed(shortTokenId);
@@ -112,7 +106,7 @@ contract ClarityERC20Factory is IERC20Factory {
 
         ///////// Interactions
         // Deploy a new ClarityWrappedLong contract
-        string memory wrappedName = string.concat("w", clarity.names(shortTokenId));
+        string memory wrappedName = string.concat("w", clarity.name(shortTokenId));
         ClarityWrappedShort wrapper =
             new ClarityWrappedShort(clarity, shortTokenId, wrappedName);
         wrapperAddress = address(wrapper);

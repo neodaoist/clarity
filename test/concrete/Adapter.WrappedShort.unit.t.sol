@@ -254,7 +254,7 @@ contract WrappedShortTest is BaseUnitTest {
         // And the option has been exercised (ie, the short has been assigned)
         vm.warp(FRI1 - 1 seconds);
         FRAXLIKE.approve(address(clarity), type(uint256).max);
-        clarity.exerciseOption(optionTokenId, 1);
+        clarity.exerciseOptions(optionTokenId, 1);
         vm.stopPrank();
 
         // Then

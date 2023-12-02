@@ -3,18 +3,21 @@ pragma solidity 0.8.23;
 
 // Interfaces
 import {IERC6909} from "../interface/token/IERC6909.sol";
-import {IERC6909MetadataModified} from "../interface/token/IERC6909MetadataModified.sol";
-import {IERC6909MetadataURI} from "../interface/token/IERC6909MetadataURI.sol";
+import {IERC6909Metadata} from "../interface/token/IERC6909Metadata.sol";
+import {IERC6909ContentURI} from "../interface/token/IERC6909ContentURI.sol";
+import {IERC6909TokenSupply} from "../interface/token/IERC6909TokenSupply.sol";
 
 /// @notice Minimalist and gas efficient standard ERC6909 implementation.
-/// Forked from Solmate
+/// Inspired by Solmate
 /// (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC6909.sol)
 /// and
-/// jtriley's reference implementation (https://github.com/jtriley-eth/ERC-6909)
+/// jtriley's reference implementation
+/// (https://github.com/jtriley-eth/ERC-6909)
 abstract contract ERC6909Rebasing is
     IERC6909,
-    IERC6909MetadataModified,
-    IERC6909MetadataURI
+    IERC6909Metadata,
+    IERC6909ContentURI,
+    IERC6909TokenSupply
 {
     /*//////////////////////////////////////////////////////////////
                                  EVENTS

@@ -6,7 +6,7 @@ interface IOptionErrors {
 
     ///////// Views
 
-    /// @dev Also used in Net, Exercise, and Redeem
+    /// @dev Also used in Write, Transfer, Net, Exercise, Redeem, and Adapter Factory
     error OptionDoesNotExist(uint256 optionTokenId);
 
     error InvalidTokenType(uint256 tokenId);
@@ -83,7 +83,6 @@ interface IOptionErrors {
 
     error EarlyRedemptionOnlyIfFullyAssigned();
 
-    // TODO reframe to standardize with other errors
     error CanOnlyRedeemCollateral(uint256 tokenId);
 
     ///////// Skim
@@ -96,7 +95,6 @@ interface IOptionErrors {
 
     error WrappedShortAlreadyDeployed(uint256 shortTokenId);
 
-    // TODO or, consider using elsewhere, do one for other types also
     error TokenIdNotShort(uint256 tokenId);
 
     error ShortAlreadyAssigned(uint256 shortTokenId);

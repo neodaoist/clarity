@@ -116,6 +116,6 @@ contract ClarityWrappedShort is
     }
 
     function redeemCollateral(uint64 /*shortAmount*/ ) external pure {
-        revert("not yet impl");
+        revert("not yet impl"); // TODO
     }
 }

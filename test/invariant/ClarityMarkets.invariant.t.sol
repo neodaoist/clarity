@@ -43,7 +43,7 @@ contract ClarityMarketsInvariantTest is BaseClarityTest {
         // Net
         selectors[4] = OptionsHandler.netOffsetting.selector;
         // Exercise
-        selectors[5] = OptionsHandler.exerciseOption.selector;
+        selectors[5] = OptionsHandler.exerciseOptions.selector;
         // Redeem
         // selectors[6] = OptionsHandler.redeemCollateral.selector; // TODO
         // Skim

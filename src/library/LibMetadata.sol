@@ -25,9 +25,8 @@ library LibMetadata {
 
     ///////// Ticker
 
-    // NOTE once we implement dMMyy date formatting, we can fit a nice ticker inside one
-    // word
-    // eg, sfrxETH-sFRAX-10OCT23-A-170050-C
+    // NOTE once we implement dMMyy date formatting, we can fit a nice ticker
+    // inside a single word -- eg, sfrxETH-sFRAX-10OCT23-A-170050-C
 
     function paramsToTicker(
         string memory baseAssetSymbol,
@@ -112,7 +111,7 @@ library LibMetadata {
             parameters.quoteAssetSymbol,
             '", "expiry": "',
             parameters.expiry, // TODO
-            '", "exerciseOption_style": "',
+            '", "exerciseOptions_style": "',
             parameters.exerciseStyle,
             '", "strike_price": "',
             parameters.strike

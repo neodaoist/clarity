@@ -30,26 +30,6 @@ library LibOption {
         );
     }
 
-    // function bermudanParamsToHash(
-    //     address baseAsset,
-    //     address quoteAsset,
-    //     uint32[] memory expiries,
-    //     uint256 strike,
-    //     IOption.OptionType optionType,
-    //     IOption.ExerciseStyle exerciseStyle
-    // ) internal pure returns (uint248 hash) {
-    //     hash = uint248(
-    //         bytes31(
-    //             keccak256(
-    //                 abi.encode(
-    //                     baseAsset, quoteAsset, expiries, strike, optionType,
-    // exerciseStyle
-    //                 )
-    //             )
-    //         )
-    //     );
-    // }
-
     ///////// String Conversion for Option Type
 
     function toString(IOption.OptionType optionType)
@@ -84,8 +64,8 @@ library LibOption {
 
     ///////// String Conversion for Strike Price and Unix Timestamp
 
-    // TODO add attribution
-
+    /// From https://github.com/OpenZeppelin/openzeppelin-contracts
+    /// [MIT License]
     function toString(uint256 _uint256) internal pure returns (string memory) {
         unchecked {
             uint256 length = log10(_uint256) + 1;
