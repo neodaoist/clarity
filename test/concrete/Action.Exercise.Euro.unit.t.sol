@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseExerciseUnitTestSuite.t.sol";
+import "../BaseExerciseTest.t.sol";
 
-contract EuropeanExerciseTest is BaseExerciseUnitTestSuite {
+contract EuropeanExerciseTest is BaseExerciseTest {
     /////////
 
     /////////

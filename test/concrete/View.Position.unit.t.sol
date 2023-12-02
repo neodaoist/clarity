@@ -2,13 +2,13 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Views Under Test
 import {IOption} from "../../src/interface/option/IOption.sol";
 import {IPosition} from "../../src/interface/IPosition.sol";
 
-contract PositionViewTest is BaseUnitTestSuite {
+contract PositionViewTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;

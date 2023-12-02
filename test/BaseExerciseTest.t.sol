@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "./BaseUnitTestSuite.t.sol";
+import "./BaseUnitTest.t.sol";
 
-abstract contract BaseExerciseUnitTestSuite is BaseUnitTestSuite {
+abstract contract BaseExerciseTest is BaseUnitTest {
     /////////
 
     // state variables to avoid stack too deep

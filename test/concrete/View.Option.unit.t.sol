@@ -2,7 +2,7 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Libraries
 import {LibOption} from "../../src/library/LibOption.sol";
@@ -11,7 +11,7 @@ import {LibPosition} from "../../src/library/LibPosition.sol";
 // Views Under Test
 import {IOption} from "../../src/interface/option/IOption.sol";
 
-contract OptionViewTest is BaseUnitTestSuite {
+contract OptionViewTest is BaseUnitTest {
     /////////
 
     using LibOption for uint32[];

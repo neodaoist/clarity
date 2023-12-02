@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Libraries
 import {LibBase64} from "../../src/library/LibBase64.sol";
 
-contract LibMetadataTest is BaseUnitTestSuite {
+contract LibMetadataTest is BaseUnitTest {
     /////////
 
     using LibOption for uint32;

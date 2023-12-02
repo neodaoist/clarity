@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
-contract SkimTest is BaseUnitTestSuite {
+contract SkimTest is BaseUnitTest {
     /////////
 
     /////////

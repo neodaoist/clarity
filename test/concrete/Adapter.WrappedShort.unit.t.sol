@@ -2,7 +2,7 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Interfaces
 import {IWrappedShortEvents} from "../../src/interface/adapter/IWrappedShortEvents.sol";
@@ -13,7 +13,7 @@ import {ClarityERC20Factory} from "../../src/adapter/ClarityERC20Factory.sol";
 // Contract Under Test
 import {ClarityWrappedShort} from "../../src/adapter/ClarityWrappedShort.sol";
 
-contract WrappedShortTest is BaseUnitTestSuite {
+contract WrappedShortTest is BaseUnitTest {
     /////////
 
     using LibPosition for uint256;

@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
-contract WriteTest is BaseUnitTestSuite {
+contract WriteTest is BaseUnitTest {
     /////////
 
     using LibOption for uint32[];

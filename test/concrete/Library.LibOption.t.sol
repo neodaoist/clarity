@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseUnitTestSuite.t.sol";
+import "../BaseUnitTest.t.sol";
 
 // Library Under test
 import {LibOption} from "../../src/library/LibOption.sol";
 
-contract LibOptionTest is BaseUnitTestSuite {
+contract LibOptionTest is BaseUnitTest {
     /////////
 
     ///////// Instrument Hash

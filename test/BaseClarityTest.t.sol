@@ -10,7 +10,7 @@ import {Assertions} from "./util/Assertions.sol";
 // Contracts
 import "../src/ClarityMarkets.sol";
 
-abstract contract BaseTestSuite is Test, Assertions {
+abstract contract BaseClarityTest is Test, Assertions {
     /////////
 
     // Contract Under Test

@@ -8,7 +8,7 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {OptionsHandler} from "../util/OptionsHandler.sol";
 
 // Test Fixture
-import "../BaseTestSuite.t.sol";
+import "../BaseClarityTest.t.sol";
 
 // Interfaces
 import {IOption} from "../../src/interface/option/IOption.sol";
@@ -16,7 +16,7 @@ import {IOption} from "../../src/interface/option/IOption.sol";
 // Contract Under Test
 import "../../src/ClarityMarkets.sol";
 
-contract ClarityMarketsInvariantTest is BaseTestSuite {
+contract ClarityMarketsInvariantTest is BaseClarityTest {
     /////////
 
     using LibPosition for uint256;

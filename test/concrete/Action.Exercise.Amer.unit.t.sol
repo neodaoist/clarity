@@ -2,9 +2,9 @@
 pragma solidity 0.8.23;
 
 // Test Fixture
-import "../BaseExerciseUnitTestSuite.t.sol";
+import "../BaseExerciseTest.t.sol";
 
-contract AmericanExerciseTest is BaseExerciseUnitTestSuite {
+contract AmericanExerciseTest is BaseExerciseTest {
     /////////
 
     using LibPosition for uint256;
