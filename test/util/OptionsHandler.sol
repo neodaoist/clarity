@@ -395,10 +395,11 @@ contract OptionsHandler is CommonBase, StdCheats, StdUtils {
 
     // Exercise
 
-    function exerciseOptions(uint256 optionIndex, uint256 ownerIndex, uint256 optionAmount)
-        external
-        countCall("exerciseOptions")
-    {
+    function exerciseOptions(
+        uint256 optionIndex,
+        uint256 ownerIndex,
+        uint256 optionAmount
+    ) external countCall("exerciseOptions") {
         _requireOptions();
 
         // set option token id
