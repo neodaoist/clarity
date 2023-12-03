@@ -7,10 +7,10 @@ import {Script, console2} from "forge-std/Script.sol";
 // Contracts
 import {ClarityMarkets} from "../src/ClarityMarkets.sol";
 
-// forge script ./script/ClarityMarketsDeploy.s.sol --broadcast
+// forge script ./script/BasicDeploy.s.sol --broadcast
 // forge verify-contract ADDRESS ./src/ClarityMarkets.sol:ClarityMarkets --chain 84531 --watch
 
-contract ClarityMarketsScript is Script {
+contract BasicDeployScript is Script {
     function run() public {
         bytes32 nacl = keccak256(abi.encodePacked(vm.envString("SALT")));
         uint256 pk = vm.envUint("PRIVATE_KEY");
