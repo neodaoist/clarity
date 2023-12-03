@@ -4,10 +4,18 @@ pragma solidity 0.8.23;
 // External Script Helpers
 import {Script, console2} from "forge-std/Script.sol";
 
-contract ClarityMarketsScript is Script {
-    function setUp() public {}
+// Contracts
+import {ClarityMarkets} from "../src/ClarityMarkets.sol";
 
+// forge script ./script/ClarityMarketsDeploy.s.sol --broadcast
+// forge verify-contract ADDRESS ./src/ClarityMarkets.sol:ClarityMarkets --chain 84531 --watch
+
+contract ClarityMarketsScript is Script {
     function run() public {
-        vm.broadcast();
+        bytes32 nacl = keccak256(abi.encodePacked(vm.envString("SALT")));
+        uint256 pk = vm.envUint("PRIVATE_KEY");
+        vm.startBroadcast(pk);
+        new ClarityMarkets{salt: nacl}();
+        vm.stopBroadcast();
     }
 }

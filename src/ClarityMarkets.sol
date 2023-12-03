@@ -9,7 +9,6 @@ import {IClearingPool} from "./interface/IClearingPool.sol";
 import {IOptionMarkets} from "./interface/IOptionMarkets.sol";
 import {IPosition} from "./interface/IPosition.sol";
 import {IClarityCallback} from "./interface/IClarityCallback.sol";
-import {IERC6909ContentURI} from "./interface/token/IERC6909ContentURI.sol";
 
 // External Interfaces
 import {IERC20Minimal} from "./interface/token/IERC20Minimal.sol";
